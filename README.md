@@ -39,7 +39,29 @@ El repositorio se estructura bajo la siguiente convención de ramas:
 SystemCore_LH/
 ├── docs/                                # Documentación funcional, técnica y manuales
 │   └── proceso-originacion-crm.md       # Proceso LNH-VTAD-PRO-001 (Originación CRM LanAhora)
+├── src/
+│   ├── app/                             # Rutas de Next.js (App Router)
+│   ├── components/                      # Componentes UI (Header, Kanban, TableView, LeadDetail, SignaturePad)
+│   ├── lib/                             # Semilla de datos, catálogo de 25 documentos y utilerías
+│   └── types/                           # Modelos de TypeScript (Prospect, Stages, Documents, Checks)
 ├── README.md                            # Visión general y guía de inicio
+```
+
+---
+
+## 🚀 Inicio Rápido (Entorno de Desarrollo)
+
+Para levantar el CRM localmente:
+
+```bash
+# Instalar dependencias (si aplica)
+npm install
+
+# Iniciar servidor de desarrollo en http://localhost:3000
+npm run dev
+
+# Compilar para producción
+npm run build
 ```
 
 ---

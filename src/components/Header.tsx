@@ -1,0 +1,164 @@
+'use client';
+
+import React from 'react';
+import {
+  Bell,
+  Clock,
+  MessageSquare,
+  Sparkles,
+  ChevronDown,
+  Layers,
+  Search,
+  Filter,
+} from 'lucide-react';
+
+interface HeaderProps {
+  currentView: 'kanban' | 'list';
+  onViewChange: (view: 'kanban' | 'list') => void;
+  onOpenNewLead: () => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+}
+
+export default function Header({
+  currentView,
+  onViewChange,
+  onOpenNewLead,
+  searchQuery,
+  onSearchChange,
+}: HeaderProps) {
+  return (
+    <header className="sticky top-0 z-30 bg-[#161922] text-slate-100 border-b border-slate-800 shadow-md">
+      {/* Top Main Navigation Bar */}
+      <div className="px-4 py-2 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          {/* Logo / App Name */}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 font-bold text-sm">
+              LH
+            </div>
+            <span className="font-semibold text-base tracking-wide text-white flex items-center gap-2">
+              CRM <span className="text-xs font-normal px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30">LanAhora</span>
+            </span>
+          </div>
+
+          {/* Menus */}
+          <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
+            <button className="px-3 py-1.5 rounded-md bg-white/10 text-white font-semibold">
+              CRM
+            </button>
+            <button className="px-3 py-1.5 rounded-md text-slate-300 hover:bg-white/5 hover:text-white transition">
+              Ventas
+            </button>
+            <button className="px-3 py-1.5 rounded-md text-slate-300 hover:bg-white/5 hover:text-white transition">
+              Reportes
+            </button>
+            <button className="px-3 py-1.5 rounded-md text-slate-300 hover:bg-white/5 hover:text-white transition">
+              Configuración
+            </button>
+          </nav>
+        </div>
+
+        {/* Right Action Icons & User Info */}
+        <div className="flex items-center gap-3">
+          <button
+            title="Asistente IA"
+            className="p-1.5 text-purple-400 hover:bg-white/10 rounded-lg transition"
+          >
+            <Sparkles className="w-4 h-4" />
+          </button>
+          <div className="relative">
+            <button
+              title="Mensajes"
+              className="p-1.5 text-slate-300 hover:bg-white/10 rounded-lg transition"
+            >
+              <MessageSquare className="w-4 h-4" />
+            </button>
+            <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+              3
+            </span>
+          </div>
+          <button
+            title="Actividades"
+            className="p-1.5 text-slate-300 hover:bg-white/10 rounded-lg transition"
+          >
+            <Clock className="w-4 h-4" />
+          </button>
+
+          <div className="h-5 w-px bg-slate-700 mx-1" />
+
+          {/* User badge */}
+          <div className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full bg-slate-800/80 hover:bg-slate-800 border border-slate-700 cursor-pointer transition">
+            <div className="w-6 h-6 rounded-full bg-purple-600 text-white font-bold text-xs flex items-center justify-center">
+              A
+            </div>
+            <span className="text-xs text-slate-200 font-medium hidden sm:inline">
+              alejandro_dominguez@lanahora.com
+            </span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          </div>
+        </div>
+      </div>
+
+      {/* Sub-bar / Actions & Filter Bar */}
+      <div className="px-4 py-2.5 bg-[#1e222d] border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onOpenNewLead}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs shadow transition active:scale-95"
+          >
+            <span className="text-base font-bold leading-none">+</span>
+            Nuevo Prospecto
+          </button>
+
+          <h1 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+            Flujo de Prospección
+            <span className="text-xs font-normal text-slate-400">
+              (Originación de Créditos DV)
+            </span>
+          </h1>
+        </div>
+
+        {/* Search, Filter and View Toggle */}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre, CURP, teléfono..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-8 pr-3 py-1 text-xs rounded bg-slate-900/80 border border-slate-700 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-teal-500 w-52 sm:w-64"
+            />
+          </div>
+
+          {/* View Toggles (Kanban / List) */}
+          <div className="flex items-center rounded border border-slate-700 bg-slate-900/60 p-0.5">
+            <button
+              onClick={() => onViewChange('kanban')}
+              title="Vista Kanban"
+              className={`p-1.5 rounded text-xs flex items-center gap-1 ${
+                currentView === 'kanban'
+                  ? 'bg-teal-600 text-white shadow'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onViewChange('list')}
+              title="Vista de Lista"
+              className={`p-1.5 rounded text-xs flex items-center gap-1 ${
+                currentView === 'list'
+                  ? 'bg-teal-600 text-white shadow'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Filter className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}

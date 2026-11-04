@@ -121,3 +121,4 @@
 | **E-A** | $300 | $200 |
 
 *(D = Distribuidor de Vales tradicional, E = Emprendedor)*
+
