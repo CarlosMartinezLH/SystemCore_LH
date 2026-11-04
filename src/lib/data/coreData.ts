@@ -397,3 +397,4 @@ export const INITIAL_CREDITOS: CreditoCore[] = [
     sucursal: 'SALTILLO',
   },
 ];
+

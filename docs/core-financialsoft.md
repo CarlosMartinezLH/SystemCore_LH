@@ -83,3 +83,4 @@ flowchart TD
         Distribuidores -. Notificación APP .-> LanaApp["App Distribuidoras (Vales Digitales)"]
     end
 ```
+

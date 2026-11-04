@@ -56,3 +56,4 @@ export interface CreditoCore {
   quincenasPlazo: number;
   sucursal: string;
 }
+

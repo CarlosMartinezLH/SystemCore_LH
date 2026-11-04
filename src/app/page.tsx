@@ -9,6 +9,7 @@ import NewLeadModal from '@/components/NewLeadModal';
 import CoreDashboard from '@/components/CoreDashboard';
 import PersonasView from '@/components/PersonasView';
 import DistribuidoresView from '@/components/DistribuidoresView';
+import RHView from '@/components/RHView';
 import { Prospect, StageId, OriginType } from '@/types/crm';
 import { INITIAL_PROSPECTS, createDefaultDocuments } from '@/lib/data/initialData';
 
@@ -168,6 +169,8 @@ export default function Home() {
           <PersonasView />
         ) : activeModule === 'distribuidores' ? (
           <DistribuidoresView />
+        ) : activeModule === 'rh' ? (
+          <RHView />
         ) : (
           /* MODULE CRM */
           selectedProspect ? (

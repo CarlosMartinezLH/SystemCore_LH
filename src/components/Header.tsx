@@ -9,13 +9,13 @@ import {
   Layers,
   Search,
   Filter,
-  ShieldCheck,
   Users,
   Briefcase,
   SearchCheck,
+  UserCheck,
 } from 'lucide-react';
 
-export type ActiveAppModule = 'crm' | 'core_dashboard' | 'personas' | 'distribuidores';
+export type ActiveAppModule = 'crm' | 'core_dashboard' | 'personas' | 'distribuidores' | 'rh';
 
 interface HeaderProps {
   activeModule: ActiveAppModule;
@@ -54,7 +54,7 @@ export default function Header({
             </span>
           </div>
 
-          {/* Menus Principales: CRM + Core Modules */}
+          {/* Menus Principales: CRM + Core Modules + RH */}
           <nav className="hidden lg:flex items-center gap-1 text-xs font-medium">
             <button
               onClick={() => onModuleChange('crm')}
@@ -103,6 +103,18 @@ export default function Header({
               <Briefcase className="w-3.5 h-3.5" />
               <span>Distribuidores (DV)</span>
             </button>
+
+            <button
+              onClick={() => onModuleChange('rh')}
+              className={`px-3 py-1.5 rounded-md transition flex items-center gap-1.5 ${
+                activeModule === 'rh'
+                  ? 'bg-indigo-600 text-white font-bold shadow'
+                  : 'text-indigo-300 hover:bg-white/10 hover:text-white'
+              }`}
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>Capital Humano & GPS (Buk)</span>
+            </button>
           </nav>
         </div>
 
@@ -148,30 +160,36 @@ export default function Header({
       </div>
 
       {/* Mobile navigation tab-bar */}
-      <div className="lg:hidden px-3 py-1.5 bg-[#1a1e28] border-t border-slate-800 flex items-center justify-around text-xs">
+      <div className="lg:hidden px-3 py-1.5 bg-[#1a1e28] border-t border-slate-800 flex items-center justify-around text-xs overflow-x-auto gap-2">
         <button
           onClick={() => onModuleChange('crm')}
-          className={`px-2 py-1 rounded ${activeModule === 'crm' ? 'bg-teal-600 text-white font-bold' : 'text-slate-400'}`}
+          className={`px-2 py-1 rounded whitespace-nowrap ${activeModule === 'crm' ? 'bg-teal-600 text-white font-bold' : 'text-slate-400'}`}
         >
           CRM
         </button>
         <button
           onClick={() => onModuleChange('core_dashboard')}
-          className={`px-2 py-1 rounded ${activeModule === 'core_dashboard' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400'}`}
+          className={`px-2 py-1 rounded whitespace-nowrap ${activeModule === 'core_dashboard' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400'}`}
         >
           Buscador Core
         </button>
         <button
           onClick={() => onModuleChange('personas')}
-          className={`px-2 py-1 rounded ${activeModule === 'personas' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400'}`}
+          className={`px-2 py-1 rounded whitespace-nowrap ${activeModule === 'personas' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400'}`}
         >
           Personas
         </button>
         <button
           onClick={() => onModuleChange('distribuidores')}
-          className={`px-2 py-1 rounded ${activeModule === 'distribuidores' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400'}`}
+          className={`px-2 py-1 rounded whitespace-nowrap ${activeModule === 'distribuidores' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400'}`}
         >
           Distribuidores
+        </button>
+        <button
+          onClick={() => onModuleChange('rh')}
+          className={`px-2 py-1 rounded whitespace-nowrap ${activeModule === 'rh' ? 'bg-indigo-600 text-white font-bold' : 'text-indigo-300'}`}
+        >
+          RH & GPS
         </button>
       </div>
 
