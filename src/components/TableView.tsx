@@ -103,3 +103,4 @@ export default function TableView({ prospects, onSelectProspect }: TableViewProp
     </div>
   );
 }
+

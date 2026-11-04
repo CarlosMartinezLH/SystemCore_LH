@@ -177,3 +177,4 @@ export interface Prospect {
   createdAt: string;
   updatedAt: string;
 }
+

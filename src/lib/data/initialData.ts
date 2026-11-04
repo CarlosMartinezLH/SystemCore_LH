@@ -372,3 +372,4 @@ export const INITIAL_PROSPECTS: Prospect[] = [
     updatedAt: '2026-08-25T16:00:00Z',
   },
 ];
+

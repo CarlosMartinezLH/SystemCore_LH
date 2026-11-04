@@ -150,3 +150,4 @@ export default function SignaturePad({ initialSignature, onSave, disabled }: Sig
     </div>
   );
 }
+

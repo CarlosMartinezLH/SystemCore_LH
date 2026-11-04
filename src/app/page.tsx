@@ -1,28 +1,30 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
+import Header, { ActiveAppModule } from '@/components/Header';
 import KanbanBoard from '@/components/KanbanBoard';
 import TableView from '@/components/TableView';
 import LeadDetailView from '@/components/LeadDetailView';
 import NewLeadModal from '@/components/NewLeadModal';
+import CoreDashboard from '@/components/CoreDashboard';
+import PersonasView from '@/components/PersonasView';
+import DistribuidoresView from '@/components/DistribuidoresView';
 import { Prospect, StageId, OriginType } from '@/types/crm';
 import { INITIAL_PROSPECTS, createDefaultDocuments } from '@/lib/data/initialData';
 
 const STORAGE_KEY = 'lanahora_crm_prospects_v1';
 
 export default function Home() {
+  const [activeModule, setActiveModule] = useState<ActiveAppModule>('crm');
   const [prospects, setProspects] = useState<Prospect[]>(INITIAL_PROSPECTS);
   const [selectedProspectId, setSelectedProspectId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [isNewLeadOpen, setIsNewLeadOpen] = useState(false);
   const [quickAddStage, setQuickAddStage] = useState<StageId>('contacto');
-  const [isClient, setIsClient] = useState(false);
 
   // Load from localStorage on client mount
   useEffect(() => {
-    setIsClient(true);
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -107,6 +109,7 @@ export default function Home() {
     const updated = [newLead, ...prospects];
     saveProspects(updated);
     setSelectedProspectId(newLead.id);
+    setActiveModule('crm');
   };
 
   // Update lead
@@ -137,6 +140,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0f1117] flex flex-col font-sans">
       <Header
+        activeModule={activeModule}
+        onModuleChange={(mod) => {
+          setSelectedProspectId(null);
+          setActiveModule(mod);
+        }}
         currentView={currentView}
         onViewChange={(v) => {
           setSelectedProspectId(null);
@@ -151,26 +159,38 @@ export default function Home() {
       />
 
       <main className="flex-1 flex flex-col">
-        {selectedProspect ? (
-          <LeadDetailView
-            prospect={selectedProspect}
-            onBack={() => setSelectedProspectId(null)}
-            onUpdate={handleUpdateProspect}
+        {activeModule === 'core_dashboard' ? (
+          <CoreDashboard
+            onNavigateToPersonas={() => setActiveModule('personas')}
+            onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
           />
-        ) : currentView === 'kanban' ? (
-          <KanbanBoard
-            prospects={filteredProspects}
-            onSelectProspect={(p) => setSelectedProspectId(p.id)}
-            onQuickAdd={(st) => {
-              setQuickAddStage(st);
-              setIsNewLeadOpen(true);
-            }}
-          />
+        ) : activeModule === 'personas' ? (
+          <PersonasView />
+        ) : activeModule === 'distribuidores' ? (
+          <DistribuidoresView />
         ) : (
-          <TableView
-            prospects={filteredProspects}
-            onSelectProspect={(p) => setSelectedProspectId(p.id)}
-          />
+          /* MODULE CRM */
+          selectedProspect ? (
+            <LeadDetailView
+              prospect={selectedProspect}
+              onBack={() => setSelectedProspectId(null)}
+              onUpdate={handleUpdateProspect}
+            />
+          ) : currentView === 'kanban' ? (
+            <KanbanBoard
+              prospects={filteredProspects}
+              onSelectProspect={(p) => setSelectedProspectId(p.id)}
+              onQuickAdd={(st) => {
+                setQuickAddStage(st);
+                setIsNewLeadOpen(true);
+              }}
+            />
+          ) : (
+            <TableView
+              prospects={filteredProspects}
+              onSelectProspect={(p) => setSelectedProspectId(p.id)}
+            />
+          )
         )}
       </main>
 
