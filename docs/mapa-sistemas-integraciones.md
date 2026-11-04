@@ -78,3 +78,4 @@ flowchart TD
 | **Base de Datos** | T-SQL, SQL Server 2022 | Backups automáticos y replicación espejo |
 | **Seguridad & Auth** | JWT, OAuth2, OTP, mTLS X.509, VPN IPsec | Cumplimiento CNBV, PLD / FT, SAT 69-B |
 | **Comunicaciones** | Botmaker Meta Cloud API, SMS, Twilio | Notificaciones de cobranza, alertas y recordatorios de corte |
+
