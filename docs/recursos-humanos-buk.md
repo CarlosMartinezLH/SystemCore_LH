@@ -35,3 +35,4 @@ LanAhora cuenta con:
   - *Curso 3:* Prevención de Lavado de Dinero (PLD) y Financiamiento al Terrorismo.
   - *Curso 4:* Integración Digital de Expedientes y Firma Legal.
 * **Seguimiento:** Progreso porcentual, evaluaciones aprobadas y emisión de constancias digitales.
+

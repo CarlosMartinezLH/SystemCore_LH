@@ -40,12 +40,13 @@ SystemCore_LH/
 ├── docs/                                # Documentación funcional, técnica y manuales
 │   ├── proceso-originacion-crm.md       # Proceso LNH-VTAD-PRO-001 (Originación CRM LanAhora)
 │   ├── core-financialsoft.md            # Arquitectura del Sistema Core Principal (FinancialSoft)
-│   └── recursos-humanos-buk.md          # Módulo de Capital Humano, Asistencia GPS y Capacitaciones (Buk)
+│   ├── recursos-humanos-buk.md          # Módulo de Capital Humano, Asistencia GPS y Capacitaciones (Buk)
+│   └── diseno-login-movil.md            # Sistema de Diseño Unificado, Login Institucional y App Móvil Asesores
 ├── src/
 │   ├── app/                             # Rutas de Next.js (App Router)
-│   ├── components/                      # Componentes UI (CRM, Core, RH, Asistencia GPS, SignaturePad)
+│   ├── components/                      # Componentes UI (Login, App Móvil, CRM, Core, RH, SignaturePad)
 │   ├── lib/                             # Modelos de datos, semillas y catálogos
-│   └── types/                           # Modelos de TypeScript (CRM, Core, RH)
+│   └── types/                           # Modelos de TypeScript (Auth, CRM, Core, RH)
 ├── README.md                            # Visión general y guía de inicio
 ```
 
@@ -74,4 +75,5 @@ Toda la documentación técnica, arquitectónica y guías de usuario se mantendr
 - [Manual de Originación y Flujo de CRM](docs/proceso-originacion-crm.md): Detalle de las 8 etapas, roles de usuario, validación de CURP contra Financialsoft, captura de solicitudes con firma digital y matriz completa de documentos requeridos (Anexo 1).
 - [Arquitectura del Sistema Core Principal](docs/core-financialsoft.md): Especificación de los módulos de FinancialSoft integrados (Personas, Distribuidores, Cartera, Búsqueda de Créditos y Vales, PLD).
 - [Módulo de Capital Humano & Asistencia](docs/recursos-humanos-buk.md): Control de asistencia en sucursales y campo con geolocalización GPS, solicitudes de uniformes/gafetes/vacantes y academia de capacitaciones.
+- [Diseño Unificado, Login & App Móvil](docs/diseno-login-movil.md): Paleta ejecutiva LanAhora, pantalla de login por sucursal y la app móvil táctil para prospección en calle.
 

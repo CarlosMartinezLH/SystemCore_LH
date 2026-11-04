@@ -84,3 +84,4 @@ export interface EmployeeProgress {
   status: 'EN_PROGRESO' | 'COMPLETADO' | 'NO_INICIADO';
   certificateUrl?: string;
 }
+

@@ -260,3 +260,4 @@ export const INITIAL_TRAINING_COURSES: TrainingCourse[] = [
     totalModules: 3,
   },
 ];
+
