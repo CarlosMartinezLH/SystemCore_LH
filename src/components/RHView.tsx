@@ -50,7 +50,6 @@ export default function RHView() {
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsMessage, setGpsMessage] = useState<string | null>(null);
 
-  // Quick punch with browser geolocation
   const handleGpsCheckIn = () => {
     setGpsLoading(true);
     setGpsMessage(null);
@@ -119,7 +118,6 @@ export default function RHView() {
     }
   };
 
-  // Requisition submit
   const handleCreateRequisition = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reqTitle.trim()) return;
@@ -148,7 +146,6 @@ export default function RHView() {
     alert('✓ Solicitud enviada a Capital Humano para revisión y autorización.');
   };
 
-  // Approve requisition
   const handleApproveRequisition = (reqId: string, newStatus: 'APROBADO' | 'RECHAZADO' | 'ENTREGADO') => {
     const updated = requisitions.map((r) =>
       r.id === reqId
@@ -171,24 +168,24 @@ export default function RHView() {
   });
 
   return (
-    <div className="flex-1 bg-[#0c101c] text-slate-100 p-4 sm:p-6 min-h-[calc(100vh-105px)] font-sans">
+    <div className="flex-1 bg-[#f0f4fa] text-slate-800 p-4 sm:p-6 min-h-[calc(100vh-105px)] font-sans">
       <div className="max-w-7xl mx-auto space-y-5">
-        {/* Module Title & Buk Replacement Header (Estilo Unificado LanAhora) */}
-        <div className="bg-[#131a2b] rounded-2xl border border-slate-800 p-5 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+        {/* Module Title Banner in LanAhora Royal Blue */}
+        <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white rounded-3xl p-6 shadow-lg flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 font-black text-lg flex items-center justify-center shadow-lg shadow-amber-500/20">
+            <div className="w-12 h-12 rounded-2xl bg-[#facc15] text-slate-950 font-black text-xl flex items-center justify-center shadow-md">
               <UserCheck className="w-6 h-6 text-slate-950" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-white tracking-tight">
+                <h2 className="text-xl font-black text-white tracking-tight">
                   Capital Humano & Control de Asistencia
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  Módulo Buk Unificado
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#facc15] text-slate-950">
+                  Módulo Buk Integrado
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-yellow-200 mt-0.5 font-medium">
                 Control de asistencia de personal en sucursales, corporativo y asesores en calle con geolocalización GPS.
               </p>
             </div>
@@ -197,7 +194,7 @@ export default function RHView() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsNewReqOpen(true)}
-              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md shadow-amber-500/20 flex items-center gap-2 transition active:scale-95"
+              className="px-4 py-2.5 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs shadow-md flex items-center gap-2 transition active:scale-95"
             >
               <Shirt className="w-4 h-4" />
               <span>Solicitar Gafete / Uniforme</span>
@@ -205,19 +202,19 @@ export default function RHView() {
           </div>
         </div>
 
-        {/* Tab Navigation (Homologado con Header y Tabs de CRM) */}
-        <div className="flex items-center gap-2 border-b border-slate-800/80 pb-1 text-xs font-semibold overflow-x-auto">
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-2 border-b border-blue-200 pb-1 text-xs font-bold overflow-x-auto">
           <button
             onClick={() => setActiveTab('asistencia')}
             className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 border ${
               activeTab === 'asistencia'
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold shadow-xs'
-                : 'text-slate-400 hover:text-white border-transparent hover:bg-slate-800/50'
+                ? 'bg-[#2563eb] text-white border-[#2563eb] font-extrabold shadow-sm'
+                : 'text-slate-600 hover:text-blue-900 border-transparent hover:bg-white'
             }`}
           >
-            <Clock className="w-4 h-4 text-amber-400" />
+            <Clock className="w-4 h-4 text-[#facc15]" />
             <span>Control de Asistencia & GPS</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-800 text-amber-300 font-mono">
+            <span className="ml-1 px-2 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-mono">
               {attendance.length}
             </span>
           </button>
@@ -226,13 +223,13 @@ export default function RHView() {
             onClick={() => setActiveTab('personal')}
             className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 border ${
               activeTab === 'personal'
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold shadow-xs'
-                : 'text-slate-400 hover:text-white border-transparent hover:bg-slate-800/50'
+                ? 'bg-[#2563eb] text-white border-[#2563eb] font-extrabold shadow-sm'
+                : 'text-slate-600 hover:text-blue-900 border-transparent hover:bg-white'
             }`}
           >
-            <Building className="w-4 h-4 text-amber-400" />
+            <Building className="w-4 h-4 text-[#facc15]" />
             <span>Padrón de Colaboradores</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-800 text-slate-300 font-mono">
+            <span className="ml-1 px-2 py-0.2 rounded-full text-[10px] bg-slate-200 text-slate-700 font-mono">
               {employees.length}
             </span>
           </button>
@@ -241,13 +238,13 @@ export default function RHView() {
             onClick={() => setActiveTab('requisiciones')}
             className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 border ${
               activeTab === 'requisiciones'
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold shadow-xs'
-                : 'text-slate-400 hover:text-white border-transparent hover:bg-slate-800/50'
+                ? 'bg-[#2563eb] text-white border-[#2563eb] font-extrabold shadow-sm'
+                : 'text-slate-600 hover:text-blue-900 border-transparent hover:bg-white'
             }`}
           >
-            <Shirt className="w-4 h-4 text-amber-400" />
+            <Shirt className="w-4 h-4 text-[#facc15]" />
             <span>Requisiciones (Gafetes & Uniformes)</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500/20 text-amber-300 font-mono">
+            <span className="ml-1 px-2 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-800 font-mono font-bold">
               {requisitions.filter((r) => r.status === 'PENDIENTE').length} pendientes
             </span>
           </button>
@@ -256,31 +253,31 @@ export default function RHView() {
             onClick={() => setActiveTab('capacitaciones')}
             className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 border ${
               activeTab === 'capacitaciones'
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold shadow-xs'
-                : 'text-slate-400 hover:text-white border-transparent hover:bg-slate-800/50'
+                ? 'bg-[#2563eb] text-white border-[#2563eb] font-extrabold shadow-sm'
+                : 'text-slate-600 hover:text-blue-900 border-transparent hover:bg-white'
             }`}
           >
-            <GraduationCap className="w-4 h-4 text-amber-400" />
+            <GraduationCap className="w-4 h-4 text-[#facc15]" />
             <span>Capacitaciones & Academia</span>
           </button>
         </div>
 
-        {/* TAB 1: CONTROL DE ASISTENCIA & GPS */}
+        {/* TAB 1: ASISTENCIA */}
         {activeTab === 'asistencia' && (
           <div className="space-y-4">
-            {/* Live GPS Check-in Banner */}
-            <div className="bg-[#131a2b] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-wrap items-center justify-between gap-4">
+            {/* GPS Punch Card */}
+            <div className="bg-white border border-blue-100 rounded-3xl p-6 shadow-md flex flex-wrap items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Navigation className="w-4 h-4 text-emerald-400 animate-pulse" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                  <Navigation className="w-4 h-4 text-[#2563eb] animate-pulse" />
+                  <span className="text-xs font-black uppercase tracking-wider text-[#2563eb]">
                     Estación Satelital de Marcaje LanAhora
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-white">
+                <h3 className="text-base font-black text-slate-900">
                   Registro de Asistencia de Personal en Calle y Sucursal
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   Captura de punto de inicio de jornada con latitud, longitud y validación contra zona INEGI asignada.
                 </p>
               </div>
@@ -289,29 +286,29 @@ export default function RHView() {
                 <button
                   onClick={handleGpsCheckIn}
                   disabled={gpsLoading}
-                  className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition"
+                  className="px-4 py-2.5 rounded-xl bg-[#22c55e] hover:bg-emerald-600 text-white font-black text-xs flex items-center gap-2 shadow-md transition active:scale-95"
                 >
                   <MapPin className="w-4 h-4" />
                   {gpsLoading ? 'Obteniendo GPS...' : 'Registrar Check-in con GPS (En Calle)'}
                 </button>
                 {gpsMessage && (
-                  <span className="text-[11px] text-emerald-300 font-mono bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-800">
+                  <span className="text-[11px] text-emerald-800 font-mono bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-300 font-bold">
                     {gpsMessage}
                   </span>
                 )}
               </div>
             </div>
 
-            {/* Attendance Filters & Table */}
-            <div className="bg-[#131a2b] rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
-              <div className="p-3.5 bg-[#172138] border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+            {/* Attendance Table */}
+            <div className="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-md">
+              <div className="p-4 bg-blue-50/60 border-b border-blue-100 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 font-semibold">Sucursal:</span>
+                    <span className="text-slate-600 font-bold">Sucursal:</span>
                     <select
                       value={selectedBranch}
                       onChange={(e) => setSelectedBranch(e.target.value)}
-                      className="px-2.5 py-1.5 rounded-lg border border-slate-700 bg-[#0c101c] text-xs text-white focus:outline-none focus:border-amber-500 font-medium"
+                      className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 focus:outline-none focus:border-[#2563eb] font-semibold"
                     >
                       <option value="ALL">Todas las Sucursales</option>
                       <option value="Saltillo Centro">Saltillo Centro</option>
@@ -322,11 +319,11 @@ export default function RHView() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 font-semibold">Ubicación:</span>
+                    <span className="text-slate-600 font-bold">Ubicación:</span>
                     <select
                       value={selectedLocationType}
                       onChange={(e) => setSelectedLocationType(e.target.value)}
-                      className="px-2.5 py-1.5 rounded-lg border border-slate-700 bg-[#0c101c] text-xs text-white focus:outline-none focus:border-amber-500 font-medium"
+                      className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 focus:outline-none focus:border-[#2563eb] font-semibold"
                     >
                       <option value="ALL">Todos los tipos</option>
                       <option value="CAMPO">Personal en Calle (Campo GPS)</option>
@@ -336,14 +333,14 @@ export default function RHView() {
                   </div>
                 </div>
 
-                <div className="text-slate-400 font-medium">
-                  <span className="font-bold text-amber-400 font-mono">{filteredAttendance.length}</span> marcajes registrados hoy
+                <div className="text-slate-600 font-medium">
+                  <span className="font-black text-[#2563eb] font-mono">{filteredAttendance.length}</span> marcajes registrados hoy
                 </div>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-                  <thead className="bg-[#172138] text-slate-300 font-bold border-b border-slate-800 text-[11px] uppercase tracking-wider select-none">
+                  <thead className="bg-[#1d4ed8] text-white font-bold border-b border-blue-700 text-[11px] uppercase tracking-wider select-none">
                     <tr>
                       <th className="p-3">Colaborador</th>
                       <th className="p-3">Sucursal</th>
@@ -355,65 +352,65 @@ export default function RHView() {
                       <th className="p-3">Notas de Campo</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/80">
+                  <tbody className="divide-y divide-slate-100">
                     {filteredAttendance.map((rec) => (
-                      <tr key={rec.id} className="hover:bg-slate-800/50 transition">
-                        <td className="p-3 font-semibold text-white flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center shadow">
+                      <tr key={rec.id} className="hover:bg-slate-50 transition">
+                        <td className="p-3 font-semibold text-slate-900 flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-[#2563eb] text-white font-black text-xs flex items-center justify-center shadow-xs">
                             {rec.employeeName.charAt(0)}
                           </div>
                           <span>{rec.employeeName}</span>
                         </td>
-                        <td className="p-3 text-slate-300">{rec.branch}</td>
+                        <td className="p-3 text-slate-700">{rec.branch}</td>
                         <td className="p-3">
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               rec.locationType === 'CAMPO'
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                                 : rec.locationType === 'CORPORATIVO'
-                                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                                : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                                ? 'bg-purple-100 text-purple-800'
+                                : 'bg-blue-100 text-blue-800'
                             }`}
                           >
                             {rec.locationType === 'CAMPO' ? '📍 CAMPO (CALLE)' : rec.locationType}
                           </span>
                         </td>
-                        <td className="p-3 font-mono font-bold text-amber-400">
+                        <td className="p-3 font-mono font-bold text-[#2563eb]">
                           {rec.checkInTime}
                         </td>
-                        <td className="p-3 font-mono text-[11px] text-slate-300">
+                        <td className="p-3 font-mono text-[11px] text-slate-600">
                           {rec.latitude ? (
                             <a
                               href={`https://maps.google.com/?q=${rec.latitude},${rec.longitude}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-amber-400 hover:underline flex items-center gap-1.5"
+                              className="text-[#2563eb] hover:underline flex items-center gap-1.5 font-bold"
                             >
-                              <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
                               <span>
                                 {rec.latitude}, {rec.longitude}
                               </span>
                               <ExternalLink className="w-2.5 h-2.5" />
                             </a>
                           ) : (
-                            <span className="text-slate-500">Estación Fija</span>
+                            <span className="text-slate-400">Estación Fija</span>
                           )}
                         </td>
-                        <td className="p-3 text-slate-300 max-w-xs truncate" title={rec.locationLabel}>
+                        <td className="p-3 text-slate-700 max-w-xs truncate" title={rec.locationLabel}>
                           {rec.locationLabel}
                         </td>
                         <td className="p-3">
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               rec.status === 'PUNTUAL'
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                : 'bg-amber-100 text-amber-800'
                             }`}
                           >
                             {rec.status}
                           </span>
                         </td>
-                        <td className="p-3 text-slate-400 max-w-xs truncate" title={rec.notes}>
+                        <td className="p-3 text-slate-500 max-w-xs truncate" title={rec.notes}>
                           {rec.notes || '—'}
                         </td>
                       </tr>
@@ -425,22 +422,22 @@ export default function RHView() {
           </div>
         )}
 
-        {/* TAB 2: PADRÓN DE COLABORADORES */}
+        {/* TAB 2: PADRÓN */}
         {activeTab === 'personal' && (
-          <div className="bg-[#131a2b] rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
-            <div className="p-4 bg-[#172138] border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div className="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-md">
+            <div className="p-4 bg-blue-50/60 border-b border-blue-100 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h3 className="font-bold text-sm text-white">
+                <h3 className="font-bold text-sm text-blue-950">
                   Directorio de Empleados LanAhora
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   Expediente de personal en corporativo, sucursales y fuerza de ventas en calle.
                 </p>
               </div>
 
               <button
-                onClick={() => alert('Abriendo formulario de alta de colaborador...')}
-                className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow"
+                onClick={() => alert('Abriendo formulario de alta...')}
+                className="px-3.5 py-1.5 rounded-xl bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow"
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 Alta de Colaborador
@@ -449,7 +446,7 @@ export default function RHView() {
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-                <thead className="bg-[#172138] text-slate-300 font-bold border-b border-slate-800 text-[11px] uppercase tracking-wider select-none">
+                <thead className="bg-[#1d4ed8] text-white font-bold border-b border-blue-700 text-[11px] uppercase tracking-wider select-none">
                   <tr>
                     <th className="p-3">No. Empleado</th>
                     <th className="p-3">Nombre Completo</th>
@@ -462,35 +459,35 @@ export default function RHView() {
                     <th className="p-3">Estatus</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/80">
+                <tbody className="divide-y divide-slate-100">
                   {employees.map((emp) => (
-                    <tr key={emp.id} className="hover:bg-slate-800/50 transition">
-                      <td className="p-3 font-mono font-bold text-amber-400">
+                    <tr key={emp.id} className="hover:bg-slate-50 transition">
+                      <td className="p-3 font-mono font-bold text-[#2563eb]">
                         {emp.employeeNumber}
                       </td>
-                      <td className="p-3 font-semibold text-white">{emp.fullName}</td>
-                      <td className="p-3 text-slate-300">{emp.role}</td>
+                      <td className="p-3 font-semibold text-slate-900">{emp.fullName}</td>
+                      <td className="p-3 text-slate-700">{emp.role}</td>
                       <td className="p-3">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">
                           {emp.department}
                         </span>
                       </td>
-                      <td className="p-3 text-slate-300">{emp.branch}</td>
+                      <td className="p-3 text-slate-700">{emp.branch}</td>
                       <td className="p-3">
                         <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                             emp.locationType === 'CAMPO'
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                              : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                              : 'bg-blue-100 text-blue-800'
                           }`}
                         >
                           {emp.locationType}
                         </span>
                       </td>
-                      <td className="p-3 text-slate-400">{emp.supervisorName}</td>
-                      <td className="p-3 font-mono text-slate-400">{emp.hireDate}</td>
+                      <td className="p-3 text-slate-600">{emp.supervisorName}</td>
+                      <td className="p-3 font-mono text-slate-500">{emp.hireDate}</td>
                       <td className="p-3">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                           {emp.status}
                         </span>
                       </td>
@@ -502,24 +499,24 @@ export default function RHView() {
           </div>
         )}
 
-        {/* TAB 3: REQUISICIONES (GAFETES, UNIFORMES, VACANTES) */}
+        {/* TAB 3: REQUISICIONES */}
         {activeTab === 'requisiciones' && (
           <div className="space-y-4">
-            <div className="bg-[#131a2b] rounded-2xl border border-slate-800 p-4 flex flex-wrap items-center justify-between gap-3 shadow-md">
+            <div className="bg-white rounded-3xl border border-blue-100 p-5 flex flex-wrap items-center justify-between gap-3 shadow-md">
               <div>
-                <h3 className="font-bold text-sm text-white">
+                <h3 className="font-bold text-sm text-blue-950">
                   Bandeja de Requisiciones & Suministros
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   Gestión y autorización de uniformes, gafetes institucionales y vacantes para sucursales foráneas.
                 </p>
               </div>
 
               <button
                 onClick={() => setIsNewReqOpen(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow"
+                className="px-4 py-2 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-4 h-4" />
                 Crear Requisición
               </button>
             </div>
@@ -528,66 +525,65 @@ export default function RHView() {
               {requisitions.map((req) => (
                 <div
                   key={req.id}
-                  className="bg-[#131a2b] rounded-2xl border border-slate-800 p-5 shadow-lg flex flex-col justify-between space-y-4"
+                  className="bg-white rounded-3xl border border-blue-100 p-5 shadow-md flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                           req.type === 'UNIFORME'
-                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
                             : req.type === 'GAFETE'
-                            ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
-                            : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                            ? 'bg-blue-100 text-blue-900 border border-blue-300'
+                            : 'bg-purple-100 text-purple-900 border border-purple-300'
                         }`}
                       >
                         {req.type}
                       </span>
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                           req.status === 'APROBADO'
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                             : req.status === 'PENDIENTE'
-                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                            : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                            ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                            : 'bg-rose-100 text-rose-800'
                         }`}
                       >
                         {req.status}
                       </span>
                     </div>
 
-                    <h4 className="font-bold text-sm text-white line-clamp-2">
+                    <h4 className="font-bold text-sm text-slate-900 line-clamp-2">
                       {req.title}
                     </h4>
-                    <p className="text-xs text-slate-400">{req.description}</p>
+                    <p className="text-xs text-slate-600">{req.description}</p>
 
                     {req.details?.sizeUniform && (
-                      <div className="text-[11px] text-slate-300 pt-1">
-                        <span className="font-semibold text-amber-400">Talla:</span> {req.details.sizeUniform} •{' '}
-                        <span className="font-semibold text-amber-400">Artículo:</span> {req.details.uniformItem}
+                      <div className="text-[11px] text-slate-700 pt-1">
+                        <span className="font-bold text-[#2563eb]">Talla:</span> {req.details.sizeUniform} •{' '}
+                        <span className="font-bold text-[#2563eb]">Artículo:</span> {req.details.uniformItem}
                       </div>
                     )}
 
-                    <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-800 space-y-0.5">
-                      <div>Solicitado por: <span className="font-semibold text-slate-200">{req.employeeName}</span></div>
-                      <div className="text-[10px] text-slate-500">{req.branch} • {req.requestedAt}</div>
+                    <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 space-y-0.5">
+                      <div>Solicitado por: <span className="font-bold text-slate-800">{req.employeeName}</span></div>
+                      <div className="text-[10px] text-slate-400">{req.branch} • {req.requestedAt}</div>
                     </div>
                   </div>
 
-                  {/* Actions for supervisors */}
-                  <div className="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
                     {req.status === 'PENDIENTE' ? (
                       <>
                         <button
                           onClick={() => handleApproveRequisition(req.id, 'APROBADO')}
-                          className="flex-1 py-1.5 px-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center justify-center gap-1 shadow transition"
+                          className="flex-1 py-1.5 px-2.5 rounded-xl bg-[#22c55e] hover:bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-1 shadow transition"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           Aprobar
                         </button>
                         <button
                           onClick={() => handleApproveRequisition(req.id, 'RECHAZADO')}
-                          className="flex-1 py-1.5 px-2.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold flex items-center justify-center gap-1 transition"
+                          className="flex-1 py-1.5 px-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center justify-center gap-1 transition"
                         >
                           <XCircle className="w-3.5 h-3.5" />
                           Rechazar
@@ -605,14 +601,14 @@ export default function RHView() {
           </div>
         )}
 
-        {/* TAB 4: CAPACITACIONES & ACADEMIA LANAHORA */}
+        {/* TAB 4: CAPACITACIONES */}
         {activeTab === 'capacitaciones' && (
           <div className="space-y-4">
-            <div className="bg-[#131a2b] rounded-2xl border border-slate-800 p-5 shadow-xl">
-              <h3 className="font-bold text-sm text-white">
+            <div className="bg-white rounded-3xl border border-blue-100 p-6 shadow-md">
+              <h3 className="font-bold text-sm text-blue-950">
                 Academia LanAhora — Cursos & Certificaciones de Personal
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Formación continua obligatoria para asesores de crédito y personal administrativo.
               </p>
             </div>
@@ -621,33 +617,33 @@ export default function RHView() {
               {INITIAL_TRAINING_COURSES.map((crs) => (
                 <div
                   key={crs.id}
-                  className="bg-[#131a2b] rounded-2xl border border-slate-800 p-5 shadow-xl space-y-3.5 flex flex-col justify-between"
+                  className="bg-white rounded-3xl border border-blue-100 p-6 shadow-md space-y-3.5 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-amber-400 border border-slate-700">
+                      <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#2563eb] border border-blue-200">
                         {crs.code}
                       </span>
                       {crs.isMandatory && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
                           Obligatorio
                         </span>
                       )}
                     </div>
 
-                    <h4 className="font-bold text-sm text-white">{crs.title}</h4>
-                    <p className="text-xs text-slate-400">{crs.description}</p>
+                    <h4 className="font-bold text-sm text-slate-900">{crs.title}</h4>
+                    <p className="text-xs text-slate-600">{crs.description}</p>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-800 space-y-3">
-                    <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
-                      <span>{crs.durationHours} horas estimadas</span>
-                      <span>{crs.totalModules} módulos interactivos</span>
+                  <div className="pt-3 border-t border-slate-100 space-y-3">
+                    <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+                      <span>{crs.durationHours} horas</span>
+                      <span>{crs.totalModules} módulos</span>
                     </div>
 
                     <button
-                      onClick={() => alert(`Iniciando contenido del curso: ${crs.title}`)}
-                      className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs border border-slate-700 transition flex items-center justify-center gap-2"
+                      onClick={() => alert(`Temario del curso: ${crs.title}`)}
+                      className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#2563eb] font-bold text-xs border border-blue-200 transition flex items-center justify-center gap-2"
                     >
                       <GraduationCap className="w-4 h-4" />
                       <span>Ver Temario y Material Didáctico</span>
@@ -661,16 +657,16 @@ export default function RHView() {
 
         {/* Modal Nueva Requisición */}
         {isNewReqOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-            <div className="bg-[#131a2b] rounded-2xl shadow-2xl border border-slate-700 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
-              <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 p-4 flex items-center justify-between">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white rounded-3xl shadow-2xl border border-blue-100 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
+              <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white p-5 flex items-center justify-between">
                 <div className="flex items-center gap-2 font-black text-sm">
-                  <Shirt className="w-4 h-4" />
+                  <Shirt className="w-4 h-4 text-[#facc15]" />
                   <span>Nueva Requisición de Recursos</span>
                 </div>
                 <button
                   onClick={() => setIsNewReqOpen(false)}
-                  className="text-slate-950 hover:opacity-75 p-1 font-bold text-base"
+                  className="text-white hover:text-yellow-300 p-1 font-bold text-base"
                 >
                   ✕
                 </button>
@@ -678,13 +674,13 @@ export default function RHView() {
 
               <form onSubmit={handleCreateRequisition} className="p-6 space-y-4 text-xs">
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1.5">
+                  <label className="block text-slate-700 font-bold mb-1.5">
                     Tipo de Solicitud
                   </label>
                   <select
                     value={reqType}
                     onChange={(e) => setReqType(e.target.value as any)}
-                    className="w-full p-2.5 rounded-xl border border-slate-700 bg-[#0c101c] text-white focus:outline-none focus:border-amber-500"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
                   >
                     <option value="UNIFORME">Dotación de Uniforme (Camisa / Chaleco LanAhora)</option>
                     <option value="GAFETE">Gafete Institucional con Fotografía</option>
@@ -696,11 +692,11 @@ export default function RHView() {
                 {reqType === 'UNIFORME' && (
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1.5">Artículo</label>
+                      <label className="block text-slate-700 font-bold mb-1.5">Artículo</label>
                       <select
                         value={reqItem}
                         onChange={(e) => setReqItem(e.target.value as any)}
-                        className="w-full p-2.5 rounded-xl border border-slate-700 bg-[#0c101c] text-white focus:outline-none focus:border-amber-500"
+                        className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
                       >
                         <option value="CHALECO_CAMPO">Chaleco de Campo (Asesores)</option>
                         <option value="CAMISA_POLO">Camisa Polo Institucional</option>
@@ -708,11 +704,11 @@ export default function RHView() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1.5">Talla</label>
+                      <label className="block text-slate-700 font-bold mb-1.5">Talla</label>
                       <select
                         value={reqSize}
                         onChange={(e) => setReqSize(e.target.value as any)}
-                        className="w-full p-2.5 rounded-xl border border-slate-700 bg-[#0c101c] text-white focus:outline-none focus:border-amber-500"
+                        className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
                       >
                         <option value="CH">Chica (CH)</option>
                         <option value="M">Mediana (M)</option>
@@ -724,7 +720,7 @@ export default function RHView() {
                 )}
 
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1.5">
+                  <label className="block text-slate-700 font-bold mb-1.5">
                     Título o Motivo de la Solicitud
                   </label>
                   <input
@@ -733,12 +729,12 @@ export default function RHView() {
                     placeholder="Ej. Solicitud de uniforme para nueva asesora de campo"
                     value={reqTitle}
                     onChange={(e) => setReqTitle(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-700 bg-[#0c101c] text-white focus:outline-none focus:border-amber-500"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1.5">
+                  <label className="block text-slate-700 font-bold mb-1.5">
                     Descripción / Justificación
                   </label>
                   <textarea
@@ -746,21 +742,21 @@ export default function RHView() {
                     placeholder="Detalles sobre la sucursal, motivo o reemplazo..."
                     value={reqDesc}
                     onChange={(e) => setReqDesc(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-700 bg-[#0c101c] text-white focus:outline-none focus:border-amber-500"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
 
-                <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setIsNewReqOpen(false)}
-                    className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
+                    className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow"
+                    className="px-5 py-2.5 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black shadow"
                   >
                     Enviar Requisición
                   </button>

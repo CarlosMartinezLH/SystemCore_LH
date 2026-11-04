@@ -11,9 +11,6 @@ import {
   Smartphone,
   LogOut,
   ChevronDown,
-  Bell,
-  Sparkles,
-  ShieldCheck,
   Building,
 } from 'lucide-react';
 
@@ -37,103 +34,104 @@ export default function Header({
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-[#0c111d] text-slate-100 border-b border-slate-800/80 shadow-lg">
-      <div className="max-w-[1600px] mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 bg-gradient-to-r from-[#1d4ed8] via-[#2563eb] to-[#1e40af] text-white shadow-md border-b border-blue-400/30">
+      <div className="max-w-[1600px] mx-auto px-4 py-2 flex items-center justify-between gap-4">
         {/* Brand Logo & System Name */}
         <div className="flex items-center gap-6">
           <div
             onClick={() => onModuleChange('core_dashboard')}
-            className="flex items-center gap-2.5 cursor-pointer select-none group"
+            className="flex items-center gap-3 cursor-pointer select-none group"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 font-black text-sm flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:scale-105 transition">
+            {/* Logo Badge in Sunny Yellow */}
+            <div className="w-10 h-10 rounded-2xl bg-[#facc15] text-slate-950 font-black text-base flex items-center justify-center shadow-md shadow-black/10 group-hover:scale-105 transition">
               LH
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base tracking-tight text-white">
+                <span className="font-black text-xl tracking-tight text-white drop-shadow-xs">
                   LanAhora
                 </span>
-                <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-white/20 text-yellow-200 border border-white/30">
                   SystemCore
                 </span>
               </div>
-              <p className="text-[10px] text-amber-400/90 italic font-medium -mt-0.5">
+              <p className="text-[11px] text-yellow-300 font-bold italic -mt-0.5">
                 ¡En Ti confiamos!
               </p>
             </div>
           </div>
 
-          {/* Unified Desktop Navigation Tabs */}
-          <nav className="hidden xl:flex items-center gap-1.5 text-xs font-semibold">
+          {/* Unified Desktop Navigation Tabs (Inspirado en el menú del portal LanAhora) */}
+          <nav className="hidden xl:flex items-center gap-1 text-xs font-bold">
             <button
               onClick={() => onModuleChange('mobile_app')}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
+              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
                 activeModule === 'mobile_app'
-                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 font-bold shadow-xs'
-                  : 'border-transparent text-slate-300 hover:bg-slate-800/70 hover:text-white'
+                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
+                  : 'text-white/90 hover:bg-white/15 hover:text-white'
               }`}
             >
-              <Smartphone className="w-3.5 h-3.5 text-amber-400" />
+              <Smartphone className="w-3.5 h-3.5" />
               <span>App Móvil (Asesores)</span>
             </button>
 
             <button
               onClick={() => onModuleChange('crm')}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
+              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
                 activeModule === 'crm'
-                  ? 'bg-teal-500/20 border-teal-500/50 text-teal-300 font-bold shadow-xs'
-                  : 'border-transparent text-slate-300 hover:bg-slate-800/70 hover:text-white'
+                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
+                  : 'text-white/90 hover:bg-white/15 hover:text-white'
               }`}
             >
-              <Layers className="w-3.5 h-3.5 text-teal-400" />
+              <Layers className="w-3.5 h-3.5" />
               <span>CRM & Originación</span>
             </button>
 
             <button
               onClick={() => onModuleChange('core_dashboard')}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
+              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
                 activeModule === 'core_dashboard'
-                  ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 font-bold shadow-xs'
-                  : 'border-transparent text-slate-300 hover:bg-slate-800/70 hover:text-white'
+                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
+                  : 'text-white/90 hover:bg-white/15 hover:text-white'
               }`}
             >
-              <SearchCheck className="w-3.5 h-3.5 text-blue-400" />
+              <SearchCheck className="w-3.5 h-3.5" />
               <span>Buscador Core</span>
             </button>
 
             <button
               onClick={() => onModuleChange('personas')}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
+              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
                 activeModule === 'personas'
-                  ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 font-bold shadow-xs'
-                  : 'border-transparent text-slate-300 hover:bg-slate-800/70 hover:text-white'
+                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
+                  : 'text-white/90 hover:bg-white/15 hover:text-white'
               }`}
             >
-              <Users className="w-3.5 h-3.5 text-blue-400" />
+              <Users className="w-3.5 h-3.5" />
               <span>Personas</span>
             </button>
 
             <button
               onClick={() => onModuleChange('distribuidores')}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
+              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
                 activeModule === 'distribuidores'
-                  ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 font-bold shadow-xs'
-                  : 'border-transparent text-slate-300 hover:bg-slate-800/70 hover:text-white'
+                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
+                  : 'text-white/90 hover:bg-white/15 hover:text-white'
               }`}
             >
-              <Briefcase className="w-3.5 h-3.5 text-blue-400" />
+              <Briefcase className="w-3.5 h-3.5" />
               <span>Distribuidores (DV)</span>
             </button>
 
             <button
               onClick={() => onModuleChange('rh')}
-              className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 border ${
+              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
                 activeModule === 'rh'
-                  ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300 font-bold shadow-xs'
-                  : 'border-transparent text-slate-300 hover:bg-slate-800/70 hover:text-white'
+                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
+                  : 'text-white/90 hover:bg-white/15 hover:text-white'
               }`}
             >
-              <UserCheck className="w-3.5 h-3.5 text-indigo-400" />
+              <UserCheck className="w-3.5 h-3.5" />
               <span>Capital Humano & GPS</span>
             </button>
           </nav>
@@ -141,62 +139,61 @@ export default function Header({
 
         {/* Right Tools & User Session */}
         <div className="flex items-center gap-3">
-          {/* Quick Action Button for CRM */}
           <button
             onClick={onOpenNewLead}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md shadow-amber-500/10 transition active:scale-95"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs shadow-md transition active:scale-95"
           >
-            <span className="text-sm font-black">+</span>
+            <span className="text-sm leading-none">+</span>
             <span>Nuevo Prospecto</span>
           </button>
 
-          <div className="h-5 w-px bg-slate-800 mx-1 hidden sm:block" />
+          <div className="h-6 w-px bg-white/30 mx-1 hidden sm:block" />
 
           {/* User Profile Badge & Dropdown */}
           <div className="relative">
             <button
               onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-700/80 transition"
+              className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition text-white"
             >
-              <div className="w-7 h-7 rounded-full bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center shadow">
+              <div className="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 font-black text-xs flex items-center justify-center shadow">
                 {currentUser.avatarInitials}
               </div>
               <div className="text-left hidden md:block">
-                <span className="text-xs font-bold text-slate-200 block max-w-[140px] truncate leading-tight">
+                <span className="text-xs font-bold text-white block max-w-[140px] truncate leading-tight">
                   {currentUser.name}
                 </span>
-                <span className="text-[10px] text-amber-400/90 font-medium block">
+                <span className="text-[10px] text-yellow-300 font-medium block">
                   {currentUser.branch}
                 </span>
               </div>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              <ChevronDown className="w-3.5 h-3.5 text-white/80" />
             </button>
 
             {/* Dropdown Menu */}
             {userDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-[#141b2d] border border-slate-700 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
-                <div className="px-3 py-2 border-b border-slate-800">
-                  <p className="text-xs font-bold text-white">{currentUser.name}</p>
-                  <p className="text-[11px] text-slate-400">{currentUser.email}</p>
-                  <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              <div className="absolute right-0 mt-2 w-64 bg-white text-slate-800 border border-blue-100 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
+                <div className="px-3 py-2 border-b border-slate-100">
+                  <p className="text-xs font-bold text-slate-900">{currentUser.name}</p>
+                  <p className="text-[11px] text-slate-500">{currentUser.email}</p>
+                  <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                     {currentUser.roleLabel}
                   </span>
                 </div>
 
-                <div className="py-1 text-xs text-slate-300">
-                  <div className="px-3 py-1.5 text-[11px] text-slate-400 flex items-center gap-2">
-                    <Building className="w-3.5 h-3.5 text-slate-500" />
+                <div className="py-1 text-xs text-slate-600">
+                  <div className="px-3 py-1.5 text-[11px] flex items-center gap-2">
+                    <Building className="w-3.5 h-3.5 text-blue-600" />
                     <span>Sucursal: {currentUser.branch}</span>
                   </div>
                 </div>
 
-                <div className="pt-1 border-t border-slate-800">
+                <div className="pt-1 border-t border-slate-100">
                   <button
                     onClick={() => {
                       setUserDropdownOpen(false);
                       onLogout();
                     }}
-                    className="w-full text-left px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-500/10 text-xs font-semibold flex items-center gap-2 transition"
+                    className="w-full text-left px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 text-xs font-bold flex items-center gap-2 transition"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Cerrar Sesión</span>
@@ -208,52 +205,52 @@ export default function Header({
         </div>
       </div>
 
-      {/* Sub-bar Navigation for Small/Medium Screens */}
-      <div className="xl:hidden px-3 py-2 bg-[#101726] border-t border-slate-800/80 flex items-center gap-1.5 overflow-x-auto text-xs font-semibold">
+      {/* Sub-bar Navigation for Mobile Screens */}
+      <div className="xl:hidden px-3 py-2 bg-[#1b43bc] border-t border-blue-400/20 flex items-center gap-1.5 overflow-x-auto text-xs font-bold">
         <button
           onClick={() => onModuleChange('mobile_app')}
-          className={`px-2.5 py-1 rounded whitespace-nowrap ${
-            activeModule === 'mobile_app' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-300'
+          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
+            activeModule === 'mobile_app' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
           }`}
         >
           📱 App Móvil
         </button>
         <button
           onClick={() => onModuleChange('crm')}
-          className={`px-2.5 py-1 rounded whitespace-nowrap ${
-            activeModule === 'crm' ? 'bg-teal-600 text-white font-bold' : 'text-slate-300'
+          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
+            activeModule === 'crm' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
           }`}
         >
           CRM Originación
         </button>
         <button
           onClick={() => onModuleChange('core_dashboard')}
-          className={`px-2.5 py-1 rounded whitespace-nowrap ${
-            activeModule === 'core_dashboard' ? 'bg-blue-600 text-white font-bold' : 'text-slate-300'
+          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
+            activeModule === 'core_dashboard' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
           }`}
         >
           Buscador Core
         </button>
         <button
           onClick={() => onModuleChange('personas')}
-          className={`px-2.5 py-1 rounded whitespace-nowrap ${
-            activeModule === 'personas' ? 'bg-blue-600 text-white font-bold' : 'text-slate-300'
+          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
+            activeModule === 'personas' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
           }`}
         >
           Personas
         </button>
         <button
           onClick={() => onModuleChange('distribuidores')}
-          className={`px-2.5 py-1 rounded whitespace-nowrap ${
-            activeModule === 'distribuidores' ? 'bg-blue-600 text-white font-bold' : 'text-slate-300'
+          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
+            activeModule === 'distribuidores' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
           }`}
         >
           Distribuidores
         </button>
         <button
           onClick={() => onModuleChange('rh')}
-          className={`px-2.5 py-1 rounded whitespace-nowrap ${
-            activeModule === 'rh' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-300'
+          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
+            activeModule === 'rh' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
           }`}
         >
           RH & GPS

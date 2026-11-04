@@ -7,7 +7,6 @@ import {
   Search,
   FileSpreadsheet,
   Smartphone,
-  Briefcase,
 } from 'lucide-react';
 
 export default function DistribuidoresView() {
@@ -44,17 +43,17 @@ export default function DistribuidoresView() {
   };
 
   return (
-    <div className="flex-1 bg-[#0c101c] text-slate-100 flex flex-col min-h-[calc(100vh-105px)] overflow-hidden font-sans p-4 space-y-4">
+    <div className="flex-1 bg-[#f0f4fa] text-slate-800 flex flex-col min-h-[calc(100vh-105px)] overflow-hidden font-sans p-4 space-y-4">
       {/* Top Action & Coordinator Bar */}
-      <div className="bg-[#131a2b] border border-slate-800 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+      <div className="bg-white border border-blue-100 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-sm">
         <div className="flex flex-wrap items-center gap-2 text-xs">
           {/* Coordinator Dropdown */}
           <div className="flex items-center gap-2">
-            <span className="text-slate-400 font-semibold text-xs">Coordinadores:</span>
+            <span className="text-slate-600 font-bold text-xs">Coordinadores:</span>
             <select
               value={coordinatorFilter}
               onChange={(e) => setCoordinatorFilter(e.target.value)}
-              className="px-3 py-1.5 rounded-lg border border-slate-700 bg-[#0c101c] text-white text-xs focus:outline-none focus:border-amber-500 font-medium"
+              className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:border-[#2563eb] font-semibold"
             >
               <option value="ALL">-- Todos los Coordinadores --</option>
               {coordinators.map((c) => (
@@ -65,43 +64,43 @@ export default function DistribuidoresView() {
             </select>
           </div>
 
-          <div className="h-5 w-px bg-slate-800 mx-1 hidden sm:block" />
+          <div className="h-5 w-px bg-slate-200 mx-1 hidden sm:block" />
 
           {/* Action buttons */}
           <button
             onClick={() => handleActionClick('Relación')}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
           >
             Relación
           </button>
           <button
             onClick={() => handleActionClick('Relación Recibos')}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
           >
             Relación Recibos
           </button>
           <button
             onClick={() => handleActionClick('Estado de Cuenta')}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
           >
             Estado de Cuenta
           </button>
           <button
             onClick={() => handleActionClick('Notas')}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
           >
             Notas
           </button>
           <button
             onClick={() => handleActionClick('Mensajes masivos')}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
           >
             Mensajes masivos
           </button>
 
           <button
-            onClick={() => alert('Exportando reporte completo a XLS...')}
-            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow"
+            onClick={() => alert('Exportando reporte a XLS...')}
+            className="px-3 py-1.5 rounded-xl bg-[#16a34a] hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>XLS</span>
@@ -109,36 +108,36 @@ export default function DistribuidoresView() {
 
           <button
             onClick={() => handleActionClick('Enviar notificación APP')}
-            className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/10 transition active:scale-95"
+            className="px-3.5 py-1.5 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow transition active:scale-95"
           >
             <Smartphone className="w-3.5 h-3.5" />
-            <span>Notificación a LanaApp</span>
+            <span>Notificación LanaApp</span>
           </button>
         </div>
       </div>
 
       {/* Filter Search Input Bar */}
-      <div className="bg-[#131a2b] p-3 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-md">
+      <div className="bg-white p-3.5 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-sm">
         <div className="flex items-center gap-2 max-w-md w-full">
-          <Search className="w-4 h-4 text-slate-400" />
+          <Search className="w-4 h-4 text-blue-500" />
           <input
             type="text"
             placeholder="Buscar por nombre, No. de DV, Coordinador..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-3 py-1.5 text-xs border border-slate-700 rounded-lg focus:outline-none focus:border-amber-500 bg-[#0c101c] text-white placeholder:text-slate-500"
+            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-[#2563eb] bg-white text-slate-900"
           />
         </div>
 
-        <div className="text-xs text-slate-400">
-          Mostrando <span className="font-bold text-amber-400 font-mono">{filtered.length}</span> de 7,171 distribuidoras
+        <div className="text-xs text-slate-500">
+          Mostrando <span className="font-black text-[#2563eb] font-mono">{filtered.length}</span> de 7,171 distribuidoras
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-[#131a2b] rounded-xl border border-slate-800 overflow-x-auto shadow-xl flex-1">
+      <div className="bg-white rounded-2xl border border-blue-100 overflow-x-auto shadow-md flex-1">
         <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-          <thead className="bg-[#172138] text-slate-300 font-bold border-b border-slate-800 text-[11px] uppercase tracking-wider select-none">
+          <thead className="bg-[#1d4ed8] text-white font-bold border-b border-blue-700 text-[11px] uppercase tracking-wider select-none">
             <tr>
               <th className="p-3 text-center">Detalle</th>
               <th className="p-3 text-center">Cartera</th>
@@ -154,7 +153,7 @@ export default function DistribuidoresView() {
               <th className="p-3 text-right">Disponible</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/80">
+          <tbody className="divide-y divide-slate-100">
             {filtered.map((d) => {
               const isSelected = d.noDist === selectedNoDist;
 
@@ -164,8 +163,8 @@ export default function DistribuidoresView() {
                   onClick={() => setSelectedNoDist(d.noDist)}
                   className={`cursor-pointer transition ${
                     isSelected
-                      ? 'bg-amber-500/15 font-semibold text-white'
-                      : 'hover:bg-slate-800/50 text-slate-300'
+                      ? 'bg-blue-50 font-bold text-blue-950'
+                      : 'hover:bg-slate-50 text-slate-700'
                   }`}
                 >
                   <td className="p-2.5 text-center">
@@ -175,7 +174,7 @@ export default function DistribuidoresView() {
                         setSelectedNoDist(d.noDist);
                         alert(`Detalle de Distribuidora #${d.noDist}: ${d.nombreDistribuidor}`);
                       }}
-                      className="px-2 py-0.5 rounded bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-[10px] font-bold border border-blue-500/30"
+                      className="px-2 py-0.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#2563eb] text-[10px] font-bold border border-blue-200"
                     >
                       Detalle
                     </button>
@@ -187,26 +186,26 @@ export default function DistribuidoresView() {
                         setSelectedNoDist(d.noDist);
                         alert(`Módulo de cartera de Distribuidora #${d.noDist}`);
                       }}
-                      className="px-2 py-0.5 rounded bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 text-[10px] font-bold border border-indigo-500/30"
+                      className="px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold border border-indigo-200"
                     >
                       Cartera
                     </button>
                   </td>
-                  <td className="p-3 font-semibold text-white">{d.sucursal}</td>
-                  <td className="p-3 text-slate-400">{d.zona}</td>
-                  <td className="p-3 text-slate-300">{d.coordinador}</td>
-                  <td className="p-3 font-mono font-bold text-amber-400">
+                  <td className="p-3 font-semibold text-slate-900">{d.sucursal}</td>
+                  <td className="p-3 text-slate-500">{d.zona}</td>
+                  <td className="p-3 text-slate-700">{d.coordinador}</td>
+                  <td className="p-3 font-mono font-bold text-[#2563eb]">
                     #{d.noDist}
                   </td>
-                  <td className="p-3 font-medium text-white">{d.nombreDistribuidor}</td>
+                  <td className="p-3 font-semibold text-slate-900">{d.nombreDistribuidor}</td>
                   <td className="p-3">
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         d.estatus === 'ACTIVO'
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                           : d.estatus === 'REESTRUCTURA'
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                          : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-rose-100 text-rose-800'
                       }`}
                     >
                       {d.estatus}
@@ -214,24 +213,24 @@ export default function DistribuidoresView() {
                   </td>
                   <td className="p-3">
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         d.nivel === 'DIAMANTE'
-                          ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+                          ? 'bg-sky-100 text-sky-800 border border-sky-300'
                           : d.nivel === 'ORO'
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                          : 'bg-slate-800 text-slate-400'
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-slate-100 text-slate-700'
                       }`}
                     >
                       {d.nivel}
                     </span>
                   </td>
-                  <td className="p-3 font-mono text-right text-slate-200">
+                  <td className="p-3 font-mono text-right text-slate-700 font-medium">
                     ${d.creditoLimite.toLocaleString('es-MX')}
                   </td>
-                  <td className="p-3 font-mono text-right text-rose-400 font-bold">
+                  <td className="p-3 font-mono text-right text-rose-600 font-bold">
                     ${d.saldoActual.toLocaleString('es-MX')}
                   </td>
-                  <td className="p-3 font-mono text-right text-emerald-400 font-bold">
+                  <td className="p-3 font-mono text-right text-[#16a34a] font-bold">
                     ${d.disponible.toLocaleString('es-MX')}
                   </td>
                 </tr>
@@ -242,17 +241,17 @@ export default function DistribuidoresView() {
       </div>
 
       {/* Pagination */}
-      <footer className="bg-[#131a2b] border border-slate-800 rounded-xl p-3 px-4 flex flex-wrap items-center justify-between text-xs text-slate-400 shadow-md">
+      <footer className="bg-white border border-blue-100 rounded-2xl p-3 px-4 flex flex-wrap items-center justify-between text-xs text-slate-500 shadow-sm">
         <div>
-          Página 1 de 144 (<span className="font-bold text-amber-400 font-mono">7,171 distribuidoras</span>)
+          Página 1 de 144 (<span className="font-black text-[#2563eb] font-mono">7,171 distribuidoras</span>)
         </div>
         <div className="flex items-center gap-1 font-mono text-xs">
-          <button className="px-2.5 py-1 rounded bg-amber-500 text-slate-950 font-bold">1</button>
-          <button className="px-2.5 py-1 rounded hover:bg-slate-800 text-slate-300">2</button>
-          <button className="px-2.5 py-1 rounded hover:bg-slate-800 text-slate-300">3</button>
-          <button className="px-2.5 py-1 rounded hover:bg-slate-800 text-slate-300">4</button>
-          <span className="px-1 text-slate-500">...</span>
-          <button className="px-2.5 py-1 rounded hover:bg-slate-800 text-slate-300">144</button>
+          <button className="px-3 py-1 rounded-lg bg-[#2563eb] text-white font-bold">1</button>
+          <button className="px-3 py-1 rounded-lg hover:bg-slate-100 text-slate-700 font-bold">2</button>
+          <button className="px-3 py-1 rounded-lg hover:bg-slate-100 text-slate-700 font-bold">3</button>
+          <button className="px-3 py-1 rounded-lg hover:bg-slate-100 text-slate-700 font-bold">4</button>
+          <span className="px-1 text-slate-400">...</span>
+          <button className="px-3 py-1 rounded-lg hover:bg-slate-100 text-slate-700 font-bold">144</button>
         </div>
       </footer>
     </div>

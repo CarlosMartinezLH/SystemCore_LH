@@ -14,14 +14,10 @@ import {
   Users,
   Search,
   Navigation,
-  ArrowLeft,
-  Upload,
   ShieldCheck,
   ChevronRight,
   LogOut,
   Phone,
-  Clock,
-  Sparkles,
 } from 'lucide-react';
 
 interface MobileAdvisorAppProps {
@@ -64,7 +60,6 @@ export default function MobileAdvisorApp({
   const [curpChecking, setCurpChecking] = useState(false);
   const [curpResult, setCurpResult] = useState<'VALIDO' | 'NO_VALIDO' | null>(null);
 
-  // Auto-capture GPS coordinates on start
   const handleCaptureGps = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -75,7 +70,7 @@ export default function MobileAdvisorApp({
           });
         },
         () => {
-          setGpsCoords({ lat: 25.4232, lng: -101.0053 }); // Fallback Saltillo
+          setGpsCoords({ lat: 25.4232, lng: -101.0053 });
         }
       );
     } else {
@@ -83,7 +78,6 @@ export default function MobileAdvisorApp({
     }
   };
 
-  // Verify CURP
   const handleValidateCurp = () => {
     if (curp.length < 18) {
       alert('Ingresa los 18 caracteres de la CURP');
@@ -97,7 +91,6 @@ export default function MobileAdvisorApp({
     }, 800);
   };
 
-  // Save full prospect from mobile
   const handleFinishLead = () => {
     if (!firstName || !lastName || !phone) {
       alert('Completa los campos obligatorios.');
@@ -188,55 +181,54 @@ export default function MobileAdvisorApp({
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-slate-100">
-      {/* Switcher back to desktop view for administrators */}
+    <div className="min-h-screen bg-[#eff4fc] flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-slate-800">
       {onSwitchToDesktop && (
-        <div className="hidden sm:flex items-center justify-between w-full max-w-sm mb-3 text-xs text-slate-400">
-          <span className="flex items-center gap-1.5 font-medium">
-            <Smartphone className="w-4 h-4 text-amber-400" />
-            <span>Vista Móvil de Asesores de Crédito</span>
+        <div className="hidden sm:flex items-center justify-between w-full max-w-sm mb-3 text-xs text-blue-900 font-bold">
+          <span className="flex items-center gap-1.5">
+            <Smartphone className="w-4 h-4 text-[#2563eb]" />
+            <span>App Móvil de Asesores LanAhora</span>
           </span>
           <button
             onClick={onSwitchToDesktop}
-            className="text-amber-400 hover:underline flex items-center gap-1"
+            className="text-[#2563eb] hover:underline flex items-center gap-1"
           >
-            <span>Cambiar a Vista Desktop Core</span>
+            <span>Ir a Vista Desktop</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* SMARTPHONE DEVICE CONTAINER */}
-      <div className="w-full sm:max-w-sm bg-[#0f1422] sm:border-4 sm:border-slate-800 sm:rounded-[36px] overflow-hidden shadow-2xl flex flex-col h-[100dvh] sm:h-[780px] relative">
-        {/* Top Status Bar & Notch */}
-        <div className="bg-[#141b2d] px-5 py-2.5 flex items-center justify-between text-[11px] font-semibold text-slate-400 border-b border-slate-800/80">
+      {/* SMARTPHONE DEVICE CONTAINER (LanAhora Blue Theme) */}
+      <div className="w-full sm:max-w-sm bg-white sm:border-4 sm:border-blue-900/40 sm:rounded-[40px] overflow-hidden shadow-2xl flex flex-col h-[100dvh] sm:h-[780px] relative">
+        {/* Top Header Bar in Royal Blue */}
+        <div className="bg-[#1d4ed8] text-white px-5 py-2.5 flex items-center justify-between text-[11px] font-bold border-b border-blue-600">
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-white font-mono">LanAhora Móvil</span>
+            <span className="w-2 h-2 rounded-full bg-[#facc15] animate-pulse" />
+            <span className="font-extrabold tracking-tight">LanAhora Móvil</span>
           </div>
           <div className="flex items-center gap-2 text-[10px]">
-            <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+            <span className="px-2 py-0.5 rounded-full bg-[#facc15] text-slate-950 font-black">
               EN RUTA
             </span>
             <button
               onClick={onLogout}
               title="Cerrar Sesión"
-              className="text-slate-400 hover:text-rose-400"
+              className="text-white hover:text-yellow-300 transition"
             >
               <LogOut className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
-        {/* User Card Bar */}
-        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 px-4 py-3 flex items-center justify-between shadow-md">
+        {/* User Card Bar in Royal Blue with Yellow Accent */}
+        <div className="bg-gradient-to-r from-[#2563eb] to-[#1e40af] text-white px-4 py-3 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-slate-950 text-amber-400 font-extrabold flex items-center justify-center text-xs shadow-inner">
+            <div className="w-9 h-9 rounded-2xl bg-[#facc15] text-slate-950 font-black flex items-center justify-center text-xs shadow">
               {user.avatarInitials}
             </div>
             <div>
               <h2 className="text-xs font-bold leading-tight">{user.name}</h2>
-              <p className="text-[10px] font-medium opacity-90">{user.roleLabel} • {user.branch}</p>
+              <p className="text-[10px] text-yellow-300 font-medium">{user.roleLabel} • {user.branch}</p>
             </div>
           </div>
           <button
@@ -244,70 +236,70 @@ export default function MobileAdvisorApp({
               handleCaptureGps();
               setActiveTab('nuevo');
             }}
-            className="px-2.5 py-1.5 bg-slate-950 hover:bg-slate-900 text-amber-400 rounded-lg text-xs font-bold flex items-center gap-1 shadow transition active:scale-95"
+            className="px-3 py-1.5 bg-[#facc15] hover:bg-yellow-400 text-slate-950 rounded-xl text-xs font-black flex items-center gap-1 shadow-sm transition active:scale-95"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Prospectar</span>
           </button>
         </div>
 
-        {/* MAIN BODY AREA (SCROLLABLE) */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* MAIN BODY AREA (SCROLLABLE, CLEAN LIGHT BLUE BACKGROUND) */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#f8faff]">
           {/* TAB: LEADS / PROSPECTOS */}
           {activeTab === 'leads' && (
             <div className="space-y-3">
               {/* Search Bar */}
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-blue-500 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="Buscar por nombre o teléfono..."
+                  placeholder="Buscar prospecto o teléfono..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-blue-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#2563eb] shadow-xs"
                 />
               </div>
 
               {/* Quick Summary Cards */}
               <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                <div className="bg-[#161d30] p-2.5 rounded-xl border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">Prospectos en Ruta</span>
-                  <span className="text-lg font-extrabold text-amber-400">{prospects.length}</span>
+                <div className="bg-white p-3 rounded-2xl border border-blue-100 shadow-xs">
+                  <span className="text-[10px] text-slate-500 block font-semibold">Prospectos en Ruta</span>
+                  <span className="text-xl font-black text-[#2563eb]">{prospects.length}</span>
                 </div>
-                <div className="bg-[#161d30] p-2.5 rounded-xl border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block">En Validación Mesa</span>
-                  <span className="text-lg font-extrabold text-teal-400">
+                <div className="bg-white p-3 rounded-2xl border border-blue-100 shadow-xs">
+                  <span className="text-[10px] text-slate-500 block font-semibold">En Validación</span>
+                  <span className="text-xl font-black text-[#16a34a]">
                     {prospects.filter((p) => p.stage === 'solicitud_credito' || p.stage === 'mesa_credito').length}
                   </span>
                 </div>
               </div>
 
               {/* Leads List */}
-              <div className="space-y-2.5">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  Cartera de Prospectos Captados
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  Prospectos Registrados
                 </h3>
                 {filteredLeads.map((p) => (
                   <div
                     key={p.id}
                     onClick={() => setSelectedProspect(p)}
-                    className="p-3 bg-[#161d30] hover:bg-[#1c243c] border border-slate-800 hover:border-amber-500/50 rounded-xl transition cursor-pointer space-y-1.5 shadow-sm active:scale-[0.99]"
+                    className="p-3 bg-white hover:bg-blue-50/50 border border-blue-100 hover:border-blue-400 rounded-2xl transition cursor-pointer space-y-1 shadow-xs active:scale-[0.99]"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <h4 className="text-xs font-bold text-white line-clamp-1">
+                      <h4 className="text-xs font-bold text-blue-900 line-clamp-1">
                         {p.opportunityName}
                       </h4>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 whitespace-nowrap">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-100 text-blue-800 whitespace-nowrap">
                         {p.stage}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <div className="flex items-center justify-between text-[11px] text-slate-500">
                       <span className="flex items-center gap-1 font-mono">
-                        <Phone className="w-3 h-3 text-slate-500" />
+                        <Phone className="w-3 h-3 text-blue-500" />
                         {p.phone || 'Sin teléfono'}
                       </span>
-                      <span className="text-[10px] text-slate-500">
+                      <span className="text-[10px] text-slate-500 font-medium">
                         {p.origin}
                       </span>
                     </div>
@@ -320,115 +312,99 @@ export default function MobileAdvisorApp({
           {/* TAB: NUEVO PROSPECTO EN CALLE (WIZARD 4 PASOS) */}
           {activeTab === 'nuevo' && (
             <div className="space-y-4">
-              {/* Stepper Indicator */}
-              <div className="flex items-center justify-between text-[11px] font-bold border-b border-slate-800 pb-2">
-                <span className="text-amber-400">Paso {step} de 4</span>
-                <span className="text-slate-400">
-                  {step === 1 && 'Datos & Contacto'}
-                  {step === 2 && 'Validación de CURP'}
+              <div className="flex items-center justify-between text-[11px] font-bold border-b border-blue-100 pb-2">
+                <span className="text-[#2563eb]">Paso {step} de 4</span>
+                <span className="text-slate-600">
+                  {step === 1 && 'Datos de Contacto'}
+                  {step === 2 && 'Validar CURP'}
                   {step === 3 && 'Fotos INE & Fachada'}
                   {step === 4 && 'Firma Digital Táctil'}
                 </span>
               </div>
 
-              {/* PASO 1: DATOS & CONTACTO */}
+              {/* PASO 1 */}
               {step === 1 && (
                 <div className="space-y-3 text-xs">
-                  <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div className="p-3 bg-blue-50 rounded-2xl border border-blue-200 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Navigation className="w-4 h-4 text-emerald-400" />
-                      <span className="text-[11px] text-slate-300">Punto GPS de Captura:</span>
+                      <Navigation className="w-4 h-4 text-[#2563eb]" />
+                      <span className="text-[11px] font-bold text-blue-900">Ubicación GPS:</span>
                     </div>
-                    <span className="font-mono text-[10px] text-emerald-400 font-bold">
+                    <span className="font-mono text-[10px] text-blue-700 font-bold">
                       {gpsCoords ? `${gpsCoords.lat}, ${gpsCoords.lng}` : 'Obteniendo...'}
                     </span>
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-medium mb-1">Nombre(s) *</label>
+                    <label className="block text-slate-700 font-bold mb-1">Nombre(s) *</label>
                     <input
                       type="text"
                       required
                       placeholder="Ej. MARIA ELENA"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value.toUpperCase())}
-                      className="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white"
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-slate-300 font-medium mb-1">Apellido Paterno *</label>
+                      <label className="block text-slate-700 font-bold mb-1">Apellido Paterno *</label>
                       <input
                         type="text"
                         required
                         placeholder="Ej. SANCHEZ"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value.toUpperCase())}
-                        className="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white"
+                        className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
                       />
                     </div>
                     <div>
-                      <label className="block text-slate-300 font-medium mb-1">Apellido Materno</label>
+                      <label className="block text-slate-700 font-bold mb-1">Apellido Materno</label>
                       <input
                         type="text"
                         placeholder="Ej. LOPEZ"
                         value={secondLastName}
                         onChange={(e) => setSecondLastName(e.target.value.toUpperCase())}
-                        className="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white"
+                        className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-medium mb-1">Teléfono Celular *</label>
+                    <label className="block text-slate-700 font-bold mb-1">Teléfono Móvil *</label>
                     <input
                       type="tel"
                       required
                       maxLength={10}
-                      placeholder="10 dígitos (ej. 8441234567)"
+                      placeholder="10 dígitos"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono"
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-mono focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-medium mb-1">Dirección / Colonia</label>
+                    <label className="block text-slate-700 font-bold mb-1">Dirección / Colonia</label>
                     <input
                       type="text"
-                      placeholder="Calle y colonia donde se contactó"
+                      placeholder="Calle y colonia"
                       value={address}
                       onChange={(e) => setAddress(e.target.value.toUpperCase())}
-                      className="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white"
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-300 font-medium mb-1">Canal de Prospección</label>
-                    <select
-                      value={origin}
-                      onChange={(e) => setOrigin(e.target.value as any)}
-                      className="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white"
-                    >
-                      <option value="CAMBACEO">Cambaceo Puerta por Puerta</option>
-                      <option value="COMERCIOS">Sector Comercios (INEGI)</option>
-                      <option value="PLANTON">Plantón en Punto Estratégico</option>
-                      <option value="DISTRIBUIDOR">Referido de Distribuidora</option>
-                      <option value="TELEMARKETING">Telemarketing</option>
-                    </select>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => {
                       if (!firstName || !lastName || !phone) {
-                        alert('Por favor ingresa nombre, apellido y teléfono.');
+                        alert('Ingresa nombre, apellido y teléfono.');
                         return;
                       }
                       setStep(2);
                     }}
-                    className="w-full py-2.5 mt-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow flex items-center justify-center gap-1.5"
+                    className="w-full py-3 mt-2 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black shadow-md flex items-center justify-center gap-1.5 transition"
                   >
                     <span>Siguiente: Validar CURP</span>
                     <ChevronRight className="w-4 h-4" />
@@ -436,12 +412,12 @@ export default function MobileAdvisorApp({
                 </div>
               )}
 
-              {/* PASO 2: VALIDACIÓN CURP EN RUTA */}
+              {/* PASO 2 */}
               {step === 2 && (
                 <div className="space-y-4 text-xs">
-                  <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-2">
-                    <label className="block text-slate-300 font-bold">
-                      CURP del Prospecto (18 caracteres)
+                  <div className="p-3 bg-white rounded-2xl border border-blue-200 shadow-xs space-y-2">
+                    <label className="block text-slate-800 font-bold">
+                      CURP Oficial del Prospecto (18 caracteres)
                     </label>
                     <input
                       type="text"
@@ -452,38 +428,38 @@ export default function MobileAdvisorApp({
                         setCurp(e.target.value.toUpperCase());
                         setCurpResult(null);
                       }}
-                      className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-white font-mono uppercase text-sm"
+                      className="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 font-mono uppercase text-sm"
                     />
 
                     <button
                       type="button"
                       onClick={handleValidateCurp}
                       disabled={curpChecking || curp.length < 18}
-                      className="w-full py-2 bg-teal-600 hover:bg-teal-500 disabled:bg-slate-800 text-white font-bold rounded-lg flex items-center justify-center gap-2 shadow"
+                      className="w-full py-2.5 bg-[#2563eb] hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow transition"
                     >
                       <ShieldCheck className="w-4 h-4" />
-                      {curpChecking ? 'Consultando en Financialsoft...' : 'Validar CURP en Línea'}
+                      {curpChecking ? 'Validando en Financialsoft...' : 'Validar CURP en Línea'}
                     </button>
                   </div>
 
                   {curpResult === 'VALIDO' && (
-                    <div className="p-3 bg-emerald-950/40 border border-emerald-600/50 rounded-xl text-emerald-200 space-y-1">
-                      <div className="font-bold flex items-center gap-1.5 text-sm text-emerald-400">
+                    <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-2xl text-emerald-900 space-y-1">
+                      <div className="font-black flex items-center gap-1.5 text-sm text-emerald-700">
                         <CheckCircle2 className="w-4 h-4" /> CURP Válida y Aprobada
                       </div>
-                      <p className="text-[11px] text-emerald-300/90">
-                        No presenta saldos activos ni reestructuras vigentes. Habilitado para armar expediente y solicitar crédito.
+                      <p className="text-[11px] text-emerald-800">
+                        Sin saldos activos ni antecedentes negativos. Habilitado para armar expediente y otorgar línea de crédito.
                       </p>
                     </div>
                   )}
 
                   {curpResult === 'NO_VALIDO' && (
-                    <div className="p-3 bg-rose-950/40 border border-rose-600/50 rounded-xl text-rose-200 space-y-1">
-                      <div className="font-bold flex items-center gap-1.5 text-sm text-rose-400">
-                        <AlertCircle className="w-4 h-4" /> Prospecto No Sujeto a Crédito
+                    <div className="p-3 bg-rose-50 border border-rose-300 rounded-2xl text-rose-900 space-y-1">
+                      <div className="font-black flex items-center gap-1.5 text-sm text-rose-700">
+                        <AlertCircle className="w-4 h-4" /> No Sujeto a Crédito
                       </div>
-                      <p className="text-[11px] text-rose-300/90">
-                        Presenta antecedentes en gestoría o saldo activo en Financialsoft. Se registrará como oportunidad perdida.
+                      <p className="text-[11px] text-rose-800">
+                        Presenta adeudos vigentes o antecedentes de quita en Financialsoft.
                       </p>
                     </div>
                   )}
@@ -492,7 +468,7 @@ export default function MobileAdvisorApp({
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="w-1/3 py-2 bg-slate-800 rounded-lg text-slate-300 font-semibold"
+                      className="w-1/3 py-2.5 bg-slate-200 rounded-xl text-slate-700 font-bold"
                     >
                       Atrás
                     </button>
@@ -500,36 +476,35 @@ export default function MobileAdvisorApp({
                       type="button"
                       disabled={!curpResult}
                       onClick={() => setStep(3)}
-                      className="flex-1 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 text-slate-950 font-bold rounded-lg shadow"
+                      className="flex-1 py-2.5 bg-[#facc15] hover:bg-yellow-400 disabled:bg-slate-300 text-slate-950 font-black rounded-xl shadow"
                     >
-                      Siguiente: Captura Fotos
+                      Siguiente: Capturar Fotos
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* PASO 3: FOTOS INE & FACHADA */}
+              {/* PASO 3 */}
               {step === 3 && (
                 <div className="space-y-3 text-xs">
-                  <p className="text-slate-400 text-[11px]">
-                    Toma las fotos directamente con la cámara del celular sin sombras ni flash:
+                  <p className="text-slate-600 text-[11px]">
+                    Captura las fotos directamente con la cámara del celular sin sombras ni reflejos:
                   </p>
 
-                  {/* INE Frente */}
-                  <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div className="p-3 bg-white rounded-2xl border border-blue-200 flex items-center justify-between shadow-xs">
                     <div>
-                      <span className="font-bold text-white block">1. INE Anverso (Frente)</span>
-                      <span className="text-[10px] text-slate-400">
-                        {ineFrontCaptured ? '✓ Foto capturada' : 'Obligatorio'}
+                      <span className="font-bold text-slate-900 block">1. INE Anverso (Frente)</span>
+                      <span className="text-[10px] text-slate-500">
+                        {ineFrontCaptured ? '✓ Foto tomada' : 'Obligatorio'}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIneFrontCaptured(true)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
                         ineFrontCaptured
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-amber-500 text-slate-950'
+                          ? 'bg-[#16a34a] text-white'
+                          : 'bg-[#facc15] text-slate-950'
                       }`}
                     >
                       <Camera className="w-3.5 h-3.5" />
@@ -537,21 +512,20 @@ export default function MobileAdvisorApp({
                     </button>
                   </div>
 
-                  {/* INE Reverso */}
-                  <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div className="p-3 bg-white rounded-2xl border border-blue-200 flex items-center justify-between shadow-xs">
                     <div>
-                      <span className="font-bold text-white block">2. INE Reverso (Atrás)</span>
-                      <span className="text-[10px] text-slate-400">
-                        {ineBackCaptured ? '✓ Foto capturada' : 'Obligatorio'}
+                      <span className="font-bold text-slate-900 block">2. INE Reverso (Atrás)</span>
+                      <span className="text-[10px] text-slate-500">
+                        {ineBackCaptured ? '✓ Foto tomada' : 'Obligatorio'}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIneBackCaptured(true)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
                         ineBackCaptured
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-amber-500 text-slate-950'
+                          ? 'bg-[#16a34a] text-white'
+                          : 'bg-[#facc15] text-slate-950'
                       }`}
                     >
                       <Camera className="w-3.5 h-3.5" />
@@ -559,21 +533,20 @@ export default function MobileAdvisorApp({
                     </button>
                   </div>
 
-                  {/* Fachada Domicilio */}
-                  <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div className="p-3 bg-white rounded-2xl border border-blue-200 flex items-center justify-between shadow-xs">
                     <div>
-                      <span className="font-bold text-white block">3. Fachada del Domicilio</span>
-                      <span className="text-[10px] text-slate-400">
-                        {houseFacadeCaptured ? '✓ Foto capturada' : 'Fachada de casa / comercio'}
+                      <span className="font-bold text-slate-900 block">3. Fachada del Domicilio</span>
+                      <span className="text-[10px] text-slate-500">
+                        {houseFacadeCaptured ? '✓ Foto tomada' : 'Fachada de casa'}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setHouseFacadeCaptured(true)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${
                         houseFacadeCaptured
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-amber-500 text-slate-950'
+                          ? 'bg-[#16a34a] text-white'
+                          : 'bg-[#facc15] text-slate-950'
                       }`}
                     >
                       <Camera className="w-3.5 h-3.5" />
@@ -585,14 +558,14 @@ export default function MobileAdvisorApp({
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="w-1/3 py-2 bg-slate-800 rounded-lg text-slate-300 font-semibold"
+                      className="w-1/3 py-2.5 bg-slate-200 rounded-xl text-slate-700 font-bold"
                     >
                       Atrás
                     </button>
                     <button
                       type="button"
                       onClick={() => setStep(4)}
-                      className="flex-1 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg shadow"
+                      className="flex-1 py-2.5 bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black rounded-xl shadow"
                     >
                       Siguiente: Firma Digital
                     </button>
@@ -600,17 +573,17 @@ export default function MobileAdvisorApp({
                 </div>
               )}
 
-              {/* PASO 4: FIRMA DIGITAL TÁCTIL */}
+              {/* PASO 4 */}
               {step === 4 && (
                 <div className="space-y-3 text-xs">
-                  <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300">
-                    <p className="font-bold">Proporciona el teléfono al prospecto:</p>
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl text-blue-900">
+                    <p className="font-black text-xs">Proporciona el teléfono al prospecto:</p>
                     <p className="text-[11px] opacity-90 mt-0.5">
-                      Debe firmar con su dedo idéntico a la firma de su credencial de elector (INE).
+                      Firma con el dedo idéntica a la firma de su credencial de elector (INE).
                     </p>
                   </div>
 
-                  <div className="bg-white p-2 rounded-xl">
+                  <div className="bg-white p-2 rounded-2xl border border-blue-100 shadow-sm">
                     <SignaturePad onSave={(sig) => setSignatureData(sig)} />
                   </div>
 
@@ -618,14 +591,14 @@ export default function MobileAdvisorApp({
                     <button
                       type="button"
                       onClick={() => setStep(3)}
-                      className="w-1/3 py-2 bg-slate-800 rounded-lg text-slate-300 font-semibold"
+                      className="w-1/3 py-2.5 bg-slate-200 rounded-xl text-slate-700 font-bold"
                     >
                       Atrás
                     </button>
                     <button
                       type="button"
                       onClick={handleFinishLead}
-                      className="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 text-white font-extrabold rounded-lg shadow-lg flex items-center justify-center gap-1.5"
+                      className="flex-1 py-3 bg-[#16a34a] hover:bg-emerald-700 text-white font-black rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       Enviar a Mesa de Crédito
@@ -636,21 +609,21 @@ export default function MobileAdvisorApp({
             </div>
           )}
 
-          {/* TAB: GPS RUTA COMERCIAL */}
+          {/* TAB: GPS RUTA */}
           {activeTab === 'gps' && (
             <div className="space-y-3 text-xs">
-              <div className="p-4 bg-[#161d30] rounded-xl border border-slate-800 text-center space-y-2">
-                <Navigation className="w-8 h-8 text-emerald-400 mx-auto animate-pulse" />
-                <h4 className="font-bold text-white text-sm">Monitoreo de Ruta de Prospección</h4>
-                <p className="text-slate-400 text-[11px]">
-                  Tu ubicación satelital se encuentra activa para validar visitas de cambaceo en sector INEGI asignado.
+              <div className="p-5 bg-white rounded-2xl border border-blue-100 text-center space-y-2 shadow-xs">
+                <Navigation className="w-10 h-10 text-[#2563eb] mx-auto animate-pulse" />
+                <h4 className="font-black text-blue-900 text-sm">Monitoreo de Ruta de Prospección</h4>
+                <p className="text-slate-500 text-[11px]">
+                  Ubicación satelital activa para validar visitas de cambaceo en sector asignado.
                 </p>
-                <div className="p-2.5 bg-slate-900 rounded-lg font-mono text-emerald-400 text-xs">
+                <div className="p-2.5 bg-blue-50 rounded-xl font-mono text-blue-800 text-xs font-bold border border-blue-200">
                   Lat: {gpsCoords?.lat || '25.4232'} • Lng: {gpsCoords?.lng || '-101.0053'}
                 </div>
                 <button
                   onClick={handleCaptureGps}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold"
+                  className="px-4 py-2 bg-[#2563eb] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow transition"
                 >
                   Actualizar Coordenadas
                 </button>
@@ -658,39 +631,39 @@ export default function MobileAdvisorApp({
             </div>
           )}
 
-          {/* TAB: PERFIL DEL ASESOR */}
+          {/* TAB: PERFIL */}
           {activeTab === 'perfil' && (
             <div className="space-y-3 text-xs">
-              <div className="p-4 bg-[#161d30] rounded-xl border border-slate-800 space-y-3">
+              <div className="p-5 bg-white rounded-2xl border border-blue-100 space-y-3 shadow-xs">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-amber-500 text-slate-950 font-black text-base flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-2xl bg-[#facc15] text-slate-950 font-black text-lg flex items-center justify-center shadow">
                     {user.avatarInitials}
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-white">{user.name}</h4>
-                    <p className="text-slate-400 text-[11px]">{user.email}</p>
-                    <span className="text-[10px] text-emerald-400 font-semibold font-mono">
+                    <h4 className="font-black text-sm text-blue-950">{user.name}</h4>
+                    <p className="text-slate-500 text-[11px]">{user.email}</p>
+                    <span className="text-[10px] text-blue-700 font-bold">
                       {user.roleLabel}
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-800 space-y-1.5 text-slate-300">
+                <div className="pt-3 border-t border-slate-100 space-y-1.5 text-slate-600">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Sucursal:</span>
-                    <span className="font-semibold">{user.branch}</span>
+                    <span>Sucursal:</span>
+                    <span className="font-bold text-slate-900">{user.branch}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Versión App:</span>
+                    <span>Versión:</span>
                     <span className="font-mono">v2.4.0 (PWA Móvil)</span>
                   </div>
                 </div>
 
                 <button
                   onClick={onLogout}
-                  className="w-full py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 rounded-lg font-semibold flex items-center justify-center gap-1.5 mt-3"
+                  className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold flex items-center justify-center gap-1.5 mt-2 transition"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
+                  <LogOut className="w-4 h-4" />
                   Cerrar Sesión Móvil
                 </button>
               </div>
@@ -698,12 +671,12 @@ export default function MobileAdvisorApp({
           )}
         </div>
 
-        {/* BOTTOM MOBILE NAVIGATION BAR */}
-        <div className="bg-[#121727] border-t border-slate-800 px-2 py-2 flex items-center justify-around text-[10px] font-bold text-slate-400">
+        {/* BOTTOM NAVIGATION BAR */}
+        <div className="bg-white border-t border-blue-100 px-3 py-2 flex items-center justify-around text-[10px] font-bold text-slate-600">
           <button
             onClick={() => setActiveTab('leads')}
-            className={`flex flex-col items-center gap-1 p-1 rounded-lg ${
-              activeTab === 'leads' ? 'text-amber-400' : 'hover:text-slate-200'
+            className={`flex flex-col items-center gap-1 p-1 ${
+              activeTab === 'leads' ? 'text-[#2563eb] font-black' : 'hover:text-blue-900'
             }`}
           >
             <Users className="w-4 h-4" />
@@ -716,18 +689,18 @@ export default function MobileAdvisorApp({
               setStep(1);
               setActiveTab('nuevo');
             }}
-            className="flex flex-col items-center gap-1 p-1 text-emerald-400 font-extrabold"
+            className="flex flex-col items-center gap-1 p-1 text-slate-950 font-black"
           >
-            <div className="w-7 h-7 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-lg -mt-3 border-2 border-[#121727]">
-              <Plus className="w-4 h-4 stroke-[3]" />
+            <div className="w-8 h-8 rounded-full bg-[#facc15] text-slate-950 flex items-center justify-center shadow-md -mt-4 border-2 border-white">
+              <Plus className="w-5 h-5 stroke-[3]" />
             </div>
             <span>Capturar</span>
           </button>
 
           <button
             onClick={() => setActiveTab('gps')}
-            className={`flex flex-col items-center gap-1 p-1 rounded-lg ${
-              activeTab === 'gps' ? 'text-amber-400' : 'hover:text-slate-200'
+            className={`flex flex-col items-center gap-1 p-1 ${
+              activeTab === 'gps' ? 'text-[#2563eb] font-black' : 'hover:text-blue-900'
             }`}
           >
             <MapPin className="w-4 h-4" />
@@ -736,8 +709,8 @@ export default function MobileAdvisorApp({
 
           <button
             onClick={() => setActiveTab('perfil')}
-            className={`flex flex-col items-center gap-1 p-1 rounded-lg ${
-              activeTab === 'perfil' ? 'text-amber-400' : 'hover:text-slate-200'
+            className={`flex flex-col items-center gap-1 p-1 ${
+              activeTab === 'perfil' ? 'text-[#2563eb] font-black' : 'hover:text-blue-900'
             }`}
           >
             <Smartphone className="w-4 h-4" />
@@ -748,4 +721,3 @@ export default function MobileAdvisorApp({
     </div>
   );
 }
-

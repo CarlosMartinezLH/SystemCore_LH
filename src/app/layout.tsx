@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LanAhora CRM — Originación de Crédito y Distribuidoras",
-  description: "Sistema CRM para Asesores de Crédito y Originación de Nuevas Distribuidoras LanAhora",
+  title: "LanAhora SystemCore — Sistema Central & Originación",
+  description: "Plataforma central de crédito por vales, red de distribuidores y prospección en campo LanAhora",
 };
 
 export default function RootLayout({
@@ -27,7 +27,7 @@ export default function RootLayout({
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0f1117] text-slate-100">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#f0f4fa] text-slate-900">{children}</body>
     </html>
   );
 }
