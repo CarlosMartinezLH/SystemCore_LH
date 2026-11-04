@@ -500,3 +500,4 @@ export function PrestanombresModal({ isOpen, onClose, persona }: ModalProps) {
     </div>
   );
 }
+

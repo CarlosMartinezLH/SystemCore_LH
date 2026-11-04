@@ -365,3 +365,4 @@ export function NotificacionAppModal({ isOpen, onClose, distribuidor }: DVModalP
     </div>
   );
 }
+
