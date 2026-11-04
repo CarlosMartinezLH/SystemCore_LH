@@ -12,6 +12,8 @@ import CoreDashboard from '@/components/CoreDashboard';
 import PersonasView from '@/components/PersonasView';
 import DistribuidoresView from '@/components/DistribuidoresView';
 import RHView from '@/components/RHView';
+import DispersionView from '@/components/DispersionView';
+import IntegracionesView from '@/components/IntegracionesView';
 import { UserSession } from '@/types/auth';
 import { Prospect, StageId, OriginType } from '@/types/crm';
 import { INITIAL_PROSPECTS, createDefaultDocuments } from '@/lib/data/initialData';
@@ -209,6 +211,10 @@ export default function Home() {
           <DistribuidoresView />
         ) : activeModule === 'rh' ? (
           <RHView />
+        ) : activeModule === 'dispersion' ? (
+          <DispersionView />
+        ) : activeModule === 'integraciones' ? (
+          <IntegracionesView />
         ) : (
           /* MODULE CRM DESKTOP */
           selectedProspect ? (

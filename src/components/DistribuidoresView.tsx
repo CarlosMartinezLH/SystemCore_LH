@@ -7,7 +7,20 @@ import {
   Search,
   FileSpreadsheet,
   Smartphone,
+  FileText,
+  MessageSquare,
+  Unlock,
+  CheckCircle2,
+  Users,
+  Briefcase,
+  ExternalLink,
 } from 'lucide-react';
+import {
+  EstadoCuentaModal,
+  MensajesMasivosModal,
+  QuitarCastigoModal,
+  NotificacionAppModal,
+} from './modals/DistribuidorModals';
 
 export default function DistribuidoresView() {
   const [distribuidores, setDistribuidores] = useState<DistribuidorCore[]>(INITIAL_DISTRIBUIDORES);
@@ -15,7 +28,10 @@ export default function DistribuidoresView() {
   const [coordinatorFilter, setCoordinatorFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const selectedDist = distribuidores.find((d) => d.noDist === selectedNoDist);
+  // Modals state
+  const [activeModal, setActiveModal] = useState<'estadoCuenta' | 'mensajes' | 'castigo' | 'push' | 'relacion' | 'cartera' | null>(null);
+
+  const selectedDist = distribuidores.find((d) => d.noDist === selectedNoDist) || distribuidores[0];
 
   const coordinators = Array.from(
     new Set(distribuidores.map((d) => d.coordinador).filter(Boolean))
@@ -39,7 +55,47 @@ export default function DistribuidoresView() {
       alert('Selecciona primero una distribuidora en la tabla.');
       return;
     }
-    alert(`Acción: "${actionName}" para Distribuidora #${selectedDist.noDist} (${selectedDist.nombreDistribuidor})`);
+
+    if (actionName === 'Estado de Cuenta') {
+      setActiveModal('estadoCuenta');
+    } else if (actionName === 'Mensajes masivos') {
+      setActiveModal('mensajes');
+    } else if (actionName === 'Quitar fecha castigo') {
+      setActiveModal('castigo');
+    } else if (actionName === 'Enviar notificación APP') {
+      setActiveModal('push');
+    } else if (actionName === 'Relación' || actionName === 'Relación Recibos') {
+      setActiveModal('relacion');
+    } else if (actionName === 'Cartera') {
+      setActiveModal('cartera');
+    } else {
+      alert(`Módulo: "${actionName}" ejecutado para DV #${selectedDist.noDist} (${selectedDist.nombreDistribuidor})`);
+    }
+  };
+
+  const handleExportXLS = () => {
+    const headers = ['NoDist', 'Distribuidor', 'Sucursal', 'Zona', 'Coordinador', 'Nivel', 'Estatus', 'Línea Crédito', 'Saldo', 'Disponible', 'LanaApp'];
+    const rows = distribuidores.map((d) => [
+      d.noDist,
+      `"${d.nombreDistribuidor}"`,
+      d.sucursal,
+      d.zona,
+      `"${d.coordinador}"`,
+      d.nivel,
+      d.estatus,
+      d.creditoLimite,
+      d.saldoActual,
+      d.disponible,
+      d.tieneLanaApp ? 'ACTIVA' : 'NO',
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `distribuidores_lanahora_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -66,44 +122,47 @@ export default function DistribuidoresView() {
 
           <div className="h-5 w-px bg-slate-200 mx-1 hidden sm:block" />
 
-          {/* Action buttons */}
+          {/* Action buttons with real handlers */}
           <button
             onClick={() => handleActionClick('Relación')}
             className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
           >
-            Relación
+            Relación de Cobro
           </button>
           <button
             onClick={() => handleActionClick('Relación Recibos')}
             className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
           >
-            Relación Recibos
+            Recibos Emitidos
           </button>
           <button
             onClick={() => handleActionClick('Estado de Cuenta')}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
+            className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold transition flex items-center gap-1"
           >
-            Estado de Cuenta
-          </button>
-          <button
-            onClick={() => handleActionClick('Notas')}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
-          >
-            Notas
+            <FileText className="w-3.5 h-3.5" />
+            <span>Estado de Cuenta</span>
           </button>
           <button
             onClick={() => handleActionClick('Mensajes masivos')}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
+            className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition flex items-center gap-1"
           >
-            Mensajes masivos
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Mensajes Masivos WhatsApp</span>
+          </button>
+          <button
+            onClick={() => handleActionClick('Quitar fecha castigo')}
+            className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition flex items-center gap-1"
+          >
+            <Unlock className="w-3.5 h-3.5" />
+            <span>Quitar Castigo</span>
           </button>
 
           <button
-            onClick={() => alert('Exportando reporte a XLS...')}
+            onClick={handleExportXLS}
             className="px-3 py-1.5 rounded-xl bg-[#16a34a] hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
-            <span>XLS</span>
+            <span>XLS (Excel)</span>
           </button>
 
           <button
@@ -137,74 +196,70 @@ export default function DistribuidoresView() {
       {/* Table */}
       <div className="bg-white rounded-2xl border border-blue-100 overflow-x-auto shadow-md flex-1">
         <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-          <thead className="bg-[#1d4ed8] text-white font-bold border-b border-blue-700 text-[11px] uppercase tracking-wider select-none">
+          <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
             <tr>
-              <th className="p-3 text-center">Detalle</th>
-              <th className="p-3 text-center">Cartera</th>
+              <th className="p-3">Detalle</th>
+              <th className="p-3">Cartera</th>
               <th className="p-3">Sucursal</th>
               <th className="p-3">Zona</th>
+              <th className="p-3">Subzona</th>
               <th className="p-3">Coordinador</th>
-              <th className="p-3">No Dist</th>
-              <th className="p-3">Nombre de Distribuidor</th>
+              <th className="p-3">No. Dist</th>
+              <th className="p-3">Nombre Distribuidor</th>
+              <th className="p-3">Género</th>
               <th className="p-3">Estatus</th>
               <th className="p-3">Nivel</th>
-              <th className="p-3 text-right">Línea de Crédito</th>
-              <th className="p-3 text-right">Saldo Actual</th>
-              <th className="p-3 text-right">Disponible</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {filtered.map((d) => {
-              const isSelected = d.noDist === selectedNoDist;
-
+              const isSelected = selectedNoDist === d.noDist;
               return (
                 <tr
                   key={d.noDist}
                   onClick={() => setSelectedNoDist(d.noDist)}
                   className={`cursor-pointer transition ${
-                    isSelected
-                      ? 'bg-blue-50 font-bold text-blue-950'
-                      : 'hover:bg-slate-50 text-slate-700'
+                    isSelected ? 'bg-blue-50/90 font-medium' : 'hover:bg-blue-50/40'
                   }`}
                 >
-                  <td className="p-2.5 text-center">
+                  <td className="p-3">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedNoDist(d.noDist);
-                        alert(`Detalle de Distribuidora #${d.noDist}: ${d.nombreDistribuidor}`);
+                        setActiveModal('estadoCuenta');
                       }}
-                      className="px-2 py-0.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#2563eb] text-[10px] font-bold border border-blue-200"
+                      className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white transition"
                     >
                       Detalle
                     </button>
                   </td>
-                  <td className="p-2.5 text-center">
+                  <td className="p-3">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedNoDist(d.noDist);
-                        alert(`Módulo de cartera de Distribuidora #${d.noDist}`);
+                        setActiveModal('cartera');
                       }}
-                      className="px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold border border-indigo-200"
+                      className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-600 hover:text-white transition"
                     >
                       Cartera
                     </button>
                   </td>
-                  <td className="p-3 font-semibold text-slate-900">{d.sucursal}</td>
-                  <td className="p-3 text-slate-500">{d.zona}</td>
-                  <td className="p-3 text-slate-700">{d.coordinador}</td>
-                  <td className="p-3 font-mono font-bold text-[#2563eb]">
-                    #{d.noDist}
-                  </td>
-                  <td className="p-3 font-semibold text-slate-900">{d.nombreDistribuidor}</td>
+                  <td className="p-3 text-slate-800 font-semibold">{d.sucursal}</td>
+                  <td className="p-3 text-slate-600">{d.zona}</td>
+                  <td className="p-3 text-slate-600">{d.subzona}</td>
+                  <td className="p-3 text-slate-800 font-medium">{d.coordinador}</td>
+                  <td className="p-3 font-mono font-bold text-[#2563eb]">#{d.noDist}</td>
+                  <td className="p-3 font-bold text-slate-900">{d.nombreDistribuidor}</td>
+                  <td className="p-3 text-slate-600">{d.genero}</td>
                   <td className="p-3">
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                         d.estatus === 'ACTIVO'
                           ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                           : d.estatus === 'REESTRUCTURA'
-                          ? 'bg-amber-100 text-amber-800'
+                          ? 'bg-amber-100 text-amber-800 border border-amber-300'
                           : 'bg-rose-100 text-rose-800'
                       }`}
                     >
@@ -212,26 +267,9 @@ export default function DistribuidoresView() {
                     </span>
                   </td>
                   <td className="p-3">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        d.nivel === 'DIAMANTE'
-                          ? 'bg-sky-100 text-sky-800 border border-sky-300'
-                          : d.nivel === 'ORO'
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-slate-100 text-slate-700'
-                      }`}
-                    >
+                    <span className="px-2 py-0.5 rounded text-[10px] font-black bg-yellow-100 text-yellow-900 border border-yellow-300">
                       {d.nivel}
                     </span>
-                  </td>
-                  <td className="p-3 font-mono text-right text-slate-700 font-medium">
-                    ${d.creditoLimite.toLocaleString('es-MX')}
-                  </td>
-                  <td className="p-3 font-mono text-right text-rose-600 font-bold">
-                    ${d.saldoActual.toLocaleString('es-MX')}
-                  </td>
-                  <td className="p-3 font-mono text-right text-[#16a34a] font-bold">
-                    ${d.disponible.toLocaleString('es-MX')}
                   </td>
                 </tr>
               );
@@ -240,20 +278,148 @@ export default function DistribuidoresView() {
         </table>
       </div>
 
-      {/* Pagination */}
-      <footer className="bg-white border border-blue-100 rounded-2xl p-3 px-4 flex flex-wrap items-center justify-between text-xs text-slate-500 shadow-sm">
-        <div>
-          Página 1 de 144 (<span className="font-black text-[#2563eb] font-mono">7,171 distribuidoras</span>)
+      {/* MODALS */}
+      <EstadoCuentaModal
+        isOpen={activeModal === 'estadoCuenta'}
+        onClose={() => setActiveModal(null)}
+        distribuidor={selectedDist}
+      />
+
+      <MensajesMasivosModal
+        isOpen={activeModal === 'mensajes'}
+        onClose={() => setActiveModal(null)}
+        distribuidor={selectedDist}
+      />
+
+      <QuitarCastigoModal
+        isOpen={activeModal === 'castigo'}
+        onClose={() => setActiveModal(null)}
+        distribuidor={selectedDist}
+        onUpdateDistribuidor={(up) => {
+          setDistribuidores(distribuidores.map((d) => (d.noDist === up.noDist ? up : d)));
+        }}
+      />
+
+      <NotificacionAppModal
+        isOpen={activeModal === 'push'}
+        onClose={() => setActiveModal(null)}
+        distribuidor={selectedDist}
+      />
+
+      {/* Relación de Cobro Modal */}
+      {activeModal === 'relacion' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 w-full max-w-xl overflow-hidden animate-in fade-in">
+            <div className="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2 font-bold text-sm">
+                <FileText className="w-4 h-4 text-yellow-300" />
+                <span>Relación de Cobranza Quincenal — DV #{selectedDist.noDist}</span>
+              </div>
+              <button onClick={() => setActiveModal(null)} className="text-white/80 hover:text-white p-1">✕</button>
+            </div>
+
+            <div className="p-5 space-y-4 text-xs">
+              <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-200 flex justify-between items-center">
+                <div>
+                  <span className="font-bold text-slate-900 block">{selectedDist.nombreDistribuidor}</span>
+                  <span className="text-[11px] text-slate-500">Coordinador: {selectedDist.coordinador} • {selectedDist.sucursal}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] text-slate-400 block uppercase">Cobro Estimado</span>
+                  <span className="font-mono font-black text-blue-700 text-base">${selectedDist.saldoActual.toLocaleString('es-MX')}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 border border-slate-200 rounded-xl p-3">
+                <div className="flex justify-between py-1 border-b">
+                  <span className="text-slate-600">Total Vales Colocados Activos:</span>
+                  <span className="font-bold font-mono">14 vales</span>
+                </div>
+                <div className="flex justify-between py-1 border-b">
+                  <span className="text-slate-600">Comisión Distribuidora (10%):</span>
+                  <span className="font-bold font-mono text-emerald-700">${(selectedDist.saldoActual * 0.10).toLocaleString('es-MX')}</span>
+                </div>
+                <div className="flex justify-between py-1 font-bold text-slate-900">
+                  <span>Neto a Entregar a Sucursal:</span>
+                  <span className="font-mono text-blue-700">${(selectedDist.saldoActual * 0.90).toLocaleString('es-MX')}</span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200 flex justify-end gap-2">
+                <button onClick={() => window.print()} className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow">
+                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                  <span>Imprimir Relación de Cobro</span>
+                </button>
+                <button onClick={() => setActiveModal(null)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-1 font-mono text-xs">
-          <button className="px-3 py-1 rounded-lg bg-[#2563eb] text-white font-bold">1</button>
-          <button className="px-3 py-1 rounded-lg hover:bg-slate-100 text-slate-700 font-bold">2</button>
-          <button className="px-3 py-1 rounded-lg hover:bg-slate-100 text-slate-700 font-bold">3</button>
-          <button className="px-3 py-1 rounded-lg hover:bg-slate-100 text-slate-700 font-bold">4</button>
-          <span className="px-1 text-slate-400">...</span>
-          <button className="px-3 py-1 rounded-lg hover:bg-slate-100 text-slate-700 font-bold">144</button>
+      )}
+
+      {/* Cartera de Clientes Modal */}
+      {activeModal === 'cartera' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 w-full max-w-2xl overflow-hidden animate-in fade-in">
+            <div className="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2 font-bold text-sm">
+                <Users className="w-4 h-4 text-yellow-300" />
+                <span>Cartera de Clientes & Vales — DV #{selectedDist.noDist} {selectedDist.nombreDistribuidor}</span>
+              </div>
+              <button onClick={() => setActiveModal(null)} className="text-white/80 hover:text-white p-1">✕</button>
+            </div>
+
+            <div className="p-5 space-y-4 text-xs max-h-[75vh] overflow-y-auto">
+              <table className="w-full text-left text-xs border rounded-xl overflow-hidden">
+                <thead className="bg-[#2563eb] text-white font-bold text-[10px] uppercase">
+                  <tr>
+                    <th className="p-2.5">Folio Vale</th>
+                    <th className="p-2.5">Cliente</th>
+                    <th className="p-2.5">Monto</th>
+                    <th className="p-2.5">Saldo</th>
+                    <th className="p-2.5">Plazo</th>
+                    <th className="p-2.5">Estatus</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  <tr className="hover:bg-slate-50">
+                    <td className="p-2.5 font-mono font-bold text-blue-700">V-50491</td>
+                    <td className="p-2.5 font-bold text-slate-900">MARIA GUADALUPE SANCHEZ</td>
+                    <td className="p-2.5 font-mono">$6,000.00</td>
+                    <td className="p-2.5 font-mono text-rose-600 font-bold">$2,400.00</td>
+                    <td className="p-2.5 font-mono">8 qnas</td>
+                    <td className="p-2.5"><span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800">Al Corriente</span></td>
+                  </tr>
+                  <tr className="hover:bg-slate-50">
+                    <td className="p-2.5 font-mono font-bold text-blue-700">V-50495</td>
+                    <td className="p-2.5 font-bold text-slate-900">JUAN CARLOS NAVARRO</td>
+                    <td className="p-2.5 font-mono">$8,000.00</td>
+                    <td className="p-2.5 font-mono text-rose-600 font-bold">$5,000.00</td>
+                    <td className="p-2.5 font-mono">10 qnas</td>
+                    <td className="p-2.5"><span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800">Al Corriente</span></td>
+                  </tr>
+                  <tr className="hover:bg-slate-50">
+                    <td className="p-2.5 font-mono font-bold text-blue-700">V-48102</td>
+                    <td className="p-2.5 font-bold text-slate-900">YAZMIN MENDOZA CHAVEZ</td>
+                    <td className="p-2.5 font-mono">$3,500.00</td>
+                    <td className="p-2.5 font-mono text-emerald-700 font-bold">$0.00</td>
+                    <td className="p-2.5 font-mono">6 qnas</td>
+                    <td className="p-2.5"><span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600">Liquidado</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="p-4 bg-white border-t border-slate-200 flex justify-end">
+              <button onClick={() => setActiveModal(null)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">
+                Cerrar
+              </button>
+            </div>
+          </div>
         </div>
-      </footer>
+      )}
     </div>
   );
 }

@@ -12,9 +12,10 @@ import {
   LogOut,
   ChevronDown,
   Building,
+  CreditCard,
 } from 'lucide-react';
 
-export type ActiveAppModule = 'crm' | 'core_dashboard' | 'personas' | 'distribuidores' | 'rh';
+export type ActiveAppModule = 'crm' | 'core_dashboard' | 'personas' | 'distribuidores' | 'rh' | 'dispersion' | 'integraciones';
 
 interface HeaderProps {
   currentUser: UserSession;
@@ -121,6 +122,30 @@ export default function Header({
             >
               <UserCheck className="w-3.5 h-3.5" />
               <span>Capital Humano & GPS</span>
+            </button>
+
+            <button
+              onClick={() => onModuleChange('dispersion')}
+              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
+                activeModule === 'dispersion'
+                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
+                  : 'text-white/90 hover:bg-white/15 hover:text-white'
+              }`}
+            >
+              <CreditCard className="w-3.5 h-3.5" />
+              <span>Dispersión & Pagos</span>
+            </button>
+
+            <button
+              onClick={() => onModuleChange('integraciones')}
+              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
+                activeModule === 'integraciones'
+                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
+                  : 'text-white/90 hover:bg-white/15 hover:text-white'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Integraciones (ESB)</span>
             </button>
           </nav>
         </div>
@@ -234,6 +259,22 @@ export default function Header({
           }`}
         >
           RH & GPS
+        </button>
+        <button
+          onClick={() => onModuleChange('dispersion')}
+          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
+            activeModule === 'dispersion' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
+          }`}
+        >
+          Dispersión STP
+        </button>
+        <button
+          onClick={() => onModuleChange('integraciones')}
+          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
+            activeModule === 'integraciones' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
+          }`}
+        >
+          Integraciones ESB
         </button>
       </div>
     </header>
