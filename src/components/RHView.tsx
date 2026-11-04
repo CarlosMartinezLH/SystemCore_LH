@@ -26,6 +26,11 @@ import {
   GraduationCap,
   ExternalLink,
   Plus,
+  Search,
+  FileSpreadsheet,
+  Users,
+  ShieldCheck,
+  Smartphone,
 } from 'lucide-react';
 
 export default function RHView() {
@@ -37,6 +42,10 @@ export default function RHView() {
   // Filters
   const [selectedBranch, setSelectedBranch] = useState('ALL');
   const [selectedLocationType, setSelectedLocationType] = useState('ALL');
+  const [searchFilter, setSearchFilter] = useState('');
+
+  // Selected row
+  const [selectedEmpId, setSelectedEmpId] = useState<string>('emp-101');
 
   // New Requisition Form State
   const [isNewReqOpen, setIsNewReqOpen] = useState(false);
@@ -161,611 +170,666 @@ export default function RHView() {
     setRequisitions(updated);
   };
 
+  // Filtered lists
   const filteredAttendance = attendance.filter((a) => {
     const matchBranch = selectedBranch === 'ALL' || a.branch === selectedBranch;
     const matchLoc = selectedLocationType === 'ALL' || a.locationType === selectedLocationType;
-    return matchBranch && matchLoc;
+    if (!matchBranch || !matchLoc) return false;
+    if (!searchFilter.trim()) return true;
+    const q = searchFilter.toLowerCase();
+    return (
+      a.employeeName.toLowerCase().includes(q) ||
+      a.branch.toLowerCase().includes(q) ||
+      (a.locationLabel && a.locationLabel.toLowerCase().includes(q))
+    );
   });
 
+  const filteredEmployees = employees.filter((e) => {
+    const matchBranch = selectedBranch === 'ALL' || e.branch === selectedBranch;
+    const matchLoc = selectedLocationType === 'ALL' || e.locationType === selectedLocationType;
+    if (!matchBranch || !matchLoc) return false;
+    if (!searchFilter.trim()) return true;
+    const q = searchFilter.toLowerCase();
+    return (
+      e.fullName.toLowerCase().includes(q) ||
+      e.employeeNumber.toLowerCase().includes(q) ||
+      e.role.toLowerCase().includes(q) ||
+      e.department.toLowerCase().includes(q)
+    );
+  });
+
+  const filteredRequisitions = requisitions.filter((r) => {
+    const matchBranch = selectedBranch === 'ALL' || r.branch === selectedBranch;
+    if (!matchBranch) return false;
+    if (!searchFilter.trim()) return true;
+    const q = searchFilter.toLowerCase();
+    return (
+      r.employeeName.toLowerCase().includes(q) ||
+      r.title.toLowerCase().includes(q) ||
+      r.type.toLowerCase().includes(q)
+    );
+  });
+
+  const selectedEmployee = employees.find((e) => e.id === selectedEmpId) || employees[0];
+
   return (
-    <div className="flex-1 bg-[#f0f4fa] text-slate-800 p-4 sm:p-6 min-h-[calc(100vh-105px)] font-sans">
-      <div className="max-w-7xl mx-auto space-y-5">
-        {/* Module Title Banner in LanAhora Royal Blue */}
-        <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white rounded-3xl p-6 shadow-lg flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#facc15] text-slate-950 font-black text-xl flex items-center justify-center shadow-md">
-              <UserCheck className="w-6 h-6 text-slate-950" />
+    <div className="flex-1 bg-[#f0f4fa] text-slate-800 flex flex-col md:flex-row min-h-[calc(100vh-105px)] overflow-hidden font-sans">
+      {/* LEFT SIDEBAR: OPCIONES (Identical to PersonasView) */}
+      <aside className="w-full md:w-64 bg-white border-r border-blue-100 p-3 flex flex-col justify-between overflow-y-auto shadow-sm">
+        <div className="space-y-4">
+          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 overflow-hidden shadow-xs">
+            <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white px-4 py-2.5 text-xs font-black flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <UserCheck className="w-4 h-4 text-[#facc15]" />
+                Capital Humano
+              </span>
+              <span className="text-[10px] bg-white/20 px-2 py-0.2 rounded-full font-bold">
+                Buk
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-black text-white tracking-tight">
-                  Capital Humano & Control de Asistencia
-                </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#facc15] text-slate-950">
-                  Módulo Buk Integrado
-                </span>
+            <div className="p-2 space-y-0.5 text-xs">
+              {[
+                { id: 'asistencia', name: 'Control de Asistencia & GPS', icon: Clock, count: attendance.length },
+                { id: 'personal', name: 'Padrón de Colaboradores', icon: Users, count: employees.length },
+                { id: 'requisiciones', name: 'Requisiciones & Gafetes', icon: Shirt, count: requisitions.filter((r) => r.status === 'PENDIENTE').length },
+                { id: 'capacitaciones', name: 'Capacitaciones & PLD', icon: GraduationCap, count: INITIAL_TRAINING_COURSES.length },
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => setActiveTab(opt.id as any)}
+                  className={`w-full text-left px-3 py-2 rounded-xl transition flex items-center justify-between font-medium ${
+                    activeTab === opt.id
+                      ? 'bg-[#2563eb] text-white font-bold hover:bg-blue-700 shadow-xs'
+                      : 'text-slate-700 hover:bg-blue-100/60 hover:text-blue-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <opt.icon className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="truncate">{opt.name}</span>
+                  </div>
+                  <span
+                    className={`text-[10px] px-2 py-0.2 rounded-full font-bold ${
+                      activeTab === opt.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                    }`}
+                  >
+                    {opt.count}
+                  </span>
+                </button>
+              ))}
+
+              <div className="pt-2 border-t border-blue-200/60 my-1 space-y-1">
+                <button
+                  onClick={handleGpsCheckIn}
+                  disabled={gpsLoading}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 transition shadow-xs active:scale-95"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-yellow-300" />
+                  <span>{gpsLoading ? 'Marcando...' : 'Check-in GPS (Calle)'}</span>
+                </button>
+
+                <button
+                  onClick={() => setIsNewReqOpen(true)}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-bold flex items-center gap-2 transition shadow-xs active:scale-95"
+                >
+                  <Plus className="w-3.5 h-3.5 text-slate-950" />
+                  <span>Solicitar Gafete / Ropa</span>
+                </button>
               </div>
-              <p className="text-xs text-yellow-200 mt-0.5 font-medium">
-                Control de asistencia de personal en sucursales, corporativo y asesores en calle con geolocalización GPS.
-              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Exportar */}
+          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 p-2">
             <button
-              onClick={() => setIsNewReqOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs shadow-md flex items-center gap-2 transition active:scale-95"
+              onClick={() => alert('Exportando reporte de asistencias y personal a Microsoft Excel (.xlsx)...')}
+              className="w-full text-left px-3 py-2 rounded-xl text-xs text-emerald-700 font-bold hover:bg-emerald-100/50 flex items-center gap-2 transition"
             >
-              <Shirt className="w-4 h-4" />
-              <span>Solicitar Gafete / Uniforme</span>
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <span>Exportar Reporte a Excel</span>
             </button>
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-blue-200 pb-1 text-xs font-bold overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('asistencia')}
-            className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 border ${
-              activeTab === 'asistencia'
-                ? 'bg-[#2563eb] text-white border-[#2563eb] font-extrabold shadow-sm'
-                : 'text-slate-600 hover:text-blue-900 border-transparent hover:bg-white'
-            }`}
-          >
-            <Clock className="w-4 h-4 text-[#facc15]" />
-            <span>Control de Asistencia & GPS</span>
-            <span className="ml-1 px-2 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-mono">
-              {attendance.length}
+        {/* Selected Record Summary Card (Identical to PersonasView) */}
+        {selectedEmployee && (
+          <div className="p-3 bg-[#eff4fc] rounded-2xl border border-blue-200 text-xs text-slate-700 mt-3">
+            <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
+              Colaborador Activo:
             </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('personal')}
-            className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 border ${
-              activeTab === 'personal'
-                ? 'bg-[#2563eb] text-white border-[#2563eb] font-extrabold shadow-sm'
-                : 'text-slate-600 hover:text-blue-900 border-transparent hover:bg-white'
-            }`}
-          >
-            <Building className="w-4 h-4 text-[#facc15]" />
-            <span>Padrón de Colaboradores</span>
-            <span className="ml-1 px-2 py-0.2 rounded-full text-[10px] bg-slate-200 text-slate-700 font-mono">
-              {employees.length}
+            <span className="font-mono text-slate-900 font-black block text-sm">
+              {selectedEmployee.employeeNumber}
             </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('requisiciones')}
-            className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 border ${
-              activeTab === 'requisiciones'
-                ? 'bg-[#2563eb] text-white border-[#2563eb] font-extrabold shadow-sm'
-                : 'text-slate-600 hover:text-blue-900 border-transparent hover:bg-white'
-            }`}
-          >
-            <Shirt className="w-4 h-4 text-[#facc15]" />
-            <span>Requisiciones (Gafetes & Uniformes)</span>
-            <span className="ml-1 px-2 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-800 font-mono font-bold">
-              {requisitions.filter((r) => r.status === 'PENDIENTE').length} pendientes
+            <span className="truncate block font-bold text-slate-800 mt-0.5">
+              {selectedEmployee.fullName}
             </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('capacitaciones')}
-            className={`px-4 py-2.5 rounded-xl transition flex items-center gap-2 border ${
-              activeTab === 'capacitaciones'
-                ? 'bg-[#2563eb] text-white border-[#2563eb] font-extrabold shadow-sm'
-                : 'text-slate-600 hover:text-blue-900 border-transparent hover:bg-white'
-            }`}
-          >
-            <GraduationCap className="w-4 h-4 text-[#facc15]" />
-            <span>Capacitaciones & Academia</span>
-          </button>
-        </div>
-
-        {/* TAB 1: ASISTENCIA */}
-        {activeTab === 'asistencia' && (
-          <div className="space-y-4">
-            {/* GPS Punch Card */}
-            <div className="bg-white border border-blue-100 rounded-3xl p-6 shadow-md flex flex-wrap items-center justify-between gap-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Navigation className="w-4 h-4 text-[#2563eb] animate-pulse" />
-                  <span className="text-xs font-black uppercase tracking-wider text-[#2563eb]">
-                    Estación Satelital de Marcaje LanAhora
-                  </span>
-                </div>
-                <h3 className="text-base font-black text-slate-900">
-                  Registro de Asistencia de Personal en Calle y Sucursal
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Captura de punto de inicio de jornada con latitud, longitud y validación contra zona INEGI asignada.
-                </p>
-              </div>
-
-              <div className="flex flex-col items-end gap-2">
-                <button
-                  onClick={handleGpsCheckIn}
-                  disabled={gpsLoading}
-                  className="px-4 py-2.5 rounded-xl bg-[#22c55e] hover:bg-emerald-600 text-white font-black text-xs flex items-center gap-2 shadow-md transition active:scale-95"
-                >
-                  <MapPin className="w-4 h-4" />
-                  {gpsLoading ? 'Obteniendo GPS...' : 'Registrar Check-in con GPS (En Calle)'}
-                </button>
-                {gpsMessage && (
-                  <span className="text-[11px] text-emerald-800 font-mono bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-300 font-bold">
-                    {gpsMessage}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Attendance Table */}
-            <div className="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-md">
-              <div className="p-4 bg-blue-50/60 border-b border-blue-100 flex flex-wrap items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-600 font-bold">Sucursal:</span>
-                    <select
-                      value={selectedBranch}
-                      onChange={(e) => setSelectedBranch(e.target.value)}
-                      className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 focus:outline-none focus:border-[#2563eb] font-semibold"
-                    >
-                      <option value="ALL">Todas las Sucursales</option>
-                      <option value="Saltillo Centro">Saltillo Centro</option>
-                      <option value="Torreón Matriz">Torreón Matriz</option>
-                      <option value="Monclova Foránea">Monclova Foránea</option>
-                      <option value="Corporativo Saltillo">Corporativo Saltillo</option>
-                    </select>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-600 font-bold">Ubicación:</span>
-                    <select
-                      value={selectedLocationType}
-                      onChange={(e) => setSelectedLocationType(e.target.value)}
-                      className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 focus:outline-none focus:border-[#2563eb] font-semibold"
-                    >
-                      <option value="ALL">Todos los tipos</option>
-                      <option value="CAMPO">Personal en Calle (Campo GPS)</option>
-                      <option value="SUCURSAL">Personal en Sucursal</option>
-                      <option value="CORPORATIVO">Personal Corporativo</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="text-slate-600 font-medium">
-                  <span className="font-black text-[#2563eb] font-mono">{filteredAttendance.length}</span> marcajes registrados hoy
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-                  <thead className="bg-[#1d4ed8] text-white font-bold border-b border-blue-700 text-[11px] uppercase tracking-wider select-none">
-                    <tr>
-                      <th className="p-3">Colaborador</th>
-                      <th className="p-3">Sucursal</th>
-                      <th className="p-3">Tipo Ubicación</th>
-                      <th className="p-3">Hora Entrada</th>
-                      <th className="p-3">Geolocalización GPS</th>
-                      <th className="p-3">Punto / Zona de Marcaje</th>
-                      <th className="p-3">Estatus</th>
-                      <th className="p-3">Notas de Campo</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredAttendance.map((rec) => (
-                      <tr key={rec.id} className="hover:bg-slate-50 transition">
-                        <td className="p-3 font-semibold text-slate-900 flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-[#2563eb] text-white font-black text-xs flex items-center justify-center shadow-xs">
-                            {rec.employeeName.charAt(0)}
-                          </div>
-                          <span>{rec.employeeName}</span>
-                        </td>
-                        <td className="p-3 text-slate-700">{rec.branch}</td>
-                        <td className="p-3">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                              rec.locationType === 'CAMPO'
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                                : rec.locationType === 'CORPORATIVO'
-                                ? 'bg-purple-100 text-purple-800'
-                                : 'bg-blue-100 text-blue-800'
-                            }`}
-                          >
-                            {rec.locationType === 'CAMPO' ? '📍 CAMPO (CALLE)' : rec.locationType}
-                          </span>
-                        </td>
-                        <td className="p-3 font-mono font-bold text-[#2563eb]">
-                          {rec.checkInTime}
-                        </td>
-                        <td className="p-3 font-mono text-[11px] text-slate-600">
-                          {rec.latitude ? (
-                            <a
-                              href={`https://maps.google.com/?q=${rec.latitude},${rec.longitude}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-[#2563eb] hover:underline flex items-center gap-1.5 font-bold"
-                            >
-                              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>
-                                {rec.latitude}, {rec.longitude}
-                              </span>
-                              <ExternalLink className="w-2.5 h-2.5" />
-                            </a>
-                          ) : (
-                            <span className="text-slate-400">Estación Fija</span>
-                          )}
-                        </td>
-                        <td className="p-3 text-slate-700 max-w-xs truncate" title={rec.locationLabel}>
-                          {rec.locationLabel}
-                        </td>
-                        <td className="p-3">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                              rec.status === 'PUNTUAL'
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                                : 'bg-amber-100 text-amber-800'
-                            }`}
-                          >
-                            {rec.status}
-                          </span>
-                        </td>
-                        <td className="p-3 text-slate-500 max-w-xs truncate" title={rec.notes}>
-                          {rec.notes || '—'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <span className="text-[10px] text-slate-500 block">
+              {selectedEmployee.role} • {selectedEmployee.branch}
+            </span>
+            <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
+              <span className="text-emerald-700 font-bold">✓ Checador Activo</span>
+              <span className="text-slate-500 font-mono">08:25 AM</span>
             </div>
           </div>
         )}
+      </aside>
 
-        {/* TAB 2: PADRÓN */}
-        {activeTab === 'personal' && (
-          <div className="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-md">
-            <div className="p-4 bg-blue-50/60 border-b border-blue-100 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h3 className="font-bold text-sm text-blue-950">
-                  Directorio de Empleados LanAhora
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Expediente de personal en corporativo, sucursales y fuerza de ventas en calle.
-                </p>
-              </div>
-
-              <button
-                onClick={() => alert('Abriendo formulario de alta...')}
-                className="px-3.5 py-1.5 rounded-xl bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow"
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                Alta de Colaborador
-              </button>
+      {/* MAIN CONTENT AREA: Identical to PersonasView */}
+      <main className="flex-1 p-4 overflow-x-auto flex flex-col space-y-3">
+        {/* Search & Stats Bar */}
+        <div className="bg-white p-3 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative">
+              <Search className="w-4 h-4 text-blue-600 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Buscar por Colaborador, Sucursal, Puesto..."
+                value={searchFilter}
+                onChange={(e) => setSearchFilter(e.target.value)}
+                className="pl-9 pr-4 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs w-72 text-slate-900 focus:outline-none focus:border-[#2563eb] focus:bg-white font-medium"
+              />
             </div>
 
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-slate-600 font-semibold">Sucursal:</span>
+              <select
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:outline-none focus:border-[#2563eb] font-semibold"
+              >
+                <option value="ALL">Todas las Sucursales</option>
+                <option value="Saltillo Centro">Saltillo Centro</option>
+                <option value="Torreón Matriz">Torreón Matriz</option>
+                <option value="Monclova Foránea">Monclova Foránea</option>
+                <option value="Corporativo Saltillo">Corporativo Saltillo</option>
+              </select>
+            </div>
+
+            {activeTab !== 'capacitaciones' && (
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-slate-600 font-semibold">Ubicación:</span>
+                <select
+                  value={selectedLocationType}
+                  onChange={(e) => setSelectedLocationType(e.target.value)}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:outline-none focus:border-[#2563eb] font-semibold"
+                >
+                  <option value="ALL">Todos los tipos</option>
+                  <option value="CAMPO">Personal en Calle (Campo GPS)</option>
+                  <option value="SUCURSAL">Personal en Sucursal</option>
+                  <option value="CORPORATIVO">Personal Corporativo</option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            {gpsMessage && (
+              <span className="text-[11px] text-emerald-800 font-mono bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-300 font-bold">
+                {gpsMessage}
+              </span>
+            )}
+            <span className="text-xs text-slate-500 font-medium">
+              Mostrando{' '}
+              <strong className="text-[#2563eb]">
+                {activeTab === 'asistencia'
+                  ? filteredAttendance.length
+                  : activeTab === 'personal'
+                  ? filteredEmployees.length
+                  : activeTab === 'requisiciones'
+                  ? filteredRequisitions.length
+                  : INITIAL_TRAINING_COURSES.length}
+              </strong>{' '}
+              registros en {activeTab}
+            </span>
+          </div>
+        </div>
+
+        {/* Table Container (Matching PersonasView) */}
+        <div className="bg-white rounded-2xl border border-blue-100 overflow-hidden shadow-xs flex-1">
+          {/* TAB 1: ASISTENCIA */}
+          {activeTab === 'asistencia' && (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-                <thead className="bg-[#1d4ed8] text-white font-bold border-b border-blue-700 text-[11px] uppercase tracking-wider select-none">
+                <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
                   <tr>
-                    <th className="p-3">No. Empleado</th>
-                    <th className="p-3">Nombre Completo</th>
-                    <th className="p-3">Puesto</th>
-                    <th className="p-3">Departamento</th>
-                    <th className="p-3">Sucursal</th>
-                    <th className="p-3">Modalidad</th>
-                    <th className="p-3">Supervisor Directo</th>
-                    <th className="p-3">Fecha Ingreso</th>
-                    <th className="p-3">Estatus</th>
+                    <th className="px-3.5 py-2.5">Acciones</th>
+                    <th className="px-3.5 py-2.5">Colaborador</th>
+                    <th className="px-3.5 py-2.5">Sucursal</th>
+                    <th className="px-3.5 py-2.5">Tipo Ubicación</th>
+                    <th className="px-3.5 py-2.5">Hora Entrada</th>
+                    <th className="px-3.5 py-2.5">Geolocalización GPS</th>
+                    <th className="px-3.5 py-2.5">Punto / Zona de Marcaje</th>
+                    <th className="px-3.5 py-2.5">Estatus</th>
+                    <th className="px-3.5 py-2.5">Notas de Campo</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {employees.map((emp) => (
-                    <tr key={emp.id} className="hover:bg-slate-50 transition">
-                      <td className="p-3 font-mono font-bold text-[#2563eb]">
-                        {emp.employeeNumber}
+                  {filteredAttendance.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="text-center py-10 text-slate-400">
+                        No se encontraron marcajes de asistencia con los filtros seleccionados
                       </td>
-                      <td className="p-3 font-semibold text-slate-900">{emp.fullName}</td>
-                      <td className="p-3 text-slate-700">{emp.role}</td>
-                      <td className="p-3">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">
-                          {emp.department}
-                        </span>
-                      </td>
-                      <td className="p-3 text-slate-700">{emp.branch}</td>
-                      <td className="p-3">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            emp.locationType === 'CAMPO'
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                              : 'bg-blue-100 text-blue-800'
+                    </tr>
+                  ) : (
+                    filteredAttendance.map((rec) => {
+                      const isSelected = selectedEmpId === rec.employeeId;
+                      return (
+                        <tr
+                          key={rec.id}
+                          onClick={() => setSelectedEmpId(rec.employeeId)}
+                          className={`cursor-pointer transition ${
+                            isSelected ? 'bg-blue-50/90 font-medium' : 'hover:bg-blue-50/40'
                           }`}
                         >
-                          {emp.locationType}
+                          <td className="px-3.5 py-2 font-medium">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                alert(`Verificando expediente de marcaje de ${rec.employeeName}`);
+                              }}
+                              className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white transition"
+                            >
+                              Detalle
+                            </button>
+                          </td>
+                          <td className="px-3.5 py-2 font-bold text-slate-900 flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shadow-xs">
+                              {rec.employeeName.charAt(0)}
+                            </div>
+                            <span>{rec.employeeName}</span>
+                          </td>
+                          <td className="px-3.5 py-2 text-slate-700">{rec.branch}</td>
+                          <td className="px-3.5 py-2">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                rec.locationType === 'CAMPO'
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                  : rec.locationType === 'CORPORATIVO'
+                                  ? 'bg-purple-100 text-purple-800'
+                                  : 'bg-blue-100 text-blue-800'
+                              }`}
+                            >
+                              {rec.locationType === 'CAMPO' ? '📍 CAMPO (CALLE)' : rec.locationType}
+                            </span>
+                          </td>
+                          <td className="px-3.5 py-2 font-mono font-bold text-[#2563eb]">
+                            {rec.checkInTime}
+                          </td>
+                          <td className="px-3.5 py-2 font-mono text-[11px]">
+                            {rec.latitude ? (
+                              <a
+                                href={`https://maps.google.com/?q=${rec.latitude},${rec.longitude}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-[#2563eb] hover:underline flex items-center gap-1 font-bold"
+                              >
+                                <MapPin className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                                <span>
+                                  {rec.latitude}, {rec.longitude}
+                                </span>
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            ) : (
+                              <span className="text-slate-400">Estación Fija</span>
+                            )}
+                          </td>
+                          <td className="px-3.5 py-2 text-slate-700 max-w-xs truncate" title={rec.locationLabel}>
+                            {rec.locationLabel}
+                          </td>
+                          <td className="px-3.5 py-2">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                rec.status === 'PUNTUAL'
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                  : 'bg-amber-100 text-amber-800'
+                              }`}
+                            >
+                              {rec.status}
+                            </span>
+                          </td>
+                          <td className="px-3.5 py-2 text-slate-500 max-w-xs truncate" title={rec.notes}>
+                            {rec.notes || '—'}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* TAB 2: PADRÓN DE COLABORADORES */}
+          {activeTab === 'personal' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
+                <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
+                  <tr>
+                    <th className="px-3.5 py-2.5">Acciones</th>
+                    <th className="px-3.5 py-2.5">No. Empleado</th>
+                    <th className="px-3.5 py-2.5">Nombre Completo</th>
+                    <th className="px-3.5 py-2.5">Puesto</th>
+                    <th className="px-3.5 py-2.5">Departamento</th>
+                    <th className="px-3.5 py-2.5">Sucursal</th>
+                    <th className="px-3.5 py-2.5">Modalidad</th>
+                    <th className="px-3.5 py-2.5">Supervisor Directo</th>
+                    <th className="px-3.5 py-2.5">Fecha Ingreso</th>
+                    <th className="px-3.5 py-2.5">Estatus</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredEmployees.map((emp) => {
+                    const isSelected = selectedEmpId === emp.id;
+                    return (
+                      <tr
+                        key={emp.id}
+                        onClick={() => setSelectedEmpId(emp.id)}
+                        className={`cursor-pointer transition ${
+                          isSelected ? 'bg-blue-50/90 font-medium' : 'hover:bg-blue-50/40'
+                        }`}
+                      >
+                        <td className="px-3.5 py-2 font-medium">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              alert(`Abriendo expediente laboral de ${emp.fullName}`);
+                            }}
+                            className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white transition"
+                          >
+                            Expediente
+                          </button>
+                        </td>
+                        <td className="px-3.5 py-2 font-mono font-bold text-[#2563eb]">
+                          {emp.employeeNumber}
+                        </td>
+                        <td className="px-3.5 py-2 font-bold text-slate-900">{emp.fullName}</td>
+                        <td className="px-3.5 py-2 text-slate-700">{emp.role}</td>
+                        <td className="px-3.5 py-2">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">
+                            {emp.department}
+                          </span>
+                        </td>
+                        <td className="px-3.5 py-2 text-slate-700">{emp.branch}</td>
+                        <td className="px-3.5 py-2">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              emp.locationType === 'CAMPO'
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                : 'bg-blue-100 text-blue-800'
+                            }`}
+                          >
+                            {emp.locationType}
+                          </span>
+                        </td>
+                        <td className="px-3.5 py-2 text-slate-600">{emp.supervisorName}</td>
+                        <td className="px-3.5 py-2 font-mono text-slate-500">{emp.hireDate}</td>
+                        <td className="px-3.5 py-2">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                            {emp.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* TAB 3: REQUISICIONES */}
+          {activeTab === 'requisiciones' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
+                <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
+                  <tr>
+                    <th className="px-3.5 py-2.5">Acciones</th>
+                    <th className="px-3.5 py-2.5">Folio / Tipo</th>
+                    <th className="px-3.5 py-2.5">Colaborador Solicitante</th>
+                    <th className="px-3.5 py-2.5">Sucursal</th>
+                    <th className="px-3.5 py-2.5">Detalle / Artículo Solicitado</th>
+                    <th className="px-3.5 py-2.5">Fecha Solicitud</th>
+                    <th className="px-3.5 py-2.5">Estatus</th>
+                    <th className="px-3.5 py-2.5">Autorización</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredRequisitions.map((req) => (
+                    <tr key={req.id} className="hover:bg-blue-50/40 transition">
+                      <td className="px-3.5 py-2 font-medium">
+                        {req.status === 'PENDIENTE' ? (
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => handleApproveRequisition(req.id, 'APROBADO')}
+                              className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition"
+                            >
+                              Aprobar
+                            </button>
+                            <button
+                              onClick={() => handleApproveRequisition(req.id, 'RECHAZADO')}
+                              className="px-2 py-1 rounded-md text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition"
+                            >
+                              Rechazar
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] text-slate-400 font-semibold italic">
+                            Atendido
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3.5 py-2">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                            req.type === 'UNIFORME'
+                              ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                              : req.type === 'GAFETE'
+                              ? 'bg-blue-100 text-blue-900 border border-blue-300'
+                              : 'bg-purple-100 text-purple-900 border border-purple-300'
+                          }`}
+                        >
+                          {req.type}
                         </span>
                       </td>
-                      <td className="p-3 text-slate-600">{emp.supervisorName}</td>
-                      <td className="p-3 font-mono text-slate-500">{emp.hireDate}</td>
-                      <td className="p-3">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                          {emp.status}
+                      <td className="px-3.5 py-2 font-bold text-slate-900">{req.employeeName}</td>
+                      <td className="px-3.5 py-2 text-slate-700">{req.branch}</td>
+                      <td className="px-3.5 py-2 text-slate-800">
+                        <div className="font-semibold">{req.title}</div>
+                        {req.details?.sizeUniform && (
+                          <div className="text-[10px] text-blue-700">
+                            Talla: <strong>{req.details.sizeUniform}</strong> • Artículo: {req.details.uniformItem}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-3.5 py-2 font-mono text-slate-500">{req.requestedAt}</td>
+                      <td className="px-3.5 py-2">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            req.status === 'APROBADO'
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                              : req.status === 'PENDIENTE'
+                              ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                              : 'bg-rose-100 text-rose-800'
+                          }`}
+                        >
+                          {req.status}
                         </span>
+                      </td>
+                      <td className="px-3.5 py-2 text-[11px] text-slate-500">
+                        {req.reviewedBy ? `Por ${req.reviewedBy}` : 'Pendiente de Director'}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* TAB 3: REQUISICIONES */}
-        {activeTab === 'requisiciones' && (
-          <div className="space-y-4">
-            <div className="bg-white rounded-3xl border border-blue-100 p-5 flex flex-wrap items-center justify-between gap-3 shadow-md">
-              <div>
-                <h3 className="font-bold text-sm text-blue-950">
-                  Bandeja de Requisiciones & Suministros
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Gestión y autorización de uniformes, gafetes institucionales y vacantes para sucursales foráneas.
-                </p>
+          {/* TAB 4: CAPACITACIONES & ACADEMIA */}
+          {activeTab === 'capacitaciones' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
+                <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
+                  <tr>
+                    <th className="px-3.5 py-2.5">Acciones</th>
+                    <th className="px-3.5 py-2.5">Código</th>
+                    <th className="px-3.5 py-2.5">Curso / Capacitación</th>
+                    <th className="px-3.5 py-2.5">Carácter</th>
+                    <th className="px-3.5 py-2.5">Duración</th>
+                    <th className="px-3.5 py-2.5">Módulos</th>
+                    <th className="px-3.5 py-2.5">Descripción de Formación</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {INITIAL_TRAINING_COURSES.map((crs) => (
+                    <tr key={crs.id} className="hover:bg-blue-50/40 transition">
+                      <td className="px-3.5 py-2 font-medium">
+                        <button
+                          onClick={() => alert(`Abriendo temario y aula virtual para: ${crs.title}`)}
+                          className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white transition flex items-center gap-1"
+                        >
+                          <GraduationCap className="w-3.5 h-3.5" />
+                          <span>Ver Temario</span>
+                        </button>
+                      </td>
+                      <td className="px-3.5 py-2 font-mono font-bold text-[#2563eb]">
+                        {crs.code}
+                      </td>
+                      <td className="px-3.5 py-2 font-bold text-slate-900">{crs.title}</td>
+                      <td className="px-3.5 py-2">
+                        {crs.isMandatory ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                            Obligatorio CNBV / PLD
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700">
+                            Optativo
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3.5 py-2 font-mono text-slate-700">{crs.durationHours} horas</td>
+                      <td className="px-3.5 py-2 font-mono text-slate-700">{crs.totalModules} módulos</td>
+                      <td className="px-3.5 py-2 text-slate-600 max-w-md truncate" title={crs.description}>
+                        {crs.description}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* Modal Nueva Requisición */}
+      {isNewReqOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
+            <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2 font-black text-sm">
+                <Shirt className="w-4 h-4 text-[#facc15]" />
+                <span>Nueva Requisición de Recursos</span>
               </div>
-
               <button
-                onClick={() => setIsNewReqOpen(true)}
-                className="px-4 py-2 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow"
+                onClick={() => setIsNewReqOpen(false)}
+                className="text-white hover:text-yellow-300 p-1 font-bold text-base"
               >
-                <Plus className="w-4 h-4" />
-                Crear Requisición
+                ✕
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {requisitions.map((req) => (
-                <div
-                  key={req.id}
-                  className="bg-white rounded-3xl border border-blue-100 p-5 shadow-md flex flex-col justify-between space-y-4"
+            <form onSubmit={handleCreateRequisition} className="p-5 space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-700 font-bold mb-1.5">
+                  Tipo de Solicitud
+                </label>
+                <select
+                  value={reqType}
+                  onChange={(e) => setReqType(e.target.value as any)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
                 >
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                          req.type === 'UNIFORME'
-                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                            : req.type === 'GAFETE'
-                            ? 'bg-blue-100 text-blue-900 border border-blue-300'
-                            : 'bg-purple-100 text-purple-900 border border-purple-300'
-                        }`}
-                      >
-                        {req.type}
-                      </span>
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          req.status === 'APROBADO'
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                            : req.status === 'PENDIENTE'
-                            ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                            : 'bg-rose-100 text-rose-800'
-                        }`}
-                      >
-                        {req.status}
-                      </span>
-                    </div>
-
-                    <h4 className="font-bold text-sm text-slate-900 line-clamp-2">
-                      {req.title}
-                    </h4>
-                    <p className="text-xs text-slate-600">{req.description}</p>
-
-                    {req.details?.sizeUniform && (
-                      <div className="text-[11px] text-slate-700 pt-1">
-                        <span className="font-bold text-[#2563eb]">Talla:</span> {req.details.sizeUniform} •{' '}
-                        <span className="font-bold text-[#2563eb]">Artículo:</span> {req.details.uniformItem}
-                      </div>
-                    )}
-
-                    <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 space-y-0.5">
-                      <div>Solicitado por: <span className="font-bold text-slate-800">{req.employeeName}</span></div>
-                      <div className="text-[10px] text-slate-400">{req.branch} • {req.requestedAt}</div>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                    {req.status === 'PENDIENTE' ? (
-                      <>
-                        <button
-                          onClick={() => handleApproveRequisition(req.id, 'APROBADO')}
-                          className="flex-1 py-1.5 px-2.5 rounded-xl bg-[#22c55e] hover:bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-1 shadow transition"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          Aprobar
-                        </button>
-                        <button
-                          onClick={() => handleApproveRequisition(req.id, 'RECHAZADO')}
-                          className="flex-1 py-1.5 px-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center justify-center gap-1 transition"
-                        >
-                          <XCircle className="w-3.5 h-3.5" />
-                          Rechazar
-                        </button>
-                      </>
-                    ) : (
-                      <span className="text-[11px] text-slate-400 italic">
-                        Revisado por {req.reviewedBy || 'Dirección'}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: CAPACITACIONES */}
-        {activeTab === 'capacitaciones' && (
-          <div className="space-y-4">
-            <div className="bg-white rounded-3xl border border-blue-100 p-6 shadow-md">
-              <h3 className="font-bold text-sm text-blue-950">
-                Academia LanAhora — Cursos & Certificaciones de Personal
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Formación continua obligatoria para asesores de crédito y personal administrativo.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {INITIAL_TRAINING_COURSES.map((crs) => (
-                <div
-                  key={crs.id}
-                  className="bg-white rounded-3xl border border-blue-100 p-6 shadow-md space-y-3.5 flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#2563eb] border border-blue-200">
-                        {crs.code}
-                      </span>
-                      {crs.isMandatory && (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
-                          Obligatorio
-                        </span>
-                      )}
-                    </div>
-
-                    <h4 className="font-bold text-sm text-slate-900">{crs.title}</h4>
-                    <p className="text-xs text-slate-600">{crs.description}</p>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-100 space-y-3">
-                    <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-                      <span>{crs.durationHours} horas</span>
-                      <span>{crs.totalModules} módulos</span>
-                    </div>
-
-                    <button
-                      onClick={() => alert(`Temario del curso: ${crs.title}`)}
-                      className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#2563eb] font-bold text-xs border border-blue-200 transition flex items-center justify-center gap-2"
-                    >
-                      <GraduationCap className="w-4 h-4" />
-                      <span>Ver Temario y Material Didáctico</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Modal Nueva Requisición */}
-        {isNewReqOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-3xl shadow-2xl border border-blue-100 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
-              <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white p-5 flex items-center justify-between">
-                <div className="flex items-center gap-2 font-black text-sm">
-                  <Shirt className="w-4 h-4 text-[#facc15]" />
-                  <span>Nueva Requisición de Recursos</span>
-                </div>
-                <button
-                  onClick={() => setIsNewReqOpen(false)}
-                  className="text-white hover:text-yellow-300 p-1 font-bold text-base"
-                >
-                  ✕
-                </button>
+                  <option value="UNIFORME">Dotación de Uniforme (Camisa / Chaleco LanAhora)</option>
+                  <option value="GAFETE">Gafete Institucional con Fotografía</option>
+                  <option value="VACANTE_PERSONAL">Requisición de Vacante / Personal Foráneo</option>
+                  <option value="PERMISO_VACACIONES">Permiso Laboral o Vacaciones</option>
+                </select>
               </div>
 
-              <form onSubmit={handleCreateRequisition} className="p-6 space-y-4 text-xs">
-                <div>
-                  <label className="block text-slate-700 font-bold mb-1.5">
-                    Tipo de Solicitud
-                  </label>
-                  <select
-                    value={reqType}
-                    onChange={(e) => setReqType(e.target.value as any)}
-                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
-                  >
-                    <option value="UNIFORME">Dotación de Uniforme (Camisa / Chaleco LanAhora)</option>
-                    <option value="GAFETE">Gafete Institucional con Fotografía</option>
-                    <option value="VACANTE_PERSONAL">Requisición de Vacante / Personal Foráneo</option>
-                    <option value="PERMISO_VACACIONES">Permiso Laboral o Vacaciones</option>
-                  </select>
-                </div>
-
-                {reqType === 'UNIFORME' && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-slate-700 font-bold mb-1.5">Artículo</label>
-                      <select
-                        value={reqItem}
-                        onChange={(e) => setReqItem(e.target.value as any)}
-                        className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
-                      >
-                        <option value="CHALECO_CAMPO">Chaleco de Campo (Asesores)</option>
-                        <option value="CAMISA_POLO">Camisa Polo Institucional</option>
-                        <option value="KIT_COMPLETO">Kit Completo (2 camisas + chaleco)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-slate-700 font-bold mb-1.5">Talla</label>
-                      <select
-                        value={reqSize}
-                        onChange={(e) => setReqSize(e.target.value as any)}
-                        className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
-                      >
-                        <option value="CH">Chica (CH)</option>
-                        <option value="M">Mediana (M)</option>
-                        <option value="G">Grande (G)</option>
-                        <option value="XG">Extra Grande (XG)</option>
-                      </select>
-                    </div>
+              {reqType === 'UNIFORME' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1.5">Artículo</label>
+                    <select
+                      value={reqItem}
+                      onChange={(e) => setReqItem(e.target.value as any)}
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
+                    >
+                      <option value="CHALECO_CAMPO">Chaleco Institucional de Campo</option>
+                      <option value="CAMISA_POLO">Camisa Polo Azul LanAhora</option>
+                      <option value="KIT_COMPLETO">Kit Completo (Chaleco + 2 Polos)</option>
+                    </select>
                   </div>
-                )}
-
-                <div>
-                  <label className="block text-slate-700 font-bold mb-1.5">
-                    Título o Motivo de la Solicitud
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ej. Solicitud de uniforme para nueva asesora de campo"
-                    value={reqTitle}
-                    onChange={(e) => setReqTitle(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
-                  />
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1.5">Talla Solicitada</label>
+                    <select
+                      value={reqSize}
+                      onChange={(e) => setReqSize(e.target.value as any)}
+                      className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
+                    >
+                      <option value="CH">Chica (CH)</option>
+                      <option value="M">Mediana (M)</option>
+                      <option value="G">Grande (G)</option>
+                      <option value="XG">Extra Grande (XG)</option>
+                    </select>
+                  </div>
                 </div>
+              )}
 
-                <div>
-                  <label className="block text-slate-700 font-bold mb-1.5">
-                    Descripción / Justificación
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="Detalles sobre la sucursal, motivo o reemplazo..."
-                    value={reqDesc}
-                    onChange={(e) => setReqDesc(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
-                  />
-                </div>
+              <div>
+                <label className="block text-slate-700 font-bold mb-1.5">
+                  Motivo o Justificación del Requerimiento
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej: Reposición por desgaste / Inicio de nuevo asesor de campo"
+                  value={reqTitle}
+                  onChange={(e) => setReqTitle(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
+                />
+              </div>
 
-                <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsNewReqOpen(false)}
-                    className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black shadow"
-                  >
-                    Enviar Requisición
-                  </button>
-                </div>
-              </form>
-            </div>
+              <div>
+                <label className="block text-slate-700 font-bold mb-1.5">
+                  Comentarios Adicionales
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Detalles sobre entrega en sucursal o urgencia operativa..."
+                  value={reqDesc}
+                  onChange={(e) => setReqDesc(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-[#2563eb]"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsNewReqOpen(false)}
+                  className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black shadow-xs transition active:scale-95"
+                >
+                  Enviar Requisición
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
