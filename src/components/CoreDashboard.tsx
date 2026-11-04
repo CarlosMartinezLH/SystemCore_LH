@@ -1,382 +1,614 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, ShieldAlert, FileText, Smartphone, Users, Briefcase } from 'lucide-react';
+import {
+  Search,
+  ShieldAlert,
+  FileText,
+  Users,
+  Briefcase,
+  FileSpreadsheet,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  ArrowRight,
+  ExternalLink,
+  ChevronRight,
+  Sparkles,
+} from 'lucide-react';
 import { INITIAL_DISTRIBUIDORES, INITIAL_CREDITOS } from '@/lib/data/coreData';
 import { DistribuidorCore, CreditoCore } from '@/types/core';
 
 interface CoreDashboardProps {
   onNavigateToPersonas: () => void;
   onNavigateToDistribuidores: () => void;
-  onNavigateToMobileApp?: () => void;
 }
 
 export default function CoreDashboard({
   onNavigateToPersonas,
   onNavigateToDistribuidores,
-  onNavigateToMobileApp,
 }: CoreDashboardProps) {
-  const [searchDv, setSearchDv] = useState('');
-  const [searchCreditoId, setSearchCreditoId] = useState('');
-  const [searchVale, setSearchVale] = useState('');
-  const [searchGeneral, setSearchGeneral] = useState('');
+  const [activeTab, setActiveTab] = useState<'todos' | 'distribuidores' | 'creditos'>('todos');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchCategory, setSearchCategory] = useState<'ALL' | 'DV' | 'CREDITO' | 'VALE' | 'NOMBRE'>('ALL');
+  const [selectedBranch, setSelectedBranch] = useState('ALL');
 
-  const [dvResult, setDvResult] = useState<DistribuidorCore | null>(null);
-  const [creditoResult, setCreditoResult] = useState<CreditoCore | null>(null);
-  const [searchExecuted, setSearchExecuted] = useState(false);
+  // Selected items for modal or quick inspector
+  const [selectedDv, setSelectedDv] = useState<DistribuidorCore | null>(null);
+  const [selectedCredito, setSelectedCredito] = useState<CreditoCore | null>(null);
 
-  const handleSearchDv = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!searchDv.trim()) return;
-    const found = INITIAL_DISTRIBUIDORES.find((d) => d.noDist === Number(searchDv.trim()));
-    setDvResult(found || null);
-    setCreditoResult(null);
-    setSearchExecuted(true);
-  };
+  // Filter Distribuidores
+  const filteredDistribuidores = INITIAL_DISTRIBUIDORES.filter((d) => {
+    const matchBranch = selectedBranch === 'ALL' || d.sucursal === selectedBranch;
+    if (!matchBranch) return false;
+    if (!searchTerm.trim()) return true;
 
-  const handleSearchCredito = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!searchCreditoId.trim()) return;
-    const found = INITIAL_CREDITOS.find(
-      (c) => c.creditoId.toLowerCase() === searchCreditoId.trim().toLowerCase()
-    );
-    setCreditoResult(found || null);
-    setDvResult(null);
-    setSearchExecuted(true);
-  };
-
-  const handleSearchVale = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!searchVale.trim()) return;
-    const found = INITIAL_CREDITOS.find(
-      (c) => c.noVale.toLowerCase() === searchVale.trim().toLowerCase()
-    );
-    setCreditoResult(found || null);
-    setDvResult(null);
-    setSearchExecuted(true);
-  };
-
-  const handleSearchGeneral = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!searchGeneral.trim()) return;
-    const q = searchGeneral.toLowerCase().trim();
-    const foundDv = INITIAL_DISTRIBUIDORES.find((d) =>
-      d.nombreDistribuidor.toLowerCase().includes(q)
-    );
-    if (foundDv) {
-      setDvResult(foundDv);
-      setCreditoResult(null);
-    } else {
-      setDvResult(null);
+    const q = searchTerm.toLowerCase().trim();
+    if (searchCategory === 'DV') {
+      return d.noDist.toString().includes(q);
     }
-    setSearchExecuted(true);
-  };
+    if (searchCategory === 'NOMBRE') {
+      return d.nombreDistribuidor.toLowerCase().includes(q);
+    }
+    return (
+      d.nombreDistribuidor.toLowerCase().includes(q) ||
+      d.noDist.toString().includes(q) ||
+      d.coordinador.toLowerCase().includes(q)
+    );
+  });
+
+  // Filter Créditos
+  const filteredCreditos = INITIAL_CREDITOS.filter((c) => {
+    if (!searchTerm.trim()) return true;
+    const q = searchTerm.toLowerCase().trim();
+
+    if (searchCategory === 'CREDITO') {
+      return c.creditoId.toLowerCase().includes(q);
+    }
+    if (searchCategory === 'VALE') {
+      return c.noVale.toLowerCase().includes(q);
+    }
+    if (searchCategory === 'DV') {
+      return c.noDist.toString().includes(q);
+    }
+    return (
+      c.creditoId.toLowerCase().includes(q) ||
+      c.noVale.toLowerCase().includes(q) ||
+      c.clienteNombre.toLowerCase().includes(q) ||
+      c.distribuidorNombre.toLowerCase().includes(q) ||
+      c.noDist.toString().includes(q)
+    );
+  });
 
   return (
-    <div className="flex-1 bg-[#f0f4fa] text-slate-800 p-4 sm:p-6 min-h-[calc(100vh-105px)] font-sans">
-      <div className="max-w-6xl mx-auto space-y-5">
-        {/* Welcome Executive Banner in LanAhora Royal Blue */}
-        <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white rounded-3xl p-6 shadow-lg flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#facc15] text-slate-950 font-black text-xl flex items-center justify-center shadow-md">
-              LH
+    <div className="flex-1 bg-[#f0f4fa] text-slate-800 flex flex-col md:flex-row min-h-[calc(100vh-105px)] overflow-hidden font-sans">
+      {/* LEFT SIDEBAR: OPCIONES (Identical to PersonasView and RHView) */}
+      <aside className="w-full md:w-64 bg-white border-r border-blue-100 p-3 flex flex-col justify-between overflow-y-auto shadow-sm">
+        <div className="space-y-4">
+          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 overflow-hidden shadow-xs">
+            <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white px-4 py-2.5 text-xs font-black flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Search className="w-4 h-4 text-[#facc15]" />
+                Buscador Core
+              </span>
+              <span className="text-[10px] bg-white/20 px-2 py-0.2 rounded-full font-bold">
+                Financial
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-black text-white tracking-tight">
-                  Mesa de Control & Búsqueda Central Core
-                </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#facc15] text-slate-950">
-                  En Línea
-                </span>
-              </div>
-              <p className="text-xs text-yellow-200 mt-0.5 font-medium">
-                Consulta instantánea de distribuidoras, folios de vales y cartera global LanAhora.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            {onNavigateToMobileApp && (
-              <button
-                onClick={onNavigateToMobileApp}
-                className="px-4 py-2.5 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 text-xs font-black flex items-center gap-2 shadow-md transition active:scale-95"
-              >
-                <Smartphone className="w-4 h-4" />
-                <span>App Móvil de Asesores</span>
-              </button>
-            )}
-
-            <button
-              onClick={() => alert('Abriendo notas de gestoría...')}
-              className="px-3.5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs font-bold flex items-center gap-1.5 transition"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>Notas de Gestoría</span>
-            </button>
-
-            <button
-              onClick={() => alert('Módulo de Prevención de Lavado de Dinero (PLD)')}
-              className="px-3.5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs font-bold flex items-center gap-1.5 transition"
-            >
-              <ShieldAlert className="w-3.5 h-3.5 text-yellow-300" />
-              <span>Reportar PLD</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Central Search Card */}
-        <div className="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-xl">
-          <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50/50 border-b border-blue-100 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm font-bold text-blue-950">
-              <Search className="w-4 h-4 text-[#2563eb]" />
-              <span>Localizador de Distribuidores y Créditos</span>
-            </div>
-            <span className="text-[11px] font-mono text-blue-700 font-bold">
-              Padrón: 7,171 DVs • 122,144 Personas
-            </span>
-          </div>
-
-          <div className="p-6 sm:p-8 space-y-6">
-            {/* Search by Name */}
-            <form onSubmit={handleSearchGeneral} className="space-y-1.5">
-              <label className="block text-xs font-bold text-slate-700">
-                Buscar Distribuidora por Nombre Completo:
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Ej. BERTHA ALICIA, OLGA HERRERA, LUCERO..."
-                  value={searchGeneral}
-                  onChange={(e) => setSearchGeneral(e.target.value.toUpperCase())}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-blue-100 transition"
-                />
+            <div className="p-2 space-y-0.5 text-xs">
+              {[
+                { id: 'todos', name: 'Búsqueda Global (Todos)', icon: Search, count: '7.1k' },
+                { id: 'distribuidores', name: 'Distribuidores por DV', icon: Briefcase, count: INITIAL_DISTRIBUIDORES.length },
+                { id: 'creditos', name: 'Créditos y Vales', icon: FileText, count: INITIAL_CREDITOS.length },
+              ].map((opt) => (
                 <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-[#2563eb] hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-md transition"
+                  key={opt.id}
+                  onClick={() => {
+                    setActiveTab(opt.id as any);
+                    setSelectedDv(null);
+                    setSelectedCredito(null);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-xl transition flex items-center justify-between font-medium ${
+                    activeTab === opt.id
+                      ? 'bg-[#2563eb] text-white font-bold hover:bg-blue-700 shadow-xs'
+                      : 'text-slate-700 hover:bg-blue-100/60 hover:text-blue-900'
+                  }`}
                 >
-                  <Search className="w-4 h-4" />
-                  <span>Buscar</span>
-                </button>
-              </div>
-            </form>
-
-            {/* Quick 3 Field Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
-              {/* DV number */}
-              <form onSubmit={handleSearchDv} className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-700">
-                  Por No. de Distribuidor (DV):
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    placeholder="Ej. 1002"
-                    value={searchDv}
-                    onChange={(e) => setSearchDv(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:border-[#2563eb]"
-                  />
-                  <button
-                    type="submit"
-                    className="px-3 py-2 bg-[#2563eb] hover:bg-blue-700 text-white rounded-xl text-xs font-bold"
-                  >
-                    <Search className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </form>
-
-              {/* Credito ID */}
-              <form onSubmit={handleSearchCredito} className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-700">
-                  Por Identificador de Crédito (CreditoID):
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Ej. CR-88901"
-                    value={searchCreditoId}
-                    onChange={(e) => setSearchCreditoId(e.target.value.toUpperCase())}
-                    className="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:border-[#2563eb]"
-                  />
-                  <button
-                    type="submit"
-                    className="px-3 py-2 bg-[#2563eb] hover:bg-blue-700 text-white rounded-xl text-xs font-bold"
-                  >
-                    <Search className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </form>
-
-              {/* Vale number */}
-              <form onSubmit={handleSearchVale} className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-700">
-                  Por Folio de Vale:
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Ej. V-50491"
-                    value={searchVale}
-                    onChange={(e) => setSearchVale(e.target.value.toUpperCase())}
-                    className="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:border-[#2563eb]"
-                  />
-                  <button
-                    type="submit"
-                    className="px-3 py-2 bg-[#2563eb] hover:bg-blue-700 text-white rounded-xl text-xs font-bold"
-                  >
-                    <Search className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* Quick Navigation Pills */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
-              <span className="text-xs text-slate-500 font-medium">Accesos directos a catálogos:</span>
-              <div className="flex gap-2">
-                <button
-                  onClick={onNavigateToPersonas}
-                  className="px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold flex items-center gap-1.5 transition"
-                >
-                  <Users className="w-3.5 h-3.5" />
-                  <span>Padrón de Personas</span>
-                </button>
-                <button
-                  onClick={onNavigateToDistribuidores}
-                  className="px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold flex items-center gap-1.5 transition"
-                >
-                  <Briefcase className="w-3.5 h-3.5" />
-                  <span>Red de Distribuidores</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Results Card */}
-        {searchExecuted && (
-          <div className="bg-white rounded-3xl border border-blue-100 p-6 space-y-4 shadow-xl animate-in fade-in">
-            <h3 className="font-bold text-sm text-slate-900 border-b border-slate-100 pb-2">
-              Resultados de la Consulta Core
-            </h3>
-
-            {dvResult ? (
-              <div className="p-5 rounded-2xl bg-[#eff4fc] border border-blue-200 space-y-3">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <span className="text-xs font-mono font-bold text-[#2563eb]">
-                      DISTRIBUIDORA #{dvResult.noDist}
-                    </span>
-                    <h4 className="text-lg font-black text-slate-900">
-                      {dvResult.nombreDistribuidor}
-                    </h4>
-                    <p className="text-xs text-slate-500 font-medium">
-                      Sucursal {dvResult.sucursal} • {dvResult.zona} • Coordinador: {dvResult.coordinador}
-                    </p>
-                  </div>
-                  <div className="flex gap-1.5">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-black ${
-                        dvResult.estatus === 'ACTIVO'
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                          : 'bg-rose-100 text-rose-800'
-                      }`}
-                    >
-                      {dvResult.estatus}
-                    </span>
-                    <span className="px-3 py-1 rounded-full text-xs font-black bg-[#facc15] text-slate-950">
-                      NIVEL {dvResult.nivel}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-blue-200/60 text-xs">
-                  <div>
-                    <span className="text-slate-500 block font-medium">Línea de Crédito:</span>
-                    <span className="font-black text-slate-900 font-mono text-base">
-                      ${dvResult.creditoLimite.toLocaleString('es-MX')}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block font-medium">Saldo Actual:</span>
-                    <span className="font-black text-rose-600 font-mono text-base">
-                      ${dvResult.saldoActual.toLocaleString('es-MX')}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block font-medium">Disponible:</span>
-                    <span className="font-black text-[#16a34a] font-mono text-base">
-                      ${dvResult.disponible.toLocaleString('es-MX')}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block font-medium">LanaApp Móvil:</span>
-                    <span className="font-bold text-slate-800">
-                      {dvResult.tieneLanaApp ? '✓ Activa' : 'Sin App'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ) : creditoResult ? (
-              <div className="p-5 rounded-2xl bg-[#eff4fc] border border-blue-200 space-y-3">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <span className="text-xs font-mono font-bold text-[#2563eb]">
-                      CRÉDITO {creditoResult.creditoId} • VALE {creditoResult.noVale}
-                    </span>
-                    <h4 className="text-lg font-black text-slate-900">
-                      Cliente: {creditoResult.clienteNombre}
-                    </h4>
-                    <p className="text-xs text-slate-500 font-medium">
-                      Distribuidora: #{creditoResult.noDist} - {creditoResult.distribuidorNombre}
-                    </p>
+                  <div className="flex items-center gap-2 truncate">
+                    <opt.icon className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="truncate">{opt.name}</span>
                   </div>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      creditoResult.estatus === 'VIGENTE'
-                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                        : 'bg-slate-200 text-slate-700'
+                    className={`text-[10px] px-2 py-0.2 rounded-full font-bold ${
+                      activeTab === opt.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
                     }`}
                   >
-                    {creditoResult.estatus}
+                    {opt.count}
                   </span>
-                </div>
+                </button>
+              ))}
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-blue-200/60 text-xs">
-                  <div>
-                    <span className="text-slate-500 block font-medium">Monto Otorgado:</span>
-                    <span className="font-black text-slate-900 font-mono text-base">
-                      ${creditoResult.monto.toLocaleString('es-MX')}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block font-medium">Saldo Pendiente:</span>
-                    <span className="font-black text-rose-600 font-mono text-base">
-                      ${creditoResult.saldo.toLocaleString('es-MX')}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block font-medium">Plazo Quincenas:</span>
-                    <span className="font-bold text-slate-800 font-mono">
-                      {creditoResult.quincenasPlazo} quincenas
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block font-medium">Fecha Alta:</span>
-                    <span className="font-bold text-slate-800 font-mono">
-                      {creditoResult.fechaOtorgamiento}
-                    </span>
-                  </div>
-                </div>
+              <div className="pt-2 border-t border-blue-200/60 my-1 space-y-1">
+                <button
+                  onClick={onNavigateToPersonas}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-100/60 font-semibold flex items-center gap-2 transition"
+                >
+                  <Users className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Padrón de Personas</span>
+                </button>
+
+                <button
+                  onClick={onNavigateToDistribuidores}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-100/60 font-semibold flex items-center gap-2 transition"
+                >
+                  <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Red de Distribuidores</span>
+                </button>
+
+                <button
+                  onClick={() => alert('Abriendo bitácora y notas de gestoría...')}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-100/60 font-semibold flex items-center gap-2 transition"
+                >
+                  <FileText className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Notas de Gestoría</span>
+                </button>
+
+                <button
+                  onClick={() => alert('Canal seguro y anónimo de Prevención de Lavado de Dinero (PLD) LanAhora')}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold flex items-center gap-2 transition shadow-xs"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Reportar Anónimo PLD</span>
+                </button>
               </div>
-            ) : (
-              <div className="py-6 text-center text-xs text-slate-500">
-                No se encontraron registros en el Core con los criterios ingresados.
+            </div>
+          </div>
+
+          {/* Exportar */}
+          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 p-2">
+            <button
+              onClick={() => alert('Exportando resultados de búsqueda en formato Microsoft Excel (.xlsx)...')}
+              className="w-full text-left px-3 py-2 rounded-xl text-xs text-emerald-700 font-bold hover:bg-emerald-100/50 flex items-center gap-2 transition"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <span>Exportar Consulta a Excel</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Selected Record or Status Card (Identical to PersonasView and RHView) */}
+        <div className="p-3 bg-[#eff4fc] rounded-2xl border border-blue-200 text-xs text-slate-700 mt-3">
+          {selectedDv ? (
+            <div>
+              <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
+                Distribuidora Seleccionada:
+              </span>
+              <span className="font-mono text-slate-900 font-black block text-sm">
+                DV #{selectedDv.noDist}
+              </span>
+              <span className="truncate block font-bold text-slate-800 mt-0.5">
+                {selectedDv.nombreDistribuidor}
+              </span>
+              <span className="text-[10px] text-slate-500 block">
+                {selectedDv.sucursal} • Nivel {selectedDv.nivel}
+              </span>
+              <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
+                <span className="text-emerald-700 font-bold">Línea: ${selectedDv.creditoLimite.toLocaleString('es-MX')}</span>
+                <span className="text-rose-600 font-mono font-bold">Saldo: ${selectedDv.saldoActual.toLocaleString('es-MX')}</span>
               </div>
-            )}
+            </div>
+          ) : selectedCredito ? (
+            <div>
+              <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
+                Crédito Seleccionado:
+              </span>
+              <span className="font-mono text-slate-900 font-black block text-sm">
+                {selectedCredito.creditoId}
+              </span>
+              <span className="truncate block font-bold text-slate-800 mt-0.5">
+                {selectedCredito.clienteNombre}
+              </span>
+              <span className="text-[10px] text-slate-500 block">
+                Vale {selectedCredito.noVale} • DV #{selectedCredito.noDist}
+              </span>
+              <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
+                <span className="text-blue-700 font-bold">Monto: ${selectedCredito.monto.toLocaleString('es-MX')}</span>
+                <span className="text-emerald-700 font-bold">✓ {selectedCredito.estatus}</span>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
+                Servidor Core Central:
+              </span>
+              <span className="font-mono text-slate-900 font-black block text-sm">
+                Financialsoft SQL
+              </span>
+              <span className="block font-semibold text-slate-700 mt-0.5">
+                lanahora.financialsoft.com.mx
+              </span>
+              <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
+                <span className="text-emerald-700 font-bold">✓ Conexión en Línea</span>
+                <span className="text-slate-500 font-mono">122,144 reg.</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT AREA: Identical to PersonasView and RHView */}
+      <main className="flex-1 p-4 overflow-x-auto flex flex-col space-y-3">
+        {/* Search & Stats Bar */}
+        <div className="bg-white p-3 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative">
+              <Search className="w-4 h-4 text-blue-600 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Buscar por DV (ej. 1002), Nombre, CréditoID o Vale..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 pr-4 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs w-80 text-slate-900 focus:outline-none focus:border-[#2563eb] focus:bg-white font-medium"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-slate-600 font-semibold">Criterio:</span>
+              <select
+                value={searchCategory}
+                onChange={(e) => setSearchCategory(e.target.value as any)}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:outline-none focus:border-[#2563eb] font-semibold"
+              >
+                <option value="ALL">Todos los criterios</option>
+                <option value="DV">Por No. de DV (1001-1025)</option>
+                <option value="NOMBRE">Por Nombre de Persona</option>
+                <option value="CREDITO">Por Identificador CréditoID</option>
+                <option value="VALE">Por Folio de Vale</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-slate-600 font-semibold">Sucursal:</span>
+              <select
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:outline-none focus:border-[#2563eb] font-semibold"
+              >
+                <option value="ALL">Todas las Sucursales</option>
+                <option value="SALTILLO">Saltillo</option>
+                <option value="TORREON">Torreón</option>
+                <option value="MONCLOVA">Monclova</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-500 font-medium">
+              Mostrando{' '}
+              <strong className="text-[#2563eb]">
+                {activeTab === 'creditos'
+                  ? filteredCreditos.length
+                  : filteredDistribuidores.length}
+              </strong>{' '}
+              coincidencias en Core
+            </span>
+          </div>
+        </div>
+
+        {/* Selected Record Detail Panel (When clicking Detalle) */}
+        {selectedDv && (
+          <div className="bg-[#eff4fc] border border-blue-200 rounded-2xl p-4 shadow-sm animate-in fade-in space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <span className="text-xs font-mono font-bold text-[#2563eb]">
+                  DISTRIBUIDORA #{selectedDv.noDist} • EXPEDIENTE CENTRAL
+                </span>
+                <h3 className="text-lg font-black text-slate-900">
+                  {selectedDv.nombreDistribuidor}
+                </h3>
+                <p className="text-xs text-slate-600 font-medium">
+                  Sucursal {selectedDv.sucursal} • {selectedDv.zona} • Coordinador: <strong>{selectedDv.coordinador}</strong>
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full text-xs font-black bg-[#facc15] text-slate-950">
+                  NIVEL {selectedDv.nivel}
+                </span>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-black ${
+                    selectedDv.estatus === 'ACTIVO'
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      : 'bg-rose-100 text-rose-800'
+                  }`}
+                >
+                  {selectedDv.estatus}
+                </span>
+                <button
+                  onClick={() => setSelectedDv(null)}
+                  className="px-3 py-1 text-xs text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition"
+                >
+                  ✕ Cerrar
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-blue-200 text-xs">
+              <div className="bg-white p-3 rounded-xl border border-blue-100">
+                <span className="text-slate-500 block font-medium">Línea Autorizada:</span>
+                <span className="font-black text-slate-900 font-mono text-base">
+                  ${selectedDv.creditoLimite.toLocaleString('es-MX')}
+                </span>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-blue-100">
+                <span className="text-slate-500 block font-medium">Saldo Actual:</span>
+                <span className="font-black text-rose-600 font-mono text-base">
+                  ${selectedDv.saldoActual.toLocaleString('es-MX')}
+                </span>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-blue-100">
+                <span className="text-slate-500 block font-medium">Disponible Vales:</span>
+                <span className="font-black text-[#16a34a] font-mono text-base">
+                  ${selectedDv.disponible.toLocaleString('es-MX')}
+                </span>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-blue-100">
+                <span className="text-slate-500 block font-medium">LanaApp Móvil:</span>
+                <span className="font-black text-[#2563eb] text-sm">
+                  {selectedDv.tieneLanaApp ? '✓ Instalada & Activa' : 'Sin Aplicación'}
+                </span>
+              </div>
+            </div>
           </div>
         )}
-      </div>
+
+        {/* Selected Credito Detail Panel */}
+        {selectedCredito && (
+          <div className="bg-[#eff4fc] border border-blue-200 rounded-2xl p-4 shadow-sm animate-in fade-in space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <span className="text-xs font-mono font-bold text-[#2563eb]">
+                  CRÉDITO {selectedCredito.creditoId} • FOLIO DE VALE {selectedCredito.noVale}
+                </span>
+                <h3 className="text-lg font-black text-slate-900">
+                  Cliente: {selectedCredito.clienteNombre}
+                </h3>
+                <p className="text-xs text-slate-600 font-medium">
+                  Distribuidora Responsable: #{selectedCredito.noDist} - {selectedCredito.distribuidorNombre}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  {selectedCredito.estatus}
+                </span>
+                <button
+                  onClick={() => setSelectedCredito(null)}
+                  className="px-3 py-1 text-xs text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition"
+                >
+                  ✕ Cerrar
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-blue-200 text-xs">
+              <div className="bg-white p-3 rounded-xl border border-blue-100">
+                <span className="text-slate-500 block font-medium">Monto Otorgado:</span>
+                <span className="font-black text-slate-900 font-mono text-base">
+                  ${selectedCredito.monto.toLocaleString('es-MX')}
+                </span>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-blue-100">
+                <span className="text-slate-500 block font-medium">Saldo Pendiente:</span>
+                <span className="font-black text-rose-600 font-mono text-base">
+                  ${selectedCredito.saldo.toLocaleString('es-MX')}
+                </span>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-blue-100">
+                <span className="text-slate-500 block font-medium">Plazo Quincenas:</span>
+                <span className="font-bold text-slate-800 font-mono">
+                  {selectedCredito.quincenasPlazo} quincenas
+                </span>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-blue-100">
+                <span className="text-slate-500 block font-medium">Fecha Otorgamiento:</span>
+                <span className="font-bold text-slate-800 font-mono">
+                  {selectedCredito.fechaOtorgamiento}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Table Container (Matching PersonasView & RHView) */}
+        <div className="bg-white rounded-2xl border border-blue-100 overflow-hidden shadow-xs flex-1">
+          {activeTab !== 'creditos' ? (
+            /* DISTRIBUIDORAS TABLE */
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
+                <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
+                  <tr>
+                    <th className="px-3.5 py-2.5">Acciones</th>
+                    <th className="px-3.5 py-2.5">No. DV</th>
+                    <th className="px-3.5 py-2.5">Nombre Distribuidor</th>
+                    <th className="px-3.5 py-2.5">Sucursal</th>
+                    <th className="px-3.5 py-2.5">Coordinador</th>
+                    <th className="px-3.5 py-2.5">Nivel</th>
+                    <th className="px-3.5 py-2.5">Estatus</th>
+                    <th className="px-3.5 py-2.5">Línea Crédito</th>
+                    <th className="px-3.5 py-2.5">Saldo Actual</th>
+                    <th className="px-3.5 py-2.5">Disponible</th>
+                    <th className="px-3.5 py-2.5">LanaApp</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredDistribuidores.length === 0 ? (
+                    <tr>
+                      <td colSpan={11} className="text-center py-10 text-slate-400">
+                        No se encontraron distribuidoras con los criterios de búsqueda ingresados
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredDistribuidores.map((d) => {
+                      const isSelected = selectedDv?.noDist === d.noDist;
+                      return (
+                        <tr
+                          key={d.noDist}
+                          onClick={() => {
+                            setSelectedDv(d);
+                            setSelectedCredito(null);
+                          }}
+                          className={`cursor-pointer transition ${
+                            isSelected ? 'bg-blue-50/90 font-medium' : 'hover:bg-blue-50/40'
+                          }`}
+                        >
+                          <td className="px-3.5 py-2 font-medium">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedDv(d);
+                                setSelectedCredito(null);
+                              }}
+                              className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white transition"
+                            >
+                              Detalle
+                            </button>
+                          </td>
+                          <td className="px-3.5 py-2 font-mono font-bold text-[#2563eb]">
+                            #{d.noDist}
+                          </td>
+                          <td className="px-3.5 py-2 font-bold text-slate-900">{d.nombreDistribuidor}</td>
+                          <td className="px-3.5 py-2 text-slate-700">{d.sucursal}</td>
+                          <td className="px-3.5 py-2 text-slate-600">{d.coordinador}</td>
+                          <td className="px-3.5 py-2">
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-yellow-100 text-yellow-900 border border-yellow-300">
+                              {d.nivel}
+                            </span>
+                          </td>
+                          <td className="px-3.5 py-2">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                d.estatus === 'ACTIVO'
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                  : 'bg-rose-100 text-rose-800'
+                              }`}
+                            >
+                              {d.estatus}
+                            </span>
+                          </td>
+                          <td className="px-3.5 py-2 font-mono font-bold text-slate-800">
+                            ${d.creditoLimite.toLocaleString('es-MX')}
+                          </td>
+                          <td className="px-3.5 py-2 font-mono font-bold text-rose-600">
+                            ${d.saldoActual.toLocaleString('es-MX')}
+                          </td>
+                          <td className="px-3.5 py-2 font-mono font-bold text-emerald-700">
+                            ${d.disponible.toLocaleString('es-MX')}
+                          </td>
+                          <td className="px-3.5 py-2">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                d.tieneLanaApp
+                                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                  : 'text-slate-400'
+                              }`}
+                            >
+                              {d.tieneLanaApp ? '✓ Activa' : 'No'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            /* CRÉDITOS Y VALES TABLE */
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
+                <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
+                  <tr>
+                    <th className="px-3.5 py-2.5">Acciones</th>
+                    <th className="px-3.5 py-2.5">Crédito ID</th>
+                    <th className="px-3.5 py-2.5">No. Vale</th>
+                    <th className="px-3.5 py-2.5">Cliente Acreditado</th>
+                    <th className="px-3.5 py-2.5">No. DV</th>
+                    <th className="px-3.5 py-2.5">Distribuidor Asignado</th>
+                    <th className="px-3.5 py-2.5">Monto Otorgado</th>
+                    <th className="px-3.5 py-2.5">Saldo Pendiente</th>
+                    <th className="px-3.5 py-2.5">Plazo</th>
+                    <th className="px-3.5 py-2.5">Fecha Alta</th>
+                    <th className="px-3.5 py-2.5">Estatus</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredCreditos.length === 0 ? (
+                    <tr>
+                      <td colSpan={11} className="text-center py-10 text-slate-400">
+                        No se encontraron créditos o vales con los criterios de búsqueda ingresados
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredCreditos.map((c) => {
+                      const isSelected = selectedCredito?.creditoId === c.creditoId;
+                      return (
+                        <tr
+                          key={c.creditoId}
+                          onClick={() => {
+                            setSelectedCredito(c);
+                            setSelectedDv(null);
+                          }}
+                          className={`cursor-pointer transition ${
+                            isSelected ? 'bg-blue-50/90 font-medium' : 'hover:bg-blue-50/40'
+                          }`}
+                        >
+                          <td className="px-3.5 py-2 font-medium">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedCredito(c);
+                                setSelectedDv(null);
+                              }}
+                              className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white transition"
+                            >
+                              Detalle
+                            </button>
+                          </td>
+                          <td className="px-3.5 py-2 font-mono font-bold text-[#2563eb]">
+                            {c.creditoId}
+                          </td>
+                          <td className="px-3.5 py-2 font-mono font-bold text-slate-800">
+                            {c.noVale}
+                          </td>
+                          <td className="px-3.5 py-2 font-bold text-slate-900">{c.clienteNombre}</td>
+                          <td className="px-3.5 py-2 font-mono font-bold text-blue-700">#{c.noDist}</td>
+                          <td className="px-3.5 py-2 text-slate-700">{c.distribuidorNombre}</td>
+                          <td className="px-3.5 py-2 font-mono font-bold text-slate-800">
+                            ${c.monto.toLocaleString('es-MX')}
+                          </td>
+                          <td className="px-3.5 py-2 font-mono font-bold text-rose-600">
+                            ${c.saldo.toLocaleString('es-MX')}
+                          </td>
+                          <td className="px-3.5 py-2 font-mono text-slate-600">
+                            {c.quincenasPlazo} quincenas
+                          </td>
+                          <td className="px-3.5 py-2 font-mono text-slate-500">{c.fechaOtorgamiento}</td>
+                          <td className="px-3.5 py-2">
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                              {c.estatus}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
