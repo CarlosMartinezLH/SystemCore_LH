@@ -54,3 +54,4 @@ export const DEMO_USERS: Record<string, UserSession> = {
     avatarInitials: 'LT',
   },
 };
+

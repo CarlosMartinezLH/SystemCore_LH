@@ -50,3 +50,4 @@ flowchart TD
   - Georreferenciación GPS obligatoria al abordar al prospecto.
   - Firma en canvas táctil para que el prospecto firme con el dedo al instante.
   - Validación de CURP en ruta contra Financialsoft para evitar integrar expedientes inviables.
+
