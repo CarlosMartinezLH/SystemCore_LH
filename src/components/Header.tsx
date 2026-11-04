@@ -14,7 +14,7 @@ import {
   Building,
 } from 'lucide-react';
 
-export type ActiveAppModule = 'crm' | 'core_dashboard' | 'personas' | 'distribuidores' | 'rh' | 'mobile_app';
+export type ActiveAppModule = 'crm' | 'core_dashboard' | 'personas' | 'distribuidores' | 'rh';
 
 interface HeaderProps {
   currentUser: UserSession;
@@ -63,18 +63,6 @@ export default function Header({
 
           {/* Unified Desktop Navigation Tabs (Inspirado en el menú del portal LanAhora) */}
           <nav className="hidden xl:flex items-center gap-1 text-xs font-bold">
-            <button
-              onClick={() => onModuleChange('mobile_app')}
-              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-                activeModule === 'mobile_app'
-                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
-                  : 'text-white/90 hover:bg-white/15 hover:text-white'
-              }`}
-            >
-              <Smartphone className="w-3.5 h-3.5" />
-              <span>App Móvil (Asesores)</span>
-            </button>
-
             <button
               onClick={() => onModuleChange('crm')}
               className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
@@ -207,14 +195,6 @@ export default function Header({
 
       {/* Sub-bar Navigation for Mobile Screens */}
       <div className="xl:hidden px-3 py-2 bg-[#1b43bc] border-t border-blue-400/20 flex items-center gap-1.5 overflow-x-auto text-xs font-bold">
-        <button
-          onClick={() => onModuleChange('mobile_app')}
-          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
-            activeModule === 'mobile_app' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
-          }`}
-        >
-          📱 App Móvil
-        </button>
         <button
           onClick={() => onModuleChange('crm')}
           className={`px-3 py-1 rounded-lg whitespace-nowrap ${

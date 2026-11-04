@@ -36,9 +36,6 @@ export default function Home() {
       if (savedAuth) {
         const user = JSON.parse(savedAuth);
         setCurrentUser(user);
-        if (user.role === 'ASESOR_CAMPO') {
-          setActiveModule('mobile_app');
-        }
       }
 
       const savedProspects = localStorage.getItem(STORAGE_KEY);
@@ -68,12 +65,7 @@ export default function Home() {
     } catch (e) {
       console.error('Error saving session:', e);
     }
-
-    if (user.role === 'ASESOR_CAMPO') {
-      setActiveModule('mobile_app');
-    } else {
-      setActiveModule('crm');
-    }
+    setActiveModule('crm');
   };
 
   // Logout handler
@@ -189,21 +181,8 @@ export default function Home() {
     return <LoginView onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // If active module is mobile_app, render dedicated Mobile App View
-  if (activeModule === 'mobile_app') {
-    return (
-      <MobileAdvisorApp
-        user={currentUser}
-        prospects={prospects}
-        onAddNewProspect={handleAddMobileLead}
-        onLogout={handleLogout}
-        onSwitchToDesktop={() => setActiveModule('crm')}
-      />
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[#0c101c] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f0f4fa] flex flex-col font-sans">
       <Header
         currentUser={currentUser}
         activeModule={activeModule}
@@ -223,7 +202,6 @@ export default function Home() {
           <CoreDashboard
             onNavigateToPersonas={() => setActiveModule('personas')}
             onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
-            onNavigateToMobileApp={() => setActiveModule('mobile_app')}
           />
         ) : activeModule === 'personas' ? (
           <PersonasView />
