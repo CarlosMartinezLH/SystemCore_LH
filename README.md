@@ -33,16 +33,19 @@ El repositorio se estructura bajo la siguiente convención de ramas:
 
 ---
 
-## 📁 Estructura del Proyecto (En Progreso)
+## 📁 Estructura del Proyecto
 
 ```text
 SystemCore_LH/
-├── docs/               # Documentación funcional, técnica y flujos de Odoo
-├── README.md           # Visión general y guía de inicio
+├── docs/                                # Documentación funcional, técnica y manuales
+│   └── proceso-originacion-crm.md       # Proceso LNH-VTAD-PRO-001 (Originación CRM LanAhora)
+├── README.md                            # Visión general y guía de inicio
 ```
 
 ---
 
 ## 📖 Documentación
 
-Toda la documentación técnica, arquitectónica y guías de usuario se mantendrán sincronizadas en la carpeta `docs/` y en este archivo.
+Toda la documentación técnica, arquitectónica y guías de usuario se mantendrán sincronizadas en la carpeta `docs/`:
+- [Manual de Originación y Flujo de CRM](docs/proceso-originacion-crm.md): Detalle de las 8 etapas, roles de usuario, validación de CURP contra Financialsoft, captura de solicitudes con firma digital y matriz completa de documentos requeridos (Anexo 1).
+
