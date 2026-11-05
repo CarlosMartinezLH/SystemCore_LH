@@ -36,6 +36,13 @@ export function getServerSyncData(): CoreSyncData {
       lastUpdate: Date.now(),
     };
   }
+  // Depurar registros de pruebas o folios temporales duplicados
+  globalThis.__coreSyncData.creditos = globalThis.__coreSyncData.creditos.filter(
+    (c) => c.noVale !== 'V-999888' && c.noVale !== 'TEST-01'
+  );
+  globalThis.__coreSyncData.dispersiones = globalThis.__coreSyncData.dispersiones.filter(
+    (d) => d.creditoId !== 'V-999888' && d.creditoId !== 'TEST-01'
+  );
   return globalThis.__coreSyncData;
 }
 
