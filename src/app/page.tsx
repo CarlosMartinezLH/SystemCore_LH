@@ -14,6 +14,7 @@ import DistribuidoresView from '@/components/DistribuidoresView';
 import RHView from '@/components/RHView';
 import DispersionView from '@/components/DispersionView';
 import IntegracionesView from '@/components/IntegracionesView';
+import LanAppView from '@/components/LanAppView';
 import { UserSession } from '@/types/auth';
 import { Prospect, StageId, OriginType } from '@/types/crm';
 import { INITIAL_PROSPECTS, createDefaultDocuments } from '@/lib/data/initialData';
@@ -215,6 +216,8 @@ export default function Home() {
           <DispersionView />
         ) : activeModule === 'integraciones' ? (
           <IntegracionesView />
+        ) : activeModule === 'lanapp' ? (
+          <LanAppView onNavigateToDispersion={() => setActiveModule('dispersion')} />
         ) : (
           /* MODULE CRM DESKTOP */
           selectedProspect ? (

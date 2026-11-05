@@ -36,7 +36,16 @@ Plataforma integral y núcleo operativo de **LanAhora** (SOFOM E.N.R.), especial
    - Consola interactiva JSON con pruebas de ping y simulación de peticiones en vivo.
 
 6. **Aplicación Móvil de Asesores de Campo (Android APK)**:
-   - Aplicación nativa Android compilada con Gradle 9.3 y Android SDK para su instalación directa en dispositivos de los asesores (`dist/apk/lanahora-asesores-debug.apk`).
+   - Aplicación nativa Android compilada con Gradle y Android SDK para prospección en campo, validación de CURP en frío y levantamiento de solicitudes (`dist/apk/lanahora-asesores-debug.apk`).
+
+7. **LanApp — Vales Digitales con Canje Inmediato**:
+   - Módulo interactivo en SystemCore y aplicación nativa Flutter para **Distribuidoras (DVs)**:
+     - Consulta de líneas de crédito (Vale Lana, Lanatienda, Crédito Personal) y saldo de relación quincenal.
+     - Emisión de Vales Digitales con plazos interactivos e importes personalizados.
+     - Generación de link tokenizado único y compartición directa vía WhatsApp.
+     - Portal de Canje del Cliente Final (`acreditala.financialsoft.site`) con validación de domicilio, beneficiario de seguro de vida, datos bancarios para depósito, validación KYC de INE (anverso/reverso OCR), selfie biométrica facial con detector de vida y firma táctil digital.
+     - Dispersión automática inmediata enlazada a STP SPEI.
+   - Binario compilado listo para descarga: `dist/apk/lanapp-distribuidoras.apk`.
 
 ---
 
