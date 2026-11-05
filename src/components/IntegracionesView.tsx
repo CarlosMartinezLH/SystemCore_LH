@@ -74,11 +74,11 @@ export default function IntegracionesView() {
           vigenciaHoras: 72,
           timestamp: new Date().toISOString(),
         },
-        'srv-odoo': {
+        'srv-crm': {
           status: 'SYNCED',
           code: 200,
-          rpc: 'JSON-RPC_V16',
-          leadIdOdoo: 131,
+          protocol: 'REST_MTLS_V1',
+          prospectoId: 131,
           etapaSincronizada: 'CONSULTA_MESA',
           documentosAnexo1Subidos: 25,
           timestamp: new Date().toISOString(),

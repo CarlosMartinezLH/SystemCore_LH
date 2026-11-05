@@ -438,7 +438,7 @@ export default function MobileAdvisorApp({
                       className="w-full py-2.5 bg-[#2563eb] hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow transition"
                     >
                       <ShieldCheck className="w-4 h-4" />
-                      {curpChecking ? 'Validando en Financialsoft...' : 'Validar CURP en Línea'}
+                      {curpChecking ? 'Validando en Cartera Core LH...' : 'Validar CURP en Línea'}
                     </button>
                   </div>
 
@@ -459,7 +459,7 @@ export default function MobileAdvisorApp({
                         <AlertCircle className="w-4 h-4" /> No Sujeto a Crédito
                       </div>
                       <p className="text-[11px] text-rose-800">
-                        Presenta adeudos vigentes o antecedentes de quita en Financialsoft.
+                        Presenta adeudos vigentes o antecedentes de quita en Cartera Core LH.
                       </p>
                     </div>
                   )}

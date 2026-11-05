@@ -94,8 +94,8 @@ export default function PersonasView() {
       );
       setPersonas(updated);
       alert(`✓ ¡Éxito! ${selectedPersona.nombre} ${selectedPersona.apellidoPaterno} ha sido promovida a Distribuidora oficial en el Core (DV #1025).`);
-    } else if (actionName === 'Documentos Odoo') {
-      alert(`Sincronización con CRM Odoo completada para ${selectedPersona.nombre}. Expediente digital al día.`);
+    } else if (actionName === 'Gestor Documental') {
+      alert(`Sincronización con Gestor Documental completada para ${selectedPersona.nombre}. Expediente digital al día.`);
     } else {
       alert(`Módulo "${actionName}" ejecutado con éxito para ${selectedPersona.nombre}.`);
     }
@@ -180,7 +180,7 @@ export default function PersonasView() {
                 { name: 'Canjear Vale', icon: Barcode, highlight: true },
                 { name: 'Imprimir Carta Prestanombres', icon: Printer },
                 { name: 'Notas', icon: FileText },
-                { name: 'Documentos Odoo', icon: ExternalLink },
+                { name: 'Gestor Documental', icon: ExternalLink },
               ].map((opt) => (
                 <button
                   key={opt.name}

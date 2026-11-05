@@ -51,8 +51,8 @@ export type DocumentStatus = 'PENDIENTE' | 'CARGADO' | 'VALIDADO' | 'RECHAZADO';
 
 export interface RequiredDocument {
   id: string;
-  financialName: string;
-  odooField: string;
+  documentName: string;
+  fieldKey: string;
   type: DocumentType;
   category: 'EXPEDIENTE' | 'VERIFICACION' | 'CASA_TITULAR' | 'NEGOCIO_TITULAR' | 'SEGUNDA_PROPIEDAD';
   status: DocumentStatus;
@@ -109,7 +109,7 @@ export interface Prospect {
   experienceType: string;
   origin: OriginType;
 
-  // Validación CURP (Financialsoft)
+  // Validación CURP (Cartera Core Central)
   financialCurpStatus: CurpStatus;
   financialCurpReason?: string;
   financialComments?: string;

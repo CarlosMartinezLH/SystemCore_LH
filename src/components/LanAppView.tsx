@@ -194,7 +194,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
     setHasSigned(false);
   };
 
-  const shareUrl = `https://acreditala.financialsoft.site/solicitud/1-356F3C37-FDCE-F011-B513-000C29AC7C09`;
+  const shareUrl = `https://acreditala.lanahora.com.mx/solicitud/1-356F3C37-FDCE-F011-B513-000C29AC7C09`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(

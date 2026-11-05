@@ -1,4 +1,4 @@
-# Módulo de Capital Humano & Control de Asistencia (Sustitución de Buk)
+# Módulo de Capital Humano & Control de Asistencia (Sustitución de Capital Humano LH)
 
 **Propósito:** Integrar la gestión de personal, control de asistencia preciso (para personal corporativo, sucursales foráneas y personal en calle con GPS), requisiciones de uniformes/gafetes/vacantes y academia de capacitaciones dentro de **SystemCore_LH**.
 

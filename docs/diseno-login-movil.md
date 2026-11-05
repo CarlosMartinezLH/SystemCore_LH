@@ -49,5 +49,5 @@ flowchart TD
   - Formato adaptado a pantalla táctil (smartphone mockup en escritorio y 100% responsivo en celular).
   - Georreferenciación GPS obligatoria al abordar al prospecto.
   - Firma en canvas táctil para que el prospecto firme con el dedo al instante.
-  - Validación de CURP en ruta contra Financialsoft para evitar integrar expedientes inviables.
+  - Validación de CURP en ruta contra Core Central LH para evitar integrar expedientes inviables.
 

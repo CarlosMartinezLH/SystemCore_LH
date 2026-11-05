@@ -1,12 +1,12 @@
-# Arquitectura del Sistema Core Principal (FinancialSoft + CRM)
+# Arquitectura del Sistema Core Principal (Core Central LH + CRM)
 
-**Propósito:** Unificar y modernizar el sistema central **FinancialSoft** (actualmente en ASP.NET) con el **CRM de Originación (Odoo)** en una sola plataforma robusta, rápida e integrada: **SystemCore_LH**.
+**Propósito:** Unificar y modernizar el sistema central **Core Central LH** (actualmente en ASP.NET) con el **CRM de Originación (CRM Originación LH)** en una sola plataforma robusta, rápida e integrada: **SystemCore_LH**.
 
 ---
 
-## 1. Módulos del Sistema Core (FinancialSoft)
+## 1. Módulos del Sistema Core (Core Central LH)
 
-A partir de la inspección directa del sistema en producción (`lanahora.financialsoft.com.mx`), se identifican los siguientes pilares:
+A partir de la inspección directa del sistema en producción (`lanahora.core.lanahora.com.mx.com.mx`), se identifican los siguientes pilares:
 
 ### A. Buscador Central y Mesa de Control
 * **Búsqueda rápida por:**
@@ -40,7 +40,7 @@ A partir de la inspección directa del sistema en producción (`lanahora.financi
   - Solicitud de crédito.
   - Imprimir carta prestanombres.
   - Relacionar con distribuidor.
-  - Enlace con Documentos Odoo.
+  - Enlace con Documentos CRM Originación LH.
   - Exportar a Excel.
 
 ---
@@ -72,7 +72,7 @@ flowchart TD
         ValCom --> MesaCred["Mesa de Crédito"]
     end
 
-    subgraph Core ["2. System Core LH (FinancialSoft Modernizado)"]
+    subgraph Core ["2. System Core LH (Core Central LH Modernizado)"]
         MesaCred -->|Establecer como Distribuidor| Personas["Padrón Personas (PersonaID)"]
         Personas -->|Asignar No. DV y Línea| Distribuidores["Cartera Distribuidores (No. Dist)"]
         Distribuidores --> Vales["Colocación de Vales & Canjes"]

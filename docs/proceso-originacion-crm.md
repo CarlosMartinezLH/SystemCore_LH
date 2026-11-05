@@ -10,7 +10,7 @@
 | Rol | Responsabilidad Principal |
 | :--- | :--- |
 | **Asesor de Crédito** | Prospección en campo/digital, abordaje (7 pasos), captura inicial de prospecto en CRM, recolección de documentos y fotos, firma digital de solicitud. |
-| **Coordinador Comercial** | Planeación semanal de zonas, asignación de cuentas, validación en RENAPO, verificación comercial del expediente, pase a Financialsoft y escalamiento con Mesa de Crédito. |
+| **Coordinador Comercial** | Planeación semanal de zonas, asignación de cuentas, validación en RENAPO, verificación comercial del expediente, pase a Core Central LH y escalamiento con Mesa de Crédito. |
 | **Mesa de Crédito** | Validación de datos vs fotos, envío de SMS para autorización de Buró de Crédito, dictamen (Bueno/Regular/Malo/Rechazo), verificación telefónica de referencias (LNH-OP-FOR-006) y asignación de líneas de crédito. |
 | **Gerente de Sucursal** | Supervisión general, acompañamiento a visita domiciliaria, validación final física/digital, asignación a Coordinador de Negocios y resguardo de pagaré verde. |
 | **Coordinador de Negocios** | Agendamiento de visita domiciliaria, bienvenida y capacitación en laptop, recolección de firmas legales, asistencia en instalación de LanaApp y gestión del 1er canje (máx. 72 hrs). |
@@ -26,7 +26,7 @@
      - `Nombre`, `Segundo Nombre`, `Primer Apellido`, `Segundo Apellido`
      - `Correo electrónico`, `Teléfono`, `CURP`, `RFC`
      - `Tipo de distribuidor`, `Tipo de experiencia`, `Origen` (ej. Coordinador de Negocios, Distribuidor, Cambaceo, etc.)
-   - Acción clave: Botón **Validar CURP** contra sistema Financialsoft:
+   - Acción clave: Botón **Validar CURP** contra sistema Core Central LH:
      - **No Válido:** Saldo activo, liquidado con quita/reestructura por DV/CF, liquidado en gestoría o jurídico, estatus bloqueado / No sujeto a crédito.
      - **Válido:** No existe en registro, o existe sin saldo activo ni historial reciente, o BC dictaminado con más de 3 meses.
    - Pestaña **Contacto** (Domicilio y datos socioeconómicos):
@@ -58,7 +58,7 @@
    - El Asesor pasa a modo solo lectura.
    - El Coordinador Comercial revisa documentos y realiza verificaciones (negocio, laboral, segunda propiedad, aval).
    - Si hay errores, regresa al Asesor para corrección con notas de bitácora.
-   - Al aprobar, da clic en **Enviar documentos** hacia Financialsoft y remite a Mesa de Crédito.
+   - Al aprobar, da clic en **Enviar documentos** hacia Core Central LH y remite a Mesa de Crédito.
 
 6. **Mesa de Crédito**
    - Revisión minuciosa de expediente y validación telefónica de 3 referencias (formato `LNH-OP-FOR-006`).
@@ -79,7 +79,7 @@
 
 ## 3. Matriz de Documentos y Fotografías (Anexo 1)
 
-| Documento en Financialsoft | Campo en CRM / Odoo | Tipo de Archivo |
+| Documento en Core Central LH | Campo en CRM / CRM Originación LH | Tipo de Archivo |
 | :--- | :--- | :---: |
 | COMPROBANTE DE DOMICILIO TITULAR | comprobante de domicilio | PDF |
 | COMPROBANTE DE EXPERIENCIA | comprobante de experiencia | PDF |

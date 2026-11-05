@@ -21,7 +21,7 @@ flowchart TD
         ESB["API Gateway / ESB (REST / SOAP / JSON / XML)"]
     end
 
-    subgraph Core ["CORE FINANCIALSOFT"]
+    subgraph Core ["CORE CENTRAL LH"]
         Prospectos["Prospectos"]
         Clientes["Clientes Finales (122k)"]
         Distribuidores["Distribuidores (7.1k)"]
@@ -40,7 +40,7 @@ flowchart TD
         ClubPago["Club Pago"]
         Paynet["Paynet / Openpay (7-Eleven / Farmacias)"]
         Nubarium["Nubarium (CURP RENAPO / INE OCR / SAT 69-B)"]
-        Odoo["CRM Odoo (Originación)"]
+        CRM Originación LH["CRM CRM Originación LH (Originación)"]
     end
 
     Canales --> Gateway

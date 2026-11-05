@@ -112,7 +112,7 @@ export interface MatrizPagoRecord {
 export interface ExternalServiceStatus {
   id: string;
   name: string;
-  type: 'BURO_CREDITO' | 'STP_SPEI' | 'NUBARIUM_KYC' | 'PAYNET_RECIBOS' | 'ODOO_CRM' | 'BOTMAKER_WHATSAPP';
+  type: 'BURO_CREDITO' | 'STP_SPEI' | 'NUBARIUM_KYC' | 'PAYNET_RECIBOS' | 'CRM_ORIGINACION' | 'BOTMAKER_WHATSAPP';
   status: 'ONLINE' | 'DEGRADADO' | 'OFFLINE';
   latencyMs: number;
   lastPing: string;

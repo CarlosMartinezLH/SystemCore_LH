@@ -102,7 +102,7 @@ export function EstadoCuentaModal({ isOpen, onClose, distribuidor }: DVModalProp
         </div>
 
         <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-between">
-          <span className="text-[11px] text-slate-400">Generado desde el Core Financialsoft</span>
+          <span className="text-[11px] text-slate-400">Generado desde el Core Central LanAhora</span>
           <div className="flex gap-2">
             <button onClick={() => window.print()} className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow">
               <Printer className="w-3.5 h-3.5" />

@@ -224,7 +224,7 @@ export default function RHView() {
                 Capital Humano
               </span>
               <span className="text-[10px] bg-white/20 px-2 py-0.2 rounded-full font-bold">
-                Buk
+                LH RH
               </span>
             </div>
             <div className="p-2 space-y-0.5 text-xs">

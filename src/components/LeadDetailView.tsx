@@ -80,7 +80,7 @@ export default function LeadDetailView({
     onUpdate(updated);
   };
 
-  // Validar CURP en Financialsoft
+  // Validar CURP en Cartera Core LH
   const handleValidateCurp = () => {
     if (!data.curp || data.curp.length < 18) {
       alert('Por favor captura una CURP válida de 18 caracteres antes de validar.');
@@ -91,13 +91,13 @@ export default function LeadDetailView({
       const isBlocked = data.curp.endsWith('99') || data.curp.endsWith('XX');
       const status = isBlocked ? 'NO_VALIDO' : 'VALIDO';
       const reason = isBlocked
-        ? 'Cuenta con saldo activo o antecedentes en gestoría según Financialsoft.'
+        ? 'Cuenta con saldo activo o antecedentes en gestoría según Cartera Core LH.'
         : 'Sin adeudos activos ni créditos vigentes. Habilitado para prospección.';
 
       const newMsg: ChatterMessage = {
         id: `msg-${Date.now()}`,
-        author: 'Sistema Financialsoft',
-        authorEmail: 'api@financialsoft.lanahora.com',
+        author: 'Sistema Core LH',
+        authorEmail: 'api@core.lanahora.com.mx',
         type: 'sistema',
         content: `Validación de CURP completada: ${status}. Motivo: ${reason}`,
         createdAt: new Date().toLocaleString('es-MX'),
@@ -148,8 +148,8 @@ export default function LeadDetailView({
           ...doc,
           status,
           updatedAt: new Date().toISOString(),
-          fileUrl: status === 'CARGADO' || status === 'VALIDADO' ? `/docs/mock/${doc.odooField}.pdf` : undefined,
-          fileName: status === 'CARGADO' || status === 'VALIDADO' ? `${doc.odooField}.pdf` : undefined,
+          fileUrl: status === 'CARGADO' || status === 'VALIDADO' ? `/docs/mock/${doc.fieldKey}.pdf` : undefined,
+          fileName: status === 'CARGADO' || status === 'VALIDADO' ? `${doc.fieldKey}.pdf` : undefined,
         };
       }
       return doc;
@@ -175,7 +175,7 @@ export default function LeadDetailView({
   return (
     <div className="flex-1 bg-[#f0f4fa] min-h-[calc(100vh-105px)] p-3 md:p-6 text-slate-800">
       <div className="max-w-7xl mx-auto space-y-4">
-        {/* Top Control Bar (Odoo Style) */}
+        {/* Top Control Bar */}
         <div className="bg-white border border-slate-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 shadow-sm">
           {/* Back & Actions */}
           <div className="flex items-center gap-2 flex-wrap">
@@ -199,7 +199,7 @@ export default function LeadDetailView({
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
-              {curpValidating ? 'Consultando Financialsoft...' : 'Validar CURP'}
+              {curpValidating ? 'Consultando Cartera Core...' : 'Validar CURP'}
             </button>
 
             <button
@@ -299,7 +299,7 @@ export default function LeadDetailView({
             </div>
           </div>
 
-          {/* Form Fields: Two Columns (Exact Odoo screen layout) */}
+          {/* Form Fields: Two Columns */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-xs">
             {/* Left Column: Personal Data */}
             <div className="space-y-2.5">
@@ -483,13 +483,13 @@ export default function LeadDetailView({
               <div className="grid grid-cols-3 items-start">
                 <label className="text-slate-600 font-semibold pt-1">Comentarios Financial</label>
                 <div className="col-span-2 text-slate-700 text-[11px] bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                  {data.financialCurpReason || 'Sin comentarios registrados por Financialsoft'}
+                  {data.financialCurpReason || 'Sin comentarios registrados por Cartera Core'}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Tab Navigation (Exact Odoo Tabs with LanAhora Royal Blue) */}
+          {/* Tab Navigation (LanAhora Royal Blue) */}
           <div className="border-t border-slate-100 pt-3">
             <div className="flex items-center gap-1 border-b border-slate-200 overflow-x-auto pb-1 text-xs font-semibold">
               <button
@@ -1050,7 +1050,7 @@ export default function LeadDetailView({
                         Matriz de Documentación y Fotografías (Anexo 1)
                       </h4>
                       <p className="text-[11px] text-blue-700">
-                        25 documentos requeridos para validación comercial y sincronización con Financialsoft.
+                        25 documentos requeridos para validación comercial y sincronización con el Core LH.
                       </p>
                     </div>
 
@@ -1113,10 +1113,10 @@ export default function LeadDetailView({
                                   </div>
                                   <div>
                                     <div className="font-semibold text-slate-800">
-                                      {doc.financialName}
+                                      {doc.documentName}
                                     </div>
                                     <div className="text-[10px] text-slate-400">
-                                      Campo Odoo: <span className="font-mono text-slate-600">{doc.odooField}</span>
+                                      Clave Documental: <span className="font-mono text-slate-600">{doc.fieldKey}</span>
                                     </div>
                                   </div>
                                 </div>

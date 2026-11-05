@@ -222,10 +222,10 @@ export default function CoreDashboard({
                 Servidor Core Central:
               </span>
               <span className="font-mono text-slate-900 font-black block text-sm">
-                Financialsoft SQL
+                Base de Datos Core LH
               </span>
               <span className="block font-semibold text-slate-700 mt-0.5">
-                lanahora.financialsoft.com.mx
+                core.lanahora.com.mx
               </span>
               <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
                 <span className="text-emerald-700 font-bold">✓ Conexión en Línea</span>

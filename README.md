@@ -1,156 +1,223 @@
-# System Core LH — LanAhora Enterprise Platform
+# LanAhora SystemCore — Especificación Técnica & Arquitectura de Software
 
-Plataforma integral y núcleo operativo de **LanAhora** (SOFOM E.N.R.), especializada en la originación, colocación, administración y cobranza de créditos mediante vales. Integra y moderniza el CRM de Originación (sustitución de Odoo), el Core Central (sustitución de Financialsoft), la gestión de Capital Humano (sustitución de Buk) y la capa de integración con instituciones financieras y servicios externos (Buró de Crédito, STP SPEI, Nubarium KYC, Paynet, Banorte y Botmaker).
-
----
-
-## 📌 Módulos Principales del Sistema
-
-1. **CRM de Originación (Odoo Modernizado)**:
-   - Tubería Kanban interactiva de 8 etapas reglamentarias según manual `LNH-VTAD-PRO-001`.
-   - Formulario de detalle con 6 pestañas: *Notas & Bitácora*, *Contacto & Domicilio*, *Fotografías INE*, *Solicitud Dinámica & Firma Digital*, *Integración de Expediente (25 Documentos del Anexo 1)* y *Mesa de Crédito & Buró*.
-   - Dictamen de perfiles de distribuidora (`D-AAA`, `D-AA`, `D-A`, `E-AAA`, `E-AA`, `E-A`).
-
-2. **Core Central Operativo (Financialsoft)**:
-   - **Buscador Core**: Localizador instantáneo por No. de DV, Identificador CréditoID, Folio de Vale y Nombre de Persona.
-   - **Padrón de Personas (122,144 registros)**: Con panel lateral de acciones operativas, consulta de Buró de Crédito en tiempo real, registro de cuentas CLABE STP, expediente digital Nextcloud, canje de vales Paynet, carta declaratoria prestanombres y exportación a Excel.
-   - **Padrón de Distribuidores (7,171 DVs)**: Estado de cuenta oficial imprimible, relación de cobranza y recibos, mensajería masiva WhatsApp (Botmaker), levantamiento de castigo, push notifications a LanaApp y exportación XLS.
-
-3. **Capital Humano & Asistencia (Buk Integrado)**:
-   - Control de asistencia para corporativo, sucursales foráneas y asesores en calle mediante geolocalización satelital GPS (latitud, longitud y validación contra zona comercial asignada).
-   - Bandeja de requisiciones de uniformes y gafetes institucionales con autorización de Dirección.
-   - Academia LanAhora con certificaciones obligatorias en Prevención de Lavado de Dinero (PLD / FT) y técnicas de prospección.
-
-4. **Dispersión & Pagos (STP / Paynet / Banorte)**:
-   - Dispersión masiva vía SPEI con el Gateway de STP (Sistema de Transferencias y Pagos) y descarga de comprobantes CEP de Banxico.
-   - Recaudación y conciliación de pagos en tiendas de conveniencia afiliadas a Paynet (7-Eleven, Farmacias del Ahorro, Circle K) y ventanillas Banorte.
-
-5. **Capa de Integración & ESB (API Gateway Hub)**:
-   - Monitor en tiempo real de salud, latencia y disponibilidad de las 6 integraciones externas del mapa tecnológico:
-     - **Buró de Crédito México** (API v2 REST)
-     - **STP SPEI** (WebServices REST/SOAP)
-     - **Nubarium KYC** (Validación RENAPO, INE OCR y listas negras SAT 69-B)
-     - **Paynet / Openpay** (Generación de códigos de barras para tiendas)
-     - **CRM Odoo** (JSON-RPC v16)
-     - **Botmaker WhatsApp & SMS** (Meta Cloud API)
-   - Consola interactiva JSON con pruebas de ping y simulación de peticiones en vivo.
-
-6. **Aplicación Móvil de Asesores de Campo (Android APK)**:
-   - Aplicación nativa Android compilada con Gradle y Android SDK para prospección en campo, validación de CURP en frío y levantamiento de solicitudes (`dist/apk/lanahora-asesores-debug.apk`).
-
-7. **LanApp — Vales Digitales con Canje Inmediato**:
-   - Módulo interactivo en SystemCore y aplicación nativa Flutter para **Distribuidoras (DVs)**:
-     - Consulta de líneas de crédito (Vale Lana, Lanatienda, Crédito Personal) y saldo de relación quincenal.
-     - Emisión de Vales Digitales con plazos interactivos e importes personalizados.
-     - Generación de link tokenizado único y compartición directa vía WhatsApp.
-     - Portal de Canje del Cliente Final (`acreditala.financialsoft.site`) con validación de domicilio, beneficiario de seguro de vida, datos bancarios para depósito, validación KYC de INE (anverso/reverso OCR), selfie biométrica facial con detector de vida y firma táctil digital.
-     - Dispersión automática inmediata enlazada a STP SPEI.
-   - Binario compilado listo para descarga: `dist/apk/lanapp-distribuidoras.apk`.
+Núcleo tecnológico, financiero y operativo de **LanAhora (SOFOM E.N.R.)** para la originación, colocación, validación biométrica, dispersión SPEI y administración de créditos mediante vales digitales.
 
 ---
 
-## 🎨 Identidad Corporativa y Diseño Oficial
+## 1. Ficha Técnica del Proyecto
 
-La interfaz sigue fielmente los colores institucionales oficiales de LanAhora:
-* **Azul Rey Corporativo (`#1d4ed8` a `#2563eb`)**: Cabeceras maestras, barras de herramientas y botones principales.
-* **Amarillo Sol / Dorado (`#facc15` / `#eab308`)**: Listón superior de pestaña activa, botones clave de acción (*"Avanzar Etapa"*, *"Crear Oportunidad"*, *"Nueva Dispersión"*) y badges de nivel.
-* **Lienzo Limpio y Pulcro (`#f0f4fa` y `#ffffff`)**: Fondos claros y tarjetas blancas con sombras sutiles, sustituyendo interfaces oscuras previas.
-* **Verde Éxito (`#16a34a` / `#22c55e`)**: Validaciones de CURP exitosas, firmas capturadas y asistencias GPS puntuales.
-
----
-
-## 🌿 Estrategia de Ramas (Git Flow)
-
-Siguiendo las directrices del proyecto, todo el desarrollo se concentra en la rama **`develop`**:
-
-| Rama | Propósito | Entorno |
-| :--- | :--- | :--- |
-| **`develop`** | **Rama activa de trabajo.** Todas las nuevas funcionalidades, vistas y módulos convergen aquí. | Desarrollo Local / Dev |
-| **`test`** | Integración de pruebas, control de calidad y validación de usuario (QA/Staging). | Pruebas / QA |
-| **`production`** | Código estable, verificado y listo para usuarios finales. | Producción |
-
-> ⚠️ **Regla de oro:** Todo se sube estrictamente a `develop` hasta que el usuario dé la orden explícita de promover hacia `test` y posteriormente a `production`.
+| Parámetro | Especificación |
+| :--- | :--- |
+| **Framework Web Core** | **Next.js 16.4.5** (App Router, Turbopack Engine, React 19.3.0, TypeScript 5.x) |
+| **Estilos & UI System** | Tailwind CSS v4, Lucide Icons, Canvas Signature API |
+| **Framework Móvil** | **Flutter 3.x / Dart 3.x** (Android SDK 34, JVM 17, Gradle 8.x) |
+| **Flavors Móviles** | `lanapp` (`com.lanahora.lanapp`) y `asesores` (`com.lanahora.asesores`) |
+| **Seguridad Móvil** | Ofuscación de bytecode con R8 / ProGuard, Flutter Secure Storage (AES-256/RSA) |
+| **Gateway ESB** | RESTful JSON APIs, Serverless Edge Routes, mTLS y HMAC-SHA256 |
+| **Almacenamiento Local** | SQLite encriptado (Mobile), LocalStorage tokenizado (Web) |
+| **Estrategia Git** | Tronco central en rama `develop` |
 
 ---
 
-## 📁 Estructura del Repositorio
+## 2. Diagrama de Arquitectura de Sistemas
+
+```mermaid
+flowchart TD
+    subgraph Clientes ["Capa de Clientes & Aplicaciones"]
+        WEB["SystemCore Web (Next.js 16 / React 19)"]
+        APP_ADV["LH Asesores Móvil (Flutter / Android)"]
+        APP_LAN["LanApp Móvil (Flutter / Android)"]
+        PWA_CAN["Portal de Canje Web PWA (Biometría / OCR)"]
+    end
+
+    subgraph EdgeGateway ["Capa Edge & API Gateway"]
+        PROXY["Reverse Proxy NGINX / Cloudflare"]
+        EDGE_API["Next.js Serverless Edge Routes\n/api/kyc/validate-curp"]
+        SEC_HEADERS["Hardening: CSP, HSTS, X-Frame-Options: DENY"]
+    end
+
+    subgraph MotoresCore ["Motores Internos de Negocio"]
+        CRM_ENG["Motor de Originación & Matriz de 25 Documentos"]
+        PADRON_ENG["Padrón Core: 122k Personas & 7k Distribuidoras"]
+        STP_ENG["Motor de Dispersión Automática SPEI (STP)"]
+        RH_ENG["Motor de Asistencia Satelital GPS & Talento"]
+    end
+
+    subgraph IntegracionesESB ["ESB & Servicios Externos"]
+        NUBARIUM["Nubarium API (RENAPO & INE OCR)"]
+        SAT_DB["Base Local Indexada SAT 69-B (O(1) Hash Table)"]
+        BURO["Buró de Crédito México (REST API)"]
+        STP_SPEI["Gateway Bancario STP (SPEI / Banxico)"]
+        PAYNET["Paynet Openpay (Recaudación con Código de Barras)"]
+        BOTMAKER["Botmaker Gateway (WhatsApp Cloud & SMS OTP)"]
+    end
+
+    WEB --> PROXY
+    APP_ADV --> PROXY
+    APP_LAN --> PROXY
+    PWA_CAN --> PROXY
+
+    PROXY --> SEC_HEADERS
+    SEC_HEADERS --> EDGE_API
+    SEC_HEADERS --> MotoresCore
+
+    EDGE_API --> NUBARIUM
+    EDGE_API --> SAT_DB
+    MotoresCore --> BURO
+    MotoresCore --> STP_SPEI
+    MotoresCore --> PAYNET
+    MotoresCore --> BOTMAKER
+```
+
+---
+
+## 3. Motores de Negocio & Módulos Técnicos
+
+### 3.1. Motor KYC & Filtro de Listas Negras SAT (`/api/kyc/validate-curp`)
+* **Endpoint:** `POST /api/kyc/validate-curp`
+* **Mecanismo de Ejecución:**
+  1. **Validación Sintáctica Estricta:** Comprobación mediante expresión regular oficial para CURP (`^[A-Z]{4}\d{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z\d]\d$`).
+  2. **Consulta a RENAPO vía Nubarium:** Extracción de nombres, apellidos, género y fecha de nacimiento oficial con token JWT (`Bearer`).
+  3. **Búsqueda In-Memory SAT Art. 69-B:** Diccionario hash JSON (`sat_69b_index.json`) precompilado en memoria con tiempo de acceso $O(1)$ para descartar EFOS/EDOS (contribuyentes en lista negra definitiva, presunta o con sentencia).
+
+### 3.2. Motor de Dispersión Bancaria STP SPEI
+* **Protocolo:** JSON REST / mTLS con firma criptográfica RSA-SHA256.
+* **Flujo de Ejecución:**
+  1. Generación de `claveRastreo` única estructurada: `LAN{YYYYMMDD}{FOLIO_ALEATORIO}`.
+  2. Firma del payload con llave privada de la SOFOM (`STP_PRIVATE_KEY`).
+  3. Despacho hacia el concentrador de STP y recepción de folio de liquidación.
+  4. Consulta del Comprobante Electrónico de Pago (CEP) ante el Banco de México (Banxico).
+
+### 3.3. Motor de Geoposicionamiento & Asistencia GPS
+* **Tecnología:** HTML5 High Accuracy Geolocation API en Web + Geolocator en Flutter.
+* **Precisión:** Adquisición satelital con `enableHighAccuracy: true`, validando latitud, longitud, altitud y distancia radial contra el polígono de la sucursal o ruta de prospección.
+
+### 3.4. Motor de Canje Digital & Biometría Facial
+* **Captura de Documentos:** Cámara trasera en modo `environment` con resolución nativa 1080p y preprocesamiento de imagen en Canvas (conversión Base64 y extracción OCR de código bidimensional PDF417).
+* **Selfie Biométrica Facial:** Cámara frontal en modo `user` con detección de vida (*liveness detection*), cálculo de distancia interocular y comparación facial contra la fotografía extraída del INE.
+
+---
+
+## 4. Ciberseguridad & Pentesting Hardening
+
+El sistema cuenta con directivas de seguridad implementadas y verificadas contra ataques de inyección, secuestro de clics y robo de credenciales:
+
+```typescript
+// next.config.ts — Encabezados HTTP de Seguridad
+headers: [
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(self), microphone=(), geolocation=(self)' },
+  { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' http://127.0.0.1:* http://localhost:* https://api.nubarium.com https://*.sat.gob.mx;" }
+]
+```
+
+### Reglas de Ofuscación R8 / ProGuard (`mobile_app/android/app/proguard-rules.pro`)
+* Retención de componentes Flutter esenciales (`io.flutter.app.**`, `io.flutter.plugin.**`).
+* Supresión de advertencias en dependencias diferidas (`-dontwarn com.google.android.play.core.**`).
+* Protección contra ingeniería inversa en SQLite y almacenamiento encriptado seguro (`FlutterSecureStorage`).
+
+---
+
+## 5. Estructura de Directorios
 
 ```text
 SystemCore_LH/
-├── docs/                                    # Manuales y especificaciones de arquitectura
-│   ├── proceso-originacion-crm.md           # Flujo LNH-VTAD-PRO-001 (Originación CRM LanAhora)
-│   ├── core-financialsoft.md                # Arquitectura del Core Central (FinancialSoft)
-│   ├── recursos-humanos-buk.md              # Módulo de Capital Humano, Asistencia GPS y Buk
-│   ├── diseno-login-movil.md                # Sistema de Diseño Oficial y Aplicación Móvil
-│   └── mapa-sistemas-integraciones.md       # Mapa oficial de Sistemas, Infraestructura y ESB
-├── dist/
-│   └── apk/                                 # Paquetes Android listos para instalación
-│       └── lanahora-asesores-debug.apk      # APK compilado de la App Móvil para Asesores
+├── docs/                                    # Especificaciones de arquitectura interna
+│   ├── core-central.md                      # Arquitectura del Core Central LanAhora
+│   ├── proceso-originacion-crm.md           # Pipeline comercial de 8 etapas
+│   ├── capital-humano-rh.md                 # Control de Asistencia satelital GPS
+│   ├── diseno-login-movil.md                # Design System corporativo y pantallas móviles
+│   ├── manual-dispersion-digital-lanapp.md  # Protocolo de canje y dispersión STP
+│   └── mapa-sistemas-integraciones.md       # Topología de la capa de integración ESB
 ├── src/
-│   ├── app/                                 # Rutas y páginas de Next.js (App Router)
-│   │   ├── globals.css                      # Variables CSS y paleta oficial LanAhora
+│   ├── app/
+│   │   ├── api/kyc/validate-curp/route.ts   # Edge API de validación RENAPO + SAT 69-B
+│   │   ├── globals.css                      # Estilos globales y paleta institucional
 │   │   ├── layout.tsx                       # Layout raíz
-│   │   └── page.tsx                         # Orquestador principal y protector de sesión
-│   ├── components/                          # Componentes UI de los módulos
-│   │   ├── Header.tsx                       # Barra superior con navegación corporativa
-│   │   ├── LoginView.tsx                    # Pantalla de acceso por sucursal
-│   │   ├── KanbanBoard.tsx                  # Tablero Kanban de originación de créditos
-│   │   ├── TableView.tsx                    # Vista tabular de prospectos
-│   │   ├── LeadDetailView.tsx               # Ficha de detalle de crédito (6 pestañas)
-│   │   ├── NewLeadModal.tsx                 # Modal para crear oportunidades
-│   │   ├── CoreDashboard.tsx                # Buscador Core por DV, Crédito y Vale
-│   │   ├── PersonasView.tsx                 # Padrón de Personas con panel de acciones
-│   │   ├── DistribuidoresView.tsx           # Padrón de Distribuidoras y coordinadores
-│   │   ├── RHView.tsx                       # Capital Humano, Asistencia GPS y Capacitaciones
-│   │   ├── DispersionView.tsx               # Dispersión SPEI STP y Recaudación Paynet
-│   │   ├── IntegracionesView.tsx            # Consola ESB y monitor de APIs externas
-│   │   ├── SignaturePad.tsx                 # Lienzo para firma digital vectorial
+│   │   └── page.tsx                         # Orquestador del Core y control de sesión
+│   ├── components/
+│   │   ├── Header.tsx                       # Barra de navegación principal del Core
+│   │   ├── LoginView.tsx                    # Autenticación segura por sucursal
+│   │   ├── KanbanBoard.tsx                  # Tablero visual de originación
+│   │   ├── TableView.tsx                    # Vista tabular de prospectos comerciales
+│   │   ├── LeadDetailView.tsx               # Expediente comercial y matriz de 25 documentos
+│   │   ├── CoreDashboard.tsx                # Buscador central por DV, Folio y CréditoID
+│   │   ├── PersonasView.tsx                 # Padrón de 122,144 personas con sidebar
+│   │   ├── DistribuidoresView.tsx           # Padrón de 7,171 distribuidoras con sidebar
+│   │   ├── RHView.tsx                       # Asistencia GPS, requisiciones y capacitaciones
+│   │   ├── DispersionView.tsx               # Desembolsos SPEI STP y recaudación Paynet
+│   │   ├── IntegracionesView.tsx            # Monitor de salud ESB y consola interactiva
+│   │   ├── LanAppView.tsx                   # Simulador Web de LanApp y Canje con Cámara
 │   │   └── modals/                          # Modales de interacción operativa
-│   │       ├── PersonaModals.tsx            # Buró API, CLABE STP, Canje Paynet, Prestanombres
-│   │       └── DistribuidorModals.tsx       # Estado de Cuenta, WhatsApp Botmaker, Castigos
-│   ├── lib/                                 # Semillas y datos de Financialsoft
-│   └── types/                               # Definiciones de TypeScript (Auth, CRM, Core, RH)
-└── README.md                                # Documentación general del proyecto
+│   ├── lib/
+│   │   ├── data/
+│   │   │   ├── coreData.ts                  # Padrón de semillas operativas
+│   │   │   ├── initialData.ts               # Semillas de prospectos y matriz documental
+│   │   │   └── sat/sat_69b_index.json       # Padrón indexado de contribuyentes SAT Art. 69-B
+│   │   └── security.ts                      # Sanitizadores y hashing criptográfico
+│   └── types/                               # Tipados TypeScript (Core, CRM, Auth, RH)
+├── DOCUMENTACION_GENERAL.md                 # Documentación funcional para público en general
+└── README.md                                # Este documento (Especificación técnica)
 ```
 
 ---
 
-## 🚀 Inicio Rápido (Entorno Local)
+## 6. Variables de Entorno (`.env.local`)
 
-Para ejecutar la plataforma localmente:
+```env
+# Configuración del Entorno
+NEXT_PUBLIC_APP_ENV=development
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
+# API Nubarium KYC (RENAPO & Biometría)
+NUBARIUM_BASE_URL=https://api.nubarium.com
+NUBARIUM_AUTH_USER=nubarium
+NUBARIUM_AUTH_PASSWORD=_nub4r1mp4ssw0rd.
+NUBARIUM_API_KEY=
+
+# Gateway Bancario STP SPEI
+STP_BASE_URL=https://mpos.insis.com.mx
+STP_EMPRESA=LANA_AHORA_SOFOM
+STP_CUENTA_ORDENANTE=646180157000000004
+
+# Paynet / OpenPay Recaudación
+OPENPAY_MERCHANT_ID=
+OPENPAY_PRIVATE_KEY=
+```
+
+---
+
+## 7. Compilación & Despliegue
+
+### 7.1. Sistema Web Core
 ```bash
-# 1. Asegurar dependencias instaladas
+# Instalación de dependencias
 npm install
 
-# 2. Iniciar servidor de desarrollo en http://localhost:3000
+# Modo desarrollo con Turbopack
 npm run dev
 
-# 3. Compilar para producción (validación de tipos TypeScript)
+# Compilación de producción (Validación TypeScript y optimización de estáticos)
 npm run build
+
+# Ejecución en producción
+npm run start
 ```
 
----
-
-## 📱 Compilación del APK Móvil para Asesores
-
-La aplicación móvil para Android se compila utilizando el SDK de Android y Gradle:
-
+### 7.2. Aplicaciones Móviles (Flutter / Android)
 ```bash
-# Compilar el APK debug directamente:
-cd "/Users/cmartinez/Desktop/proyectos/Lanahora/mobile_app/android"
-JAVA_HOME=/opt/homebrew/opt/openjdk@17 ANDROID_HOME=/opt/homebrew/share/android-commandlinetools ./gradlew assembleDebug
+cd mobile_app
 
-# El archivo APK generado se ubica en:
-# /Users/cmartinez/Desktop/System Core LH/SystemCore_LH/dist/apk/lanahora-asesores-debug.apk
+# Compilar APK Release de LanApp (Distribuidoras & Canje):
+flutter build apk --flavor lanapp -t lib/main_lanapp.dart
+
+# Compilar APK Release de LH Asesores (Fuerza de Ventas en Campo):
+flutter build apk --flavor asesores -t lib/main_asesores.dart
+
+# Instalación en dispositivo físico vía ADB:
+adb -s <DEVICE_ID> install -r build/app/outputs/flutter-apk/app-lanapp-release.apk
+adb -s <DEVICE_ID> install -r build/app/outputs/flutter-apk/app-asesores-release.apk
 ```
-
----
-
-## 📖 Documentación de Referencia
-
-* [Manual de Originación y Flujo de CRM](docs/proceso-originacion-crm.md)
-* [Arquitectura del Sistema Core Principal (FinancialSoft)](docs/core-financialsoft.md)
-* [Módulo de Capital Humano & Asistencia (Buk)](docs/recursos-humanos-buk.md)
-* [Diseño Institucional y App Móvil](docs/diseno-login-movil.md)
-* [Mapa Oficial de Sistemas, Infraestructura y Capa de Integración](docs/mapa-sistemas-integraciones.md)

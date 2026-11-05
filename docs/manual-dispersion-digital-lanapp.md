@@ -1,6 +1,6 @@
 # Manual Oficial de Dispersión Digital — LanApp (Vales Digitales con Canje Inmediato)
 
-Este documento detalla el funcionamiento de **LanApp** y el **Portal de Canje para Clientes (`acreditala.financialsoft.site`)**, integrados de extremo a extremo con **SystemCore LanAhora** y el canal de dispersión bancaria automatizada **STP SPEI**.
+Este documento detalla el funcionamiento de **LanApp** y el **Portal de Canje para Clientes (`acreditala.core.lanahora.com.mx.site`)**, integrados de extremo a extremo con **SystemCore LanAhora** y el canal de dispersión bancaria automatizada **STP SPEI**.
 
 ---
 
@@ -12,7 +12,7 @@ LanAhora opera dos aplicaciones móviles independientes según el perfil de usua
 | :--- | :--- | :--- | :--- |
 | **LanApp** | **Distribuidora (DV)** | Consulta de líneas de crédito, saldos de relación, administración de cartera de clientes y emisión de **Vales Digitales con Canje**. | `dist/apk/lanapp-distribuidoras.apk` |
 | **App Móvil Asesores** | **Asesores de Campo (LH)** | Prospección en calle, validación de CURP en frío, geolocalización, captura de documentos de domicilio y expediente digital. | `dist/apk/lanahora-asesores-debug.apk` |
-| **Portal Acredítala** | **Cliente Final** | Web App PWA que el cliente abre desde el enlace de WhatsApp recibido: validación de datos, captura de INE, biometría facial y firma digital. | `https://acreditala.financialsoft.site` |
+| **Portal Acredítala** | **Cliente Final** | Web App PWA que el cliente abre desde el enlace de WhatsApp recibido: validación de datos, captura de INE, biometría facial y firma digital. | `https://acreditala.core.lanahora.com.mx.site` |
 
 ---
 
@@ -59,7 +59,7 @@ LanAhora opera dos aplicaciones móviles independientes según el perfil de usua
    - Generación del mensaje predefinido con la URL única y tokenizada de canje:
      ```text
      Lanahora: Gracias por tu canje. Para darle seguimiento, compartir la siguiente url:
-     https://acreditala.financialsoft.site/solicitud/1-356F3C37-FDCE-F011-B513-000C29AC7C09
+     https://acreditala.core.lanahora.com.mx.site/solicitud/1-356F3C37-FDCE-F011-B513-000C29AC7C09
      ```
 
 7. **Paso 7 — Instrucción al Cliente**:
