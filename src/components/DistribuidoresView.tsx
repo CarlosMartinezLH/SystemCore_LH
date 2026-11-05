@@ -58,16 +58,18 @@ export default function DistribuidoresView() {
 
     if (actionName === 'Estado de Cuenta') {
       setActiveModal('estadoCuenta');
-    } else if (actionName === 'Mensajes masivos') {
-      setActiveModal('mensajes');
-    } else if (actionName === 'Quitar fecha castigo') {
-      setActiveModal('castigo');
-    } else if (actionName === 'Enviar notificación APP') {
-      setActiveModal('push');
-    } else if (actionName === 'Relación' || actionName === 'Relación Recibos') {
-      setActiveModal('relacion');
-    } else if (actionName === 'Cartera') {
+    } else if (actionName === 'Cartera de Clientes' || actionName === 'Cartera') {
       setActiveModal('cartera');
+    } else if (actionName === 'Relación de Cobro' || actionName === 'Relación' || actionName === 'Relación Recibos') {
+      setActiveModal('relacion');
+    } else if (actionName === 'Recibos Emitidos') {
+      setActiveModal('relacion');
+    } else if (actionName === 'Mensajes Masivos WhatsApp' || actionName === 'Mensajes masivos') {
+      setActiveModal('mensajes');
+    } else if (actionName === 'Quitar Castigo / Reactivar' || actionName === 'Quitar fecha castigo') {
+      setActiveModal('castigo');
+    } else if (actionName === 'Notificación LanaApp' || actionName === 'Enviar notificación APP') {
+      setActiveModal('push');
     } else {
       alert(`Módulo: "${actionName}" ejecutado para DV #${selectedDist.noDist} (${selectedDist.nombreDistribuidor})`);
     }
@@ -99,105 +101,131 @@ export default function DistribuidoresView() {
   };
 
   return (
-    <div className="flex-1 bg-[#f0f4fa] text-slate-800 flex flex-col min-h-[calc(100vh-105px)] overflow-hidden font-sans p-4 space-y-4">
-      {/* Top Action & Coordinator Bar */}
-      <div className="bg-white border border-blue-100 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-sm">
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          {/* Coordinator Dropdown */}
-          <div className="flex items-center gap-2">
-            <span className="text-slate-600 font-bold text-xs">Coordinadores:</span>
-            <select
-              value={coordinatorFilter}
-              onChange={(e) => setCoordinatorFilter(e.target.value)}
-              className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:border-[#2563eb] font-semibold"
-            >
-              <option value="ALL">-- Todos los Coordinadores --</option>
-              {coordinators.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
+    <div className="flex-1 bg-[#f0f4fa] text-slate-800 flex flex-col md:flex-row min-h-[calc(100vh-105px)] overflow-hidden font-sans">
+      {/* LEFT SIDEBAR: OPCIONES */}
+      <aside className="w-full md:w-64 bg-white border-r border-blue-100 p-3 flex flex-col justify-between overflow-y-auto shadow-sm">
+        <div className="space-y-4">
+          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 overflow-hidden shadow-xs">
+            <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white px-4 py-2.5 text-xs font-black flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Briefcase className="w-4 h-4 text-[#facc15]" />
+                Acciones de Distribuidor
+              </span>
+              <span className="text-[10px] bg-white/20 px-2 py-0.2 rounded-full font-bold">
+                Core
+              </span>
+            </div>
+            <div className="p-2 space-y-0.5 text-xs">
+              {[
+                { name: 'Estado de Cuenta', icon: FileText, highlight: true },
+                { name: 'Cartera de Clientes', icon: Users },
+                { name: 'Relación de Cobro', icon: FileSpreadsheet },
+                { name: 'Recibos Emitidos', icon: CheckCircle2 },
+                { name: 'Mensajes Masivos WhatsApp', icon: MessageSquare },
+                { name: 'Quitar Castigo / Reactivar', icon: Unlock },
+                { name: 'Notificación LanaApp', icon: Smartphone, highlightYellow: true },
+              ].map((opt) => (
+                <button
+                  key={opt.name}
+                  onClick={() => handleActionClick(opt.name)}
+                  className={`w-full text-left px-3 py-2 rounded-xl transition flex items-center gap-2 font-medium ${
+                    opt.highlight
+                      ? 'bg-[#2563eb] text-white font-bold hover:bg-blue-700 shadow-xs'
+                      : opt.highlightYellow
+                      ? 'bg-[#facc15] text-slate-950 font-black hover:bg-yellow-400 shadow-xs'
+                      : 'text-slate-700 hover:bg-blue-100/60 hover:text-blue-900'
+                  }`}
+                >
+                  <opt.icon className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="truncate">{opt.name}</span>
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
-          <div className="h-5 w-px bg-slate-200 mx-1 hidden sm:block" />
-
-          {/* Action buttons with real handlers */}
-          <button
-            onClick={() => handleActionClick('Relación')}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
-          >
-            Relación de Cobro
-          </button>
-          <button
-            onClick={() => handleActionClick('Relación Recibos')}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
-          >
-            Recibos Emitidos
-          </button>
-          <button
-            onClick={() => handleActionClick('Estado de Cuenta')}
-            className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold transition flex items-center gap-1"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>Estado de Cuenta</span>
-          </button>
-          <button
-            onClick={() => handleActionClick('Mensajes masivos')}
-            className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition flex items-center gap-1"
-          >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Mensajes Masivos WhatsApp</span>
-          </button>
-          <button
-            onClick={() => handleActionClick('Quitar fecha castigo')}
-            className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition flex items-center gap-1"
-          >
-            <Unlock className="w-3.5 h-3.5" />
-            <span>Quitar Castigo</span>
-          </button>
-
-          <button
-            onClick={handleExportXLS}
-            className="px-3 py-1.5 rounded-xl bg-[#16a34a] hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5" />
-            <span>XLS (Excel)</span>
-          </button>
-
-          <button
-            onClick={() => handleActionClick('Enviar notificación APP')}
-            className="px-3.5 py-1.5 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow transition active:scale-95"
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span>Notificación LanaApp</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Filter Search Input Bar */}
-      <div className="bg-white p-3.5 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-sm">
-        <div className="flex items-center gap-2 max-w-md w-full">
-          <Search className="w-4 h-4 text-blue-500" />
-          <input
-            type="text"
-            placeholder="Buscar por nombre, No. de DV, Coordinador..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-[#2563eb] bg-white text-slate-900"
-          />
+          {/* Exportar */}
+          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 p-2">
+            <button
+              onClick={handleExportXLS}
+              className="w-full text-left px-3 py-2 rounded-xl text-xs text-emerald-700 font-bold hover:bg-emerald-100/50 flex items-center gap-2 transition"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <span>Exportar Padrón a Excel (XLS)</span>
+            </button>
+          </div>
         </div>
 
-        <div className="text-xs text-slate-500">
-          Mostrando <span className="font-black text-[#2563eb] font-mono">{filtered.length}</span> de 7,171 distribuidoras
-        </div>
-      </div>
+        {selectedDist && (
+          <div className="p-3 bg-[#eff4fc] rounded-2xl border border-blue-200 text-xs text-slate-700 mt-3">
+            <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
+              Distribuidora Seleccionada:
+            </span>
+            <span className="font-mono text-slate-900 font-black block text-sm">
+              DV #{selectedDist.noDist}
+            </span>
+            <span className="truncate block font-bold text-slate-800 mt-0.5">
+              {selectedDist.nombreDistribuidor}
+            </span>
+            <span className="text-[10px] text-slate-500 block truncate font-mono">
+              Coord: {selectedDist.coordinador}
+            </span>
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">
+                {selectedDist.nivel}
+              </span>
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                selectedDist.estatus === 'ACTIVO' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+              }`}>
+                {selectedDist.estatus}
+              </span>
+            </div>
+          </div>
+        )}
+      </aside>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl border border-blue-100 overflow-x-auto shadow-md flex-1">
-        <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-          <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
-            <tr>
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto min-w-0">
+        {/* Filter Search Input Bar */}
+        <div className="bg-white p-3.5 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3 flex-1 max-w-2xl">
+            <div className="flex items-center gap-2 flex-1">
+              <Search className="w-4 h-4 text-blue-500 shrink-0" />
+              <input
+                type="text"
+                placeholder="Buscar por nombre, No. de DV, Coordinador, Sucursal..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-[#2563eb] bg-white text-slate-900"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-slate-600 font-bold text-xs whitespace-nowrap">Coordinador:</span>
+              <select
+                value={coordinatorFilter}
+                onChange={(e) => setCoordinatorFilter(e.target.value)}
+                className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:border-[#2563eb] font-semibold"
+              >
+                <option value="ALL">-- Todos los Coordinadores --</option>
+                {coordinators.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="text-xs text-slate-500 whitespace-nowrap">
+            Mostrando <span className="font-black text-[#2563eb] font-mono">{filtered.length}</span> de 7,171 distribuidoras
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="bg-white rounded-2xl border border-blue-100 overflow-x-auto shadow-md flex-1">
+          <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
+            <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
+              <tr>
               <th className="p-3">Detalle</th>
               <th className="p-3">Cartera</th>
               <th className="p-3">Sucursal</th>
@@ -277,6 +305,7 @@ export default function DistribuidoresView() {
           </tbody>
         </table>
       </div>
+      </main>
 
       {/* MODALS */}
       <EstadoCuentaModal

@@ -17,3 +17,16 @@ body {
   font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
 }
+
+/* Hide Next.js Development Badge / Devtools Indicator */
+nextjs-portal,
+[data-nextjs-dev-tools-button],
+[data-nextjs-toast],
+#nextjs-dev-tools-button,
+[data-next-badge],
+div[data-nextjs-route-announcer] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
