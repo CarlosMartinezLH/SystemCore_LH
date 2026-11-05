@@ -17,6 +17,7 @@ import IntegracionesView from '@/components/IntegracionesView';
 import { UserSession } from '@/types/auth';
 import { Prospect, StageId, OriginType } from '@/types/crm';
 import { INITIAL_PROSPECTS, createDefaultDocuments } from '@/lib/data/initialData';
+import { CoreSyncProvider } from '@/context/CoreSyncContext';
 
 const STORAGE_KEY = 'lanahora_crm_prospects_v2';
 const AUTH_KEY = 'lanahora_user_session_v2';
@@ -184,65 +185,67 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f4fa] flex flex-col font-sans">
-      <Header
-        currentUser={currentUser}
-        activeModule={activeModule}
-        onModuleChange={(mod) => {
-          setSelectedProspectId(null);
-          setActiveModule(mod);
-        }}
-        onLogout={handleLogout}
-      />
+    <CoreSyncProvider>
+      <div className="min-h-screen bg-[#f0f4fa] flex flex-col font-sans">
+        <Header
+          currentUser={currentUser}
+          activeModule={activeModule}
+          onModuleChange={(mod) => {
+            setSelectedProspectId(null);
+            setActiveModule(mod);
+          }}
+          onLogout={handleLogout}
+        />
 
-      <main className="flex-1 flex flex-col">
-        {activeModule === 'core_dashboard' ? (
-          <CoreDashboard
-            onNavigateToPersonas={() => setActiveModule('personas')}
-            onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
-          />
-        ) : activeModule === 'personas' ? (
-          <PersonasView />
-        ) : activeModule === 'distribuidores' ? (
-          <DistribuidoresView />
-        ) : activeModule === 'rh' ? (
-          <RHView />
-        ) : activeModule === 'dispersion' ? (
-          <DispersionView />
-        ) : activeModule === 'integraciones' ? (
-          <IntegracionesView />
-        ) : (
-          /* MODULE CRM DESKTOP */
-          selectedProspect ? (
-            <LeadDetailView
-              prospect={selectedProspect}
-              onBack={() => setSelectedProspectId(null)}
-              onUpdate={handleUpdateProspect}
+        <main className="flex-1 flex flex-col">
+          {activeModule === 'core_dashboard' ? (
+            <CoreDashboard
+              onNavigateToPersonas={() => setActiveModule('personas')}
+              onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
             />
-          ) : currentView === 'kanban' ? (
-            <KanbanBoard
-              prospects={filteredProspects}
-              onSelectProspect={(p) => setSelectedProspectId(p.id)}
-              onQuickAdd={(st) => {
-                setQuickAddStage(st);
-                setIsNewLeadOpen(true);
-              }}
-            />
+          ) : activeModule === 'personas' ? (
+            <PersonasView />
+          ) : activeModule === 'distribuidores' ? (
+            <DistribuidoresView />
+          ) : activeModule === 'rh' ? (
+            <RHView />
+          ) : activeModule === 'dispersion' ? (
+            <DispersionView />
+          ) : activeModule === 'integraciones' ? (
+            <IntegracionesView />
           ) : (
-            <TableView
-              prospects={filteredProspects}
-              onSelectProspect={(p) => setSelectedProspectId(p.id)}
-            />
-          )
-        )}
-      </main>
+            /* MODULE CRM DESKTOP */
+            selectedProspect ? (
+              <LeadDetailView
+                prospect={selectedProspect}
+                onBack={() => setSelectedProspectId(null)}
+                onUpdate={handleUpdateProspect}
+              />
+            ) : currentView === 'kanban' ? (
+              <KanbanBoard
+                prospects={filteredProspects}
+                onSelectProspect={(p) => setSelectedProspectId(p.id)}
+                onQuickAdd={(st) => {
+                  setQuickAddStage(st);
+                  setIsNewLeadOpen(true);
+                }}
+              />
+            ) : (
+              <TableView
+                prospects={filteredProspects}
+                onSelectProspect={(p) => setSelectedProspectId(p.id)}
+              />
+            )
+          )}
+        </main>
 
-      <NewLeadModal
-        isOpen={isNewLeadOpen}
-        onClose={() => setIsNewLeadOpen(false)}
-        defaultStage={quickAddStage}
-        onCreate={handleCreateLead}
-      />
-    </div>
+        <NewLeadModal
+          isOpen={isNewLeadOpen}
+          onClose={() => setIsNewLeadOpen(false)}
+          defaultStage={quickAddStage}
+          onCreate={handleCreateLead}
+        />
+      </div>
+    </CoreSyncProvider>
   );
 }

@@ -15,13 +15,12 @@ import {
   Barcode,
   Layers,
 } from 'lucide-react';
-import { INITIAL_DISPERSIONES, INITIAL_PAGOS } from '@/lib/data/coreData';
 import { DispersionSTP, PagoCore } from '@/types/core';
+import { useCoreSync } from '@/context/CoreSyncContext';
 
 export default function DispersionView() {
   const [activeTab, setActiveTab] = useState<'dispersion' | 'pagos'>('dispersion');
-  const [dispersiones, setDispersiones] = useState<DispersionSTP[]>(INITIAL_DISPERSIONES);
-  const [pagos, setPagos] = useState<PagoCore[]>(INITIAL_PAGOS);
+  const { dispersiones, pagos, registrarCanje, registrarPago } = useCoreSync();
   const [searchFilter, setSearchFilter] = useState('');
   const [isNewDispOpen, setIsNewDispOpen] = useState(false);
 
@@ -55,34 +54,30 @@ export default function DispersionView() {
     );
   });
 
-  const handleCrearDispersion = (e: React.FormEvent) => {
+  const handleCrearDispersion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBeneficiario.trim() || newClabe.length !== 18) {
       alert('Por favor captura el nombre y una CLABE interbancaria válida de 18 dígitos.');
       return;
     }
 
-    const nueva: DispersionSTP = {
-      id: `disp-${Date.now()}`,
-      folioSTP: `STP-${Math.floor(Math.random() * 9000000 + 1000000)}`,
-      claveRastreo: `LAN${new Date().toISOString().slice(0, 10).replace(/-/g, '')}${Math.floor(Math.random() * 9000 + 1000)}`,
-      creditoId: `CR-${Math.floor(Math.random() * 9000 + 80000)}`,
-      beneficiario: newBeneficiario.trim().toUpperCase(),
-      curp: newCurp.trim().toUpperCase(),
-      clabe: newClabe.trim(),
-      banco: newBanco,
-      monto: Number(newMonto),
-      fechaHora: new Date().toLocaleString('es-MX'),
-      estatus: 'LIQUIDADO',
-      concepto: newConcepto.trim(),
-    };
-
-    setDispersiones([nueva, ...dispersiones]);
-    setIsNewDispOpen(false);
-    setNewBeneficiario('');
-    setNewCurp('');
-    setNewClabe('');
-    alert(`✓ Dispersión SPEI enviada a STP exitosamente. Folio: ${nueva.folioSTP} (Clave de rastreo: ${nueva.claveRastreo})`);
+    try {
+      const res = await registrarCanje({
+        clienteNombre: newBeneficiario.trim(),
+        curp: newCurp.trim(),
+        clabe: newClabe.trim(),
+        banco: newBanco,
+        monto: Number(newMonto),
+        metodo: 'STP',
+      });
+      setIsNewDispOpen(false);
+      setNewBeneficiario('');
+      setNewCurp('');
+      setNewClabe('');
+      alert(`✓ Dispersión SPEI enviada a STP exitosamente. Folio: ${res?.result?.nuevaDispersion?.folioSTP || 'STP-OK'}`);
+    } catch (err) {
+      alert('Error enviando dispersión: ' + (err as Error).message);
+    }
   };
 
   const handleExportCSV = () => {

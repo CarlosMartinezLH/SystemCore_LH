@@ -34,12 +34,14 @@ import {
   Sparkles,
   Search,
 } from 'lucide-react';
+import { useCoreSync } from '@/context/CoreSyncContext';
 
 interface LanAppViewProps {
   onNavigateToDispersion?: () => void;
 }
 
 export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) {
+  const { registrarCanje } = useCoreSync();
   // Modo de simulación: 'dv' (Distribuidora - LanApp) | 'cliente' (Portal de Canje Acredítala)
   const [activeMode, setActiveMode] = useState<'dv' | 'cliente'>('dv');
 
@@ -1609,7 +1611,23 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                           </div>
 
                           <button
-                            onClick={() => setClientStep(17)}
+                            onClick={async () => {
+                              try {
+                                await registrarCanje({
+                                  folio: '1-1575',
+                                  clienteNombre: 'MARYLYN SILVA TORRES',
+                                  distribuidorId: 1002,
+                                  monto: 4000,
+                                  metodo: 'STP',
+                                  banco: 'BBVA México',
+                                  clabe: '012180015488920192',
+                                  curp: 'SITM890918MCLLRR02',
+                                });
+                              } catch (e) {
+                                console.error(e);
+                              }
+                              setClientStep(17);
+                            }}
                             className="w-full mt-3 py-2.5 rounded-full bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs uppercase shadow transition active:scale-95"
                           >
                             Firmar y Finalizar Canje

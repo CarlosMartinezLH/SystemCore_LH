@@ -13,13 +13,14 @@ Núcleo tecnológico, financiero y operativo de **LanAhora (SOFOM E.N.R.)** para
 | **Framework Móvil** | **Flutter 3.x / Dart 3.x** (Android SDK 34, JVM 17, Gradle 8.x) |
 | **Flavors Móviles** | `lanapp` (`com.lanahora.lanapp`) y `asesores` (`com.lanahora.asesores`) |
 | **Seguridad Móvil** | Ofuscación de bytecode con R8 / ProGuard, Flutter Secure Storage (AES-256/RSA) |
-| **Gateway ESB** | RESTful JSON APIs, Serverless Edge Routes, mTLS y HMAC-SHA256 |
+| **Gateway ESB & Sync Bus** | RESTful JSON APIs, Serverless Edge Routes, mTLS y Bus de Sincronización Reactivo (`/api/sync`) |
+| **Sincronización Multi-Sistema** | Replicación bidireccional inmediata en memoria + BroadcastChannel + ADB Reverse Port 3000 |
 | **Almacenamiento Local** | SQLite encriptado (Mobile), LocalStorage tokenizado (Web) |
 | **Estrategia Git** | Tronco central en rama `develop` |
 
 ---
 
-## 2. Diagrama de Arquitectura de Sistemas
+## 2. Diagrama de Arquitectura de Sistemas & Bus de Sincronización
 
 ```mermaid
 flowchart TD
@@ -30,10 +31,10 @@ flowchart TD
         PWA_CAN["Portal de Canje Web PWA (Biometría / OCR)"]
     end
 
-    subgraph EdgeGateway ["Capa Edge & API Gateway"]
-        PROXY["Reverse Proxy NGINX / Cloudflare"]
-        EDGE_API["Next.js Serverless Edge Routes\n/api/kyc/validate-curp"]
-        SEC_HEADERS["Hardening: CSP, HSTS, X-Frame-Options: DENY"]
+    subgraph SyncBus ["Capa de Sincronización e Integración en Tiempo Real"]
+        API_SYNC["Next.js Sync Engine (/api/sync)"]
+        STORE["Server Sync Store (Estado Global Compartido)"]
+        ADB_REV["ADB Reverse Bridge (tcp:3000:3000)"]
     end
 
     subgraph MotoresCore ["Motores Internos de Negocio"]
@@ -52,22 +53,48 @@ flowchart TD
         BOTMAKER["Botmaker Gateway (WhatsApp Cloud & SMS OTP)"]
     end
 
-    WEB --> PROXY
-    APP_ADV --> PROXY
-    APP_LAN --> PROXY
-    PWA_CAN --> PROXY
+    WEB <--> API_SYNC
+    APP_LAN <--> ADB_REV <--> API_SYNC
+    APP_ADV <--> ADB_REV <--> API_SYNC
+    PWA_CAN <--> API_SYNC
 
-    PROXY --> SEC_HEADERS
-    SEC_HEADERS --> EDGE_API
-    SEC_HEADERS --> MotoresCore
+    API_SYNC <--> STORE
+    STORE --> CRM_ENG
+    STORE --> PADRON_ENG
+    STORE --> STP_ENG
+    STORE --> RH_ENG
 
-    EDGE_API --> NUBARIUM
-    EDGE_API --> SAT_DB
-    MotoresCore --> BURO
-    MotoresCore --> STP_SPEI
-    MotoresCore --> PAYNET
-    MotoresCore --> BOTMAKER
+    CRM_ENG --> SAT_DB
+    CRM_ENG --> BURO
+    STP_ENG --> STP_SPEI
+    STP_ENG --> PAYNET
+    PWA_CAN --> NUBARIUM
 ```
+
+---
+
+## 3. Matriz de Sincronización e Integración Multi-Sistema
+
+Cualquier operación ejecutada en uno de los subsistemas se replica **inmediatamente** en los demás sin requerir recargas manuales:
+
+| Evento Disparador | Subsistema Origen | Efecto en SystemCore Web | Efecto en Dispersión STP | Efecto en Red de Distribuidores (DV) | Efecto en App Móvil |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Canje de Vale Firmado** | LanApp Móvil / Simulador | Pagaré y estatus de cliente actualizados en Padrón de Personas | Se crea registro `DISPERSADO` en STP con folio y clave de rastreo SPEI | Se deduce saldo disponible del distribuidor y aumenta cartera activa | Recibo con clave de rastreo bancario en tiempo real |
+| **Captura de Nuevo Cliente** | Personas Core / LanApp | Registro inmediato en tabla de Personas (# PersonaID asignado) | N/A | Cliente disponible para otorgamiento de vales de cualquier DV | Aparece en el buscador de prospectos y clientes de asesores |
+| **Registro de Pago / Cobranza** | Dispersión & Pagos / Asesores | Reflejado en matriz de pagos y recibos emitidos | Se concilia la referencia Paynet / SPEI | Se libera línea de crédito y disminuye saldo deudor del distribuidor | Actualización del saldo disponible en tiempo real |
+| **Validación KYC / Lista SAT** | App Móvil / Web | Marcado de expediente con resultado O(1) de listas negras SAT | N/A | Bloqueo automático si el cliente aparece en Art. 69-B | Bloqueo preventivo de desembolso antes de firma |
+
+---
+
+## 4. Motor Biométrico & Prueba de Vida (Liveness Detection)
+
+Para garantizar la integridad en el canje de vales digitales sin costos por consultas externas innecesarias, el sistema implementa un motor biométrico asistido en 4 fases dentro de la misma aplicación (sin saltar a la app externa de cámara):
+
+1. **Protocolo Previo de Verificación:** Diálogo modal que bloquea el inicio hasta que el usuario confirme expresamente haberse retirado lentes (graduados o de sol), gorras y cubrebocas.
+2. **Fase 1 (Alejamiento & Centrado):** Alerta en pantalla `↔️ ALEJE EL TELÉFONO - Centre su rostro dentro del óvalo` con marco dinámico azul.
+3. **Fase 2 (Acercamiento Progresivo):** Alerta en pantalla `🔍 ACÉRQUESE LENTAMENTE - Ajuste su rostro al óvalo` con marco dinámico ámbar.
+4. **Fase 3 (Verificación sin Lentes & Parpadeo):** Alerta en pantalla `👁️ SIN LENTES Y PARPADEE - Mire a la cámara` con marco dinámico azul cielo.
+5. **Fase 4 (Captura en Distancia Perfecta):** Alerta `✓ ¡DISTANCIA PERFECTA! Manténgase inmóvil...` con marco dinámico verde esmeralda y captura automática del frame en alta resolución.
 
 ---
 

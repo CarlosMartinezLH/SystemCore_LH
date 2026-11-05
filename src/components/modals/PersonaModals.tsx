@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { PersonaCore } from '@/types/core';
+import { useCoreSync } from '@/context/CoreSyncContext';
 import {
   X,
   ShieldCheck,
@@ -320,6 +321,7 @@ export function ExpedienteDigitalModal({ isOpen, onClose, persona }: ModalProps)
 
 // 4. CANJEAR VALE MODAL (Paynet & STP)
 export function CanjearValeModal({ isOpen, onClose, persona }: ModalProps) {
+  const { registrarCanje } = useCoreSync();
   const [folioVale, setFolioVale] = useState('V-50495');
   const [noDist, setNoDist] = useState('1002');
   const [monto, setMonto] = useState('3000');
@@ -328,9 +330,22 @@ export function CanjearValeModal({ isOpen, onClose, persona }: ModalProps) {
 
   if (!isOpen) return null;
 
-  const handleGenerarCanje = (e: React.FormEvent) => {
+  const handleGenerarCanje = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCanjeGenerado(true);
+    try {
+      await registrarCanje({
+        folio: folioVale,
+        personaId: persona.personaId,
+        clienteNombre: `${persona.nombre} ${persona.apellidoPaterno}`,
+        distribuidorId: Number(noDist),
+        monto: Number(monto),
+        metodo,
+        curp: persona.curp,
+      });
+      setCanjeGenerado(true);
+    } catch (err) {
+      alert('Error procesando canje: ' + (err as Error).message);
+    }
   };
 
   return (

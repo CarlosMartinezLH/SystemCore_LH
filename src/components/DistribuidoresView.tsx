@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { DistribuidorCore } from '@/types/core';
-import { INITIAL_DISTRIBUIDORES } from '@/lib/data/coreData';
+import { useCoreSync } from '@/context/CoreSyncContext';
 import {
   Search,
   FileSpreadsheet,
@@ -23,7 +23,7 @@ import {
 } from './modals/DistribuidorModals';
 
 export default function DistribuidoresView() {
-  const [distribuidores, setDistribuidores] = useState<DistribuidorCore[]>(INITIAL_DISTRIBUIDORES);
+  const { distribuidores, updateDistribuidor } = useCoreSync();
   const [selectedNoDist, setSelectedNoDist] = useState<number | null>(1002);
   const [coordinatorFilter, setCoordinatorFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
@@ -325,7 +325,7 @@ export default function DistribuidoresView() {
         onClose={() => setActiveModal(null)}
         distribuidor={selectedDist}
         onUpdateDistribuidor={(up) => {
-          setDistribuidores(distribuidores.map((d) => (d.noDist === up.noDist ? up : d)));
+          updateDistribuidor(up);
         }}
       />
 

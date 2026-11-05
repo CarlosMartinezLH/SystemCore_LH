@@ -78,13 +78,15 @@ flowchart TD
   * Consulta en tiempo real de su saldo disponible y fechas de corte.
   * Emisión de vales de dinero digitales especificando monto y quincenas.
   * Generación de enlaces seguros para enviar a sus clientes por WhatsApp.
-* **Para el Cliente Final (Canje Digital)**:
-  * Proceso de autoservicio desde el navegador de su teléfono:
-    1. Confirmación de datos personales y beneficiario de seguro de vida.
+* **Para el Cliente Final (Canje Digital & Validación Asistida)**:
+  * Proceso de autoservicio guiado desde el teléfono:
+    1. Confirmación de datos personales, domicilio y beneficiario de seguro de vida.
     2. Captura en vivo de fotografía de su credencial INE (anverso y reverso) con lectura automática de datos.
-    3. Validación facial biométrica (selfie con detección de vida).
-    4. Firma digital del pagaré en pantalla táctil.
-    5. Depósito automático directo a su cuenta de banco.
+    3. **Validación Biométrica Asistida en Vivo**:
+       - Bloqueo preventivo y confirmación obligatoria para retirar lentes y gorra.
+       - Guía dinámica de 4 pasos en pantalla con cambios de color: alejamiento, acercamiento progresivo al óvalo, parpadeo sin lentes y captura en distancia óptima.
+    4. Firma digital del pagaré en pantalla táctil con validez legal.
+    5. Depósito automático directo a su cuenta de banco (SPEI STP).
 
 #### 📱 LH Asesores (Para Asesores Comerciales en Ruta)
 * **Levantamiento en Campo**: Registro de nuevas solicitudes de crédito directamente en el domicilio o negocio del prospecto, sin necesidad de cargar papelería física.
@@ -95,6 +97,15 @@ flowchart TD
 * **Control de Asistencia**: Registro de entradas, salidas y presencia en sucursales y brigadas de campo con verificación satelital GPS.
 * **Requisiciones Internas**: Solicitud ágil de uniformes institucionales, chalecos de campo, gafetes y materiales de trabajo.
 * **Capacitaciones Obligatorias**: Seguimiento a certificaciones normativas en Prevención de Lavado de Dinero (PLD) y servicio al cliente.
+
+---
+
+## ⚡ Integración y Sincronización en Tiempo Real
+
+El sistema cuenta con un **motor de integración automática bidireccional**. Lo que se ejecute en un subsistema se refleja **inmediatamente** en los demás:
+* **Canje en LanApp ➡️ Dispersión STP & Cartera**: En cuanto el cliente concluye su firma en el teléfono, se genera la orden de dispersión bancaria en la mesa de control de **SystemCore**, se descuenta el cupo disponible de la distribuidora y se registra el pagaré del cliente.
+* **Nuevo Cliente ➡️ Padrón Core & CRM**: Al dar de alta a una persona desde la app o el panel central, queda disponible al instante en el padrón central de **Personas** para que cualquier distribuidora autorizada pueda emitirle vales.
+* **Cobranza ➡️ Recuperación de Línea**: Al registrar un abono en tiendas de conveniencia (Paynet) o ventanilla bancaria, la distribuidora ve liberada su línea de crédito al momento para continuar otorgando préstamos sin interrupciones.
 
 ---
 

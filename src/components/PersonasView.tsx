@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { PersonaCore } from '@/types/core';
-import { INITIAL_PERSONAS } from '@/lib/data/coreData';
+import { useCoreSync } from '@/context/CoreSyncContext';
 import {
   UserPlus,
   Search,
@@ -30,7 +30,7 @@ import {
 } from './modals/PersonaModals';
 
 export default function PersonasView() {
-  const [personas, setPersonas] = useState<PersonaCore[]>(INITIAL_PERSONAS);
+  const { personas, registrarCliente, updatePersona } = useCoreSync();
   const [selectedPersonaId, setSelectedPersonaId] = useState<number | null>(122144);
   const [searchFilter, setSearchFilter] = useState('');
 
@@ -87,12 +87,7 @@ export default function PersonasView() {
         alert(`La persona ${selectedPersona.nombre} ya cuenta con estatus de Distribuidora activa.`);
         return;
       }
-      const updated = personas.map((p) =>
-        p.personaId === selectedPersona.personaId
-          ? { ...p, isDistribuidor: true, distribuidorId: 1025 }
-          : p
-      );
-      setPersonas(updated);
+      updatePersona({ ...selectedPersona, isDistribuidor: true, distribuidorId: 1025 });
       alert(`✓ ¡Éxito! ${selectedPersona.nombre} ${selectedPersona.apellidoPaterno} ha sido promovida a Distribuidora oficial en el Core (DV #1025).`);
     } else if (actionName === 'Gestor Documental') {
       alert(`Sincronización con Gestor Documental completada para ${selectedPersona.nombre}. Expediente digital al día.`);
@@ -101,35 +96,29 @@ export default function PersonasView() {
     }
   };
 
-  const handleCreateCustomer = (e: React.FormEvent) => {
+  const handleCreateCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newNombre.trim() || !newCurp.trim()) return;
 
-    const newPerson: PersonaCore = {
-      personaId: personas.length > 0 ? Math.max(...personas.map((p) => p.personaId)) + 1 : 122145,
-      nombre: newNombre.trim().toUpperCase(),
-      apellidoPaterno: newApellidos.trim().toUpperCase(),
-      apellidoMaterno: '',
-      fechaNacimiento: '01/01/1990',
-      pagareEstatusId: 'NO DEFINIDO',
-      pagareCantidad: 0,
-      curp: newCurp.trim().toUpperCase(),
-      rfc: newCurp.trim().slice(0, 10).toUpperCase(),
-      sexoId: 'FEMENINO',
-      buroInternoEstatus: 'NORMAL',
-      isDistribuidor: false,
-      telefono: newTelefono.trim(),
-      observaciones: 'Cliente capturado desde panel Core',
-    };
-
-    setPersonas([newPerson, ...personas]);
-    setSelectedPersonaId(newPerson.personaId);
-    setActiveModal(null);
-    setNewNombre('');
-    setNewApellidos('');
-    setNewCurp('');
-    setNewTelefono('');
-    alert(`✓ Cliente #${newPerson.personaId} registrado exitosamente en el Padrón Core.`);
+    try {
+      const res = await registrarCliente({
+        nombre: newNombre.trim(),
+        apellidoPaterno: newApellidos.trim(),
+        curp: newCurp.trim(),
+        telefono: newTelefono.trim(),
+      });
+      if (res?.result?.nuevaPersona) {
+        setSelectedPersonaId(res.result.nuevaPersona.personaId);
+      }
+      setActiveModal(null);
+      setNewNombre('');
+      setNewApellidos('');
+      setNewCurp('');
+      setNewTelefono('');
+      alert(`✓ Cliente registrado exitosamente en el Padrón Core y sincronizado con CRM.`);
+    } catch (err) {
+      alert('Error registrando cliente: ' + (err as Error).message);
+    }
   };
 
   const handleExportCSV = () => {
@@ -349,7 +338,7 @@ export default function PersonasView() {
         onClose={() => setActiveModal(null)}
         persona={selectedPersona}
         onUpdatePersona={(up) => {
-          setPersonas(personas.map((p) => (p.personaId === up.personaId ? up : p)));
+          updatePersona(up);
         }}
       />
 
@@ -358,7 +347,7 @@ export default function PersonasView() {
         onClose={() => setActiveModal(null)}
         persona={selectedPersona}
         onUpdatePersona={(up) => {
-          setPersonas(personas.map((p) => (p.personaId === up.personaId ? up : p)));
+          updatePersona(up);
         }}
       />
 
