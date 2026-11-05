@@ -127,3 +127,4 @@ La aplicación móvil de asesores cuenta con almacenamiento local seguro en el d
 
 ### ¿Cómo sabe el cliente final que su dinero ya fue depositado?
 En cuanto el cliente concluye la firma digital y la prueba de vida en el portal de canje, el motor SPEI realiza la transferencia en tiempo real y el cliente recibe confirmación en pantalla junto con su comprobante digital y clave de rastreo.
+

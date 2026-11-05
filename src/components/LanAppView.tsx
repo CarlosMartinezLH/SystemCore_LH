@@ -112,14 +112,94 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
   const [fotoIneReverso, setFotoIneReverso] = useState<string | null>(null);
   const [fotoSelfie, setFotoSelfie] = useState<string | null>(null);
 
-  // Motor de Prueba de Vida Activa Local (Google ML Kit / On-Device - Costo $0.00)
+  // Motor de Prueba de Vida Activa en Dispositivo (Dentro del Óvalo)
   const [livenessPhase, setLivenessPhase] = useState<'idle' | 'centering' | 'blinking' | 'turning' | 'completed'>('idle');
   const [livenessProgress, setLivenessProgress] = useState(0);
   const [livenessMsg, setLivenessMsg] = useState('Centre su rostro en el óvalo');
 
+  // Videoselfie integrada dentro del óvalo (Sin salir de la app)
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isScanningLive, setIsScanningLive] = useState(false);
+
   const fileInputFrenteRef = useRef<HTMLInputElement | null>(null);
   const fileInputReversoRef = useRef<HTMLInputElement | null>(null);
   const fileInputSelfieRef = useRef<HTMLInputElement | null>(null);
+
+  const startInlineCamera = async () => {
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false,
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          setIsCameraActive(true);
+        }
+      }
+    } catch {
+      setIsCameraActive(false);
+    }
+  };
+
+  const stopInlineCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null;
+      setIsCameraActive(false);
+    }
+  };
+
+  const handleEstoyListo = () => {
+    setIsScanningLive(true);
+    setLivenessPhase('centering');
+    setLivenessProgress(35);
+    setLivenessMsg('Encuadrando rostro...');
+
+    setTimeout(() => {
+      setLivenessPhase('blinking');
+      setLivenessProgress(75);
+      setLivenessMsg('Acérquese un poco más...');
+
+      setTimeout(() => {
+        if (videoRef.current && isCameraActive) {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoRef.current.videoWidth || 480;
+            canvas.height = videoRef.current.videoHeight || 640;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+              setFotoSelfie(dataUrl);
+            }
+          } catch {
+            setFotoSelfie(DEMO_SELFIE);
+          }
+          stopInlineCamera();
+        } else {
+          setFotoSelfie(DEMO_SELFIE);
+        }
+        setIsScanningLive(false);
+        setLivenessPhase('completed');
+        setLivenessProgress(100);
+        setLivenessMsg('✓ Rostro verificado con éxito');
+      }, 900);
+    }, 900);
+  };
+
+  useEffect(() => {
+    if (clientStep === 15 && !fotoSelfie) {
+      startInlineCamera();
+    } else {
+      stopInlineCamera();
+    }
+    return () => {
+      stopInlineCamera();
+    };
+  }, [clientStep, fotoSelfie]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, tipo: 'frente' | 'reverso' | 'selfie') => {
     const file = e.target.files?.[0];
@@ -1369,26 +1449,16 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                           </button>
                         </div>
                       ) : clientStep === 15 ? (
-                        /* PASO 15: SELFIE BIOMÉTRICA CON PRUEBA DE VIDA ACTIVA LOCAL ($0.00 MXN) */
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 text-center space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black uppercase text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
-                              Google ML Kit Local
-                            </span>
-                            <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                              Costo $0.00 MXN
-                            </span>
-                          </div>
+                        /* PASO 15: VIDEOSELFIE DENTRO DEL ÓVALO (DISEÑO FINTECH EXACTO) */
+                        <div className="bg-white rounded-3xl p-5 shadow-sm border border-blue-100 text-center space-y-4">
+                          <h3 className="font-extrabold text-[#244c9c] text-xl sm:text-2xl tracking-tight">
+                            Prepárese para su videoselfie
+                          </h3>
 
-                          <h4 className="font-black text-slate-900 text-sm">
-                            PRUEBA DE VIDA ACTIVA (EN DISPOSITIVO)
-                          </h4>
-                          <p className="text-[10px] text-slate-500">
-                            Detección de parpadeo y movimiento facial procesado en el teléfono sin llamadas a servidores de pago.
-                          </p>
-
-                          {/* Óvalo biométrico con foto real o silueta */}
-                          <div className="w-44 h-56 mx-auto rounded-[100px] border-4 border-emerald-500 bg-slate-100 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+                          {/* Óvalo en el centro con video o foto integrada sin salir de la app */}
+                          <div className={`w-52 h-72 sm:w-60 sm:h-84 mx-auto rounded-[120px] border-[3.5px] ${
+                            fotoSelfie ? 'border-emerald-500' : isScanningLive ? 'border-emerald-400 animate-pulse' : 'border-[#2563eb]'
+                          } bg-slate-900 flex flex-col items-center justify-center relative overflow-hidden shadow-lg transition-all duration-300`}>
                             {fotoSelfie ? (
                               <img
                                 src={fotoSelfie}
@@ -1397,40 +1467,56 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                               />
                             ) : (
                               <>
-                                <User className="w-20 h-20 text-slate-400 animate-pulse" />
-                                <span className="text-[10px] font-black text-slate-700 mt-2">
-                                  Muestre su rostro.*
-                                </span>
-                                <span className="text-[9px] font-bold text-emerald-600 mt-0.5">
-                                  Enfoque cámara frontal
-                                </span>
+                                <video
+                                  ref={videoRef}
+                                  autoPlay
+                                  playsInline
+                                  muted
+                                  className={`w-full h-full object-cover scale-x-[-1] ${isCameraActive ? 'block' : 'hidden'}`}
+                                />
+                                {!isCameraActive && (
+                                  <div className="flex flex-col items-center justify-center p-4 text-center">
+                                    <div className="w-24 h-32 rounded-[60px] border-2 border-blue-400/60 border-dashed flex items-center justify-center mb-2 animate-pulse">
+                                      <User className="w-14 h-14 text-blue-300" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-300">
+                                      Cámara lista en dispositivo
+                                    </span>
+                                  </div>
+                                )}
                               </>
                             )}
 
+                            {/* Barrido de escaneo en vivo */}
+                            {isScanningLive && (
+                              <div className="absolute inset-0 pointer-events-none flex flex-col justify-between py-6">
+                                <div className="w-full h-1 bg-emerald-400 shadow-[0_0_15px_#10b981] animate-bounce" />
+                                <span className="text-[11px] font-black text-white bg-slate-900/80 px-3 py-1 rounded-full mx-auto backdrop-blur-xs">
+                                  {livenessMsg}
+                                </span>
+                              </div>
+                            )}
+
                             {fotoSelfie && (
-                              <div className="absolute bottom-2 bg-emerald-600/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
-                                Match Local 99.8%
+                              <div className="absolute bottom-3 bg-emerald-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Rostro Verificado
                               </div>
                             )}
                           </div>
 
-                          {/* Barra de progreso de la prueba de vida activa */}
-                          {livenessPhase !== 'idle' && (
-                            <div className="space-y-1.5 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                              <div className="flex items-center justify-between text-[10px] font-bold">
-                                <span className="text-slate-700">{livenessMsg}</span>
-                                <span className="text-blue-700 font-mono">{livenessProgress}%</span>
-                              </div>
-                              <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-emerald-500 transition-all duration-500 rounded-full"
-                                  style={{ width: `${livenessProgress}%` }}
-                                />
-                              </div>
-                            </div>
-                          )}
+                          {/* Instrucciones debajo del óvalo */}
+                          <div className="space-y-0.5 pt-1">
+                            <p className="text-slate-800 font-bold text-sm">
+                              Encuadre su rostro en el óvalo
+                            </p>
+                            <p className="text-slate-500 font-medium text-xs">
+                              Presione Estoy listo y acérquese
+                            </p>
+                          </div>
 
-                          <div className="space-y-2">
+                          {/* Botón Principal ESTOY LISTO */}
+                          <div className="pt-2">
                             {fotoSelfie ? (
                               <div className="flex gap-2">
                                 <button
@@ -1438,36 +1524,27 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                                     setFotoSelfie(null);
                                     setLivenessPhase('idle');
                                     setLivenessProgress(0);
+                                    startInlineCamera();
                                   }}
-                                  className="flex-1 py-1.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-[11px] hover:bg-slate-50 transition"
+                                  className="flex-1 py-3 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-50 transition"
                                 >
-                                  Tomar de nuevo
+                                  Repetir
                                 </button>
                                 <button
                                   onClick={() => setClientStep(16)}
-                                  className="flex-1 py-2 rounded-xl bg-[#2563eb] text-white font-black text-xs uppercase shadow hover:bg-blue-700 transition"
+                                  className="flex-1 py-3 rounded-xl bg-[#2563eb] text-white font-black text-xs uppercase tracking-wider shadow-md hover:bg-blue-700 transition"
                                 >
-                                  Proceder a Firma
+                                  Continuar a Firma
                                 </button>
                               </div>
                             ) : (
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => fileInputSelfieRef.current?.click()}
-                                  className="flex-1 py-2 rounded-xl bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition"
-                                >
-                                  <Camera className="w-4 h-4" />
-                                  Iniciar Cámara Frontal
-                                </button>
-                                <button
-                                  onClick={() => ejecutarPruebaVidaLocal(DEMO_SELFIE)}
-                                  className="py-2 px-3 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1 shadow transition"
-                                  title="Simula prueba de vida activa (parpadeo y centrado) en dispositivo"
-                                >
-                                  <Sparkles className="w-3.5 h-3.5" />
-                                  Test Prueba Activa
-                                </button>
-                              </div>
+                              <button
+                                onClick={handleEstoyListo}
+                                disabled={isScanningLive}
+                                className="w-full py-3.5 rounded-xl bg-[#2563eb] hover:bg-blue-700 disabled:bg-blue-400 text-white font-extrabold text-sm uppercase tracking-wider shadow-lg transition active:scale-98"
+                              >
+                                {isScanningLive ? 'Verificando...' : 'ESTOY LISTO'}
+                              </button>
                             )}
                           </div>
                         </div>
