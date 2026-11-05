@@ -193,10 +193,6 @@ export default function Home() {
           setActiveModule(mod);
         }}
         onLogout={handleLogout}
-        onOpenNewLead={() => {
-          setQuickAddStage('contacto');
-          setIsNewLeadOpen(true);
-        }}
       />
 
       <main className="flex-1 flex flex-col">

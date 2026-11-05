@@ -22,7 +22,7 @@ interface HeaderProps {
   activeModule: ActiveAppModule;
   onModuleChange: (mod: ActiveAppModule) => void;
   onLogout: () => void;
-  onOpenNewLead: () => void;
+  onOpenNewLead?: () => void;
 }
 
 export default function Header({
@@ -30,7 +30,6 @@ export default function Header({
   activeModule,
   onModuleChange,
   onLogout,
-  onOpenNewLead,
 }: HeaderProps) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
@@ -152,16 +151,6 @@ export default function Header({
 
         {/* Right Tools & User Session */}
         <div className="flex items-center gap-3">
-          <button
-            onClick={onOpenNewLead}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs shadow-md transition active:scale-95"
-          >
-            <span className="text-sm leading-none">+</span>
-            <span>Nuevo Prospecto</span>
-          </button>
-
-          <div className="h-6 w-px bg-white/30 mx-1 hidden sm:block" />
-
           {/* User Profile Badge & Dropdown */}
           <div className="relative">
             <button
