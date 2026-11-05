@@ -235,3 +235,4 @@ Cumplimiento estricto con las disposiciones de la **CNBV, Condusef y el SAT**:
 
 ---
 **LanAhora (SOFOM E.N.R.)** — *Tecnología financiera al servicio de la gente.*
+

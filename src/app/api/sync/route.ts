@@ -4,6 +4,7 @@ import {
   recordCanjeSync,
   recordClienteSync,
   recordPagoSync,
+  recordCreditoSync,
 } from '@/lib/store/serverSyncStore';
 
 // GET: Retorna todo el estado sincronizado del Core
@@ -62,6 +63,15 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (action === 'NUEVO_CREDITO') {
+      const result = recordCreditoSync(payload);
+      return NextResponse.json({
+        success: true,
+        message: 'Crédito registrado con éxito en Core y Cartera',
+        result,
+      });
+    }
+
     return NextResponse.json(
       { success: false, error: `Acción no soportada: ${action}` },
       { status: 400 }
@@ -73,3 +83,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+

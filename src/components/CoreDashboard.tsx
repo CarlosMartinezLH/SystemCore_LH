@@ -16,8 +16,8 @@ import {
   ChevronRight,
   Sparkles,
 } from 'lucide-react';
-import { INITIAL_DISTRIBUIDORES, INITIAL_CREDITOS } from '@/lib/data/coreData';
 import { DistribuidorCore, CreditoCore } from '@/types/core';
+import { useCoreSync } from '@/context/CoreSyncContext';
 
 interface CoreDashboardProps {
   onNavigateToPersonas: () => void;
@@ -28,6 +28,7 @@ export default function CoreDashboard({
   onNavigateToPersonas,
   onNavigateToDistribuidores,
 }: CoreDashboardProps) {
+  const { creditos, distribuidores } = useCoreSync();
   const [activeTab, setActiveTab] = useState<'todos' | 'distribuidores' | 'creditos'>('todos');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchCategory, setSearchCategory] = useState<'ALL' | 'DV' | 'CREDITO' | 'VALE' | 'NOMBRE'>('ALL');
@@ -38,7 +39,7 @@ export default function CoreDashboard({
   const [selectedCredito, setSelectedCredito] = useState<CreditoCore | null>(null);
 
   // Filter Distribuidores
-  const filteredDistribuidores = INITIAL_DISTRIBUIDORES.filter((d) => {
+  const filteredDistribuidores = distribuidores.filter((d) => {
     const matchBranch = selectedBranch === 'ALL' || d.sucursal === selectedBranch;
     if (!matchBranch) return false;
     if (!searchTerm.trim()) return true;
@@ -58,7 +59,7 @@ export default function CoreDashboard({
   });
 
   // Filter Créditos
-  const filteredCreditos = INITIAL_CREDITOS.filter((c) => {
+  const filteredCreditos = creditos.filter((c) => {
     if (!searchTerm.trim()) return true;
     const q = searchTerm.toLowerCase().trim();
 
@@ -97,9 +98,9 @@ export default function CoreDashboard({
             </div>
             <div className="p-2 space-y-0.5 text-xs">
               {[
-                { id: 'todos', name: 'Búsqueda Global (Todos)', icon: Search, count: '7.1k' },
-                { id: 'distribuidores', name: 'Distribuidores por DV', icon: Briefcase, count: INITIAL_DISTRIBUIDORES.length },
-                { id: 'creditos', name: 'Créditos y Vales', icon: FileText, count: INITIAL_CREDITOS.length },
+                { id: 'todos', name: 'Búsqueda Global (Todos)', icon: Search, count: `${distribuidores.length + creditos.length}` },
+                { id: 'distribuidores', name: 'Distribuidores por DV', icon: Briefcase, count: distribuidores.length },
+                { id: 'creditos', name: 'Créditos y Vales', icon: FileText, count: creditos.length },
               ].map((opt) => (
                 <button
                   key={opt.id}

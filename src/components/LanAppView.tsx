@@ -79,6 +79,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
   const [importe, setImporte] = useState<number>(1000);
   const [folioGenerado, setFolioGenerado] = useState<string>('2');
   const [copiedLink, setCopiedLink] = useState(false);
+  const [subTabDoc, setSubTabDoc] = useState<'contrato' | 'corrida' | 'pagare'>('contrato');
 
   // Clientes mock en LanApp
   const [searchQuery, setSearchQuery] = useState('');
@@ -1634,25 +1635,25 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                           </button>
                         </div>
                       ) : (
-                        /* PASO 17: DEPÓSITO CONFIRMADO Y STP SPEI EN PROCESO */
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-blue-100 text-center space-y-4">
-                          <div className="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-lg">
-                            <Check className="w-10 h-10 stroke-[3]" />
+                        /* PASO 17: DEPÓSITO CONFIRMADO, CONTRATO, CORRIDA DE PAGOS Y PAGARÉ FIRMADO */
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 text-center space-y-3">
+                          <div className="w-14 h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-md">
+                            <Check className="w-8 h-8 stroke-[3]" />
                           </div>
                           <div>
                             <h4 className="font-black text-slate-900 text-base leading-snug">
-                              ¡Gracias por firmar! Pronto recibirás tu dinero.
+                              ¡Crédito Formalizado Exitosamente!
                             </h4>
-                            <p className="text-xs text-slate-500 mt-1">
-                              Depósito en proceso de dispersión automática vía STP SPEI.
+                            <p className="text-[11px] text-slate-500 mt-0.5">
+                              Dispersión STP SPEI en proceso y documentación legal firmada.
                             </p>
                           </div>
 
-                          <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-left text-xs space-y-1">
+                          <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-left text-[11px] space-y-1">
                             <div className="flex justify-between">
                               <span className="text-emerald-800 font-bold">Monto dispersado:</span>
                               <span className="font-black text-emerald-900">
-                                ${importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                ${importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
                               </span>
                             </div>
                             <div className="flex justify-between">
@@ -1661,13 +1662,129 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                             </div>
                             <div className="flex justify-between">
                               <span className="text-emerald-800 font-bold">Clave Rastreo:</span>
-                              <span className="font-mono text-[10px] font-bold text-emerald-900">
-                                STP2026110499281
+                              <span className="font-mono text-[9px] font-bold text-emerald-900">
+                                STP844202611059921
                               </span>
                             </div>
                           </div>
 
-                          <div className="space-y-2 pt-2">
+                          {/* PESTAÑAS DE DOCUMENTOS LEGALES */}
+                          <div className="bg-slate-100 p-1 rounded-xl flex gap-1 text-[10px]">
+                            <button
+                              onClick={() => setSubTabDoc('contrato')}
+                              className={`flex-1 py-1.5 rounded-lg font-black transition ${
+                                subTabDoc === 'contrato' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              📄 Contrato
+                            </button>
+                            <button
+                              onClick={() => setSubTabDoc('corrida')}
+                              className={`flex-1 py-1.5 rounded-lg font-black transition ${
+                                subTabDoc === 'corrida' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              📊 Corrida
+                            </button>
+                            <button
+                              onClick={() => setSubTabDoc('pagare')}
+                              className={`flex-1 py-1.5 rounded-lg font-black transition ${
+                                subTabDoc === 'pagare' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              ✒️ Pagaré
+                            </button>
+                          </div>
+
+                          {/* CONTENIDO DEL DOCUMENTO */}
+                          {subTabDoc === 'contrato' ? (
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-left text-[10px] text-slate-700 space-y-1.5 leading-relaxed max-h-56 overflow-y-auto">
+                              <div className="font-black text-slate-900 text-[11px] border-b pb-1">
+                                CONTRATO DE APERTURA DE CRÉDITO MEDIANTE VALE DIGITAL
+                              </div>
+                              <p>
+                                <strong>Otorgante:</strong> LANAHORA SOFOM E.N.R. intermediado por Distribuidora #1002 (Bertha Alicia Tello Lara).
+                              </p>
+                              <p>
+                                <strong>Acreditado:</strong> {selectedClient.nombre} (CURP: SITM890918MCLLRR02).
+                              </p>
+                              <p>
+                                <strong>Monto Dispuesto:</strong> ${importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN.
+                              </p>
+                              <p>
+                                <strong>Condiciones:</strong> {plazos} pagos quincenales de ${(Math.round((importe * (1 + plazos * 0.071)) / plazos)).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN.
+                              </p>
+                              <p>
+                                <strong>Costo Anual Total (CAT):</strong> 43.8% sin IVA • Tasa Ordinaria Fija: 34.00% anual.
+                              </p>
+                              <p>
+                                <strong>Seguro de Vida ($10,000.00 MXN):</strong> A favor del beneficiario designado en la solicitud.
+                              </p>
+                              <p className="text-[9px] text-slate-500 italic">
+                                Formalizado mediante autenticación biométrica facial en vivo y firma electrónica avanzada conforme a los artículos 89 y 97 del Código de Comercio.
+                              </p>
+                            </div>
+                          ) : subTabDoc === 'corrida' ? (
+                            <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-left text-[9px] max-h-56 overflow-y-auto">
+                              <div className="font-black text-slate-900 text-[10px] mb-1.5">
+                                TABLA DE AMORTIZACIÓN ({plazos} QUINCENAS)
+                              </div>
+                              <div className="grid grid-cols-6 gap-1 bg-blue-700 text-white font-bold p-1 rounded-md text-[8px] text-center mb-1">
+                                <span>No.</span>
+                                <span>Vence</span>
+                                <span>Capital</span>
+                                <span>Interés</span>
+                                <span>Cuota</span>
+                                <span>Saldo</span>
+                              </div>
+                              <div className="space-y-0.5 divide-y divide-slate-100">
+                                {Array.from({ length: plazos }, (_, i) => {
+                                  const num = i + 1;
+                                  const cuota = Math.round((importe * (1 + plazos * 0.071)) / plazos);
+                                  const cap = Math.round(importe / plazos);
+                                  const saldo = (plazos - num) * cuota;
+                                  return (
+                                    <div key={num} className="grid grid-cols-6 gap-1 p-0.5 text-center items-center font-mono">
+                                      <span className="font-bold text-slate-900">{num}</span>
+                                      <span className="text-slate-600 text-[7.5px]">{`${(num * 15) % 28 + 1}/12/26`}</span>
+                                      <span className="text-slate-700">${cap}</span>
+                                      <span className="text-slate-700">${cuota - cap}</span>
+                                      <span className="font-bold text-blue-700">${cuota}</span>
+                                      <span className="font-bold text-emerald-700">${saldo}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-left text-[10px] text-slate-700 space-y-1.5 leading-relaxed">
+                              <div className="font-black text-slate-900 text-[11px] border-b pb-1">
+                                PAGARÉ ELECTRÓNICO MERCANTIL
+                              </div>
+                              <p className="text-[9.5px]">
+                                DEBO Y PAGARÉ incondicionalmente a la orden de LANAHORA, S.A.P.I. DE C.V., SOFOM, E.N.R., la cantidad total de ${(Math.round((importe * (1 + plazos * 0.071)) / plazos) * plazos).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN en {plazos} pagos quincenales consecutivos.
+                              </p>
+                              <div className="pt-1">
+                                <span className="text-[9px] font-bold text-slate-500 block">Firma Táctil del Suscriptor:</span>
+                                <div className="h-16 w-full bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center mt-1">
+                                  <span className="text-[10px] text-emerald-700 font-black">✓ Firma Digital Autenticada con Biometría</span>
+                                </div>
+                              </div>
+                              <p className="text-[8px] font-mono text-slate-400">
+                                Sello SHA-256: 8f4a19b027e8... • IP Certificada
+                              </p>
+                            </div>
+                          )}
+
+                          <button
+                            onClick={() => alert('✓ Expediente completo (Contrato, Pagaré y Corrida de Pagos) descargado exitosamente en formato PDF.')}
+                            className="w-full py-2 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 font-bold text-xs flex items-center justify-center gap-1.5 transition"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            Descargar Expediente Completo (PDF)
+                          </button>
+
+                          <div className="space-y-1.5 pt-1">
                             <button
                               onClick={() => {
                                 setActiveMode('dv');
@@ -1680,7 +1797,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                             {onNavigateToDispersion && (
                               <button
                                 onClick={onNavigateToDispersion}
-                                className="w-full py-2 text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                                className="w-full py-1 text-xs font-bold text-slate-600 hover:text-slate-900 transition"
                               >
                                 Ver dispersión en panel STP Core
                               </button>

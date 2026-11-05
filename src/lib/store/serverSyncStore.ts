@@ -142,6 +142,18 @@ export function recordClienteSync(payload: {
   fechaNacimiento?: string;
 }) {
   const data = getServerSyncData();
+  const curpUpper = payload.curp.trim().toUpperCase();
+
+  // Validación: Comprobar si ya existe en el Padrón Core por CURP
+  const existe = data.personas.find((p) => p.curp.trim().toUpperCase() === curpUpper);
+  if (existe) {
+    return {
+      yaExiste: true,
+      nuevaPersona: existe,
+      mensaje: `El cliente ya está registrado en el Padrón Core con el ID #${existe.personaId} (${existe.nombre} ${existe.apellidoPaterno}).`,
+    };
+  }
+
   const personaId = 122150 + Math.floor(Math.random() * 800);
 
   const nuevaPersona: PersonaCore = {
@@ -153,8 +165,8 @@ export function recordClienteSync(payload: {
     fechaNacimiento: payload.fechaNacimiento || '01/01/1995',
     pagareEstatusId: 'NO DEFINIDO',
     pagareCantidad: 0.0,
-    curp: payload.curp.toUpperCase(),
-    rfc: payload.rfc ? payload.rfc.toUpperCase() : payload.curp.slice(0, 10).toUpperCase(),
+    curp: curpUpper,
+    rfc: payload.rfc ? payload.rfc.toUpperCase() : curpUpper.slice(0, 10),
     sexoId: payload.sexoId || 'FEMENINO',
     buroInternoEstatus: 'NORMAL',
     observaciones: 'Cliente registrado vía LanApp / Core',
@@ -264,4 +276,67 @@ export function recordPagoSync(payload: {
 
   data.lastUpdate = Date.now();
   return nuevoPago;
+}
+
+export function recordCreditoSync(payload: {
+  noVale?: string;
+  clienteNombre: string;
+  clienteId?: string;
+  distribuidorId?: number;
+  monto: number;
+  plazos?: number;
+  pagoPorPlazo?: number;
+}) {
+  const data = getServerSyncData();
+  const montoNum = Number(payload.monto) || 0;
+  const distId = Number(payload.distribuidorId) || 1002;
+  const dist = data.distribuidores.find((d) => d.noDist === distId);
+  const distNombre = dist?.nombreDistribuidor || 'BERTHA ALICIA TELLO LARA';
+
+  const nuevoCredito: CreditoCore = {
+    creditoId: `CR-${Date.now().toString().slice(-6)}`,
+    noVale: payload.noVale || `V-${Math.floor(10000 + Math.random() * 90000)}`,
+    noDist: distId,
+    distribuidorNombre: distNombre,
+    clienteNombre: payload.clienteNombre.toUpperCase(),
+    monto: montoNum,
+    saldo: montoNum,
+    estatus: 'VIGENTE',
+    fechaOtorgamiento: new Date().toLocaleDateString('es-MX'),
+    quincenasPlazo: payload.plazos || 12,
+    sucursal: dist?.sucursal || 'SALTILLO',
+  };
+
+  data.creditos = [nuevoCredito, ...data.creditos];
+
+  // Actualizar cartera del distribuidor
+  if (dist) {
+    const distIdx = data.distribuidores.findIndex((d) => d.noDist === dist.noDist);
+    if (distIdx >= 0) {
+      const nuevoSaldo = dist.saldoActual + montoNum;
+      data.distribuidores[distIdx] = {
+        ...dist,
+        saldoActual: nuevoSaldo,
+        disponible: Math.max(0, dist.creditoLimite - nuevoSaldo),
+      };
+    }
+  }
+
+  // Actualizar pagaré del cliente si existe
+  const persIdx = data.personas.findIndex(
+    (p) =>
+      (payload.clienteId && p.personaId.toString() === payload.clienteId.toString()) ||
+      p.nombre.toLowerCase().includes(payload.clienteNombre.toLowerCase().split(' ')[0])
+  );
+  if (persIdx >= 0) {
+    const pers = data.personas[persIdx];
+    data.personas[persIdx] = {
+      ...pers,
+      pagareCantidad: (pers.pagareCantidad || 0) + montoNum,
+      pagareEstatusId: 'FIRMADO EN BLANCO',
+    };
+  }
+
+  data.lastUpdate = Date.now();
+  return nuevoCredito;
 }
