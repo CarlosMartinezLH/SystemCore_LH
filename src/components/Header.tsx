@@ -15,7 +15,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 
-export type ActiveAppModule = 'crm' | 'core_dashboard' | 'personas' | 'distribuidores' | 'rh' | 'dispersion' | 'integraciones' | 'lanapp';
+export type ActiveAppModule = 'crm' | 'core_dashboard' | 'personas' | 'distribuidores' | 'rh' | 'dispersion' | 'integraciones';
 
 interface HeaderProps {
   currentUser: UserSession;
@@ -147,18 +147,6 @@ export default function Header({
               <Layers className="w-3.5 h-3.5" />
               <span>Integraciones (ESB)</span>
             </button>
-
-            <button
-              onClick={() => onModuleChange('lanapp')}
-              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-                activeModule === 'lanapp'
-                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
-                  : 'text-white/90 hover:bg-white/15 hover:text-white'
-              }`}
-            >
-              <Smartphone className="w-3.5 h-3.5" />
-              <span>LanApp (Vales)</span>
-            </button>
           </nav>
         </div>
 
@@ -287,14 +275,6 @@ export default function Header({
           }`}
         >
           Integraciones ESB
-        </button>
-        <button
-          onClick={() => onModuleChange('lanapp')}
-          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
-            activeModule === 'lanapp' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
-          }`}
-        >
-          LanApp Vales
         </button>
       </div>
     </header>
