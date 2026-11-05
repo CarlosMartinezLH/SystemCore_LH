@@ -358,6 +358,19 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
 
 export const INITIAL_CREDITOS: CreditoCore[] = [
   {
+    creditoId: 'CR-10559',
+    noVale: 'V-172809',
+    noDist: 1002,
+    distribuidorNombre: 'BERTHA ALICIA TELLO LARA',
+    clienteNombre: 'JOSÉ CARLOS MARTINEZ MAYORGA',
+    monto: 6500,
+    saldo: 6500,
+    estatus: 'VIGENTE',
+    fechaOtorgamiento: '05/11/2026',
+    quincenasPlazo: 16,
+    sucursal: 'TORREÓN',
+  },
+  {
     creditoId: 'CR-88901',
     noVale: 'V-50491',
     noDist: 1002,
@@ -399,6 +412,20 @@ export const INITIAL_CREDITOS: CreditoCore[] = [
 ];
 
 export const INITIAL_DISPERSIONES = [
+  {
+    id: 'disp-000',
+    folioSTP: 'STP-238009',
+    claveRastreo: 'STP844202611059912',
+    creditoId: 'V-172809',
+    beneficiario: 'JOSÉ CARLOS MARTINEZ MAYORGA',
+    curp: 'MAMJ820412HCLSS01',
+    clabe: '012180015488920192',
+    banco: 'BBVA México',
+    monto: 6500,
+    fechaHora: '05/11/2026 13:02:10',
+    estatus: 'LIQUIDADO' as const,
+    concepto: 'Desembolso Vale #V-172809 LanAhora',
+  },
   {
     id: 'disp-001',
     folioSTP: 'STP-8839210',
