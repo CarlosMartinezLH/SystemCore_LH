@@ -110,14 +110,11 @@ export async function POST(req: NextRequest) {
       // Si Nubarium detecta error, spoofing o anomalía biométrica
       if (nubariumData.status !== 'OK' || nubariumData.messageCode === 1 || (nubariumData.score !== undefined && nubariumData.score < 50)) {
         let motivoDetallado = 'Prueba de vida rechazada ante Nubarium';
-        let esLentes = false;
-
-        if (nubariumData.message === 'Spoof detected') {
-          motivoDetallado = 'Alteración visual o reflejo en micas detectado. Debe retirarse los lentes.';
-          esLentes = true;
+        
+        if (nubariumData.message === 'Spoof detected' || (nubariumData.score !== undefined && nubariumData.score < 50)) {
+          motivoDetallado = 'Rostro sin lentes confirmado. Para aprobar la prueba de vida: aleje el teléfono a 35 cm, mire directamente a la cámara frontal (arriba) y asegure buena iluminación.';
         } else if (nubariumData.message && nubariumData.message.toLowerCase().includes('face not found')) {
           motivoDetallado = 'No se detectó un rostro claro en el óvalo. Centre su rostro.';
-          esLentes = false;
         } else if (nubariumData.message) {
           motivoDetallado = nubariumData.message;
         }
@@ -125,7 +122,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           success: false,
           isValid: false,
-          lentesDetectados: esLentes,
+          lentesDetectados: false, // Ya se verificó con IA que NO tiene lentes
           provider: 'Nubarium Biometrics Latam',
           status: 'RECHAZADO',
           score: nubariumData.score ?? 0,
