@@ -38,14 +38,69 @@ function validarDigitoVerificadorRenapo(curp: string): boolean {
   return digitoEsperado === digitoReal;
 }
 
+// In-memory Rate Limiter: max 30 peticiones por minuto por IP
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 30;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const clientData = rateLimitMap.get(ip);
+
+  if (!clientData || now > clientData.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+
+  if (clientData.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false;
+  }
+
+  clientData.count++;
+  return true;
+}
+
+// Regex oficial RENAPO para formato estricto de CURP
+const CURP_REGEX = /^[A-Z]{4}\d{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d$/;
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
+    // 0. RATE LIMITING DEFENSIVO CONTRA BRUTE FORCE / DOS
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || '127.0.0.1';
+    if (!checkRateLimit(clientIp)) {
+      return NextResponse.json(
+        {
+          error: 'Límite de peticiones excedido (Rate Limit: máx 30/min). Por favor espere antes de reintentar.',
+          status: 'RATE_LIMITED',
+        },
+        {
+          status: 429,
+          headers: { 'Retry-After': '60' },
+        }
+      );
+    }
+
     const body = await req.json();
     const curp = (body.curp || '').trim().toUpperCase();
 
-    if (!curp || curp.length !== 18) {
+    // 0.1 VALIDACIÓN ESTRICTA DE FORMATO RENAPO
+    if (!curp || curp.length !== 18 || !CURP_REGEX.test(curp)) {
       return NextResponse.json(
-        { error: 'La CURP debe tener exactamente 18 caracteres alfanuméricos.' },
+        {
+          error: 'La CURP no cumple con el formato alfanumérico reglamentario oficial de RENAPO (18 caracteres).',
+          ejemplo: 'AAAA880101HCLRR00',
+        },
         { status: 400 }
       );
     }
