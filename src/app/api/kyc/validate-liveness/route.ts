@@ -1,5 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
+import { spawn } from 'child_process';
+import path from 'path';
+
+// Helper para clasificar presencia de lentes mediante Red Neuronal ShuffleNet
+function detectGlassesNeural(base64Image: string): Promise<{ glasses: boolean; label: string }> {
+  return new Promise((resolve) => {
+    try {
+      const scriptPath = path.join(process.cwd(), 'scripts', 'check_glasses.py');
+      const py = spawn('python3', [scriptPath]);
+      let stdout = '';
+      let stderr = '';
+
+      py.stdout.on('data', (d) => { stdout += d; });
+      py.stderr.on('data', (d) => { stderr += d; });
+
+      py.on('close', (code) => {
+        if (code === 0 && stdout.trim()) {
+          try {
+            const parsed = JSON.parse(stdout.trim());
+            return resolve(parsed);
+          } catch (e) {
+            console.warn('[GlassesAI] Error parsing JSON:', e, stdout);
+          }
+        } else {
+          console.warn('[GlassesAI] Process exited with code:', code, stderr);
+        }
+        resolve({ glasses: false, label: 'unknown' });
+      });
+
+      py.on('error', (err) => {
+        console.warn('[GlassesAI] Error spawning Python:', err);
+        resolve({ glasses: false, label: 'error' });
+      });
+
+      py.stdin.write(base64Image);
+      py.stdin.end();
+    } catch (err) {
+      console.warn('[GlassesAI] Exception:', err);
+      resolve({ glasses: false, label: 'error' });
+    }
+  });
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,9 +60,8 @@ export async function POST(req: NextRequest) {
     const rawBuffer = Buffer.from(cleanBase64, 'base64');
 
     // 2. Normalizar imagen con Sharp:
-    // - .rotate(): Aplica físicamente la orientación EXIF de Android/Samsung para que el rostro quede vertical (0° portrait)
-    // - .resize(): Tamaño óptimo para IA biométrica (max 900px)
-    // - .jpeg(): Calidad 85 para balance perfecto entre resolución y velocidad
+    // - .rotate(): Corrige orientación EXIF vertical
+    // - .resize(): Tamaño balanceado para IA biométrica
     let processedBase64 = cleanBase64;
     try {
       const processedBuffer = await sharp(rawBuffer)
@@ -30,10 +71,27 @@ export async function POST(req: NextRequest) {
         .toBuffer();
       processedBase64 = processedBuffer.toString('base64');
     } catch (sharpErr) {
-      console.warn('[KYC Liveness] Error normalizando con sharp, usando imagen original:', sharpErr);
+      console.warn('[KYC Liveness] Error normalizando con sharp:', sharpErr);
     }
 
-    // 3. Invocar API Oficial de Biometría y Prueba de Vida de Nubarium
+    // 3. CAPA 1: Detección Neuronal Específica de Lentes / Anteojos
+    const glassesCheck = await detectGlassesNeural(processedBase64);
+    console.log('[KYC Liveness] Neural Glasses Detection Result:', glassesCheck);
+
+    if (glassesCheck.glasses) {
+      return NextResponse.json({
+        success: false,
+        isValid: false,
+        lentesDetectados: true,
+        provider: 'Nubarium & Neural Glasses AI',
+        status: 'RECHAZADO',
+        score: 0,
+        validationCode: '',
+        message: 'SE DETECTARON LENTES O ANTEOJOS: Para validar la prueba de vida ante la CNBV, retírese los lentes y presione Repetir sin Lentes.',
+      });
+    }
+
+    // 4. CAPA 2: Invocar API Oficial de Biometría y Prueba de Vida de Nubarium (RENAPO)
     const authHeader = 'Basic ' + Buffer.from('lanahora:#vEJfpcF#').toString('base64');
     
     try {
@@ -49,13 +107,13 @@ export async function POST(req: NextRequest) {
       const nubariumData = await nubariumRes.json();
       console.log('[Nubarium Biometrics Response]:', nubariumData);
 
-      // Si Nubarium detecta error, spoofing, lentes o anomalía biométrica
+      // Si Nubarium detecta error, spoofing o anomalía biométrica
       if (nubariumData.status !== 'OK' || nubariumData.messageCode === 1 || (nubariumData.score !== undefined && nubariumData.score < 50)) {
-        let motivoDetallado = 'Prueba de vida rechazada';
-        let esLentes = true;
+        let motivoDetallado = 'Prueba de vida rechazada ante Nubarium';
+        let esLentes = false;
 
         if (nubariumData.message === 'Spoof detected') {
-          motivoDetallado = 'Uso de lentes o alteración detectada. Para validar la prueba de vida ante la CNBV, retírese los lentes.';
+          motivoDetallado = 'Alteración visual o reflejo en micas detectado. Debe retirarse los lentes.';
           esLentes = true;
         } else if (nubariumData.message && nubariumData.message.toLowerCase().includes('face not found')) {
           motivoDetallado = 'No se detectó un rostro claro en el óvalo. Centre su rostro.';
@@ -76,16 +134,16 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Si Nubarium aprueba con éxito (Rostro real, presente y sin lentes)
+      // Si ambas capas aprueban con éxito (Sin lentes + Rostro vivo real ante Nubarium)
       return NextResponse.json({
         success: true,
         isValid: true,
         lentesDetectados: false,
-        provider: 'Nubarium Biometrics Latam',
+        provider: 'Nubarium Biometrics & Neural Glasses AI',
         status: 'APROBADO',
         score: nubariumData.score ?? 98.5,
         validationCode: nubariumData.validationCode || '',
-        message: 'Rostro biométricamente validado sin lentes ante Nubarium',
+        message: '✓ Rostro biométricamente validado sin lentes ante Nubarium',
       });
     } catch (nubariumErr) {
       console.warn('Error conectando a Nubarium:', nubariumErr);
