@@ -20,13 +20,20 @@ body {
 
 /* Hide Next.js Development Badge / Devtools Indicator */
 nextjs-portal,
+#next-logo,
+[data-next-mark],
+[data-next-badge],
+[data-next-badge-root],
 [data-nextjs-dev-tools-button],
 [data-nextjs-toast],
 #nextjs-dev-tools-button,
-[data-next-badge],
-div[data-nextjs-route-announcer] {
+div[data-nextjs-route-announcer],
+.dev-tools-indicator-inner,
+.dev-tools-indicator-menu {
   display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;
   opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
 }

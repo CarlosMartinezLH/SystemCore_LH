@@ -107,6 +107,35 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
   const [nombreBeneficiario, setNombreBeneficiario] = useState('MARÍA LUISA VÁZQUEZ SOSA');
   const [parentesco, setParentesco] = useState('Esposa(o)');
 
+  // Estados de fotografías de validación KYC (INE y Selfie)
+  const [fotoIneFrente, setFotoIneFrente] = useState<string | null>(null);
+  const [fotoIneReverso, setFotoIneReverso] = useState<string | null>(null);
+  const [fotoSelfie, setFotoSelfie] = useState<string | null>(null);
+
+  const fileInputFrenteRef = useRef<HTMLInputElement | null>(null);
+  const fileInputReversoRef = useRef<HTMLInputElement | null>(null);
+  const fileInputSelfieRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, tipo: 'frente' | 'reverso' | 'selfie') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (tipo === 'frente') setFotoIneFrente(result);
+        if (tipo === 'reverso') setFotoIneReverso(result);
+        if (tipo === 'selfie') setFotoSelfie(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const DEMO_INE_FRENTE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220"><rect width="360" height="220" rx="12" fill="%23f8fafc" stroke="%232563eb" stroke-width="2"/><rect x="12" y="12" width="336" height="34" rx="6" fill="%231e3a8a"/><text x="24" y="34" fill="%23ffffff" font-size="12" font-weight="bold" font-family="sans-serif">INSTITUTO NACIONAL ELECTORAL</text><rect x="24" y="58" width="76" height="96" rx="6" fill="%23e2e8f0" stroke="%2394a3b8"/><circle cx="62" cy="94" r="20" fill="%232563eb"/><path d="M42 136 c0 -14 14 -20 20 -20 s20 6 20 20 z" fill="%232563eb"/><text x="114" y="74" fill="%230f172a" font-size="11" font-weight="bold" font-family="sans-serif">NOMBRE: VAZQUEZ SOSA</text><text x="114" y="92" fill="%230f172a" font-size="11" font-weight="bold" font-family="sans-serif">JOSE EFRAIN</text><text x="114" y="112" fill="%23475569" font-size="10" font-family="sans-serif">CURP: VASE820412HCLSS01</text><text x="114" y="128" fill="%23475569" font-size="10" font-family="sans-serif">FECHA NAC: 12/04/1982</text><text x="114" y="144" fill="%23475569" font-size="10" font-family="sans-serif">SECCI%C3%93N: 0842   VIGENCIA: 2024-2034</text><rect x="24" y="166" width="312" height="40" rx="4" fill="%23ecfdf5" stroke="%2310b981"/><text x="36" y="190" fill="%23047857" font-size="10" font-weight="bold" font-family="sans-serif">%E2%9C%93 INE ANVERSO VALIDADO CON RENAPO</text></svg>';
+
+  const DEMO_INE_REVERSO = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220"><rect width="360" height="220" rx="12" fill="%23f8fafc" stroke="%232563eb" stroke-width="2"/><rect x="20" y="20" width="60" height="60" rx="4" fill="%231e3a8a"/><rect x="25" y="25" width="20" height="20" fill="%23ffffff"/><rect x="50" y="50" width="25" height="25" fill="%23ffffff"/><rect x="95" y="20" width="245" height="60" rx="4" fill="%23eff6ff" stroke="%23bfdbfe"/><text x="105" y="55" fill="%231e40af" font-size="11" font-weight="bold" font-family="sans-serif">FIRMA ELECTORAL REGISTRADA</text><rect x="20" y="95" width="320" height="50" fill="%23f1f5f9" stroke="%23cbd5e1"/><text x="25" y="115" fill="%230f172a" font-size="10" font-family="monospace">IDMEX1820412842&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</text><text x="25" y="132" fill="%230f172a" font-size="10" font-family="monospace">8204124H3412316MEX&lt;&lt;0842&lt;98726&lt;5</text><rect x="20" y="160" width="320" height="40" rx="4" fill="%23ecfdf5" stroke="%2310b981"/><text x="30" y="184" fill="%23047857" font-size="10" font-weight="bold" font-family="sans-serif">%E2%9C%93 C%C3%93DIGO MRZ Y QR DETECTADOS (SAT OK)</text></svg>';
+
+  const DEMO_SELFIE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="300" viewBox="0 0 240 300"><rect width="240" height="300" rx="100" fill="%23eff6ff"/><circle cx="120" cy="110" r="50" fill="%232563eb"/><path d="M60 245 c0 -35 30 -55 60 -55 s60 20 60 55 z" fill="%231d4ed8"/><circle cx="120" cy="110" r="75" fill="none" stroke="%2310b981" stroke-width="4" stroke-dasharray="8,4"/><circle cx="102" cy="100" r="5" fill="%23ffffff"/><circle cx="138" cy="100" r="5" fill="%23ffffff"/><path d="M106 130 q14 12 28 0" stroke="%23ffffff" stroke-width="3" fill="none"/><rect x="25" y="240" width="190" height="32" rx="8" fill="%2310b981"/><text x="120" y="260" text-anchor="middle" fill="%23ffffff" font-size="10" font-weight="bold" font-family="sans-serif">%E2%9C%93 ROSTRO MATCH 99.8%25</text></svg>';
+
   // Canvas de firma digital táctil
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -801,31 +830,61 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                   /* ======================================================== */
                   /* MODO CLIENTE: PORTAL DE CANJE ACREDITALA (PASOS 8 AL 17) */
                   /* ======================================================== */
-                  <div className="flex-1 flex flex-col bg-[#FBF8F1] text-slate-900">
+                  <div className="flex-1 flex flex-col bg-[#f0f4fa] text-slate-900">
+                    {/* Inputs ocultos para captura real de cámara/fotos */}
+                    <input
+                      type="file"
+                      ref={fileInputFrenteRef}
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, 'frente')}
+                    />
+                    <input
+                      type="file"
+                      ref={fileInputReversoRef}
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, 'reverso')}
+                    />
+                    <input
+                      type="file"
+                      ref={fileInputSelfieRef}
+                      accept="image/*"
+                      capture="user"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, 'selfie')}
+                    />
+
                     {/* Top Browser Bar */}
-                    <div className="bg-white px-3 py-1.5 border-b border-amber-200/60 flex items-center justify-between text-[10px]">
+                    <div className="bg-white px-3 py-1.5 border-b border-blue-100 flex items-center justify-between text-[10px]">
                       <div className="flex items-center gap-1.5 font-mono text-slate-600 truncate max-w-[200px]">
                         <Lock className="w-3 h-3 text-emerald-600" />
-                        <span>acreditala.financialsoft.site</span>
+                        <span>canje.lanahora.com.mx</span>
                       </div>
-                      <span className="text-[9px] font-bold text-slate-400">Paso {clientStep}/17</span>
+                      <span className="text-[9px] font-bold text-[#2563eb] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                        Paso {clientStep}/17
+                      </span>
                     </div>
 
-                    {/* LanAhora Header in Client Portal */}
-                    <div className="bg-white py-2 px-3 border-b border-slate-100 flex items-center justify-between shadow-xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xl">🐑</span>
-                        <span className="font-black text-sm text-[#1d4ed8]">LanAhora</span>
+                    {/* LanAhora Header in Client Portal (Identidad Unificada) */}
+                    <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] py-2 px-3 flex items-center justify-between shadow-xs text-white">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-[#facc15] text-slate-950 px-1.5 py-0.5 rounded font-black text-xs">
+                          LH
+                        </div>
+                        <span className="font-extrabold text-xs tracking-tight">LanAhora Canje Digital</span>
                       </div>
-                      <span className="text-[9px] text-slate-400 font-mono">v.1.16.7.0</span>
+                      <span className="text-[9px] text-blue-100 font-mono">v.1.16.7.0</span>
                     </div>
 
                     {/* Step Content */}
-                    <div className="flex-1 p-3 overflow-y-auto">
+                    <div className="flex-1 p-3 overflow-y-auto space-y-3">
                       {clientStep === 8 ? (
                         /* PASO 8: DETALLE DE VALE */
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-amber-100 space-y-3">
-                          <h3 className="text-center font-black text-sm text-slate-900 border-b pb-2">
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 space-y-3">
+                          <h3 className="text-center font-black text-sm text-slate-900 border-b border-slate-100 pb-2">
                             Detalle de Vale
                           </h3>
                           <div className="space-y-1.5 text-xs">
@@ -859,17 +918,17 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                             </div>
                             <div className="flex justify-between">
                               <span className="text-slate-500 font-bold">Fecha Primer Pago:</span>
-                              <span className="font-black text-amber-700">20/12/2026</span>
+                              <span className="font-black text-blue-900">20/12/2026</span>
                             </div>
                           </div>
 
                           <div className="pt-2 text-center">
-                            <p className="text-[10px] text-slate-500 font-bold">
+                            <p className="text-[10px] text-slate-500 font-bold mb-2">
                               ¿La información mostrada, ¿es correcta?
                             </p>
                             <button
                               onClick={() => setClientStep(9)}
-                              className="w-full mt-2.5 py-2.5 rounded-full bg-[#84CC16] hover:bg-lime-600 text-white font-black text-xs uppercase shadow transition"
+                              className="w-full py-2.5 rounded-full bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs uppercase shadow transition active:scale-95"
                             >
                               Sí, es correcta
                             </button>
@@ -877,7 +936,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                         </div>
                       ) : clientStep === 9 ? (
                         /* PASO 9: DOMICILIO */
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-amber-100 space-y-2.5 text-xs">
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 space-y-2.5 text-xs">
                           <p className="text-[10px] text-slate-500 font-bold">
                             Por favor, capture la información solicitada a continuación.
                           </p>
@@ -888,7 +947,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                             <input
                               type="text"
                               defaultValue="Blvd. Venustiano Carranza"
-                              className="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50"
+                              className="w-full p-2 border border-slate-300 rounded-xl text-xs font-bold bg-white"
                             />
                           </div>
 
@@ -898,7 +957,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                               <input
                                 type="text"
                                 defaultValue="2450"
-                                className="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50"
+                                className="w-full p-2 border border-slate-300 rounded-xl text-xs font-bold bg-white"
                               />
                             </div>
                             <div>
@@ -906,7 +965,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                               <input
                                 type="text"
                                 defaultValue="B-4"
-                                className="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50"
+                                className="w-full p-2 border border-slate-300 rounded-xl text-xs font-bold bg-white"
                               />
                             </div>
                           </div>
@@ -916,7 +975,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                             <input
                               type="text"
                               defaultValue="25280"
-                              className="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50"
+                              className="w-full p-2 border border-slate-300 rounded-xl text-xs font-bold bg-white"
                             />
                           </div>
 
@@ -925,7 +984,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                             <input
                               type="text"
                               defaultValue="República Oriente"
-                              className="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50"
+                              className="w-full p-2 border border-slate-300 rounded-xl text-xs font-bold bg-white"
                             />
                           </div>
 
@@ -934,29 +993,29 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                             <input
                               type="text"
                               defaultValue="Saltillo, Coahuila"
-                              className="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50"
+                              className="w-full p-2 border border-slate-300 rounded-xl text-xs font-bold bg-white"
                             />
                           </div>
 
                           <button
                             onClick={() => setClientStep(10)}
-                            className="w-full mt-3 py-2.5 rounded-full bg-[#84CC16] hover:bg-lime-600 text-white font-black text-xs uppercase shadow transition"
+                            className="w-full mt-3 py-2.5 rounded-full bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs uppercase shadow transition active:scale-95"
                           >
                             Continuar a Beneficiarios
                           </button>
                         </div>
                       ) : clientStep === 10 ? (
                         /* PASO 10: BENEFICIARIO */
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-amber-100 space-y-2.5 text-xs">
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 space-y-2.5 text-xs">
                           <div className="flex items-center justify-between">
                             <h4 className="font-black text-slate-900 text-sm">Beneficiarios</h4>
-                            <Plus className="w-4 h-4 text-lime-600" />
+                            <Plus className="w-4 h-4 text-blue-600" />
                           </div>
                           <p className="text-[10px] text-slate-500">
                             Datos del beneficiario del seguro de vida en caso de fallecimiento.
                           </p>
 
-                          <div className="p-2.5 bg-slate-50 rounded-xl space-y-2 border">
+                          <div className="p-2.5 bg-blue-50/50 rounded-xl space-y-2 border border-blue-100">
                             <span className="text-[10px] font-black text-blue-700">Beneficiario 1</span>
                             <div>
                               <label className="text-[9px] font-bold text-slate-500">Nombre Completo: *</label>
@@ -964,7 +1023,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                                 type="text"
                                 value={nombreBeneficiario}
                                 onChange={(e) => setNombreBeneficiario(e.target.value)}
-                                className="w-full p-1.5 border rounded-lg text-xs font-bold bg-white"
+                                className="w-full p-1.5 border border-slate-300 rounded-lg text-xs font-bold bg-white"
                               />
                             </div>
                             <div className="grid grid-cols-2 gap-2">
@@ -973,7 +1032,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                                 <select
                                   value={parentesco}
                                   onChange={(e) => setParentesco(e.target.value)}
-                                  className="w-full p-1.5 border rounded-lg text-xs font-bold bg-white"
+                                  className="w-full p-1.5 border border-slate-300 rounded-lg text-xs font-bold bg-white"
                                 >
                                   <option>Esposa(o)</option>
                                   <option>Hijo(a)</option>
@@ -986,7 +1045,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                                   type="text"
                                   defaultValue="100%"
                                   readOnly
-                                  className="w-full p-1.5 border rounded-lg text-xs font-bold bg-slate-100"
+                                  className="w-full p-1.5 border border-slate-200 rounded-lg text-xs font-bold bg-slate-100"
                                 />
                               </div>
                             </div>
@@ -995,21 +1054,21 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                               <input
                                 type="text"
                                 defaultValue="14/06/1988"
-                                className="w-full p-1.5 border rounded-lg text-xs font-bold bg-white"
+                                className="w-full p-1.5 border border-slate-300 rounded-lg text-xs font-bold bg-white"
                               />
                             </div>
                           </div>
 
                           <button
                             onClick={() => setClientStep(11)}
-                            className="w-full mt-3 py-2.5 rounded-full bg-[#84CC16] hover:bg-lime-600 text-white font-black text-xs uppercase shadow transition"
+                            className="w-full mt-3 py-2.5 rounded-full bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs uppercase shadow transition active:scale-95"
                           >
                             Continuar a Datos Bancarios
                           </button>
                         </div>
                       ) : clientStep === 11 ? (
                         /* PASO 11: DATOS BANCARIOS */
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-amber-100 space-y-3 text-xs">
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 space-y-3 text-xs">
                           <h4 className="font-black text-slate-900 text-sm">
                             Datos bancarios para depósito
                           </h4>
@@ -1022,8 +1081,8 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                               onClick={() => setTipoCuenta('tarjeta')}
                               className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition ${
                                 tipoCuenta === 'tarjeta'
-                                  ? 'bg-blue-600 text-white border-blue-600'
-                                  : 'bg-slate-50 text-slate-600'
+                                  ? 'bg-[#2563eb] text-white border-[#2563eb]'
+                                  : 'bg-slate-50 text-slate-600 border-slate-200'
                               }`}
                             >
                               Tarjeta de débito
@@ -1032,8 +1091,8 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                               onClick={() => setTipoCuenta('clabe')}
                               className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition ${
                                 tipoCuenta === 'clabe'
-                                  ? 'bg-blue-600 text-white border-blue-600'
-                                  : 'bg-slate-50 text-slate-600'
+                                  ? 'bg-[#2563eb] text-white border-[#2563eb]'
+                                  : 'bg-slate-50 text-slate-600 border-slate-200'
                               }`}
                             >
                               CLABE (18 dígitos)
@@ -1048,7 +1107,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                               type="text"
                               value={numTarjeta}
                               onChange={(e) => setNumTarjeta(e.target.value)}
-                              className="w-full p-2 border rounded-lg text-xs font-mono font-bold bg-slate-50"
+                              className="w-full p-2 border border-slate-300 rounded-lg text-xs font-mono font-bold bg-slate-50"
                             />
                           </div>
 
@@ -1057,7 +1116,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                             <select
                               value={bancoCliente}
                               onChange={(e) => setBancoCliente(e.target.value)}
-                              className="w-full p-2 border rounded-lg text-xs font-bold bg-white"
+                              className="w-full p-2 border border-slate-300 rounded-lg text-xs font-bold bg-white"
                             >
                               <option>BBVA México</option>
                               <option>Santander</option>
@@ -1071,73 +1130,169 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
 
                           <button
                             onClick={() => setClientStep(12)}
-                            className="w-full mt-3 py-2.5 rounded-full bg-[#84CC16] hover:bg-lime-600 text-white font-black text-xs uppercase shadow transition"
+                            className="w-full mt-3 py-2.5 rounded-full bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs uppercase shadow transition active:scale-95"
                           >
                             Registrar y Validar INE
                           </button>
                         </div>
                       ) : clientStep === 12 ? (
-                        /* PASO 12: INE ANVERSO */
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-amber-100 text-center space-y-3">
+                        /* PASO 12: INE ANVERSO CON FOTO REAL / DEMO */
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 text-center space-y-3">
                           <h4 className="font-black text-slate-900 text-sm">
-                            VERIFICACIÓN DE DATOS
+                            VERIFICACIÓN DE IDENTIDAD (ANVERSO)
                           </h4>
                           <p className="text-[10px] text-slate-500">
-                            Capture el <strong>ANVERSO</strong> de la credencial de elector. Asegúrese de que haya buena luz.
+                            Capture el <strong>ANVERSO</strong> de la credencial de elector. Asegúrese de que no haya reflejos.
                           </p>
 
-                          <div className="w-full h-36 bg-slate-100 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center p-3 relative overflow-hidden">
-                            <CreditCard className="w-10 h-10 text-slate-400 mb-1" />
-                            <span className="text-[10px] font-bold text-slate-600">
-                              Encuadre el frente de su INE aquí
-                            </span>
-                            <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-emerald-500" />
-                            <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-emerald-500" />
-                            <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-emerald-500" />
-                            <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-emerald-500" />
-                          </div>
+                          {fotoIneFrente ? (
+                            <div className="space-y-2">
+                              <div className="w-full h-40 bg-slate-100 rounded-xl overflow-hidden border-2 border-emerald-500 relative shadow-sm">
+                                <img
+                                  src={fotoIneFrente}
+                                  alt="INE Frente"
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute top-2 right-2 bg-emerald-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Foto Capturada
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => fileInputFrenteRef.current?.click()}
+                                  className="flex-1 py-1.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-[11px] hover:bg-slate-50 transition"
+                                >
+                                  Tomar de nuevo
+                                </button>
+                                <button
+                                  onClick={() => setClientStep(13)}
+                                  className="flex-1 py-2 rounded-xl bg-[#2563eb] text-white font-black text-xs uppercase shadow hover:bg-blue-700 transition"
+                                >
+                                  Continuar a Reverso
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-2.5">
+                              <div
+                                onClick={() => fileInputFrenteRef.current?.click()}
+                                className="w-full h-36 bg-blue-50/50 border-2 border-dashed border-blue-300 rounded-xl flex flex-col items-center justify-center p-3 relative overflow-hidden cursor-pointer hover:bg-blue-50 transition"
+                              >
+                                <CreditCard className="w-10 h-10 text-blue-500 mb-1" />
+                                <span className="text-[11px] font-black text-blue-900">
+                                  Toque para abrir Cámara o Subir Foto
+                                </span>
+                                <span className="text-[9px] text-slate-500 mt-0.5">
+                                  Cámara trasera recomendada
+                                </span>
+                                <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-blue-600" />
+                                <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-blue-600" />
+                                <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-blue-600" />
+                                <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-blue-600" />
+                              </div>
 
-                          <button
-                            onClick={() => setClientStep(13)}
-                            className="w-full py-2.5 rounded-full bg-[#84CC16] hover:bg-lime-600 text-white font-black text-xs uppercase shadow flex items-center justify-center gap-1.5 transition"
-                          >
-                            <Camera className="w-4 h-4" />
-                            Capturar Foto Anverso
-                          </button>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => fileInputFrenteRef.current?.click()}
+                                  className="flex-1 py-2 rounded-xl bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition"
+                                >
+                                  <Camera className="w-4 h-4" />
+                                  Tomar con Cámara
+                                </button>
+                                <button
+                                  onClick={() => setFotoIneFrente(DEMO_INE_FRENTE)}
+                                  className="py-2 px-3 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1 shadow transition"
+                                  title="Carga una credencial de muestra de prueba para verificar el flujo de inmediato"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                  Muestra Demo
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ) : clientStep === 13 ? (
-                        /* PASO 13: INE REVERSO */
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-amber-100 text-center space-y-3">
+                        /* PASO 13: INE REVERSO CON FOTO REAL / DEMO */
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 text-center space-y-3">
                           <h4 className="font-black text-slate-900 text-sm">
-                            VERIFICACIÓN DE DATOS
+                            VERIFICACIÓN DE IDENTIDAD (REVERSO)
                           </h4>
                           <p className="text-[10px] text-slate-500">
-                            Capture el <strong>REVERSO</strong> de la credencial de elector (código MRZ).
+                            Capture el <strong>REVERSO</strong> de la credencial (código de barras MRZ y firma).
                           </p>
 
-                          <div className="w-full h-36 bg-slate-100 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center p-3 relative overflow-hidden">
-                            <QrCode className="w-10 h-10 text-slate-400 mb-1" />
-                            <span className="text-[10px] font-bold text-slate-600">
-                              Encuadre el reverso y firma aquí
-                            </span>
-                            <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-emerald-500" />
-                            <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-emerald-500" />
-                            <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-emerald-500" />
-                            <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-emerald-500" />
-                          </div>
+                          {fotoIneReverso ? (
+                            <div className="space-y-2">
+                              <div className="w-full h-40 bg-slate-100 rounded-xl overflow-hidden border-2 border-emerald-500 relative shadow-sm">
+                                <img
+                                  src={fotoIneReverso}
+                                  alt="INE Reverso"
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute top-2 right-2 bg-emerald-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Reverso Capturado
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => fileInputReversoRef.current?.click()}
+                                  className="flex-1 py-1.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-[11px] hover:bg-slate-50 transition"
+                                >
+                                  Tomar de nuevo
+                                </button>
+                                <button
+                                  onClick={() => setClientStep(14)}
+                                  className="flex-1 py-2 rounded-xl bg-[#2563eb] text-white font-black text-xs uppercase shadow hover:bg-blue-700 transition"
+                                >
+                                  Validar OCR
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-2.5">
+                              <div
+                                onClick={() => fileInputReversoRef.current?.click()}
+                                className="w-full h-36 bg-blue-50/50 border-2 border-dashed border-blue-300 rounded-xl flex flex-col items-center justify-center p-3 relative overflow-hidden cursor-pointer hover:bg-blue-50 transition"
+                              >
+                                <QrCode className="w-10 h-10 text-blue-500 mb-1" />
+                                <span className="text-[11px] font-black text-blue-900">
+                                  Toque para capturar el reverso
+                                </span>
+                                <span className="text-[9px] text-slate-500 mt-0.5">
+                                  Encuadre el código de barras y firma
+                                </span>
+                                <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-blue-600" />
+                                <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-blue-600" />
+                                <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-blue-600" />
+                                <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-blue-600" />
+                              </div>
 
-                          <button
-                            onClick={() => setClientStep(14)}
-                            className="w-full py-2.5 rounded-full bg-[#84CC16] hover:bg-lime-600 text-white font-black text-xs uppercase shadow flex items-center justify-center gap-1.5 transition"
-                          >
-                            <Camera className="w-4 h-4" />
-                            Capturar Foto Reverso
-                          </button>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => fileInputReversoRef.current?.click()}
+                                  className="flex-1 py-2 rounded-xl bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition"
+                                >
+                                  <Camera className="w-4 h-4" />
+                                  Tomar con Cámara
+                                </button>
+                                <button
+                                  onClick={() => setFotoIneReverso(DEMO_INE_REVERSO)}
+                                  className="py-2 px-3 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1 shadow transition"
+                                  title="Carga el reverso de muestra demo"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                  Muestra Demo
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ) : clientStep === 14 ? (
                         /* PASO 14: INE OCR OK */
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-amber-100 text-center space-y-4">
-                          <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-blue-100 text-center space-y-4">
+                          <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
                             <Check className="w-8 h-8 stroke-[3]" />
                           </div>
                           <div>
@@ -1145,50 +1300,121 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                               Información de INE obtenida correctamente.
                             </h4>
                             <p className="text-[10px] text-slate-500 mt-1">
-                              Validación automática de autenticidad exitosa.
+                              Validación automática de autenticidad y listas SAT 69-B completada con éxito.
                             </p>
                           </div>
+
+                          {/* Miniatura de las 2 fotos */}
+                          <div className="grid grid-cols-2 gap-2 text-left">
+                            <div className="p-2 bg-slate-50 rounded-xl border border-slate-200">
+                              <span className="text-[9px] font-bold text-slate-500 block mb-1">Anverso:</span>
+                              <div className="h-16 rounded overflow-hidden bg-slate-200">
+                                <img
+                                  src={fotoIneFrente || DEMO_INE_FRENTE}
+                                  alt="Frente"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </div>
+                            <div className="p-2 bg-slate-50 rounded-xl border border-slate-200">
+                              <span className="text-[9px] font-bold text-slate-500 block mb-1">Reverso:</span>
+                              <div className="h-16 rounded overflow-hidden bg-slate-200">
+                                <img
+                                  src={fotoIneReverso || DEMO_INE_REVERSO}
+                                  alt="Reverso"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
                           <button
                             onClick={() => setClientStep(15)}
-                            className="w-full py-2.5 rounded-full bg-[#84CC16] hover:bg-lime-600 text-white font-black text-xs uppercase shadow transition"
+                            className="w-full py-2.5 rounded-full bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs uppercase shadow transition active:scale-95"
                           >
                             Continuar a Selfie Facial
                           </button>
                         </div>
                       ) : clientStep === 15 ? (
-                        /* PASO 15: SELFIE BIOMÉTRICA CON ÓVALO VERDE */
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-amber-100 text-center space-y-3">
+                        /* PASO 15: SELFIE BIOMÉTRICA CON CÁMARA FRONTAL / PREVIEW REAL */
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 text-center space-y-3">
                           <h4 className="font-black text-slate-900 text-sm">
-                            VERIFICACIÓN DE IDENTIDAD
+                            VERIFICACIÓN BIOMÉTRICA FACIAL
                           </h4>
                           <p className="text-[10px] text-slate-500">
-                            La selfie será tomada de forma automática una vez que el sistema detecte de manera correcta el rostro.
+                            La selfie valida la prueba de vida contra la fotografía de la credencial de elector.
                           </p>
 
-                          {/* Óvalo biométrico verde */}
-                          <div className="w-44 h-56 mx-auto rounded-[100px] border-4 border-emerald-500 bg-slate-100 flex flex-col items-center justify-center p-3 relative overflow-hidden shadow-inner">
-                            <User className="w-20 h-20 text-slate-400 animate-pulse" />
-                            <span className="text-[10px] font-black text-slate-700 mt-2">
-                              Muestre su rostro.*
-                            </span>
-                            <span className="text-[9px] font-bold text-emerald-600 mt-0.5">
-                              Rostro detectado 99.8%
-                            </span>
+                          {/* Óvalo biométrico con foto real o silueta */}
+                          <div className="w-44 h-56 mx-auto rounded-[100px] border-4 border-emerald-500 bg-slate-100 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+                            {fotoSelfie ? (
+                              <img
+                                src={fotoSelfie}
+                                alt="Selfie"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <>
+                                <User className="w-20 h-20 text-slate-400 animate-pulse" />
+                                <span className="text-[10px] font-black text-slate-700 mt-2">
+                                  Muestre su rostro.*
+                                </span>
+                                <span className="text-[9px] font-bold text-emerald-600 mt-0.5">
+                                  Enfoque cámara frontal
+                                </span>
+                              </>
+                            )}
+
+                            {fotoSelfie && (
+                              <div className="absolute bottom-2 bg-emerald-600/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
+                                Match 99.8%
+                              </div>
+                            )}
                           </div>
 
-                          <button
-                            onClick={() => setClientStep(16)}
-                            className="w-full py-2.5 rounded-full bg-[#84CC16] hover:bg-lime-600 text-white font-black text-xs uppercase shadow transition"
-                          >
-                            Tomar Selfie y Firmar
-                          </button>
+                          <div className="space-y-2">
+                            {fotoSelfie ? (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => fileInputSelfieRef.current?.click()}
+                                  className="flex-1 py-1.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-[11px] hover:bg-slate-50 transition"
+                                >
+                                  Tomar de nuevo
+                                </button>
+                                <button
+                                  onClick={() => setClientStep(16)}
+                                  className="flex-1 py-2 rounded-xl bg-[#2563eb] text-white font-black text-xs uppercase shadow hover:bg-blue-700 transition"
+                                >
+                                  Proceder a Firma
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => fileInputSelfieRef.current?.click()}
+                                  className="flex-1 py-2 rounded-xl bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition"
+                                >
+                                  <Camera className="w-4 h-4" />
+                                  Tomar Selfie
+                                </button>
+                                <button
+                                  onClick={() => setFotoSelfie(DEMO_SELFIE)}
+                                  className="py-2 px-3 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1 shadow transition"
+                                  title="Carga una selfie de prueba inmediata"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                  Selfie Demo
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       ) : clientStep === 16 ? (
                         /* PASO 16: FIRMA DIGITAL TÁCTIL */
-                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-amber-100 space-y-2 text-xs">
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 space-y-2 text-xs">
                           <h4 className="font-black text-slate-900 text-sm">Firma del Vale</h4>
                           <p className="text-[10px] text-slate-500">
-                            Firme en el recuadro gris lo más similar posible a su INE y presione el botón verde.
+                            Firme en el recuadro gris lo más similar posible a su INE y presione el botón de finalizar.
                           </p>
 
                           <div className="flex justify-between items-center pt-1">
@@ -1202,7 +1428,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                           </div>
 
                           {/* Canvas de Firma Táctil */}
-                          <div className="w-full h-36 bg-slate-100 rounded-xl border border-slate-300 relative overflow-hidden touch-none">
+                          <div className="w-full h-36 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 relative overflow-hidden touch-none">
                             <canvas
                               ref={canvasRef}
                               width={280}
@@ -1225,20 +1451,20 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
 
                           <button
                             onClick={() => setClientStep(17)}
-                            className="w-full mt-3 py-2.5 rounded-full bg-[#84CC16] hover:bg-lime-600 text-white font-black text-xs uppercase shadow transition"
+                            className="w-full mt-3 py-2.5 rounded-full bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs uppercase shadow transition active:scale-95"
                           >
-                            Firmar y Finalizar
+                            Firmar y Finalizar Canje
                           </button>
                         </div>
                       ) : (
                         /* PASO 17: DEPÓSITO CONFIRMADO Y STP SPEI EN PROCESO */
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-amber-100 text-center space-y-4">
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-blue-100 text-center space-y-4">
                           <div className="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-lg">
                             <Check className="w-10 h-10 stroke-[3]" />
                           </div>
                           <div>
                             <h4 className="font-black text-slate-900 text-base leading-snug">
-                              Gracias por firmar pronto recibiras tu dinero.
+                              ¡Gracias por firmar! Pronto recibirás tu dinero.
                             </h4>
                             <p className="text-xs text-slate-500 mt-1">
                               Depósito en proceso de dispersión automática vía STP SPEI.
@@ -1270,7 +1496,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                                 setActiveMode('dv');
                                 setDvStep(2);
                               }}
-                              className="w-full py-2.5 rounded-full bg-[#1d4ed8] text-white font-black text-xs uppercase shadow hover:bg-blue-700 transition"
+                              className="w-full py-2.5 rounded-full bg-[#2563eb] text-white font-black text-xs uppercase shadow hover:bg-blue-700 transition"
                             >
                               Volver a LanApp Distribuidora
                             </button>
