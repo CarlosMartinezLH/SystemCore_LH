@@ -202,6 +202,7 @@ export default function Home() {
             <CoreDashboard
               onNavigateToPersonas={() => setActiveModule('personas')}
               onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
+              onNavigateToDispersion={() => setActiveModule('dispersion')}
             />
           ) : activeModule === 'personas' ? (
             <PersonasView />

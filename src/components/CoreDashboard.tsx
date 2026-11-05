@@ -15,6 +15,8 @@ import {
   ExternalLink,
   ChevronRight,
   Sparkles,
+  CreditCard,
+  Send,
 } from 'lucide-react';
 import { DistribuidorCore, CreditoCore } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
@@ -22,11 +24,13 @@ import { useCoreSync } from '@/context/CoreSyncContext';
 interface CoreDashboardProps {
   onNavigateToPersonas: () => void;
   onNavigateToDistribuidores: () => void;
+  onNavigateToDispersion?: () => void;
 }
 
 export default function CoreDashboard({
   onNavigateToPersonas,
   onNavigateToDistribuidores,
+  onNavigateToDispersion,
 }: CoreDashboardProps) {
   const { creditos, distribuidores } = useCoreSync();
   const [activeTab, setActiveTab] = useState<'todos' | 'distribuidores' | 'creditos'>('todos');
@@ -145,6 +149,16 @@ export default function CoreDashboard({
                   <Briefcase className="w-3.5 h-3.5 text-blue-600" />
                   <span>Red de Distribuidores</span>
                 </button>
+
+                {onNavigateToDispersion && (
+                  <button
+                    onClick={onNavigateToDispersion}
+                    className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-100/60 font-semibold flex items-center gap-2 transition"
+                  >
+                    <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Dispersión & Pagos</span>
+                  </button>
+                )}
 
                 <button
                   onClick={() => alert('Abriendo bitácora y notas de gestoría...')}
@@ -380,6 +394,15 @@ export default function CoreDashboard({
               </div>
 
               <div className="flex items-center gap-2">
+                {onNavigateToDispersion && (
+                  <button
+                    onClick={onNavigateToDispersion}
+                    className="px-3 py-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1.5 transition shadow-xs"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Ver Dispersión STP</span>
+                  </button>
+                )}
                 <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
                   {selectedCredito.estatus}
                 </span>

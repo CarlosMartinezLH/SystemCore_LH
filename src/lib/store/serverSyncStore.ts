@@ -55,15 +55,19 @@ export function recordCanjeSync(payload: {
   const distId = Number(payload.distribuidorId) || 1002;
   const folioFinal = payload.folio || `V-${Math.floor(10000 + Math.random() * 90000)}`;
 
-  // 1. Crear registro de Dispersión STP en tiempo real
+  // 1. Crear o actualizar registro de Dispersión STP en tiempo real
   const folioSTP = `STP-${Date.now().toString().slice(-6)}`;
   const fechaHoy = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const claveRastreo = `STP844${fechaHoy}${Math.floor(1000 + Math.random() * 9000)}`;
 
+  const dispersionExistenteIdx = data.dispersiones.findIndex(
+    (d) => d.creditoId === folioFinal || d.beneficiario === (payload.clienteNombre || '').toUpperCase()
+  );
+
   const nuevaDispersion: DispersionSTP = {
-    id: `disp-${Date.now()}`,
-    folioSTP,
-    claveRastreo,
+    id: dispersionExistenteIdx >= 0 ? data.dispersiones[dispersionExistenteIdx].id : `disp-${Date.now()}`,
+    folioSTP: dispersionExistenteIdx >= 0 ? data.dispersiones[dispersionExistenteIdx].folioSTP : folioSTP,
+    claveRastreo: dispersionExistenteIdx >= 0 ? data.dispersiones[dispersionExistenteIdx].claveRastreo : claveRastreo,
     creditoId: folioFinal,
     beneficiario: (payload.clienteNombre || 'MARYLYN SILVA TORRES').toUpperCase(),
     curp: (payload.curp || 'SITM890918MCLLRR02').toUpperCase(),
@@ -75,7 +79,11 @@ export function recordCanjeSync(payload: {
     concepto: `Desembolso Vale #${folioFinal} LanAhora`,
   };
 
-  data.dispersiones = [nuevaDispersion, ...data.dispersiones];
+  if (dispersionExistenteIdx >= 0) {
+    data.dispersiones[dispersionExistenteIdx] = nuevaDispersion;
+  } else {
+    data.dispersiones = [nuevaDispersion, ...data.dispersiones];
+  }
 
   // 2. Actualizar el saldo y cartera del Distribuidor
   const distIndex = data.distribuidores.findIndex((d) => d.noDist === distId);
@@ -286,16 +294,20 @@ export function recordCreditoSync(payload: {
   monto: number;
   plazos?: number;
   pagoPorPlazo?: number;
+  clabe?: string;
+  banco?: string;
+  curp?: string;
 }) {
   const data = getServerSyncData();
   const montoNum = Number(payload.monto) || 0;
   const distId = Number(payload.distribuidorId) || 1002;
   const dist = data.distribuidores.find((d) => d.noDist === distId);
   const distNombre = dist?.nombreDistribuidor || 'BERTHA ALICIA TELLO LARA';
+  const folioVale = payload.noVale || `V-${Math.floor(10000 + Math.random() * 90000)}`;
 
   const nuevoCredito: CreditoCore = {
     creditoId: `CR-${Date.now().toString().slice(-6)}`,
-    noVale: payload.noVale || `V-${Math.floor(10000 + Math.random() * 90000)}`,
+    noVale: folioVale,
     noDist: distId,
     distribuidorNombre: distNombre,
     clienteNombre: payload.clienteNombre.toUpperCase(),
@@ -309,7 +321,36 @@ export function recordCreditoSync(payload: {
 
   data.creditos = [nuevoCredito, ...data.creditos];
 
-  // Actualizar cartera del distribuidor
+  // 2. Crear inmediatamente la orden de dispersión SPEI (STP) en el módulo Dispersión & Pagos
+  const folioSTP = `STP-${Date.now().toString().slice(-6)}`;
+  const fechaHoy = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const claveRastreo = `STP844${fechaHoy}${Math.floor(1000 + Math.random() * 9000)}`;
+
+  // Buscar persona asociada para obtener CURP
+  const pers = data.personas.find(
+    (p) =>
+      (payload.clienteId && p.personaId.toString() === payload.clienteId.toString()) ||
+      p.nombre.toLowerCase().includes(payload.clienteNombre.toLowerCase().split(' ')[0])
+  );
+
+  const nuevaDispersion: DispersionSTP = {
+    id: `disp-${Date.now()}`,
+    folioSTP,
+    claveRastreo,
+    creditoId: folioVale,
+    beneficiario: payload.clienteNombre.toUpperCase(),
+    curp: payload.curp || pers?.curp || 'SITM890918MCLLRR02',
+    clabe: payload.clabe || '012180015488920192',
+    banco: payload.banco || 'BBVA México',
+    monto: montoNum,
+    fechaHora: new Date().toLocaleString('es-MX'),
+    estatus: 'LIQUIDADO',
+    concepto: `Desembolso Vale #${folioVale} LanAhora`,
+  };
+
+  data.dispersiones = [nuevaDispersion, ...data.dispersiones];
+
+  // 3. Actualizar cartera del distribuidor
   if (dist) {
     const distIdx = data.distribuidores.findIndex((d) => d.noDist === dist.noDist);
     if (distIdx >= 0) {

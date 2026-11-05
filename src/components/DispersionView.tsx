@@ -39,7 +39,10 @@ export default function DispersionView() {
       d.beneficiario.toLowerCase().includes(q) ||
       d.folioSTP.toLowerCase().includes(q) ||
       d.claveRastreo.toLowerCase().includes(q) ||
-      d.banco.toLowerCase().includes(q)
+      d.creditoId.toLowerCase().includes(q) ||
+      d.curp.toLowerCase().includes(q) ||
+      d.banco.toLowerCase().includes(q) ||
+      d.concepto.toLowerCase().includes(q)
     );
   });
 
@@ -252,6 +255,7 @@ export default function DispersionView() {
                     <th className="px-3.5 py-2.5">Acciones</th>
                     <th className="px-3.5 py-2.5">Folio STP</th>
                     <th className="px-3.5 py-2.5">Clave de Rastreo</th>
+                    <th className="px-3.5 py-2.5">Vale / Crédito</th>
                     <th className="px-3.5 py-2.5">Beneficiario</th>
                     <th className="px-3.5 py-2.5">Institución Bancaria</th>
                     <th className="px-3.5 py-2.5">CLABE Destino</th>
@@ -274,6 +278,11 @@ export default function DispersionView() {
                       </td>
                       <td className="px-3.5 py-2 font-mono font-bold text-[#2563eb]">{d.folioSTP}</td>
                       <td className="px-3.5 py-2 font-mono text-slate-700 font-semibold">{d.claveRastreo}</td>
+                      <td className="px-3.5 py-2 font-mono font-bold">
+                        <span className="px-2 py-0.5 rounded-md text-[11px] bg-amber-50 text-amber-900 border border-amber-300 font-black">
+                          #{d.creditoId}
+                        </span>
+                      </td>
                       <td className="px-3.5 py-2 font-bold text-slate-900">{d.beneficiario}</td>
                       <td className="px-3.5 py-2 text-slate-700">{d.banco}</td>
                       <td className="px-3.5 py-2 font-mono text-[11px] text-slate-600">{d.clabe}</td>
