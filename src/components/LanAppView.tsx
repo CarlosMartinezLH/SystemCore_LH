@@ -155,39 +155,51 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
   const handleEstoyListo = () => {
     setIsScanningLive(true);
     setLivenessPhase('centering');
-    setLivenessProgress(35);
-    setLivenessMsg('Encuadrando rostro...');
+    setLivenessProgress(25);
+    setLivenessMsg('1. ALEJE EL TELÉFONO - Centre su rostro dentro del óvalo');
 
     setTimeout(() => {
-      setLivenessPhase('blinking');
-      setLivenessProgress(75);
-      setLivenessMsg('Acérquese un poco más...');
+      setLivenessPhase('turning');
+      setLivenessProgress(50);
+      setLivenessMsg('2. ACÉRQUESE LENTAMENTE - Ajuste su rostro al óvalo');
 
       setTimeout(() => {
-        if (videoRef.current && isCameraActive) {
-          try {
-            const canvas = document.createElement('canvas');
-            canvas.width = videoRef.current.videoWidth || 480;
-            canvas.height = videoRef.current.videoHeight || 640;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-              const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-              setFotoSelfie(dataUrl);
+        setLivenessPhase('blinking');
+        setLivenessProgress(75);
+        setLivenessMsg('3. SIN LENTES Y PARPADEE - Mire a la cámara');
+
+        setTimeout(() => {
+          setLivenessPhase('completed');
+          setLivenessProgress(95);
+          setLivenessMsg('4. ¡DISTANCIA PERFECTA! Manténgase inmóvil...');
+
+          setTimeout(() => {
+            if (videoRef.current && isCameraActive) {
+              try {
+                const canvas = document.createElement('canvas');
+                canvas.width = videoRef.current.videoWidth || 480;
+                canvas.height = videoRef.current.videoHeight || 640;
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                  ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+                  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                  setFotoSelfie(dataUrl);
+                }
+              } catch {
+                setFotoSelfie(DEMO_SELFIE);
+              }
+              stopInlineCamera();
+            } else {
+              setFotoSelfie(DEMO_SELFIE);
             }
-          } catch {
-            setFotoSelfie(DEMO_SELFIE);
-          }
-          stopInlineCamera();
-        } else {
-          setFotoSelfie(DEMO_SELFIE);
-        }
-        setIsScanningLive(false);
-        setLivenessPhase('completed');
-        setLivenessProgress(100);
-        setLivenessMsg('✓ Rostro verificado con éxito');
-      }, 900);
-    }, 900);
+            setIsScanningLive(false);
+            setLivenessPhase('completed');
+            setLivenessProgress(100);
+            setLivenessMsg('✓ Rostro verificado sin lentes');
+          }, 1200);
+        }, 2200);
+      }, 2400);
+    }, 2200);
   };
 
   useEffect(() => {
@@ -1454,6 +1466,14 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                           <h3 className="font-extrabold text-[#244c9c] text-xl sm:text-2xl tracking-tight">
                             Prepárese para su videoselfie
                           </h3>
+
+                          {/* Alerta Obligatoria: Sin Lentes */}
+                          {!fotoSelfie && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-1.5 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 mx-auto">
+                              <EyeOff className="w-4 h-4 text-red-600 shrink-0" />
+                              <span>IMPORTANTE: Retírese los lentes y gorra</span>
+                            </div>
+                          )}
 
                           {/* Óvalo en el centro con video o foto integrada sin salir de la app */}
                           <div className={`w-52 h-72 sm:w-60 sm:h-84 mx-auto rounded-[120px] border-[3.5px] ${
