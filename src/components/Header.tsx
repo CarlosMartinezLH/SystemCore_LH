@@ -3,19 +3,24 @@
 import React, { useState } from 'react';
 import { UserSession } from '@/types/auth';
 import {
-  Layers,
-  SearchCheck,
-  Users,
-  Briefcase,
-  UserCheck,
-  Smartphone,
+  Search,
+  Plus,
+  Building,
   LogOut,
   ChevronDown,
-  Building,
-  CreditCard,
+  Menu,
+  ShieldCheck,
+  Bell,
 } from 'lucide-react';
 
-export type ActiveAppModule = 'crm' | 'core_dashboard' | 'personas' | 'distribuidores' | 'rh' | 'dispersion' | 'integraciones';
+export type ActiveAppModule =
+  | 'crm'
+  | 'core_dashboard'
+  | 'personas'
+  | 'distribuidores'
+  | 'rh'
+  | 'dispersion'
+  | 'integraciones';
 
 interface HeaderProps {
   currentUser: UserSession;
@@ -23,6 +28,9 @@ interface HeaderProps {
   onModuleChange: (mod: ActiveAppModule) => void;
   onLogout: () => void;
   onOpenNewLead?: () => void;
+  onToggleMobile?: () => void;
+  searchQuery?: string;
+  onSearchChange?: (q: string) => void;
 }
 
 export default function Header({
@@ -30,241 +38,162 @@ export default function Header({
   activeModule,
   onModuleChange,
   onLogout,
+  onOpenNewLead,
+  onToggleMobile,
+  searchQuery = '',
+  onSearchChange,
 }: HeaderProps) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
+  const moduleMeta: Record<ActiveAppModule, { title: string; subtitle: string }> = {
+    core_dashboard: {
+      title: 'Buscador Core & Cartera',
+      subtitle: 'Consulta de créditos, vales y balance de colocación en vivo',
+    },
+    crm: {
+      title: 'CRM & Originación',
+      subtitle: 'Embudo de prospectos, cotizaciones y conversión de solicitudes',
+    },
+    dispersion: {
+      title: 'Dispersión & Pagos STP (SPEI)',
+      subtitle: 'Monitoreo de transferencias SPEI en tiempo real y conciliación',
+    },
+    personas: {
+      title: 'Directorio de Personas & Clientes',
+      subtitle: 'Expedientes integrales, validación RENAPO en vivo y SAT 69-B',
+    },
+    distribuidores: {
+      title: 'Distribuidores de Vales (DV)',
+      subtitle: 'Líneas de crédito autorizadas, comisiones y saldos de colocación',
+    },
+    rh: {
+      title: 'Capital Humano & Monitoreo GPS',
+      subtitle: 'Asesores de campo, geolocalización de rutas y sucursales',
+    },
+    integraciones: {
+      title: 'Integraciones ESB & Servicios Core',
+      subtitle: 'Monitoreo de APIs: Nubarium Biometrics, SAT, RENAPO y STP SPEI',
+    },
+  };
+
+  const currentMeta = moduleMeta[activeModule] || {
+    title: 'SystemCore LanAhora',
+    subtitle: 'Gestión Financiera Institucional',
+  };
+
   return (
-    <header className="sticky top-0 z-40 bg-gradient-to-r from-[#1d4ed8] via-[#2563eb] to-[#1e40af] text-white shadow-md border-b border-blue-400/30">
-      <div className="max-w-[1600px] mx-auto px-4 py-2 flex items-center justify-between gap-4">
-        {/* Brand Logo & System Name */}
-        <div className="flex items-center gap-6">
-          <div
-            onClick={() => onModuleChange('core_dashboard')}
-            className="flex items-center gap-3 cursor-pointer select-none group"
-          >
-            {/* Logo Badge in Sunny Yellow */}
-            <div className="w-10 h-10 rounded-2xl bg-[#facc15] text-slate-950 font-black text-base flex items-center justify-center shadow-md shadow-black/10 group-hover:scale-105 transition">
-              LH
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-black text-xl tracking-tight text-white drop-shadow-xs">
-                  LanAhora
-                </span>
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-white/20 text-yellow-200 border border-white/30">
-                  SystemCore
-                </span>
-              </div>
-              <p className="text-[11px] text-yellow-300 font-bold italic -mt-0.5">
-                ¡En Ti confiamos!
-              </p>
-            </div>
-          </div>
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 lg:px-6 py-3 flex items-center justify-between gap-4 shadow-xs">
+      {/* Left: Mobile Toggle & Page Title */}
+      <div className="flex items-center gap-3 min-w-0">
+        <button
+          onClick={onToggleMobile}
+          className="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition"
+          aria-label="Abrir menú"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
 
-          {/* Unified Desktop Navigation Tabs (Inspirado en el menú del portal LanAhora) */}
-          <nav className="hidden xl:flex items-center gap-1 text-xs font-bold">
-            <button
-              onClick={() => onModuleChange('crm')}
-              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-                activeModule === 'crm'
-                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
-                  : 'text-white/90 hover:bg-white/15 hover:text-white'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>CRM & Originación</span>
-            </button>
-
-            <button
-              onClick={() => onModuleChange('core_dashboard')}
-              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-                activeModule === 'core_dashboard'
-                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
-                  : 'text-white/90 hover:bg-white/15 hover:text-white'
-              }`}
-            >
-              <SearchCheck className="w-3.5 h-3.5" />
-              <span>Buscador Core</span>
-            </button>
-
-            <button
-              onClick={() => onModuleChange('personas')}
-              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-                activeModule === 'personas'
-                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
-                  : 'text-white/90 hover:bg-white/15 hover:text-white'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>Personas</span>
-            </button>
-
-            <button
-              onClick={() => onModuleChange('distribuidores')}
-              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-                activeModule === 'distribuidores'
-                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
-                  : 'text-white/90 hover:bg-white/15 hover:text-white'
-              }`}
-            >
-              <Briefcase className="w-3.5 h-3.5" />
-              <span>Distribuidores (DV)</span>
-            </button>
-
-            <button
-              onClick={() => onModuleChange('rh')}
-              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-                activeModule === 'rh'
-                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
-                  : 'text-white/90 hover:bg-white/15 hover:text-white'
-              }`}
-            >
-              <UserCheck className="w-3.5 h-3.5" />
-              <span>Capital Humano & GPS</span>
-            </button>
-
-            <button
-              onClick={() => onModuleChange('dispersion')}
-              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-                activeModule === 'dispersion'
-                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
-                  : 'text-white/90 hover:bg-white/15 hover:text-white'
-              }`}
-            >
-              <CreditCard className="w-3.5 h-3.5" />
-              <span>Dispersión & Pagos</span>
-            </button>
-
-            <button
-              onClick={() => onModuleChange('integraciones')}
-              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
-                activeModule === 'integraciones'
-                  ? 'bg-[#facc15] text-slate-950 shadow-md font-black'
-                  : 'text-white/90 hover:bg-white/15 hover:text-white'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>Integraciones (ESB)</span>
-            </button>
-          </nav>
-        </div>
-
-        {/* Right Tools & User Session */}
-        <div className="flex items-center gap-3">
-          {/* User Profile Badge & Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition text-white"
-            >
-              <div className="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 font-black text-xs flex items-center justify-center shadow">
-                {currentUser.avatarInitials}
-              </div>
-              <div className="text-left hidden md:block">
-                <span className="text-xs font-bold text-white block max-w-[140px] truncate leading-tight">
-                  {currentUser.name}
-                </span>
-                <span className="text-[10px] text-yellow-300 font-medium block">
-                  {currentUser.branch}
-                </span>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-white/80" />
-            </button>
-
-            {/* Dropdown Menu */}
-            {userDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white text-slate-800 border border-blue-100 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
-                <div className="px-3 py-2 border-b border-slate-100">
-                  <p className="text-xs font-bold text-slate-900">{currentUser.name}</p>
-                  <p className="text-[11px] text-slate-500">{currentUser.email}</p>
-                  <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                    {currentUser.roleLabel}
-                  </span>
-                </div>
-
-                <div className="py-1 text-xs text-slate-600">
-                  <div className="px-3 py-1.5 text-[11px] flex items-center gap-2">
-                    <Building className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Sucursal: {currentUser.branch}</span>
-                  </div>
-                </div>
-
-                <div className="pt-1 border-t border-slate-100">
-                  <button
-                    onClick={() => {
-                      setUserDropdownOpen(false);
-                      onLogout();
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 text-xs font-bold flex items-center gap-2 transition"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Cerrar Sesión</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+        <div className="min-w-0">
+          <h1 className="text-base lg:text-lg font-bold text-slate-900 tracking-tight truncate">
+            {currentMeta.title}
+          </h1>
+          <p className="hidden sm:block text-xs text-slate-500 truncate">
+            {currentMeta.subtitle}
+          </p>
         </div>
       </div>
 
-      {/* Sub-bar Navigation for Mobile Screens */}
-      <div className="xl:hidden px-3 py-2 bg-[#1b43bc] border-t border-blue-400/20 flex items-center gap-1.5 overflow-x-auto text-xs font-bold">
-        <button
-          onClick={() => onModuleChange('crm')}
-          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
-            activeModule === 'crm' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
-          }`}
-        >
-          CRM Originación
-        </button>
-        <button
-          onClick={() => onModuleChange('core_dashboard')}
-          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
-            activeModule === 'core_dashboard' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
-          }`}
-        >
-          Buscador Core
-        </button>
-        <button
-          onClick={() => onModuleChange('personas')}
-          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
-            activeModule === 'personas' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
-          }`}
-        >
-          Personas
-        </button>
-        <button
-          onClick={() => onModuleChange('distribuidores')}
-          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
-            activeModule === 'distribuidores' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
-          }`}
-        >
-          Distribuidores
-        </button>
-        <button
-          onClick={() => onModuleChange('rh')}
-          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
-            activeModule === 'rh' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
-          }`}
-        >
-          RH & GPS
-        </button>
-        <button
-          onClick={() => onModuleChange('dispersion')}
-          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
-            activeModule === 'dispersion' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
-          }`}
-        >
-          Dispersión STP
-        </button>
-        <button
+      {/* Right: Omnibar Search, Live Status, Quick Action & User Menu */}
+      <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+        {/* Omnibar Search */}
+        <div className="relative hidden md:block w-52 lg:w-72">
+          <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            placeholder="Buscar vale, crédito, folio o CURP..."
+            className="w-full pl-9 pr-3 py-1.5 bg-slate-100/80 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+          />
+        </div>
+
+        {/* Live Service Indicator */}
+        <div
           onClick={() => onModuleChange('integraciones')}
-          className={`px-3 py-1 rounded-lg whitespace-nowrap ${
-            activeModule === 'integraciones' ? 'bg-[#facc15] text-slate-950' : 'text-white/80'
-          }`}
+          className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-xs font-semibold cursor-pointer transition select-none"
+          title="Ver estado de integraciones ESB"
         >
-          Integraciones ESB
-        </button>
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span>Nubarium & STP Activo</span>
+        </div>
+
+        {/* Quick Action Button */}
+        {onOpenNewLead && (
+          <button
+            onClick={onOpenNewLead}
+            className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Nuevo Prospecto</span>
+          </button>
+        )}
+
+        {/* User Profile Badge & Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+            className="flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200/80 transition text-slate-800"
+          >
+            <div className="w-7 h-7 rounded-lg bg-[#facc15] text-slate-950 font-black text-xs flex items-center justify-center shadow-xs">
+              {currentUser.avatarInitials || 'LH'}
+            </div>
+            <div className="text-left hidden sm:block">
+              <span className="text-xs font-bold text-slate-900 block max-w-[120px] truncate leading-tight">
+                {currentUser.name}
+              </span>
+              <span className="text-[10px] text-slate-500 font-medium block">
+                {currentUser.branch || 'Matriz'}
+              </span>
+            </div>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          </button>
+
+          {/* User Dropdown */}
+          {userDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-64 bg-white text-slate-800 border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in zoom-in-95">
+              <div className="px-3 py-2 border-b border-slate-100">
+                <p className="text-xs font-bold text-slate-900">{currentUser.name}</p>
+                <p className="text-[11px] text-slate-500">{currentUser.email}</p>
+                <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                  {currentUser.roleLabel || 'Administrador'}
+                </span>
+              </div>
+
+              <div className="py-1 text-xs text-slate-600">
+                <div className="px-3 py-1.5 text-[11px] flex items-center gap-2">
+                  <Building className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Sucursal: {currentUser.branch || 'Matriz'}</span>
+                </div>
+              </div>
+
+              <div className="pt-1 border-t border-slate-100">
+                <button
+                  onClick={() => {
+                    setUserDropdownOpen(false);
+                    onLogout();
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 text-xs font-bold flex items-center gap-2 transition"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Cerrar Sesión</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

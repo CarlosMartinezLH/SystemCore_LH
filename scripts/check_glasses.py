@@ -30,3 +30,4 @@ if __name__ == "__main__":
     
     result = check_image(data)
     print(json.dumps(result))
+
