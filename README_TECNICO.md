@@ -269,10 +269,11 @@ npm run build
 npm run start
 ```
 
-### 7.2. Aplicaciones Móviles (Flutter / Android)
+### 7.2. Aplicaciones Móviles Multiplataforma (Flutter / Android & iOS iPhone)
 ```bash
 cd mobile_app
 
+# --- A. ANDROID ---
 # Compilar APK Release de LanApp (Distribuidoras & Canje):
 flutter build apk --flavor lanapp -t lib/main_lanapp.dart
 
@@ -282,6 +283,18 @@ flutter build apk --flavor asesores -t lib/main_asesores.dart
 # Instalación en dispositivo físico vía ADB:
 adb -s <DEVICE_ID> install -r build/app/outputs/flutter-apk/app-lanapp-release.apk
 adb -s <DEVICE_ID> install -r build/app/outputs/flutter-apk/app-asesores-release.apk
+
+# --- B. APPLE iOS (iPHONE / TESTFLIGHT) ---
+# 1. Obtener dependencias y pods nativos de iOS:
+flutter pub get
+cd ios && pod install && cd ..
+
+# 2. Ejecución en Simulador de iPhone (sin equipo físico):
+open -a Simulator
+flutter run -t lib/main_lanapp.dart
+
+# 3. Compilación de paquete .ipa para distribución TestFlight / App Store:
+flutter build ipa -t lib/main_lanapp.dart --export-method app-store
 ```
 
 ---
