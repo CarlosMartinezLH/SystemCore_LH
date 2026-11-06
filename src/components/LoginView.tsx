@@ -112,7 +112,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 </>
               ) : (
                 <>
-                  <span>Ingresar a SystemCore</span>
+                  <span>Ingresar</span>
                   <ArrowRight className="w-4 h-4 text-slate-950" />
                 </>
               )}
