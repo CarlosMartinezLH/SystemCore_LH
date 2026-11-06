@@ -86,173 +86,145 @@ export default function CoreDashboard({
   });
 
   return (
-    <div className="flex-1 bg-[#f0f4fa] text-slate-800 flex flex-col md:flex-row min-h-[calc(100vh-105px)] overflow-hidden font-sans">
-      {/* LEFT SIDEBAR: OPCIONES (Identical to PersonasView and RHView) */}
-      <aside className="w-full md:w-64 bg-white border-r border-blue-100 p-3 flex flex-col justify-between overflow-y-auto shadow-sm">
-        <div className="space-y-4">
-          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 overflow-hidden shadow-xs">
-            <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white px-4 py-2.5 text-xs font-black flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Search className="w-4 h-4 text-[#facc15]" />
-                Buscador Core
-              </span>
-              <span className="text-[10px] bg-white/20 px-2 py-0.2 rounded-full font-bold">
-                Financial
-              </span>
-            </div>
-            <div className="p-2 space-y-0.5 text-xs">
-              {[
-                { id: 'todos', name: 'Búsqueda Global (Todos)', icon: Search, count: `${distribuidores.length + creditos.length}` },
-                { id: 'distribuidores', name: 'Distribuidores por DV', icon: Briefcase, count: distribuidores.length },
-                { id: 'creditos', name: 'Créditos y Vales', icon: FileText, count: creditos.length },
-              ].map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => {
-                    setActiveTab(opt.id as any);
-                    setSelectedDv(null);
-                    setSelectedCredito(null);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl transition flex items-center justify-between font-medium ${
-                    activeTab === opt.id
-                      ? 'bg-[#2563eb] text-white font-bold hover:bg-blue-700 shadow-xs'
-                      : 'text-slate-700 hover:bg-blue-100/60 hover:text-blue-900'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    <opt.icon className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="truncate">{opt.name}</span>
-                  </div>
-                  <span
-                    className={`text-[10px] px-2 py-0.2 rounded-full font-bold ${
-                      activeTab === opt.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    {opt.count}
-                  </span>
-                </button>
-              ))}
-
-              <div className="pt-2 border-t border-blue-200/60 my-1 space-y-1">
-                <button
-                  onClick={onNavigateToPersonas}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-100/60 font-semibold flex items-center gap-2 transition"
-                >
-                  <Users className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Padrón de Personas</span>
-                </button>
-
-                <button
-                  onClick={onNavigateToDistribuidores}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-100/60 font-semibold flex items-center gap-2 transition"
-                >
-                  <Briefcase className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Red de Distribuidores</span>
-                </button>
-
-                {onNavigateToDispersion && (
-                  <button
-                    onClick={onNavigateToDispersion}
-                    className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-100/60 font-semibold flex items-center gap-2 transition"
-                  >
-                    <CreditCard className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Dispersión & Pagos</span>
-                  </button>
-                )}
-
-                <button
-                  onClick={() => alert('Abriendo bitácora y notas de gestoría...')}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-100/60 font-semibold flex items-center gap-2 transition"
-                >
-                  <FileText className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Notas de Gestoría</span>
-                </button>
-
-                <button
-                  onClick={() => alert('Canal seguro y anónimo de Prevención de Lavado de Dinero (PLD) LanAhora')}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold flex items-center gap-2 transition shadow-xs"
-                >
-                  <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Reportar Anónimo PLD</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Exportar */}
-          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 p-2">
+    <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-6 space-y-4">
+      {/* Top Action Toolbar: Botones de Acción y Filtros sobre la pantalla */}
+      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        {/* Left: Module Tabs as segmented buttons */}
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
+          {[
+            { id: 'todos', name: 'Búsqueda Global', icon: Search, count: `${distribuidores.length + creditos.length}` },
+            { id: 'distribuidores', name: 'Distribuidores por DV', icon: Briefcase, count: distribuidores.length },
+            { id: 'creditos', name: 'Créditos y Vales', icon: FileText, count: creditos.length },
+          ].map((opt) => (
             <button
-              onClick={() => alert('Exportando resultados de búsqueda en formato Microsoft Excel (.xlsx)...')}
-              className="w-full text-left px-3 py-2 rounded-xl text-xs text-emerald-700 font-bold hover:bg-emerald-100/50 flex items-center gap-2 transition"
+              key={opt.id}
+              onClick={() => {
+                setActiveTab(opt.id as any);
+                setSelectedDv(null);
+                setSelectedCredito(null);
+              }}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
+                activeTab === opt.id
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+              }`}
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-              <span>Exportar Consulta a Excel</span>
+              <opt.icon className="w-3.5 h-3.5" />
+              <span>{opt.name}</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  activeTab === opt.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                }`}
+              >
+                {opt.count}
+              </span>
             </button>
-          </div>
+          ))}
         </div>
 
-        {/* Selected Record or Status Card (Identical to PersonasView and RHView) */}
-        <div className="p-3 bg-[#eff4fc] rounded-2xl border border-blue-200 text-xs text-slate-700 mt-3">
+        {/* Right: Complementary Actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          {onNavigateToPersonas && (
+            <button
+              onClick={onNavigateToPersonas}
+              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+            >
+              <Users className="w-3.5 h-3.5 text-blue-600" />
+              <span>Padrón Personas</span>
+            </button>
+          )}
+
+          {onNavigateToDistribuidores && (
+            <button
+              onClick={onNavigateToDistribuidores}
+              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+            >
+              <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+              <span>Red DV</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => alert('Abriendo bitácora y notas de gestoría...')}
+            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <FileText className="w-3.5 h-3.5 text-slate-500" />
+            <span>Notas Gestoría</span>
+          </button>
+
+          <button
+            onClick={() => alert('Canal seguro y anónimo de Prevención de Lavado de Dinero (PLD) LanAhora')}
+            className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs flex items-center gap-1.5 transition"
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+            <span>PLD Anónimo</span>
+          </button>
+
+          <button
+            onClick={() => alert('Exportando resultados de búsqueda en formato Microsoft Excel (.xlsx)...')}
+            className="px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-2 border border-emerald-200 transition"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Exportar Excel</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Selected Item Detail Banner (if active) */}
+      {(selectedDv || selectedCredito) && (
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl flex items-center justify-between shadow-xs">
           {selectedDv ? (
-            <div>
-              <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
-                Distribuidora Seleccionada:
-              </span>
-              <span className="font-mono text-slate-900 font-black block text-sm">
+            <div className="flex flex-wrap items-center gap-4 text-xs">
+              <span className="font-extrabold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
                 DV #{selectedDv.noDist}
               </span>
-              <span className="truncate block font-bold text-slate-800 mt-0.5">
+              <span className="font-bold text-slate-900 text-sm">
                 {selectedDv.nombreDistribuidor}
               </span>
-              <span className="text-[10px] text-slate-500 block">
+              <span className="text-slate-500">
                 {selectedDv.sucursal} • Nivel {selectedDv.nivel}
               </span>
-              <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
-                <span className="text-emerald-700 font-bold">Línea: ${selectedDv.creditoLimite.toLocaleString('es-MX')}</span>
-                <span className="text-rose-600 font-mono font-bold">Saldo: ${selectedDv.saldoActual.toLocaleString('es-MX')}</span>
-              </div>
+              <span className="text-emerald-700 font-bold">
+                Línea: ${selectedDv.creditoLimite.toLocaleString('es-MX')}
+              </span>
+              <span className="text-rose-600 font-mono font-bold">
+                Saldo: ${selectedDv.saldoActual.toLocaleString('es-MX')}
+              </span>
             </div>
           ) : selectedCredito ? (
-            <div>
-              <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
-                Crédito Seleccionado:
-              </span>
-              <span className="font-mono text-slate-900 font-black block text-sm">
+            <div className="flex flex-wrap items-center gap-4 text-xs">
+              <span className="font-extrabold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
                 {selectedCredito.creditoId}
               </span>
-              <span className="truncate block font-bold text-slate-800 mt-0.5">
+              <span className="font-bold text-slate-900 text-sm">
                 {selectedCredito.clienteNombre}
               </span>
-              <span className="text-[10px] text-slate-500 block">
-                Vale {selectedCredito.noVale} • DV #{selectedCredito.noDist}
+              <span className="text-slate-500">
+                Vale: {selectedCredito.noVale} • DV #{selectedCredito.noDist}
               </span>
-              <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
-                <span className="text-blue-700 font-bold">Monto: ${selectedCredito.monto.toLocaleString('es-MX')}</span>
-                <span className="text-emerald-700 font-bold">✓ {selectedCredito.estatus}</span>
-              </div>
+              <span className="text-blue-700 font-bold">
+                Monto: ${selectedCredito.monto.toLocaleString('es-MX')}
+              </span>
+              <span className="text-emerald-700 font-bold">
+                ✓ {selectedCredito.estatus}
+              </span>
             </div>
-          ) : (
-            <div>
-              <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
-                Servidor Core Central:
-              </span>
-              <span className="font-mono text-slate-900 font-black block text-sm">
-                Base de Datos Core LH
-              </span>
-              <span className="block font-semibold text-slate-700 mt-0.5">
-                core.lanahora.com.mx
-              </span>
-              <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
-                <span className="text-emerald-700 font-bold">✓ Conexión en Línea</span>
-                <span className="text-slate-500 font-mono">122,144 reg.</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </aside>
+          ) : null}
 
-      {/* MAIN CONTENT AREA: Identical to PersonasView and RHView */}
-      <main className="flex-1 p-4 overflow-x-auto flex flex-col space-y-3">
+          <button
+            onClick={() => {
+              setSelectedDv(null);
+              setSelectedCredito(null);
+            }}
+            className="text-slate-400 hover:text-slate-700 text-xs font-bold px-2 py-1 rounded-lg hover:bg-white transition"
+          >
+            ✕ Cerrar selección
+          </button>
+        </div>
+      )}
+
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-1 overflow-x-auto flex flex-col space-y-3">
         {/* Search & Stats Bar */}
         <div className="bg-white p-3 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-xs">
           <div className="flex flex-wrap items-center gap-3">
@@ -632,7 +604,7 @@ export default function CoreDashboard({
             </div>
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

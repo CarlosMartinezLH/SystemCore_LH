@@ -145,109 +145,143 @@ export default function PersonasView() {
   };
 
   return (
-    <div className="flex-1 bg-[#f0f4fa] text-slate-800 flex flex-col md:flex-row min-h-[calc(100vh-105px)] overflow-hidden font-sans">
-      {/* LEFT SIDEBAR: OPCIONES */}
-      <aside className="w-full md:w-64 bg-white border-r border-blue-100 p-3 flex flex-col justify-between overflow-y-auto shadow-sm">
-        <div className="space-y-4">
-          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 overflow-hidden shadow-xs">
-            <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white px-4 py-2.5 text-xs font-black flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-[#facc15]" />
-                Acciones de Persona
+    <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-6 space-y-4">
+      {/* Top Action Toolbar: Botones de Acción sobre la pantalla */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        {/* Left: Quick Actions Group */}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => handleAction('Captura de cliente')}
+            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 shadow-xs transition"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>+ Captura de Cliente</span>
+          </button>
+
+          <button
+            onClick={() => handleAction('Canjear Vale')}
+            className="px-3.5 py-2 rounded-xl bg-[#facc15] hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center gap-2 shadow-xs transition"
+          >
+            <Barcode className="w-3.5 h-3.5 text-slate-950" />
+            <span>Canjear Vale</span>
+          </button>
+
+          <button
+            onClick={() => handleAction('Solicitar buró')}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+            <span>Solicitar Buró</span>
+          </button>
+
+          <button
+            onClick={() => handleAction('Expediente digital')}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <FolderOpen className="w-3.5 h-3.5 text-blue-600" />
+            <span>Expediente</span>
+          </button>
+
+          <button
+            onClick={() => handleAction('Datos Bancarios (Nuevo)')}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+            <span>Datos Bancarios</span>
+          </button>
+
+          <button
+            onClick={() => handleAction('Establecer como distribuidor')}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <ArrowRightLeft className="w-3.5 h-3.5 text-blue-600" />
+            <span>Asignar DV</span>
+          </button>
+
+          <button
+            onClick={() => handleAction('Imprimir Carta Prestanombres')}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <Printer className="w-3.5 h-3.5 text-slate-500" />
+            <span>Carta Prestanombres</span>
+          </button>
+        </div>
+
+        {/* Right: Export Excel Button */}
+        <div>
+          <button
+            onClick={handleExportCSV}
+            className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-2 border border-emerald-200 transition"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Exportar Excel</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Selected Persona Floating Indicator */}
+      {selectedPersona && (
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <span className="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center text-xs">
+              #{selectedPersona.personaId}
+            </span>
+            <div>
+              <span className="font-extrabold text-slate-900 text-sm">
+                {selectedPersona.nombre} {selectedPersona.apellidoPaterno} {selectedPersona.apellidoMaterno}
               </span>
-              <span className="text-[10px] bg-white/20 px-2 py-0.2 rounded-full font-bold">
-                Core
+              <span className="text-slate-500 block text-[11px] font-mono">
+                CURP: {selectedPersona.curp} • Tel: {selectedPersona.telefono || '871-120-3344'} • RFC: {selectedPersona.rfc}
               </span>
-            </div>
-            <div className="p-2 space-y-0.5 text-xs">
-              {[
-                { name: 'Captura de cliente', icon: UserPlus, highlight: true },
-                { name: 'Solicitar buró', icon: ShieldCheck },
-                { name: 'Establecer como distribuidor', icon: ArrowRightLeft },
-                { name: 'Datos Bancarios (Nuevo)', icon: CreditCard },
-                { name: 'Expediente digital', icon: FolderOpen },
-                { name: 'Canjear Vale', icon: Barcode, highlight: true },
-                { name: 'Imprimir Carta Prestanombres', icon: Printer },
-                { name: 'Notas', icon: FileText },
-                { name: 'Gestor Documental', icon: ExternalLink },
-              ].map((opt) => (
-                <button
-                  key={opt.name}
-                  onClick={() => handleAction(opt.name)}
-                  className={`w-full text-left px-3 py-2 rounded-xl transition flex items-center gap-2 font-medium ${
-                    opt.highlight
-                      ? 'bg-[#2563eb] text-white font-bold hover:bg-blue-700 shadow-xs'
-                      : 'text-slate-700 hover:bg-blue-100/60 hover:text-blue-900'
-                  }`}
-                >
-                  <opt.icon className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="truncate">{opt.name}</span>
-                </button>
-              ))}
             </div>
           </div>
 
-          {/* Exportar */}
-          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 p-2">
+          <div className="flex items-center gap-2">
             <button
-              onClick={handleExportCSV}
-              className="w-full text-left px-3 py-2 rounded-xl text-xs text-emerald-700 font-bold hover:bg-emerald-100/50 flex items-center gap-2 transition"
+              onClick={() => handleAction('Canjear Vale')}
+              className="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-              <span>Exportar Padrón a Excel (CSV)</span>
+              Canjear Vale a este Cliente
+            </button>
+            <button
+              onClick={() => handleAction('Expediente digital')}
+              className="px-3 py-1.5 rounded-lg bg-white border border-blue-200 text-blue-700 font-bold text-xs hover:bg-blue-50 transition"
+            >
+              Ver Expediente
             </button>
           </div>
         </div>
+      )}
 
-        {selectedPersona && (
-          <div className="p-3 bg-[#eff4fc] rounded-2xl border border-blue-200 text-xs text-slate-700 mt-3">
-            <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
-              Seleccionada:
-            </span>
-            <span className="font-mono text-slate-900 font-black block text-sm">
-              ID #{selectedPersona.personaId}
-            </span>
-            <span className="truncate block font-bold text-slate-800 mt-0.5">
-              {selectedPersona.nombre} {selectedPersona.apellidoPaterno}
-            </span>
-            <span className="text-[10px] text-slate-500 block font-mono">
-              CURP: {selectedPersona.curp}
-            </span>
-          </div>
-        )}
-      </aside>
-
-      {/* MAIN CONTENT AREA: Data Table */}
-      <main className="flex-1 p-4 overflow-x-auto flex flex-col space-y-3">
-        {/* Search & Stats Bar */}
-        <div className="bg-white p-3 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-xs">
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="w-4 h-4 text-blue-600 absolute left-3 top-2.5" />
-              <input
-                type="text"
-                placeholder="Buscar por Nombre, CURP, PersonaID..."
-                value={searchFilter}
-                onChange={(e) => setSearchFilter(e.target.value)}
-                className="pl-9 pr-4 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs w-80 text-slate-900 focus:outline-none focus:border-[#2563eb] focus:bg-white font-medium"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-500 font-medium">
-              Mostrando <strong className="text-[#2563eb]">{filtered.length}</strong> registros en padrón
-            </span>
+      {/* Search & Stats Bar */}
+      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              placeholder="Buscar por Nombre, CURP, PersonaID..."
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              className="pl-9 pr-4 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs w-72 md:w-96 text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white font-medium transition"
+            />
           </div>
         </div>
 
-        {/* Table Container */}
-        <div className="bg-white rounded-2xl border border-blue-100 overflow-hidden shadow-xs flex-1">
-          <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-            <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
-              <tr>
-                <th className="px-3.5 py-2.5">Acciones</th>
-                <th className="px-3.5 py-2.5">Persona ID</th>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-slate-500 font-medium">
+            Mostrando <strong className="text-blue-700 font-bold">{filtered.length}</strong> registros en padrón
+          </span>
+        </div>
+      </div>
+
+      {/* Table Container */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs flex-1">
+        <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
+          <thead className="bg-slate-100 text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-200">
+            <tr>
+              <th className="px-3.5 py-3">Acciones</th>
+              <th className="px-3.5 py-3">Persona ID</th>
                 <th className="px-3.5 py-2.5">Nombre</th>
                 <th className="px-3.5 py-2.5">Apellido Paterno</th>
                 <th className="px-3.5 py-2.5">Apellido Materno</th>
@@ -330,7 +364,6 @@ export default function PersonasView() {
             </tbody>
           </table>
         </div>
-      </main>
 
       {/* MODALS */}
       <SolicitarBuroModal

@@ -100,86 +100,62 @@ export default function IntegracionesView() {
   };
 
   return (
-    <div className="flex-1 bg-[#f0f4fa] text-slate-800 flex flex-col md:flex-row min-h-[calc(100vh-105px)] overflow-hidden font-sans">
-      {/* LEFT SIDEBAR: SERVICES (Identical to PersonasView) */}
-      <aside className="w-full md:w-64 bg-white border-r border-blue-100 p-3 flex flex-col justify-between overflow-y-auto shadow-sm">
-        <div className="space-y-4">
-          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 overflow-hidden shadow-xs">
-            <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white px-4 py-2.5 text-xs font-black flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-[#facc15]" />
-                Capa de Integración
-              </span>
-              <span className="text-[10px] bg-white/20 px-2 py-0.2 rounded-full font-bold">
-                ESB / API
-              </span>
-            </div>
-            <div className="p-2 space-y-0.5 text-xs">
-              {services.map((srv) => {
-                const isSelected = selectedServiceId === srv.id;
-                return (
-                  <button
-                    key={srv.id}
-                    onClick={() => {
-                      setSelectedServiceId(srv.id);
-                      setTestResponse(null);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-xl transition flex items-center justify-between font-medium ${
-                      isSelected
-                        ? 'bg-[#2563eb] text-white font-bold hover:bg-blue-700 shadow-xs'
-                        : 'text-slate-700 hover:bg-blue-100/60 hover:text-blue-900'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      {srv.type === 'BURO_CREDITO' ? (
-                        <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" />
-                      ) : srv.type === 'STP_SPEI' ? (
-                        <CreditCard className="w-3.5 h-3.5 flex-shrink-0" />
-                      ) : srv.type === 'PAYNET_RECIBOS' ? (
-                        <Barcode className="w-3.5 h-3.5 flex-shrink-0" />
-                      ) : (
-                        <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
-                      )}
-                      <span className="truncate">{srv.name.split(' ')[0]}</span>
-                    </div>
-                    <span
-                      className={`text-[9px] px-2 py-0.2 rounded-full font-bold ${
-                        isSelected ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
-                      }`}
-                    >
-                      {srv.status}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 p-3 text-xs space-y-1">
-            <span className="font-bold text-blue-900 block">Arquitectura LanAhora</span>
-            <p className="text-[11px] text-slate-500">
-              Gateway unificado bajo balanceador y proxy inverso NGINX con certificados mTLS y VPN IPsec.
-            </p>
-          </div>
+    <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-6 space-y-4">
+      {/* Top Action Toolbar: Selector de Servicios y Filtros sobre la pantalla */}
+      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        {/* Left: Services as Segmented Pills */}
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
+          {services.map((srv) => {
+            const isSelected = selectedServiceId === srv.id;
+            return (
+              <button
+                key={srv.id}
+                onClick={() => {
+                  setSelectedServiceId(srv.id);
+                  setTestResponse(null);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
+                  isSelected
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
+              >
+                {srv.type === 'BURO_CREDITO' ? (
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                ) : srv.type === 'STP_SPEI' ? (
+                  <CreditCard className="w-3.5 h-3.5" />
+                ) : srv.type === 'PAYNET_RECIBOS' ? (
+                  <Barcode className="w-3.5 h-3.5" />
+                ) : (
+                  <Layers className="w-3.5 h-3.5" />
+                )}
+                <span>{srv.name.split(' (')[0]}</span>
+                <span
+                  className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
+                    isSelected ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
+                  }`}
+                >
+                  {srv.status}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Status Card */}
-        <div className="p-3 bg-[#eff4fc] rounded-2xl border border-blue-200 text-xs text-slate-700 mt-3">
-          <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
-            API Gateway Estado:
-          </span>
-          <span className="font-mono text-slate-900 font-black block text-sm">
-            6 / 6 Servicios Activos
-          </span>
-          <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
-            <span className="text-emerald-700 font-bold">✓ 99.8% Disponibilidad</span>
-            <span className="text-slate-500 font-mono">24/7</span>
+        {/* Right: ESB Status Indicator */}
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-800 text-xs font-semibold">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>6/6 Servicios ESB Activos (99.8%)</span>
           </div>
         </div>
-      </aside>
+      </div>
 
       {/* MAIN CONTENT AREA: Console & Service Details */}
-      <main className="flex-1 p-4 overflow-x-auto flex flex-col space-y-3">
+      <div className="flex-1 overflow-x-auto flex flex-col space-y-3">
         {/* Top Service Title Card */}
         <div className="bg-white p-4 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-xs">
           <div>
@@ -251,7 +227,7 @@ export default function IntegracionesView() {
             {testResponse || `// Pulsa "Probar Conexión (Ping API)" para enviar una petición real simulada a ${selectedService.name}.\n{\n  "service": "${selectedService.id}",\n  "status": "READY_FOR_DISPATCH",\n  "endpoint": "${selectedService.endpoint}"\n}`}
           </pre>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

@@ -101,90 +101,117 @@ export default function DistribuidoresView() {
   };
 
   return (
-    <div className="flex-1 bg-[#f0f4fa] text-slate-800 flex flex-col md:flex-row min-h-[calc(100vh-105px)] overflow-hidden font-sans">
-      {/* LEFT SIDEBAR: OPCIONES */}
-      <aside className="w-full md:w-64 bg-white border-r border-blue-100 p-3 flex flex-col justify-between overflow-y-auto shadow-sm">
-        <div className="space-y-4">
-          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 overflow-hidden shadow-xs">
-            <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white px-4 py-2.5 text-xs font-black flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Briefcase className="w-4 h-4 text-[#facc15]" />
-                Acciones de Distribuidor
-              </span>
-              <span className="text-[10px] bg-white/20 px-2 py-0.2 rounded-full font-bold">
-                Core
-              </span>
-            </div>
-            <div className="p-2 space-y-0.5 text-xs">
-              {[
-                { name: 'Estado de Cuenta', icon: FileText, highlight: true },
-                { name: 'Cartera de Clientes', icon: Users },
-                { name: 'Relación de Cobro', icon: FileSpreadsheet },
-                { name: 'Recibos Emitidos', icon: CheckCircle2 },
-                { name: 'Mensajes Masivos WhatsApp', icon: MessageSquare },
-                { name: 'Quitar Castigo / Reactivar', icon: Unlock },
-                { name: 'Notificación LanaApp', icon: Smartphone, highlightYellow: true },
-              ].map((opt) => (
-                <button
-                  key={opt.name}
-                  onClick={() => handleActionClick(opt.name)}
-                  className={`w-full text-left px-3 py-2 rounded-xl transition flex items-center gap-2 font-medium ${
-                    opt.highlight
-                      ? 'bg-[#2563eb] text-white font-bold hover:bg-blue-700 shadow-xs'
-                      : opt.highlightYellow
-                      ? 'bg-[#facc15] text-slate-950 font-black hover:bg-yellow-400 shadow-xs'
-                      : 'text-slate-700 hover:bg-blue-100/60 hover:text-blue-900'
-                  }`}
-                >
-                  <opt.icon className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="truncate">{opt.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+    <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-6 space-y-4">
+      {/* Top Action Toolbar: Botones de Acción sobre la pantalla */}
+      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        {/* Left: Quick Actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => handleActionClick('Estado de Cuenta')}
+            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 shadow-xs transition"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Estado de Cuenta</span>
+          </button>
 
-          {/* Exportar */}
-          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 p-2">
-            <button
-              onClick={handleExportXLS}
-              className="w-full text-left px-3 py-2 rounded-xl text-xs text-emerald-700 font-bold hover:bg-emerald-100/50 flex items-center gap-2 transition"
-            >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-              <span>Exportar Padrón a Excel (XLS)</span>
-            </button>
-          </div>
+          <button
+            onClick={() => handleActionClick('Cartera de Clientes')}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <Users className="w-3.5 h-3.5 text-blue-600" />
+            <span>Cartera Clientes</span>
+          </button>
+
+          <button
+            onClick={() => handleActionClick('Relación de Cobro')}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-blue-600" />
+            <span>Relación de Cobro</span>
+          </button>
+
+          <button
+            onClick={() => handleActionClick('Recibos Emitidos')}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+            <span>Recibos Emitidos</span>
+          </button>
+
+          <button
+            onClick={() => handleActionClick('Notificación LanaApp')}
+            className="px-3.5 py-2 rounded-xl bg-[#facc15] hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-xs transition"
+          >
+            <Smartphone className="w-3.5 h-3.5 text-slate-950" />
+            <span>Notificación LanaApp</span>
+          </button>
+
+          <button
+            onClick={() => handleActionClick('Mensajes Masivos WhatsApp')}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+            <span>WhatsApp Masivo</span>
+          </button>
+
+          <button
+            onClick={() => handleActionClick('Quitar Castigo / Reactivar')}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          >
+            <Unlock className="w-3.5 h-3.5 text-amber-600" />
+            <span>Reactivar DV</span>
+          </button>
         </div>
 
-        {selectedDist && (
-          <div className="p-3 bg-[#eff4fc] rounded-2xl border border-blue-200 text-xs text-slate-700 mt-3">
-            <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
-              Distribuidora Seleccionada:
-            </span>
-            <span className="font-mono text-slate-900 font-black block text-sm">
+        {/* Right: Export Button */}
+        <div>
+          <button
+            onClick={handleExportXLS}
+            className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-2 border border-emerald-200 transition"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Exportar Excel</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Selected Distribuidor Banner */}
+      {selectedDist && (
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl flex items-center justify-between shadow-xs">
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <span className="font-extrabold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
               DV #{selectedDist.noDist}
             </span>
-            <span className="truncate block font-bold text-slate-800 mt-0.5">
+            <span className="font-bold text-slate-900 text-sm">
               {selectedDist.nombreDistribuidor}
             </span>
-            <span className="text-[10px] text-slate-500 block truncate font-mono">
-              Coord: {selectedDist.coordinador}
+            <span className="text-slate-500">
+              Coord: {selectedDist.coordinador} • {selectedDist.sucursal}
             </span>
-            <div className="mt-1.5 flex items-center gap-1.5">
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">
-                {selectedDist.nivel}
-              </span>
-              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                selectedDist.estatus === 'ACTIVO' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-              }`}>
-                {selectedDist.estatus}
-              </span>
-            </div>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+              {selectedDist.nivel}
+            </span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              selectedDist.estatus === 'ACTIVO' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+            }`}>
+              {selectedDist.estatus}
+            </span>
+            <span className="text-emerald-700 font-bold">
+              Disp: ${selectedDist.disponible.toLocaleString('es-MX')}
+            </span>
           </div>
-        )}
-      </aside>
+
+          <button
+            onClick={() => setSelectedNoDist(null)}
+            className="text-slate-400 hover:text-slate-700 text-xs font-bold px-2 py-1 rounded-lg hover:bg-white transition"
+          >
+            ✕ Cerrar selección
+          </button>
+        </div>
+      )}
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto min-w-0">
+      <div className="flex-1 flex flex-col space-y-4 overflow-y-auto min-w-0">
         {/* Filter Search Input Bar */}
         <div className="bg-white p-3.5 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-sm">
           <div className="flex items-center gap-3 flex-1 max-w-2xl">
@@ -305,7 +332,7 @@ export default function DistribuidoresView() {
           </tbody>
         </table>
       </div>
-      </main>
+      </div>
 
       {/* MODALS */}
       <EstadoCuentaModal

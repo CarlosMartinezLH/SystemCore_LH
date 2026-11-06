@@ -213,108 +213,95 @@ export default function RHView() {
   const selectedEmployee = employees.find((e) => e.id === selectedEmpId) || employees[0];
 
   return (
-    <div className="flex-1 bg-[#f0f4fa] text-slate-800 flex flex-col md:flex-row min-h-[calc(100vh-105px)] overflow-hidden font-sans">
-      {/* LEFT SIDEBAR: OPCIONES (Identical to PersonasView) */}
-      <aside className="w-full md:w-64 bg-white border-r border-blue-100 p-3 flex flex-col justify-between overflow-y-auto shadow-sm">
-        <div className="space-y-4">
-          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 overflow-hidden shadow-xs">
-            <div className="bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] text-white px-4 py-2.5 text-xs font-black flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <UserCheck className="w-4 h-4 text-[#facc15]" />
-                Capital Humano
-              </span>
-              <span className="text-[10px] bg-white/20 px-2 py-0.2 rounded-full font-bold">
-                LH RH
-              </span>
-            </div>
-            <div className="p-2 space-y-0.5 text-xs">
-              {[
-                { id: 'asistencia', name: 'Control de Asistencia & GPS', icon: Clock, count: attendance.length },
-                { id: 'personal', name: 'Padrón de Colaboradores', icon: Users, count: employees.length },
-                { id: 'requisiciones', name: 'Requisiciones & Gafetes', icon: Shirt, count: requisitions.filter((r) => r.status === 'PENDIENTE').length },
-                { id: 'capacitaciones', name: 'Capacitaciones & PLD', icon: GraduationCap, count: INITIAL_TRAINING_COURSES.length },
-              ].map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => setActiveTab(opt.id as any)}
-                  className={`w-full text-left px-3 py-2 rounded-xl transition flex items-center justify-between font-medium ${
-                    activeTab === opt.id
-                      ? 'bg-[#2563eb] text-white font-bold hover:bg-blue-700 shadow-xs'
-                      : 'text-slate-700 hover:bg-blue-100/60 hover:text-blue-900'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    <opt.icon className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="truncate">{opt.name}</span>
-                  </div>
-                  <span
-                    className={`text-[10px] px-2 py-0.2 rounded-full font-bold ${
-                      activeTab === opt.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    {opt.count}
-                  </span>
-                </button>
-              ))}
-
-              <div className="pt-2 border-t border-blue-200/60 my-1 space-y-1">
-                <button
-                  onClick={handleGpsCheckIn}
-                  disabled={gpsLoading}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 transition shadow-xs active:scale-95"
-                >
-                  <MapPin className="w-3.5 h-3.5 text-yellow-300" />
-                  <span>{gpsLoading ? 'Marcando...' : 'Check-in GPS (Calle)'}</span>
-                </button>
-
-                <button
-                  onClick={() => setIsNewReqOpen(true)}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-bold flex items-center gap-2 transition shadow-xs active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5 text-slate-950" />
-                  <span>Solicitar Gafete / Ropa</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Exportar */}
-          <div className="bg-[#eff4fc] rounded-2xl border border-blue-200 p-2">
+    <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-6 space-y-4">
+      {/* Top Action Toolbar: Botones sobre la pantalla */}
+      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        {/* Left: Tab options as segmented pills */}
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
+          {[
+            { id: 'asistencia', name: 'Asistencia & GPS', icon: Clock, count: attendance.length },
+            { id: 'personal', name: 'Colaboradores', icon: Users, count: employees.length },
+            { id: 'requisiciones', name: 'Requisiciones', icon: Shirt, count: requisitions.filter((r) => r.status === 'PENDIENTE').length },
+            { id: 'capacitaciones', name: 'Capacitaciones & PLD', icon: GraduationCap, count: INITIAL_TRAINING_COURSES.length },
+          ].map((opt) => (
             <button
-              onClick={() => alert('Exportando reporte de asistencias y personal a Microsoft Excel (.xlsx)...')}
-              className="w-full text-left px-3 py-2 rounded-xl text-xs text-emerald-700 font-bold hover:bg-emerald-100/50 flex items-center gap-2 transition"
+              key={opt.id}
+              onClick={() => setActiveTab(opt.id as any)}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
+                activeTab === opt.id
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+              }`}
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-              <span>Exportar Reporte a Excel</span>
+              <opt.icon className="w-3.5 h-3.5" />
+              <span>{opt.name}</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  activeTab === opt.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                }`}
+              >
+                {opt.count}
+              </span>
             </button>
-          </div>
+          ))}
         </div>
 
-        {/* Selected Record Summary Card (Identical to PersonasView) */}
-        {selectedEmployee && (
-          <div className="p-3 bg-[#eff4fc] rounded-2xl border border-blue-200 text-xs text-slate-700 mt-3">
-            <span className="text-[10px] text-[#2563eb] font-bold block uppercase tracking-wider">
-              Colaborador Activo:
-            </span>
-            <span className="font-mono text-slate-900 font-black block text-sm">
+        {/* Right: Quick GPS & Requisition Actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleGpsCheckIn}
+            disabled={gpsLoading}
+            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 shadow-xs transition active:scale-95"
+          >
+            <MapPin className="w-3.5 h-3.5 text-yellow-300" />
+            <span>{gpsLoading ? 'Marcando...' : 'Check-in GPS'}</span>
+          </button>
+
+          <button
+            onClick={() => setIsNewReqOpen(true)}
+            className="px-3.5 py-2 rounded-xl bg-[#facc15] hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow-xs transition active:scale-95"
+          >
+            <Plus className="w-3.5 h-3.5 text-slate-950" />
+            <span>+ Requisición Recursos</span>
+          </button>
+
+          <button
+            onClick={() => alert('Exportando reporte de asistencias y personal a Microsoft Excel (.xlsx)...')}
+            className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-2 border border-emerald-200 transition"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Exportar Excel</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Selected Employee Banner (if active) */}
+      {selectedEmployee && (
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl flex items-center justify-between shadow-xs">
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <span className="font-extrabold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
               {selectedEmployee.employeeNumber}
             </span>
-            <span className="truncate block font-bold text-slate-800 mt-0.5">
+            <span className="font-bold text-slate-900 text-sm">
               {selectedEmployee.fullName}
             </span>
-            <span className="text-[10px] text-slate-500 block">
+            <span className="text-slate-500">
               {selectedEmployee.role} • {selectedEmployee.branch}
             </span>
-            <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
-              <span className="text-emerald-700 font-bold">✓ Checador Activo</span>
-              <span className="text-slate-500 font-mono">08:25 AM</span>
-            </div>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+              ✓ Checador Activo
+            </span>
+            {gpsMessage && (
+              <span className="text-blue-700 font-medium font-mono text-[11px]">
+                {gpsMessage}
+              </span>
+            )}
           </div>
-        )}
-      </aside>
+        </div>
+      )}
 
-      {/* MAIN CONTENT AREA: Identical to PersonasView */}
-      <main className="flex-1 p-4 overflow-x-auto flex flex-col space-y-3">
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-1 overflow-x-auto flex flex-col space-y-3">
         {/* Search & Stats Bar */}
         <div className="bg-white p-3 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-xs">
           <div className="flex flex-wrap items-center gap-3">
@@ -718,7 +705,7 @@ export default function RHView() {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* Modal Nueva Requisición */}
       {isNewReqOpen && (
