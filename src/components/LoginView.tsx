@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { UserSession, INSTITUTIONAL_USERS } from '@/types/auth';
-import { Lock, Mail, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { UserSession } from '@/types/auth';
+import { Lock, Mail, ArrowRight, AlertCircle, Loader2, ShieldCheck, ExternalLink } from 'lucide-react';
 
 interface LoginViewProps {
   onLoginSuccess: (user: UserSession) => void;
@@ -13,27 +13,44 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
   const [password, setPassword] = useState('lanahora2026');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isKeycloakLive, setIsKeycloakLive] = useState<boolean | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetch('/api/auth/status')
+      .then((res) => res.json())
+      .then((data) => {
+        setIsKeycloakLive(data.available === true);
+      })
+      .catch(() => {
+        setIsKeycloakLive(false);
+      });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setIsLoading(true);
 
-    setTimeout(() => {
-      const cleanEmail = email.trim().toLowerCase();
-      // Match by exact email and password
-      const matchedUser = INSTITUTIONAL_USERS.find(
-        (u) => u.email.toLowerCase() === cleanEmail && (u.password === password || !u.password)
-      );
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (matchedUser) {
+      const data = await res.json();
+
+      if (res.ok && data.success && data.session) {
         setIsLoading(false);
-        onLoginSuccess(matchedUser);
+        onLoginSuccess(data.session);
       } else {
         setIsLoading(false);
-        setErrorMessage('Credenciales inválidas. Verifique su correo institucional y contraseña.');
+        setErrorMessage(data.error || 'Credenciales inválidas. Verifique su correo institucional y contraseña.');
       }
-    }, 500);
+    } catch {
+      setIsLoading(false);
+      setErrorMessage('Error de conexión al servidor de autenticación.');
+    }
   };
 
   return (
@@ -48,6 +65,27 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
               alt="LanAhora"
               className="h-16 w-auto object-contain"
             />
+          </div>
+
+          {/* Keycloak SSO Status Indicator */}
+          <div className="flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600">
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${isKeycloakLive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+              <span className="font-semibold text-slate-700">
+                {isKeycloakLive ? 'Keycloak SSO Activo • Realm: LanAhora' : 'Autenticación Institucional'}
+              </span>
+            </div>
+            {isKeycloakLive && (
+              <a
+                href="http://localhost:8080/admin/lanahora/console"
+                target="_blank"
+                rel="noreferrer"
+                title="Abrir Consola de Administración Keycloak"
+                className="text-blue-600 hover:text-blue-700 flex items-center gap-1 font-bold text-[10px]"
+              >
+                Admin <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
           </div>
 
           {/* Error Alert */}
@@ -103,12 +141,12 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-2xl bg-[#facc15] hover:bg-amber-400 active:scale-98 text-slate-950 font-black text-sm shadow-md shadow-amber-300/40 transition flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
+              className="w-full py-3 rounded-2xl bg-[#facc15] hover:bg-amber-400 active:scale-98 text-slate-950 font-black text-sm shadow-md shadow-amber-300/40 transition flex items-center justify-center gap-2 mt-2 disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
-                  <span>Verificando credenciales...</span>
+                  <span>Validando con Keycloak OIDC...</span>
                 </>
               ) : (
                 <>
@@ -118,17 +156,15 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
               )}
             </button>
           </form>
-        </div>
-      </div>
 
-      {/* Institutional Legal Footer */}
-      <div className="w-full max-w-md text-center py-2 space-y-1">
-        <p className="text-[11px] text-slate-500 font-medium">
-          Financiera LanAhora S.A. de C.V. SOFOM E.N.R.
-        </p>
-        <p className="text-[10px] text-slate-400">
-          Uso exclusivo para personal autorizado. Todos los accesos son monitoreados.
-        </p>
+          {/* Institutional Compliance Footer */}
+          <div className="pt-2 text-center border-t border-slate-100">
+            <p className="text-[11px] text-slate-400 font-medium flex items-center justify-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>OIDC 2.0 • Tokens Criptográficos RS256</span>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

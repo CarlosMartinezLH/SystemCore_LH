@@ -1,0 +1,238 @@
+{
+  "id": "lanahora",
+  "realm": "lanahora",
+  "displayName": "Financiera LanAhora",
+  "displayNameHtml": "<div class=\"kc-logo-text\"><span>LanAhora</span> SystemCore</div>",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "DIRECTOR_GENERAL",
+        "description": "Acceso total institucional a todas las sucursales y operaciones"
+      },
+      {
+        "name": "MESA_CREDITO",
+        "description": "Dictaminación de riesgos, SAT 69-B, Buró y validación de pagarés"
+      },
+      {
+        "name": "COORDINADOR_COMERCIAL",
+        "description": "Supervisión operativa y carteras de su sucursal asignada"
+      },
+      {
+        "name": "ASESOR_CAMPO",
+        "description": "Prospección y originación digital en ruta"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrador técnico de SystemCore"
+      }
+    ]
+  },
+  "defaultRoles": ["offline_access", "uma_authorization"],
+  "clients": [
+    {
+      "clientId": "systemcore-web",
+      "name": "SystemCore Web Platform",
+      "description": "Plataforma central web Next.js",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "systemcore_keycloak_secret_2026",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "rootUrl": "http://localhost:3000",
+      "baseUrl": "http://localhost:3000",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://127.0.0.1:3000/*"
+      ],
+      "webOrigins": [
+        "+"
+      ],
+      "protocolMappers": [
+        {
+          "name": "sucursal-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "sucursal",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "sucursal",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "scope-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "scope",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "scope",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "puesto-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "puesto",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "puesto",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "lanahora-mobile",
+      "name": "LanAhora Mobile Apps",
+      "description": "LanApp Distribuidoras y LH Asesores de Campo (Flutter)",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "com.lanahora.lanapp://oauth2redirect/*",
+        "com.lanahora.asesores://oauth2redirect/*"
+      ],
+      "webOrigins": ["*"],
+      "protocolMappers": [
+        {
+          "name": "sucursal-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "sucursal",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "sucursal",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "scope-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "scope",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "scope",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "carlos_martinez@lanahora.com",
+      "email": "carlos_martinez@lanahora.com",
+      "firstName": "Carlos",
+      "lastName": "Martínez",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "lanahora2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["DIRECTOR_GENERAL", "ADMIN"],
+      "attributes": {
+        "sucursal": ["Corporativo Saltillo"],
+        "scope": ["ALL"],
+        "puesto": ["Director General"]
+      }
+    },
+    {
+      "username": "lorena_delatorre@lanahora.com",
+      "email": "lorena_delatorre@lanahora.com",
+      "firstName": "Lorena",
+      "lastName": "de la Torre",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "lanahora2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["MESA_CREDITO"],
+      "attributes": {
+        "sucursal": ["Corporativo Saltillo"],
+        "scope": ["ALL"],
+        "puesto": ["Mesa de Crédito"]
+      }
+    },
+    {
+      "username": "esau_espinoza@lanahora.com",
+      "email": "esau_espinoza@lanahora.com",
+      "firstName": "Esaú",
+      "lastName": "Espinoza",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "lanahora2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["COORDINADOR_COMERCIAL"],
+      "attributes": {
+        "sucursal": ["Saltillo Centro"],
+        "scope": ["BRANCH"],
+        "puesto": ["Coordinador Comercial"]
+      }
+    },
+    {
+      "username": "cindy_lopez@lanahora.com",
+      "email": "cindy_lopez@lanahora.com",
+      "firstName": "Cindy",
+      "lastName": "López",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "lanahora2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ASESOR_CAMPO"],
+      "attributes": {
+        "sucursal": ["Saltillo Centro"],
+        "scope": ["BRANCH"],
+        "puesto": ["Asesora de Campo"]
+      }
+    }
+  ]
+}
