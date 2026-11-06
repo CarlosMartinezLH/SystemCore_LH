@@ -246,9 +246,7 @@ export default function Home() {
                 <ConfiguracionView />
               </div>
             ) : activeModule === 'lanatienda' ? (
-              <div className="p-6">
-                <LanaTiendaAdminView />
-              </div>
+              <LanaTiendaAdminView />
             ) : (
               /* MODULE CRM DESKTOP */
               selectedProspect ? (
