@@ -7,6 +7,7 @@ import {
   Requisition,
   TrainingCourse,
 } from '@/types/rh';
+import { UserSession } from '@/types/auth';
 import {
   INITIAL_EMPLOYEES,
   INITIAL_ATTENDANCE,
@@ -33,7 +34,11 @@ import {
   Smartphone,
 } from 'lucide-react';
 
-export default function RHView() {
+interface RHViewProps {
+  currentUser?: UserSession | null;
+}
+
+export default function RHView({ currentUser }: RHViewProps = {}) {
   const [activeTab, setActiveTab] = useState<'asistencia' | 'personal' | 'requisiciones' | 'capacitaciones'>('asistencia');
   const [employees, setEmployees] = useState<EmployeeRH[]>(INITIAL_EMPLOYEES);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>(INITIAL_ATTENDANCE);
@@ -172,6 +177,17 @@ export default function RHView() {
 
   // Filtered lists
   const filteredAttendance = attendance.filter((a) => {
+    // Permisos por sucursal
+    if (currentUser && currentUser.branchScope === 'BRANCH') {
+      const uB = currentUser.branch.toUpperCase();
+      const aB = (a.branch || '').toUpperCase();
+      const match =
+        (uB.includes('SALTILLO') && aB.includes('SALTILLO')) ||
+        (uB.includes('TORRE') && aB.includes('TORRE')) ||
+        (uB.includes('MONCLOVA') && aB.includes('MONCLOVA'));
+      if (!match) return false;
+    }
+
     const matchBranch = selectedBranch === 'ALL' || a.branch === selectedBranch;
     const matchLoc = selectedLocationType === 'ALL' || a.locationType === selectedLocationType;
     if (!matchBranch || !matchLoc) return false;
@@ -185,6 +201,17 @@ export default function RHView() {
   });
 
   const filteredEmployees = employees.filter((e) => {
+    // Permisos por sucursal
+    if (currentUser && currentUser.branchScope === 'BRANCH') {
+      const uB = currentUser.branch.toUpperCase();
+      const eB = (e.branch || '').toUpperCase();
+      const match =
+        (uB.includes('SALTILLO') && eB.includes('SALTILLO')) ||
+        (uB.includes('TORRE') && eB.includes('TORRE')) ||
+        (uB.includes('MONCLOVA') && eB.includes('MONCLOVA'));
+      if (!match) return false;
+    }
+
     const matchBranch = selectedBranch === 'ALL' || e.branch === selectedBranch;
     const matchLoc = selectedLocationType === 'ALL' || e.locationType === selectedLocationType;
     if (!matchBranch || !matchLoc) return false;
@@ -199,6 +226,17 @@ export default function RHView() {
   });
 
   const filteredRequisitions = requisitions.filter((r) => {
+    // Permisos por sucursal
+    if (currentUser && currentUser.branchScope === 'BRANCH') {
+      const uB = currentUser.branch.toUpperCase();
+      const rB = (r.branch || '').toUpperCase();
+      const match =
+        (uB.includes('SALTILLO') && rB.includes('SALTILLO')) ||
+        (uB.includes('TORRE') && rB.includes('TORRE')) ||
+        (uB.includes('MONCLOVA') && rB.includes('MONCLOVA'));
+      if (!match) return false;
+    }
+
     const matchBranch = selectedBranch === 'ALL' || r.branch === selectedBranch;
     if (!matchBranch) return false;
     if (!searchFilter.trim()) return true;

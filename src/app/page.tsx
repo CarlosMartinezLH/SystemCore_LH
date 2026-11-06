@@ -224,6 +224,7 @@ export default function Home() {
           <main className="flex-1 flex flex-col min-w-0 bg-slate-50">
             {activeModule === 'core_dashboard' ? (
               <CoreDashboard
+                currentUser={currentUser}
                 onNavigateToPersonas={() => setActiveModule('personas')}
                 onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
                 onNavigateToDispersion={() => setActiveModule('dispersion')}
@@ -231,9 +232,9 @@ export default function Home() {
             ) : activeModule === 'personas' ? (
               <PersonasView />
             ) : activeModule === 'distribuidores' ? (
-              <DistribuidoresView />
+              <DistribuidoresView currentUser={currentUser} />
             ) : activeModule === 'rh' ? (
-              <RHView />
+              <RHView currentUser={currentUser} />
             ) : activeModule === 'dispersion' ? (
               <DispersionView />
             ) : activeModule === 'integraciones' ? (

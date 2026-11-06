@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { DistribuidorCore } from '@/types/core';
+import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import {
   Search,
@@ -22,7 +23,11 @@ import {
   NotificacionAppModal,
 } from './modals/DistribuidorModals';
 
-export default function DistribuidoresView() {
+interface DistribuidoresViewProps {
+  currentUser?: UserSession | null;
+}
+
+export default function DistribuidoresView({ currentUser }: DistribuidoresViewProps = {}) {
   const { distribuidores, updateDistribuidor } = useCoreSync();
   const [selectedNoDist, setSelectedNoDist] = useState<number | null>(1002);
   const [coordinatorFilter, setCoordinatorFilter] = useState('ALL');
@@ -38,6 +43,17 @@ export default function DistribuidoresView() {
   );
 
   const filtered = distribuidores.filter((d) => {
+    // Permisos por sucursal: Si es usuario de sucursal, sólo ve distribuidores de su plaza
+    if (currentUser && currentUser.branchScope === 'BRANCH') {
+      const uB = currentUser.branch.toUpperCase();
+      const dB = (d.sucursal || '').toUpperCase();
+      const match =
+        (uB.includes('SALTILLO') && dB.includes('SALTILLO')) ||
+        (uB.includes('TORRE') && dB.includes('TORRE')) ||
+        (uB.includes('MONCLOVA') && dB.includes('MONCLOVA'));
+      if (!match) return false;
+    }
+
     const matchesCoord = coordinatorFilter === 'ALL' || d.coordinador === coordinatorFilter;
     if (!matchesCoord) return false;
     if (!searchTerm.trim()) return true;

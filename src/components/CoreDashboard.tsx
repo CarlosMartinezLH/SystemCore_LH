@@ -19,18 +19,21 @@ import {
   Send,
 } from 'lucide-react';
 import { DistribuidorCore, CreditoCore } from '@/types/core';
+import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
 
 interface CoreDashboardProps {
   onNavigateToPersonas: () => void;
   onNavigateToDistribuidores: () => void;
   onNavigateToDispersion?: () => void;
+  currentUser?: UserSession | null;
 }
 
 export default function CoreDashboard({
   onNavigateToPersonas,
   onNavigateToDistribuidores,
   onNavigateToDispersion,
+  currentUser,
 }: CoreDashboardProps) {
   const { creditos, distribuidores } = useCoreSync();
   const [activeTab, setActiveTab] = useState<'todos' | 'distribuidores' | 'creditos'>('todos');
@@ -44,6 +47,17 @@ export default function CoreDashboard({
 
   // Filter Distribuidores
   const filteredDistribuidores = distribuidores.filter((d) => {
+    // Permiso por sucursal
+    if (currentUser && currentUser.branchScope === 'BRANCH') {
+      const uB = currentUser.branch.toUpperCase();
+      const dB = (d.sucursal || '').toUpperCase();
+      const match =
+        (uB.includes('SALTILLO') && dB.includes('SALTILLO')) ||
+        (uB.includes('TORRE') && dB.includes('TORRE')) ||
+        (uB.includes('MONCLOVA') && dB.includes('MONCLOVA'));
+      if (!match) return false;
+    }
+
     const matchBranch = selectedBranch === 'ALL' || d.sucursal === selectedBranch;
     if (!matchBranch) return false;
     if (!searchTerm.trim()) return true;
