@@ -26,9 +26,10 @@ Para facilitar la navegación del proyecto, la documentación se ha organizado e
 | **Servidor de Identidad (IAM)** | **Keycloak 26.1.3** (OpenID Connect, Realm `lanahora`, Client `systemcore-web`, PKCE) |
 | **Control de Acceso (RBAC)** | Middleware `serverAuth.ts` con validación estricta de roles y alcances territoriales por sucursal |
 | **Enrutador Multi-Dominio** | `src/proxy.ts` (Next.js 16 Proxy con soporte estricto para `tienda.lanahora.com`) |
-| **Framework Móvil** | **Flutter 3.x / Dart 3.x** (Android SDK 34, JVM 17, Gradle 8.x) |
-| **Flavors Móviles** | `lanapp` (`com.lanahora.lanapp`) y `asesores` (`com.lanahora.asesores`) |
-| **Seguridad Móvil** | Ofuscación de bytecode con R8 / ProGuard, Flutter Secure Storage (AES-256/RSA) |
+| **Framework Móvil** | **Flutter 3.x / Dart 3.x** Multiplataforma (Apple iOS para iPhone & Google Android) |
+| **Compatibilidad Móvil** | **iPhone:** iOS 15.0+ (TestFlight / App Store, Face ID) · **Android:** SDK 24 a 34 (APK / Play Store) |
+| **Flavors Móviles** | `lanapp` (`com.lanahora.lanapp`) y `asesores` (`com.lanahora.asesores`) para iOS y Android |
+| **Seguridad Móvil** | Keychain / AES-256 en iOS, R8 / ProGuard en Android, Flutter Secure Storage |
 | **Gateway ESB & Sync Bus** | RESTful JSON APIs, Serverless Edge Routes, mTLS y Bus de Sincronización Reactivo (`/api/sync`) |
 | **Sincronización Multi-Sistema** | Replicación bidireccional inmediata en memoria + BroadcastChannel + ADB Reverse Port 3000 |
 | **Estrategia Git** | Tronco central en rama `develop` |
@@ -42,8 +43,8 @@ flowchart TD
     subgraph Clientes ["Capa de Clientes & Aplicaciones"]
         WEB["SystemCore Web (Next.js 16 / React 19)"]
         TIENDA["LanaTienda Web (tienda.lanahora.com)"]
-        APP_ADV["LH Asesores Móvil (Flutter / Android)"]
-        APP_LAN["LanApp Móvil (Flutter / Android)"]
+        APP_ADV["LH Asesores Móvil (iPhone iOS & Android)"]
+        APP_LAN["LanApp Móvil (iPhone iOS & Android)"]
     end
 
     subgraph SyncBus ["Capa de Sincronización e Integración en Tiempo Real"]

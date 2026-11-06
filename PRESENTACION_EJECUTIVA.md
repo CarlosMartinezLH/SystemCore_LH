@@ -46,8 +46,8 @@ Tradicionalmente, el modelo de crédito mediante vales ha dependido de papel fí
 flowchart TD
     subgraph Canales ["Canales de Interacción"]
         WEB["SystemCore Web (Next.js 16 / React 19)"]
-        LANAPP["LanApp Móvil (Distribuidoras & Clientes)"]
-        ASESORES["LH Asesores Móvil (Fuerza de Ventas en Campo)"]
+        LANAPP["LanApp Móvil (iPhone iOS & Android)"]
+        ASESORES["LH Asesores Móvil (iPhone iOS & Android)"]
     end
 
     subgraph SyncEngine ["Bus de Sincronización en Tiempo Real"]
@@ -103,11 +103,12 @@ El portal administrativo **SystemCore** unifica todas las áreas clave de la com
 
 ---
 
-## Diapositiva 4: Ecosistema Móvil (LanApp & LH Asesores)
+## Diapositiva 4: Ecosistema Móvil Multiplataforma (iPhone iOS & Google Android)
 
-Desarrolladas con **Flutter** multi-flavor para máximo desempeño nativo:
+Desarrolladas con **Flutter** nativo multi-flavor para máximo desempeño tanto en **Apple iPhone (iOS 15+)** como en **Google Android**:
 
-### 📱 1. LanApp (`com.lanahora.lanapp`)
+### 📱 1. LanApp (`com.lanahora.lanapp`) — iPhone & Android
+* **Compatibilidad Multiplataforma**: Experiencia unificada en iPhone (con soporte nativo para **Face ID**, Touch ID y apertura de WhatsApp) y Android.
 * **Para la Distribuidora (DV)**:
   * Consulta en vivo de su línea disponible, saldo actual y fechas de corte.
   * Emisión de vales digitales en segundos eligiendo cliente, monto y plazos.
@@ -225,7 +226,7 @@ Cumplimiento estricto con las disposiciones de la **CNBV, Condusef y el SAT**:
 
 ### 🏁 Estado Actual
 * **SystemCore Web**: Módulos de CRM, Personas, Distribuidores, Dispersión, RH e Integraciones 100% funcionales en Next.js 16 con sincronización en tiempo real.
-* **LanApp & LH Asesores**: Aplicaciones Flutter compiladas en Release, optimizadas con R8/ProGuard e instaladas exitosamente en dispositivos físicos.
+* **LanApp & LH Asesores Multiplataforma**: Aplicaciones Flutter nativas para iPhone (iOS) y Android, optimizadas con R8/ProGuard en Android, CocoaPods/Keychain en iOS y listas para distribución en TestFlight/App Store y Google Play.
 * **Motor Biométrico**: Validación facial con guía interactiva de distancia y confirmación obligatoria para retiro de lentes.
 
 ### 🗺️ Roadmap de Evolución

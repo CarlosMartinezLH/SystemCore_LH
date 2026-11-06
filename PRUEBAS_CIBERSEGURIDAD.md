@@ -286,6 +286,7 @@ function sanitizeCsvCell(value: string | number): string {
   - Agregar en los mensajes SMS el texto explícito: *"LanAhora NUNCA te pedirá este código por llamada o WhatsApp. Si te lo piden, es un fraude."*
   - Bloqueo preventivo de cuentas tras 3 intentos fallidos de autenticación (activado en Keycloak: `bruteForceProtected: true`).
   - Obligatoriedad de biometría facial en LanApp antes de confirmar canjes mayores a \$3,000 MXN.
+  - Soporte para autenticación biométrica de hardware en **Apple iPhone (Face ID)** y **Android (BiometricPrompt / Keystore)** para evitar el uso indebido de contraseñas compartidas.
 
 ---
 
