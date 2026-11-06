@@ -98,6 +98,7 @@ export default function Sidebar({
         },
       ],
     },
+    /*
     {
       label: 'Infraestructura',
       items: [
@@ -109,6 +110,7 @@ export default function Sidebar({
         },
       ],
     },
+    */
   ];
 
   return (
