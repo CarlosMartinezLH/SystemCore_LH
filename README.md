@@ -248,3 +248,60 @@ flutter build apk --flavor asesores -t lib/main_asesores.dart
 adb -s <DEVICE_ID> install -r build/app/outputs/flutter-apk/app-lanapp-release.apk
 adb -s <DEVICE_ID> install -r build/app/outputs/flutter-apk/app-asesores-release.apk
 ```
+
+---
+
+## 8. LanaTienda (`tienda.lanahora.com`) — E-Commerce B2B2C & SystemCore
+
+Módulo oficial de comercio electrónico donde los clientes eligen productos del catálogo institucional y los adquieren a través de la línea de crédito de su Distribuidora autorizada a **16 quincenas fijas**.
+
+### 8.1. Arquitectura Técnica & Enrutamiento Multi-Dominio
+
+```mermaid
+flowchart TD
+    DNS["tienda.lanahora.com"] --> PROXY["Next.js Proxy / Edge Router (src/proxy.ts)"]
+    PROXY -->|"Reescritura Transparente"| TIENDA_APP["Portal LanaTienda (/tienda)"]
+    
+    subgraph TIENDA_APP ["LanaTienda (Frontend & Catálogo)"]
+        CLIENT_UI["Catálogo Público Móvil-First\n- Búsqueda predictiva & Categorías\n- Desglose 16 Quincenas (Precio / 16)\n- Generador Link WhatsApp"]
+        DIST_UI["Portal Distribuidora (Checkout)\n- SSO Keycloak (Realm lanahora)\n- Matriz de Líneas de Crédito\n- Asignación Cliente CRM\n- Selección Entrega (Sucursal vs Domicilio)"]
+    end
+
+    CLIENT_UI -->|"WhatsApp Link: /ref?sku=..."| DIST_UI
+    DIST_UI <--> API_TIENDA["APIs Core LanaTienda (/api/tienda/...)"]
+    
+    subgraph SYSTEMCORE_BACKEND ["SystemCore Backend Central"]
+        API_TIENDA --> STORE_TIENDA["TiendaStore (Estado Global & Validación)"]
+        STORE_TIENDA --> CRM_CORE["CRM: Líneas de Crédito & Personas"]
+        STORE_TIENDA --> ADMIN_VIEW["Panel de Control SystemCore Web (/lanatienda)"]
+    end
+```
+
+### 8.2. Reglas de Negocio Oficiales (Manuales LNH-LTD-MAN-001 / 002 / 003)
+
+1. **Cálculo Financiero Obligatorio:** Todo producto se financia de manera inamovible a **16 quincenas fijas** calculadas como:
+   $$\text{Pago Quincenal} = \frac{\text{Precio Contado}}{16}$$
+   *(No incluye seguro de canje opcional).*
+2. **Garantía y Entrega:**
+   - Plazo de entrega típico: 5 a 10 días hábiles.
+   - El cliente dispone de **48 horas hábiles** posteriores a la entrega para reportar incidencias de producto dañado o incompleto.
+3. **Flujo de Referencia por WhatsApp:**
+   - El cliente no requiere registrarse para navegar; al presionar **"¡Compra con tu distribuidora aquí!"**, se genera un enlace deep-link `https://tienda.lanahora.com/ref?sku=XYZ` que abre WhatsApp con el mensaje pre-redactado para su distribuidora.
+4. **Matriz de Líneas de Crédito de la Distribuidora:**
+   - **Línea LanaTienda:** Monto total autorizado y disponible para compras de sus clientes.
+   - **Línea Personal:** Monto total autorizado y disponible para compras propias.
+   - **Límite Cliente Final por Nivel:** (ej. Nivel Bronce: \$9,000 MXN) del cual se deducen los Vales activos con canje y Kits de belleza para determinar la capacidad de compra del cliente.
+5. **Modalidades de Entrega:**
+   - **Opción A (Sucursal):** Entrega en mostrador de la sucursal asignada a la distribuidora (ej. *Saltillo Centro*).
+   - **Opción B (Domicilio Cliente):** Envío a la dirección registrada en el CRM del cliente, requiriendo de forma obligatoria el campo de **Referencias del Domicilio** (color de fachada, tipo de portón, entrecalles).
+
+### 8.3. Endpoints REST Core
+
+| Endpoint | Método | Descripción |
+| :--- | :--- | :--- |
+| `/api/tienda/catalog` | `GET` | Catálogo de productos, categorías y cálculo quincenal. Soporta filtros `?q=`, `?categoria=` y `?sku=`. |
+| `/api/tienda/distribuidora` | `GET` | Consulta de líneas autorizadas, disponibles, nivel y cartera de clientes asignados a la distribuidora. |
+| `/api/tienda/pedidos` | `GET` | Listado de pedidos generados (filtrable por `?distribuidoraId=`). |
+| `/api/tienda/pedidos` | `POST` | Creación de pedido, validación de línea de crédito, deducción de saldo y generación de folio `LTD-2026-XXXX`. |
+| `/api/tienda/pedidos/[id]` | `PATCH` | Actualización de estatus (`APROBADO_MESA`, `EN_TRANSITO`, `LISTO_SUCURSAL`, `ENTREGADO`, `CANCELADO`) y asignación de guía. |
+

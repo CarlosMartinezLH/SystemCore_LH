@@ -24,3 +24,4 @@ export async function GET() {
     return NextResponse.json({ available: false }, { status: 503 });
   }
 }
+

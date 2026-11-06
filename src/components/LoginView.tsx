@@ -77,7 +77,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
             </div>
             {isKeycloakLive && (
               <a
-                href="http://localhost:8080/admin/lanahora/console"
+                href="http://localhost:8080/admin/master/console/"
                 target="_blank"
                 rel="noreferrer"
                 title="Abrir Consola de Administración Keycloak"

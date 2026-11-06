@@ -16,6 +16,7 @@ import {
   ChevronRight,
   ShieldCheck,
   Building,
+  ShoppingBag,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -71,6 +72,13 @@ export default function Sidebar({
           id: 'dispersion',
           name: 'Dispersión STP',
           icon: CreditCard,
+        },
+        {
+          id: 'lanatienda',
+          name: 'LanaTienda (E-Com)',
+          icon: ShoppingBag,
+          badge: '16 Qnas',
+          badgeColor: 'bg-amber-400 text-slate-950 font-black',
         },
       ],
     },
