@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { UserSession, INSTITUTIONAL_USERS } from '@/types/auth';
-import { Lock, Mail, ShieldCheck, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
+import { Lock, Mail, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 
 interface LoginViewProps {
   onLoginSuccess: (user: UserSession) => void;
@@ -37,15 +37,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col justify-between items-center bg-gradient-to-b from-slate-100 via-slate-50 to-slate-200 text-slate-800 font-sans p-4 sm:p-8">
-      {/* Top subtle bar */}
-      <div className="w-full max-w-md flex justify-end">
-        <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          Conexión Segura TLS 1.3
-        </span>
-      </div>
-
+    <div className="min-h-screen w-full flex flex-col justify-center items-center bg-gradient-to-b from-slate-100 via-slate-50 to-slate-200 text-slate-800 font-sans p-4 sm:p-8">
       {/* Main Centered Authentication Card */}
       <div className="w-full max-w-md my-auto">
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-300/40 p-8 sm:p-10 space-y-6">
