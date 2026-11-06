@@ -285,7 +285,7 @@ function TiendaModernContent() {
     <div className="min-h-screen flex flex-col bg-[#F3F4F6] text-slate-900 selection:bg-amber-400 selection:text-slate-950 font-sans">
       {/* 1. TOP ANNOUNCEMENT BAR (Amazon/Mercado Libre Style) */}
       <div className="bg-[#001E33] text-white text-[11px] font-medium tracking-wide border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3">
+        <div className="w-full px-4 sm:px-8 xl:px-12 py-2 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-4 text-slate-300">
             <span className="flex items-center gap-1.5 text-amber-400 font-bold">
               <Zap className="w-3.5 h-3.5 fill-amber-400" />
@@ -318,7 +318,7 @@ function TiendaModernContent() {
 
       {/* 2. MAIN HEADER (Corporate Navy & Luxury Gold) */}
       <header className="sticky top-0 z-40 bg-[#002B49] text-white shadow-lg border-b border-amber-400/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
+        <div className="w-full px-4 sm:px-8 xl:px-12 py-3.5 flex items-center justify-between gap-4">
           {/* Logo Brand */}
           <a href="/tienda" className="flex items-center gap-2 group shrink-0">
             <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 px-3 py-1.5 rounded-xl shadow-md font-black tracking-tight group-hover:scale-105 transition duration-200">
@@ -336,7 +336,7 @@ function TiendaModernContent() {
           </a>
 
           {/* Luxury Global Search Bar */}
-          <div className="flex-1 max-w-2xl mx-2">
+          <div className="flex-1 max-w-3xl xl:max-w-5xl mx-4">
             <div className="relative flex items-center">
               <input
                 type="text"
@@ -413,7 +413,7 @@ function TiendaModernContent() {
 
         {/* Category & Deals Subnav */}
         <div className="bg-[#001E33] border-t border-white/10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-2 py-2 overflow-x-auto scrollbar-none text-xs">
+          <div className="w-full px-4 sm:px-8 xl:px-12 flex items-center gap-2 py-2 overflow-x-auto scrollbar-none text-xs">
             <button
               onClick={() => setSelectedCategory('TODOS')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition whitespace-nowrap ${
@@ -459,7 +459,7 @@ function TiendaModernContent() {
       </header>
 
       {/* 3. MAIN STORE CONTENT */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-7">
+      <main className="w-full px-4 sm:px-8 xl:px-12 py-6 flex-1 space-y-7">
         {/* Referral Callout Banner if coming from WhatsApp */}
         {refSku && selectedProduct && (
           <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 rounded-3xl p-5 shadow-xl text-slate-950 flex flex-col sm:flex-row items-center justify-between gap-5 border border-amber-300 animate-in fade-in duration-300">
@@ -498,9 +498,9 @@ function TiendaModernContent() {
         )}
 
         {/* HERO SECTION WITH DUAL WIDGETS (Amazon/Mercado Libre Retail Grid) */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
-          {/* Main Carousel Banner (Col Span 3) */}
-          <div className="lg:col-span-3 relative rounded-3xl overflow-hidden shadow-xl bg-slate-950 h-56 sm:h-72 md:h-96 group">
+        <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          {/* Main Carousel Banner (Col Span 3 on lg, 4 on xl) */}
+          <div className="lg:col-span-3 xl:col-span-4 relative rounded-3xl overflow-hidden shadow-xl bg-slate-950 h-64 sm:h-80 md:h-[420px] group">
             {banners.map((b, idx) => (
               <div
                 key={idx}
@@ -684,8 +684,8 @@ function TiendaModernContent() {
             )}
           </div>
 
-          {/* Product Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {/* Product Cards Grid - Full Width Responsive Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
             {filteredProducts.map((product) => {
               const discountPercent = product.precioAnterior
                 ? Math.round(((product.precioAnterior - product.precio) / product.precioAnterior) * 100)
@@ -1521,7 +1521,7 @@ function TiendaModernContent() {
 
       {/* 14. MEGA FOOTER (Official SOFOM Regulatory & Security Compliance) */}
       <footer className="bg-[#001E33] text-white border-t border-white/10 mt-16 pt-12 pb-8 text-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
+        <div className="w-full px-4 sm:px-8 xl:px-12 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
