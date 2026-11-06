@@ -117,21 +117,8 @@ export default function Header({
           />
         </div>
 
-        {/* Live Service Indicator */}
-        <div
-          onClick={() => onModuleChange('integraciones')}
-          className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-xs font-semibold cursor-pointer transition select-none"
-          title="Ver estado de integraciones ESB"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span>Nubarium & STP Activo</span>
-        </div>
-
-        {/* Quick Action Button */}
-        {onOpenNewLead && (
+        {/* Quick Action Button (Only visible within CRM module) */}
+        {activeModule === 'crm' && onOpenNewLead && (
           <button
             onClick={onOpenNewLead}
             className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5"
