@@ -10,6 +10,7 @@ Para facilitar la navegación del proyecto, la documentación se ha organizado e
 
 | Documento | Enlace | Audiencia | Contenido Principal |
 | :--- | :---: | :---: | :--- |
+| **💻 Guía Windows** | [`GUIA_INSTALACION_WINDOWS.md`](GUIA_INSTALACION_WINDOWS.md) | Nuevos Desarrolladores (Windows) | **¡Empieza aquí en Windows!** Pasos desde cero para clonar, `.env.local`, dependencias, Docker/Keycloak y arranque. |
 | **📘 README Técnico** | [`README_TECNICO.md`](README_TECNICO.md) | Desarrolladores / DevOps | Arquitectura de software, Next.js 16, Flutter, Keycloak OIDC, APIs REST, ESB Sync y Guía de Despliegue. |
 | **📗 README Público** | [`README_PUBLICO.md`](README_PUBLICO.md) | Público / Clientes / DVs | Guía funcional de módulos, cómo funciona LanaTienda a 16 quincenas fijas, canje digital y FAQ. |
 | **🛡️ Bitácora de Ciberseguridad** | [`PRUEBAS_CIBERSEGURIDAD.md`](PRUEBAS_CIBERSEGURIDAD.md) | Seguridad / Auditores | Historial cronológico de pentesting, SAST, RBAC en APIs, listas SAT 69-B, sanitización CSV y anti-vishing. |
@@ -93,10 +94,14 @@ flowchart TD
 
 ## 3. Inicio Rápido & Ejecución Local
 
+> [!TIP]
+> **¿Vas a trabajar en una laptop con Windows?**  
+> Consulta la guía paso a paso dedicada: **[`GUIA_INSTALACION_WINDOWS.md`](GUIA_INSTALACION_WINDOWS.md)** con instrucciones detalladas para Git for Windows, Docker/Keycloak (`kc.bat`), PowerShell y resolución de problemas.
+
 ### 3.1. Requisitos Previos
-* **Node.js** >= 18.17 (LTS recomendado v20+)
+* **Node.js** >= 20.x LTS recomendado
 * **npm** >= 9.x
-* **Keycloak** 26.x (opcional para desarrollo; el sistema cuenta con fallback institucional automático)
+* **Keycloak** 26.x (vía Docker `docker compose up -d` o standalone con `keycloak/data/import/lanahora-realm.json`)
 
 ### 3.2. Instalación y Ejecución
 ```bash
@@ -106,6 +111,9 @@ cd SystemCore_LH
 
 # Cambiar a rama develop
 git checkout develop
+
+# Crear variables de entorno locales
+cp .env.example .env.local
 
 # Instalar dependencias
 npm install
@@ -127,11 +135,14 @@ La aplicación web estará disponible en:
 
 ```text
 SystemCore_LH/
+├── GUIA_INSTALACION_WINDOWS.md              # Guía paso a paso para laptops Windows (Docker/kc.bat/Node)
 ├── README.md                                # Índice maestro y guía de navegación
 ├── README_TECNICO.md                        # Especificación técnica y arquitectura para desarrolladores
 ├── README_PUBLICO.md                        # Documentación funcional para usuarios y público general
 ├── PRUEBAS_CIBERSEGURIDAD.md                # Bitácora oficial de pentesting, SAST y mitigaciones
 ├── PRESENTACION_EJECUTIVA.md                # Presentación de 10 diapositivas para Dirección General
+├── .env.example                             # Plantilla de variables de entorno (Nubarium, Keycloak, etc.)
+├── docker-compose.yml                       # Orquestación de Keycloak 26 y PostgreSQL 16
 ├── keycloak/                                # Configuración y exportaciones de Realm IAM
 │   └── data/import/lanahora-realm.json      # Realm OIDC oficial LanAhora (Roles y Clientes)
 ├── src/

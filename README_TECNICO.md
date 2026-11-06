@@ -255,8 +255,15 @@ OPENPAY_PRIVATE_KEY=
 
 ## 7. Compilación & Despliegue
 
+> [!NOTE]
+> **Puesta en marcha en laptops Windows:**  
+> Si estás configurando una estación de trabajo con Windows 10/11, consulta **[`GUIA_INSTALACION_WINDOWS.md`](GUIA_INSTALACION_WINDOWS.md)** para una guía rápida paso a paso (Node, Git for Windows, Docker/Keycloak `kc.bat`, y scripts de PowerShell).
+
 ### 7.1. Sistema Web Core
 ```bash
+# Copiar plantilla de entorno local
+cp .env.example .env.local
+
 # Instalación de dependencias
 npm install
 

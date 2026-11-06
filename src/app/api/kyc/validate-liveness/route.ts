@@ -8,7 +8,8 @@ function detectGlassesNeural(base64Image: string): Promise<{ glasses: boolean; l
   return new Promise((resolve) => {
     try {
       const scriptPath = path.join(process.cwd(), 'scripts', 'check_glasses.py');
-      const py = spawn('python3', [scriptPath]);
+      const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+      const py = spawn(pythonCmd, [scriptPath]);
       let stdout = '';
       let stderr = '';
 
