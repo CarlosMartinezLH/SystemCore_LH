@@ -133,29 +133,27 @@ export default function Sidebar({
       >
         {/* Top: Logo Brand Header */}
         <div className="flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
+          <div className="flex items-center justify-between px-3.5 py-3 border-b border-slate-100">
             <div
               onClick={() => onModuleChange('core_dashboard')}
-              className="flex items-center gap-3 cursor-pointer group"
+              className="flex items-center gap-2.5 cursor-pointer group min-w-0"
             >
-              {/* Gold LanAhora Logo Badge */}
-              <div className="w-10 h-10 rounded-2xl bg-[#facc15] text-slate-950 font-black text-base flex items-center justify-center shadow-md shadow-amber-400/20 group-hover:scale-105 transition shrink-0">
-                LH
-              </div>
-
-              {!isCollapsed && (
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-extrabold text-base tracking-tight text-slate-900 truncate">
-                      LanAhora
-                    </span>
-                    <span className="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                      Core
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-amber-600 font-bold italic -mt-0.5 truncate">
-                    ¡En Ti confiamos!
-                  </p>
+              {isCollapsed ? (
+                <img
+                  src="/lanahora-icon.png"
+                  alt="LanAhora"
+                  className="w-10 h-10 object-contain group-hover:scale-105 transition shrink-0"
+                />
+              ) : (
+                <div className="flex items-center gap-2 min-w-0">
+                  <img
+                    src="/lanahora-logo.png"
+                    alt="LanAhora"
+                    className="h-9 w-auto max-w-[145px] object-contain group-hover:scale-105 transition shrink-0"
+                  />
+                  <span className="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
+                    Core
+                  </span>
                 </div>
               )}
             </div>

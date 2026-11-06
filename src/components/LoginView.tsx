@@ -48,15 +48,14 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
 
         {/* Top Logo */}
         <div className="relative z-10 flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-[#facc15] text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg">
-            LH
-          </div>
-          <div>
-            <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
-              LanAhora <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/20 text-yellow-200 border border-white/30 font-bold">SystemCore</span>
-            </h1>
-            <p className="text-sm text-yellow-300 font-extrabold italic">¡En Ti confiamos!</p>
-          </div>
+          <img
+            src="/lanahora-logo.png"
+            alt="LanAhora"
+            className="h-16 w-auto object-contain drop-shadow-md"
+          />
+          <span className="text-xs px-2.5 py-1 rounded-full bg-white/20 text-yellow-200 border border-white/30 font-bold">
+            SystemCore
+          </span>
         </div>
 
         {/* Center Content: Exact value proposition from the company banner */}
@@ -103,13 +102,14 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
           {/* Header */}
           <div>
             <div className="lg:hidden flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-2xl bg-[#facc15] text-slate-950 font-black text-base flex items-center justify-center shadow">
-                LH
-              </div>
-              <div>
-                <span className="font-black text-lg text-blue-800">LanAhora</span>
-                <span className="block text-[11px] text-yellow-600 font-bold italic">¡En Ti confiamos!</span>
-              </div>
+              <img
+                src="/lanahora-logo.png"
+                alt="LanAhora"
+                className="h-10 w-auto object-contain"
+              />
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-bold">
+                Core
+              </span>
             </div>
 
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Iniciar Sesión</h2>
