@@ -79,3 +79,4 @@ Dentro de **SystemCore**, el equipo administrativo cuenta con el módulo **"Lana
 * **Despacho y Guías:** Asignación de paquetería (FedEx, Estafeta, DHL) y número de rastreo.
 * **Entrega en Sucursal:** Notificación cuando el paquete arriba a la sucursal para entrega a la distribuidora o cliente.
 * **Cancelaciones y Reembolsos:** En caso de cancelación justificada, el sistema reembolsa el saldo a la línea de la distribuidora de forma inmediata.
+

@@ -5,15 +5,20 @@ export interface LanaTiendaProduct {
   categoria: string;
   subcategoria: string;
   precio: number;
+  precioAnterior?: number; // Para mostrar descuento tachado estilo retail
   pagoQuincenal: number; // Siempre precio / 16
   plazoQuincenas: 16;
   imagen: string;
+  galeria?: string[];
   descripcion: string;
   caracteristicas: string[];
   diasEntrega: number;
   disponible: boolean;
   garantiaHoras: number; // 48 hrs según manual
-  tag?: string; // 'MÁS VENDIDO' | 'LO MÁS NUEVO' | 'DESTACADO'
+  tag?: string; // 'MÁS VENDIDO' | 'LO MÁS NUEVO' | 'DESTACADO' | 'OFERTA'
+  rating?: number; // ej. 4.9
+  reviewsCount?: number; // ej. 128
+  envioGratis?: boolean;
 }
 
 export interface LanaTiendaDistribuidoraLineas {
@@ -75,3 +80,4 @@ export interface LanaTiendaPedido {
   paqueteria?: string;
   notas?: string;
 }
+

@@ -134,3 +134,4 @@ export const tiendaStore = global.__tiendaStore || new TiendaStore();
 if (process.env.NODE_ENV !== 'production') {
   global.__tiendaStore = tiendaStore;
 }
+
