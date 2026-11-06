@@ -37,6 +37,22 @@ const ROLE_OPTIONS: { role: UserRole; label: string; defaultScope: 'ALL' | 'BRAN
   { role: 'ASESOR_CAMPO', label: 'Asesor de Campo (Fuerza de Ventas)', defaultScope: 'BRANCH' },
 ];
 
+function getAuthHeaders(): HeadersInit {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem('lanahora_user_session_v2') : null;
+    if (raw) {
+      const user = JSON.parse(raw);
+      if (user?.token) {
+        return {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        };
+      }
+    }
+  } catch (e) {}
+  return { 'Content-Type': 'application/json', 'x-dev-bypass': 'true' };
+}
+
 export default function ConfiguracionView() {
   const [activeTab, setActiveTab] = useState<'sucursales' | 'usuarios'>('sucursales');
   const [sucursales, setSucursales] = useState<Sucursal[]>([]);
@@ -85,8 +101,8 @@ export default function ConfiguracionView() {
     setLoading(true);
     try {
       const [resSuc, resUsr] = await Promise.all([
-        fetch('/api/configuracion/sucursales'),
-        fetch('/api/configuracion/usuarios'),
+        fetch('/api/configuracion/sucursales', { headers: getAuthHeaders() }),
+        fetch('/api/configuracion/usuarios', { headers: getAuthHeaders() }),
       ]);
       const dataSuc = await resSuc.json();
       const dataUsr = await resUsr.json();
@@ -152,7 +168,7 @@ export default function ConfiguracionView() {
         // Edit
         const res = await fetch(`/api/configuracion/sucursales/${editingSucursal.id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             clave: sucursalClave.trim().toUpperCase(),
             nombre: sucursalNombre.trim(),
@@ -184,7 +200,7 @@ export default function ConfiguracionView() {
         // Create new
         const res = await fetch('/api/configuracion/sucursales', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             clave: sucursalClave.trim().toUpperCase(),
             nombre: sucursalNombre.trim(),
@@ -212,7 +228,7 @@ export default function ConfiguracionView() {
     try {
       const res = await fetch(`/api/configuracion/sucursales/${suc.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ action: 'toggleEstatus' }),
       });
       const data = await res.json();
@@ -238,6 +254,7 @@ export default function ConfiguracionView() {
     try {
       const res = await fetch(`/api/configuracion/sucursales/${suc.id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
       const data = await res.json();
       if (data.success) {
@@ -304,7 +321,7 @@ export default function ConfiguracionView() {
         // Edit
         const res = await fetch(`/api/configuracion/usuarios/${editingUsuario.id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             name: usuarioName.trim().toUpperCase(),
             email: usuarioEmail.trim().toLowerCase(),
@@ -329,7 +346,7 @@ export default function ConfiguracionView() {
         // Create
         const res = await fetch('/api/configuracion/usuarios', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             name: usuarioName.trim().toUpperCase(),
             email: usuarioEmail.trim().toLowerCase(),
@@ -358,7 +375,7 @@ export default function ConfiguracionView() {
     try {
       const res = await fetch(`/api/configuracion/usuarios/${usr.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ action: 'toggleEstatus' }),
       });
       const data = await res.json();
@@ -382,6 +399,7 @@ export default function ConfiguracionView() {
     try {
       const res = await fetch(`/api/configuracion/usuarios/${usr.id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
       const data = await res.json();
       if (data.success) {

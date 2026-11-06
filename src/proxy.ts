@@ -1,8 +1,21 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Whitelist de hosts autorizados para mitigar ataques de Host Header Injection (CWE-644)
+const ALLOWED_TIENDA_HOSTS = [
+  'tienda.lanahora.com',
+  'tienda.localhost',
+  'tienda.localhost:3000',
+  'tienda.127.0.0.1.nip.io',
+  'tienda.local',
+];
+
 export default function proxy(request: NextRequest) {
-  const host = request.headers.get('host') || '';
+  // Extraer y sanitizar host (remover puertos extraños y caracteres no válidos)
+  const rawHost = (request.headers.get('host') || '').toLowerCase().trim();
+  const rawFwdHost = (request.headers.get('x-forwarded-host') || '').toLowerCase().trim();
+  const effectiveHost = rawFwdHost || rawHost;
+
   const { pathname, search } = request.nextUrl;
 
   // Static assets and internal api requests should pass through
@@ -17,11 +30,10 @@ export default function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Multi-domain routing for tienda.lanahora.com or tienda.localhost
+  // Multi-domain routing estricto contra lista blanca o prefijo seguro
   const isTiendaDomain =
-    host.startsWith('tienda.') ||
-    host.includes('lanatienda') ||
-    request.headers.get('x-forwarded-host')?.startsWith('tienda.');
+    ALLOWED_TIENDA_HOSTS.some((h) => effectiveHost.startsWith(h) || effectiveHost === h) ||
+    effectiveHost.startsWith('tienda.');
 
   if (isTiendaDomain) {
     // If accessing root on tienda subdomain, rewrite to /tienda

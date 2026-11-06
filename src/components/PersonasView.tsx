@@ -28,6 +28,7 @@ import {
   CanjearValeModal,
   PrestanombresModal,
 } from './modals/PersonaModals';
+import { buildSafeCsv } from '@/lib/utils/csv';
 
 export default function PersonasView() {
   const { personas, registrarCliente, updatePersona } = useCoreSync();
@@ -125,23 +126,25 @@ export default function PersonasView() {
     const headers = ['PersonaID', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'CURP', 'RFC', 'Pagaré Estatus', 'Buró Estatus', 'Distribuidor'];
     const rows = personas.map((p) => [
       p.personaId,
-      `"${p.nombre}"`,
-      `"${p.apellidoPaterno}"`,
-      `"${p.apellidoMaterno}"`,
+      p.nombre,
+      p.apellidoPaterno,
+      p.apellidoMaterno,
       p.curp,
       p.rfc,
       p.pagareEstatusId,
       p.buroInternoEstatus,
       p.isDistribuidor ? 'SI' : 'NO',
     ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = buildSafeCsv(headers, rows);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', `padron_personas_lanahora_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (

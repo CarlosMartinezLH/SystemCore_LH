@@ -1,11 +1,19 @@
 import { NextResponse } from 'next/server';
 import { configuracionStore } from '@/lib/store/configuracionStore';
+import { requireAuth } from '@/lib/auth/serverAuth';
+
+const ADMIN_ROLES = ['ADMIN', 'DIRECTOR_GENERAL', 'ADMINISTRADOR'];
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = requireAuth(req, ADMIN_ROLES);
+    if (!auth.ok) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status || 401 });
+    }
+
     const { id } = await params;
     const body = await req.json();
 
@@ -36,6 +44,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = requireAuth(req, ADMIN_ROLES);
+    if (!auth.ok) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status || 401 });
+    }
+
     const { id } = await params;
     const eliminado = configuracionStore.eliminarUsuario(id);
     if (!eliminado) {
@@ -49,4 +62,3 @@ export async function DELETE(
     );
   }
 }
-

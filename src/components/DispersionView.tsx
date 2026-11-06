@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { DispersionSTP, PagoCore } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { buildSafeCsv } from '@/lib/utils/csv';
 
 export default function DispersionView() {
   const [activeTab, setActiveTab] = useState<'dispersion' | 'pagos'>('dispersion');
@@ -90,44 +91,48 @@ export default function DispersionView() {
         d.folioSTP,
         d.claveRastreo,
         d.creditoId,
-        `"${d.beneficiario}"`,
+        d.beneficiario,
         d.curp,
         d.clabe,
-        `"${d.banco}"`,
+        d.banco,
         d.monto,
-        `"${d.fechaHora}"`,
+        d.fechaHora,
         d.estatus,
       ]);
-      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-      const encodedUri = encodeURI(csvContent);
+      const csvContent = buildSafeCsv(headers, rows);
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
+      link.setAttribute('href', url);
       link.setAttribute('download', `dispersiones_stp_${new Date().toISOString().slice(0, 10)}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } else {
       const headers = ['Referencia', 'Medio Pago', 'NoDist', 'Distribuidor', 'Cliente', 'Monto', 'Comision', 'Fecha', 'Estatus', 'Establecimiento'];
       const rows = pagos.map((p) => [
         p.referencia,
         p.medioPago,
         p.noDist || '',
-        `"${p.distribuidorNombre || ''}"`,
-        `"${p.clienteNombre || ''}"`,
+        p.distribuidorNombre || '',
+        p.clienteNombre || '',
         p.monto,
         p.comision,
-        `"${p.fechaPago}"`,
+        p.fechaPago,
         p.estatus,
-        `"${p.establecimiento || ''}"`,
+        p.establecimiento || '',
       ]);
-      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-      const encodedUri = encodeURI(csvContent);
+      const csvContent = buildSafeCsv(headers, rows);
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
+      link.setAttribute('href', url);
       link.setAttribute('download', `recaudacion_pagos_${new Date().toISOString().slice(0, 10)}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
   };
 

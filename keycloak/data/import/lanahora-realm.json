@@ -4,7 +4,7 @@
   "displayName": "Financiera LanAhora",
   "displayNameHtml": "<div class=\"kc-logo-text\"><span>LanAhora</span> SystemCore</div>",
   "enabled": true,
-  "sslRequired": "none",
+  "sslRequired": "external",
   "registrationAllowed": false,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,

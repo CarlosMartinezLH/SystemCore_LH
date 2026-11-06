@@ -264,9 +264,9 @@ function TiendaCoreContent() {
   const generateWhatsAppLink = (product: LanaTiendaProduct) => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://tienda.lanahora.com';
     const refUrl = `${origin}/tienda?sku=${encodeURIComponent(product.sku)}`;
-    const text = `¡Hola! Me interesó este producto en LanAtienda a 16 quincenas de $${product.pagoQuincenal.toFixed(
+    const text = `¡Hola! Me interesó este producto en LanaTienda a 16 quincenas de $${product.pagoQuincenal.toFixed(
       2
-    )}: ${product.nombre}. ¿Me ayudas a solicitarlo con tu crédito LanAhora? Aquí está el link: ${refUrl}`;
+    )}: ${product.nombre}. ¿Me ayudas a solicitarlo con tu crédito LanAhora? Aquí está el link oficial: ${refUrl} (Aviso de Seguridad: La compra solo se autoriza vía Vale digital, nunca entregues anticipos en efectivo).`;
     return `https://wa.me/?text=${encodeURIComponent(text)}`;
   };
 
@@ -945,6 +945,15 @@ function TiendaCoreContent() {
                 {copiedLink ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedLink ? 'Copiado' : 'Copiar'}</span>
               </button>
+            </div>
+
+            {/* Aviso anti-ingeniería social / anti-fraude */}
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-950 flex items-start gap-2">
+              <ShieldAlert className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+              <div className="leading-tight">
+                <strong className="font-bold text-amber-900 block mb-0.5">Aviso de Seguridad Anti-Fraude:</strong>
+                LanAhora y sus Distribuidoras nunca te solicitarán depósitos personales o transferencias a OXXO. La compra se procesa 100% mediante tu Vale digital a 16 quincenas.
+              </div>
             </div>
 
             <div className="space-y-2 pt-2">

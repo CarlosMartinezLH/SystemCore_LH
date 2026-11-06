@@ -22,6 +22,7 @@ import {
   QuitarCastigoModal,
   NotificacionAppModal,
 } from './modals/DistribuidorModals';
+import { buildSafeCsv } from '@/lib/utils/csv';
 
 interface DistribuidoresViewProps {
   currentUser?: UserSession | null;
@@ -95,10 +96,10 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
     const headers = ['NoDist', 'Distribuidor', 'Sucursal', 'Zona', 'Coordinador', 'Nivel', 'Estatus', 'Línea Crédito', 'Saldo', 'Disponible', 'LanaApp'];
     const rows = distribuidores.map((d) => [
       d.noDist,
-      `"${d.nombreDistribuidor}"`,
+      d.nombreDistribuidor,
       d.sucursal,
       d.zona,
-      `"${d.coordinador}"`,
+      d.coordinador,
       d.nivel,
       d.estatus,
       d.creditoLimite,
@@ -106,14 +107,16 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
       d.disponible,
       d.tieneLanaApp ? 'ACTIVA' : 'NO',
     ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = buildSafeCsv(headers, rows);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', `distribuidores_lanahora_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (

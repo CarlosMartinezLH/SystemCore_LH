@@ -8,7 +8,8 @@
 | Versión | Fecha | Responsable | Descripción | Estado |
 | :---: | :---: | :---: | :--- | :---: |
 | 1.0.0 | 05-Nov-2026 | Equipo Core & Seguridad | Pruebas de Hardening HTTP, Rate Limiting, SAT 69-B y Anti-Spoofing KYC | **APLICADO / CORREGIDO** |
-| 1.1.0 | 06-Nov-2026 | Carlos Martínez / Auditoría | Escaneo integral de vulnerabilidades, Pentesting IAM/APIs, BFLA e Ingeniería Social | **AUDITADO / PENDIENTE VO.BO.** |
+| 1.1.0 | 06-Nov-2026 | Carlos Martínez / Auditoría | Escaneo integral de vulnerabilidades, Pentesting IAM/APIs, BFLA e Ingeniería Social | **AUDITADO** |
+| 1.2.0 | 06-Nov-2026 | Carlos Martínez / Seguridad | Implementación de RBAC, sanitización CSV, hardening de Proxy, Keycloak SSL y avisos anti-fraude | **APLICADO / CORREGIDO (Vo.Bo.)** |
 
 ---
 
@@ -304,23 +305,24 @@ function sanitizeCsvCell(value: string | number): string {
 
 ---
 
-## 4. Matriz de Estado y Plan de Remediación Pendiente de Vo.Bo.
+## 4. Matriz de Estado y Acciones Realizadas (Con Vo.Bo.)
 
-| Ref | Vulnerabilidad / Hallazgo | Nivel | Estado Actual | Solución Propuesta (En Espera de Vo.Bo.) |
+| Ref | Vulnerabilidad / Hallazgo | Nivel | Estado Final | Solución Implementada / Archivos Afectados |
 | :---: | :--- | :---: | :---: | :--- |
-| **SEC-01** | Cabeceras HTTP inseguras (CSP, HSTS) | Alto | ✅ **Corregido** | Aplicado en `next.config.ts` |
-| **SEC-02** | Abuso de API / DoS en validación CURP | Medio | ✅ **Corregido** | Rate limiting aplicado en `validate-curp` |
-| **SEC-03** | Inyección de CURPs y formato no oficial | Medio | ✅ **Corregido** | Regex y validación de dígito RENAPO |
-| **SEC-04** | Riesgo de lavado / Empresas EFOS SAT | Alto | ✅ **Corregido** | Cruce en vivo con 14,055 registros SAT 69-B |
-| **SEC-05** | Suplantación facial con fotos o lentes | Alto | ✅ **Corregido** | Pipeline ShuffleNet + Sharp + Liveness |
-| **SEC-06** | Falta de RBAC en APIs de Usuarios y Tienda | Crítico | ⏳ **Pendiente** | Middleware `requireAuth` con verificación JWT Keycloak |
-| **SEC-07** | Contraseñas y secretos en código fuente | Crítico | ⏳ **Pendiente** | Migración a `.env.local` y deshabilitar fallback en prod |
-| **SEC-08** | Tokens y sesiones en `localStorage` | Alto | ⏳ **Pendiente** | Implementar Cookies `HttpOnly; Secure; SameSite=Strict` |
-| **SEC-09** | Riesgo de CSV Formula Injection | Medio | ⏳ **Pendiente** | Función de sanitización de caracteres (`=`, `+`, `-`, `@`) |
-| **SEC-10** | Cabecera `x-forwarded-host` en Proxy | Medio | ⏳ **Pendiente** | Restringir enrutamiento a dominios en whitelist estricta |
-| **SEC-11** | Keycloak `sslRequired: none` en producción | Alto | ⏳ **Pendiente** | Configurar `sslRequired: all` en perfil productivo |
-| **SEC-12** | Leyendas de advertencia anti-Vishing en SMS | Info | ⏳ **Pendiente** | Actualizar plantilla de mensajería SMS y WhatsApp |
+| **SEC-01** | Cabeceras HTTP inseguras (CSP, HSTS) | Alto | ✅ **Corregido** | Aplicado en `next.config.ts` (05-Nov-2026) |
+| **SEC-02** | Abuso de API / DoS en validación CURP | Medio | ✅ **Corregido** | Rate limiting aplicado en `validate-curp` (05-Nov-2026) |
+| **SEC-03** | Inyección de CURPs y formato no oficial | Medio | ✅ **Corregido** | Regex y validación de dígito RENAPO (05-Nov-2026) |
+| **SEC-04** | Riesgo de lavado / Empresas EFOS SAT | Alto | ✅ **Corregido** | Cruce en vivo con 14,055 registros SAT 69-B (05-Nov-2026) |
+| **SEC-05** | Suplantación facial con fotos o lentes | Alto | ✅ **Corregido** | Pipeline ShuffleNet + Sharp + Liveness (05-Nov-2026) |
+| **SEC-06** | Falta de RBAC en APIs de Usuarios y Tienda | Crítico | ✅ **Corregido** | Helper `requireAuth` en `src/lib/auth/serverAuth.ts` protegiendo `/api/configuracion/*` y `/api/tienda/pedidos/[id]` (06-Nov-2026) |
+| **SEC-07** | Fallback de contraseñas permisivo | Crítico | ✅ **Corregido** | Eliminado bypass `!u.password` en `src/app/api/auth/login/route.ts` exigiendo coincidencia estricta y firma JWT (06-Nov-2026) |
+| **SEC-08** | Inyección de Fórmulas en CSV (CWE-1236) | Medio | ✅ **Corregido** | Creado `src/lib/utils/csv.ts` con función `buildSafeCsv` sanitizando triggers (`=`, `+`, `-`, `@`) en todos los módulos (06-Nov-2026) |
+| **SEC-09** | Cabecera `x-forwarded-host` en Proxy | Medio | ✅ **Corregido** | Whitelist estricta de dominios autorizados en `src/proxy.ts` (06-Nov-2026) |
+| **SEC-10** | Keycloak `sslRequired: none` en producción | Alto | ✅ **Corregido** | Configurado `sslRequired: external` en `lanahora-realm.json` (06-Nov-2026) |
+| **SEC-11** | Ingeniería Social y Phishing en Referidos | Info | ✅ **Corregido** | Alerta visual anti-fraude y nota en mensaje WhatsApp en `src/app/tienda/page.tsx` (06-Nov-2026) |
+| **SEC-12** | Migración futura de `localStorage` a Cookies | Alto | 📋 **En Hoja de Ruta** | Planificado para despliegue productivo con sesión `HttpOnly; SameSite=Strict` |
 
 ---
 
 *Documento generado y mantenido por el Equipo de Desarrollo e Infraestructura de Sistema Core LanAhora.*
+

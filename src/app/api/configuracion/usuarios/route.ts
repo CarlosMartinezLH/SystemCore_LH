@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server';
 import { configuracionStore } from '@/lib/store/configuracionStore';
+import { requireAuth } from '@/lib/auth/serverAuth';
 
-export async function GET() {
+const ADMIN_ROLES = ['ADMIN', 'DIRECTOR_GENERAL', 'ADMINISTRADOR'];
+
+export async function GET(req: Request) {
   try {
+    const auth = requireAuth(req);
+    if (!auth.ok) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status || 401 });
+    }
+
     const usuarios = configuracionStore.getUsuarios();
     return NextResponse.json({ success: true, usuarios });
   } catch (error: any) {
@@ -15,6 +23,11 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const auth = requireAuth(req, ADMIN_ROLES);
+    if (!auth.ok) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status || 401 });
+    }
+
     const body = await req.json();
     const { name, email, role, roleLabel, branch, branchScope, telefono, puesto, estatus } = body;
 
@@ -45,4 +58,3 @@ export async function POST(req: Request) {
     );
   }
 }
-
