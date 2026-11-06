@@ -168,15 +168,6 @@ export default function LanaTiendaAdminView() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <a
-            href="/tienda"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-xl text-xs font-black shadow-xs transition"
-          >
-            <span>Abrir LanaTienda Web</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
           <button
             onClick={fetchPedidos}
             disabled={loading}

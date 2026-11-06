@@ -27,3 +27,4 @@ export interface InstitutionalUserConfig {
   createdAt: string;
   avatarInitials: string;
 }
+

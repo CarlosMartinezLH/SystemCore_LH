@@ -301,14 +301,6 @@ function TiendaCoreContent() {
                 Sucursal: <strong>Saltillo Centro (Hidalgo #382)</strong>
               </span>
             </div>
-            <span className="text-slate-700">•</span>
-            <a
-              href="/"
-              className="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition"
-            >
-              <span>Volver a SystemCore</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
           </div>
         </div>
       </div>

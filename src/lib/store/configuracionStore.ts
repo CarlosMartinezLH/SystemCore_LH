@@ -200,3 +200,4 @@ export const configuracionStore = global.__configuracionStore || new Configuraci
 if (process.env.NODE_ENV !== 'production') {
   global.__configuracionStore = configuracionStore;
 }
+
