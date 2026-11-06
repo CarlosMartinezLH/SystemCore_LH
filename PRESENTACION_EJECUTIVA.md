@@ -46,8 +46,8 @@ Tradicionalmente, el modelo de crédito mediante vales ha dependido de papel fí
 flowchart TD
     subgraph Canales ["Canales de Interacción"]
         WEB["SystemCore Web (Next.js 16 / React 19)"]
-        LANAPP["LanApp Móvil (iPhone iOS & Android)"]
-        ASESORES["LH Asesores Móvil (iPhone iOS & Android)"]
+        LANAPP["LanApp Distribuidoras (iPhone iOS & Android)"]
+        ASESORES["LH Asesores Móvil (Solo Android)"]
     end
 
     subgraph SyncEngine ["Bus de Sincronización en Tiempo Real"]
@@ -103,12 +103,12 @@ El portal administrativo **SystemCore** unifica todas las áreas clave de la com
 
 ---
 
-## Diapositiva 4: Ecosistema Móvil Multiplataforma (iPhone iOS & Google Android)
+## Diapositiva 4: Ecosistema Móvil (LanApp para iPhone/Android & LH Asesores solo Android)
 
-Desarrolladas con **Flutter** nativo multi-flavor para máximo desempeño tanto en **Apple iPhone (iOS 15+)** como en **Google Android**:
+Desarrolladas con **Flutter** para máximo desempeño nativo:
 
-### 📱 1. LanApp (`com.lanahora.lanapp`) — iPhone & Android
-* **Compatibilidad Multiplataforma**: Experiencia unificada en iPhone (con soporte nativo para **Face ID**, Touch ID y apertura de WhatsApp) y Android.
+### 📱 1. LanApp (`com.lanahora.lanapp`) — iPhone iOS & Google Android
+* **Compatibilidad Multiplataforma**: Disponible tanto para **Apple iPhone (iOS 15+)** (con soporte nativo para **Face ID**, Touch ID y apertura de WhatsApp) como para teléfonos **Android**.
 * **Para la Distribuidora (DV)**:
   * Consulta en vivo de su línea disponible, saldo actual y fechas de corte.
   * Emisión de vales digitales en segundos eligiendo cliente, monto y plazos.
@@ -118,11 +118,12 @@ Desarrolladas con **Flutter** nativo multi-flavor para máximo desempeño tanto 
   * Captura de credencial INE y validación facial biométrica con detección de vida.
   * Firma digital en pantalla y acreditación bancaria inmediata.
 
-### 📱 2. LH Asesores (`com.lanahora.asesores`)
-* **Para Asesores Comerciales y Coordinadores de Campo**:
+### 📱 2. LH Asesores (`com.lanahora.asesores`) — Solo Android
+* **Exclusiva para Flota Android de Campo**:
+  * Diseñada específicamente para los terminales y smartphones Android provistos a la fuerza de ventas.
   * Levantamiento de solicitudes en campo directamente en domicilios o comercios.
   * Validación preventiva de CURP contra listas negras del SAT antes de integrar expediente.
-  * Marcaje de asistencia con geolocalización satelital para asegurar cobertura geográfica.
+  * Marcaje de asistencia con geolocalización satelital GPS para asegurar cobertura geográfica.
 
 ---
 

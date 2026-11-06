@@ -90,13 +90,13 @@ flowchart TD
 * **Dispersión Inmediata 24/7 (STP SPEI)**: Envío automático del dinero a la cuenta bancaria (CLABE o tarjeta) del cliente en minutos una vez completado el canje. Generación de clave de rastreo oficial para consulta en Banxico.
 * **Red de Cobranza en Tiendas (Paynet)**: Generación de códigos de barras para que los clientes o distribuidoras realicen sus abonos cómodamente en más de 30,000 establecimientos en todo el país (7-Eleven, Farmacias del Ahorro, Circle K, Walmart y ventanillas bancarias).
 
-### 8. Aplicaciones Móviles Oficiales (Multiplataforma: iPhone iOS & Google Android)
+### 8. Aplicaciones Móviles Oficiales
 
-El ecosistema móvil de LanAhora está desarrollado con tecnología **Flutter de última generación**, lo que garantiza que tanto **LanApp** como **LH Asesores** están disponibles y funcionan de forma nativa e idéntica tanto en **Apple iPhone (iOS 15+)** como en **Google Android**:
+El ecosistema móvil de LanAhora cuenta con dos soluciones especializadas según el perfil operativo:
 
-#### 📱 LanApp (Para Distribuidoras y Canje del Cliente)
-* **Compatibilidad Total**: Disponible para **iPhone** (con soporte nativo para **Face ID**, Touch ID y compartir vales vía WhatsApp) y para teléfonos **Android**.
-* **Para la Distribuidora**:
+#### 📱 LanApp (Multiplataforma: iPhone iOS & Google Android)
+* **Para la Distribuidora (DV)**:
+  * **Compatibilidad Total**: Disponible tanto para **Apple iPhone (iOS 15+)** (con soporte nativo para **Face ID**, Touch ID y apertura fluida de WhatsApp) como para teléfonos **Google Android**.
   * Consulta en tiempo real de su saldo disponible y fechas de corte.
   * Emisión de vales de dinero digitales especificando monto y quincenas.
   * Generación de enlaces seguros para enviar a sus clientes por WhatsApp.
@@ -110,8 +110,8 @@ El ecosistema móvil de LanAhora está desarrollado con tecnología **Flutter de
     4. Firma digital del pagaré en pantalla táctil con validez legal.
     5. Depósito automático directo a su cuenta de banco (SPEI STP).
 
-#### 📱 LH Asesores (Para Asesores Comerciales en Ruta)
-* **Compatibilidad**: Funciona en dispositivos **Android** y **iPhone** para asesores de campo y supervisores.
+#### 📱 LH Asesores (Exclusiva para Android)
+* **Diseño para Trabajo en Campo**: Aplicación corporativa desarrollada exclusivamente para **dispositivos Android** (terminales y smartphones corporativos provistos a la fuerza de ventas).
 * **Levantamiento en Campo**: Registro de nuevas solicitudes de crédito directamente en el domicilio o negocio del prospecto, sin necesidad de cargar papelería física.
 * **Validación en Frío**: Verificación de CURP en tiempo real durante la entrevista para descartar homónimos o adeudos previos antes de armar expediente.
 * **Asistencia y Geolocalización**: Registro de visita con coordenadas GPS para transparentar la cobertura de zonas comerciales asignadas.
