@@ -41,18 +41,13 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
       {/* Main Centered Authentication Card */}
       <div className="w-full max-w-md my-auto">
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-300/40 p-8 sm:p-10 space-y-6">
-          {/* Logo & System Brand */}
-          <div className="text-center space-y-2">
-            <div className="flex justify-center">
-              <img
-                src="/lanahora-logo.png"
-                alt="LanAhora"
-                className="h-16 w-auto object-contain"
-              />
-            </div>
-            <p className="text-xs text-slate-500 font-medium">
-              Acceso Institucional • Plataforma Central
-            </p>
+          {/* Logo */}
+          <div className="flex justify-center pb-2">
+            <img
+              src="/lanahora-logo.png"
+              alt="LanAhora"
+              className="h-16 w-auto object-contain"
+            />
           </div>
 
           {/* Error Alert */}
