@@ -15,7 +15,7 @@ import DistribuidoresView from '@/components/DistribuidoresView';
 import RHView from '@/components/RHView';
 import DispersionView from '@/components/DispersionView';
 import IntegracionesView from '@/components/IntegracionesView';
-import LanaTiendaAdminView from '@/components/LanaTiendaAdminView';
+import ConfiguracionView from '@/components/ConfiguracionView';
 import { UserSession } from '@/types/auth';
 import { Prospect, StageId, OriginType } from '@/types/crm';
 import { INITIAL_PROSPECTS, createDefaultDocuments } from '@/lib/data/initialData';
@@ -240,9 +240,9 @@ export default function Home() {
               <DispersionView />
             ) : activeModule === 'integraciones' ? (
               <IntegracionesView />
-            ) : activeModule === 'lanatienda' ? (
+            ) : activeModule === 'configuracion' ? (
               <div className="p-6">
-                <LanaTiendaAdminView />
+                <ConfiguracionView />
               </div>
             ) : (
               /* MODULE CRM DESKTOP */

@@ -305,3 +305,43 @@ flowchart TD
 | `/api/tienda/pedidos` | `POST` | Creación de pedido, validación de línea de crédito, deducción de saldo y generación de folio `LTD-2026-XXXX`. |
 | `/api/tienda/pedidos/[id]` | `PATCH` | Actualización de estatus (`APROBADO_MESA`, `EN_TRANSITO`, `LISTO_SUCURSAL`, `ENTREGADO`, `CANCELADO`) y asignación de guía. |
 
+---
+
+## 9. Módulo de Configuración: Sucursales & Usuarios Institucionales
+
+Módulo de administración central en SystemCore (`/configuracion`) para la gestión integral de la infraestructura física (sucursales) y el talento humano con sus roles y alcances territoriales.
+
+### 9.1. Submódulo de Sucursales
+* **Catálogo de Sucursales:** Gestión de claves únicas (`SUC-CORP`, `SUC-SLT-CEN`, `SUC-TRN-CEN`, etc.), nombres comerciales, responsables/gerentes, direcciones, teléfonos y estados.
+* **Operaciones Soportadas:**
+  - **Alta de Nueva Sucursal:** Registro inmediato con clave y datos de contacto.
+  - **Edición y Cambio de Nombre:** Actualización en cascada (si se renombra una sucursal, se actualiza automáticamente la asignación de todos los colaboradores asignados a ella).
+  - **Activación / Desactivación:** Switch de estado operativo (`ACTIVA` / `INACTIVA`).
+  - **Baja / Eliminación:** Eliminación segura con reasignación automática de los usuarios asociados a `Corporativo Saltillo`.
+  - **Métrica en Vivo:** Conteo en tiempo real de colaboradores asignados a cada sucursal.
+
+### 9.2. Submódulo de Usuarios Institucionales & Asignaciones
+* **Roles y Permisos:** Integración con roles de Keycloak (`ADMINISTRADOR`, `MESA_CREDITO`, `GERENTE_SUCURSAL`, `COORDINADOR_COMERCIAL`, `COORDINADOR_NEGOCIOS`, `ASESOR_CAMPO`).
+* **Asignación Territorial:** Asignación dinámica a cualquiera de las sucursales del catálogo y definición de alcance de permisos:
+  - `ALL`: Acceso institucional global (todas las sucursales).
+  - `BRANCH`: Acceso restringido exclusivamente a su sucursal designada.
+* **Operaciones Soportadas:**
+  - **Alta de Usuario:** Captura de nombre, correo `@lanahora.com`, puesto, rol, sucursal asignada y teléfono.
+  - **Edición & Reasignación de Sucursal:** Cambio de sucursal y rol en cualquier momento.
+  - **Activación / Bloqueo:** Suspensión inmediata del acceso con el estatus `INACTIVO`.
+  - **Baja de Usuario:** Eliminación de credenciales del sistema.
+
+### 9.3. Endpoints REST de Configuración
+
+| Endpoint | Método | Descripción |
+| :--- | :--- | :--- |
+| `/api/configuracion/sucursales` | `GET` | Lista de sucursales registradas con estado y conteo. |
+| `/api/configuracion/sucursales` | `POST` | Registro de una nueva sucursal en el catálogo. |
+| `/api/configuracion/sucursales/[id]` | `PATCH` | Edición de datos, cambio de nombre o toggle de estatus (`ACTIVA`/`INACTIVA`). |
+| `/api/configuracion/sucursales/[id]` | `DELETE` | Eliminación de sucursal con reasignación en cascada. |
+| `/api/configuracion/usuarios` | `GET` | Lista de usuarios institucionales y sus sucursales asignadas. |
+| `/api/configuracion/usuarios` | `POST` | Alta de nuevo colaborador con rol y sucursal. |
+| `/api/configuracion/usuarios/[id]` | `PATCH` | Edición de usuario, cambio de sucursal o toggle de estatus (`ACTIVO`/`INACTIVO`). |
+| `/api/configuracion/usuarios/[id]` | `DELETE` | Baja de colaborador del sistema. |
+
+

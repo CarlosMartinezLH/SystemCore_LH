@@ -21,7 +21,7 @@ export type ActiveAppModule =
   | 'rh'
   | 'dispersion'
   | 'integraciones'
-  | 'lanatienda';
+  | 'configuracion';
 
 interface HeaderProps {
   currentUser: UserSession;
@@ -75,9 +75,9 @@ export default function Header({
       title: 'Integraciones ESB & Servicios Core',
       subtitle: 'Monitoreo de APIs: Nubarium Biometrics, SAT, RENAPO y STP SPEI',
     },
-    lanatienda: {
-      title: 'LanaTienda (E-Commerce B2B2C)',
-      subtitle: 'Pedidos a 16 quincenas, catálogo y líneas de crédito distribuidoras',
+    configuracion: {
+      title: 'Configuración del Sistema Core',
+      subtitle: 'Administración de sucursales, usuarios institucionales, roles y asignaciones',
     },
   };
 

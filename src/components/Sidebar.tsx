@@ -16,7 +16,7 @@ import {
   ChevronRight,
   ShieldCheck,
   Building,
-  ShoppingBag,
+  Sliders,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -73,13 +73,6 @@ export default function Sidebar({
           name: 'Dispersión STP',
           icon: CreditCard,
         },
-        {
-          id: 'lanatienda',
-          name: 'LanaTienda (E-Com)',
-          icon: ShoppingBag,
-          badge: '16 Qnas',
-          badgeColor: 'bg-amber-400 text-slate-950 font-black',
-        },
       ],
     },
     {
@@ -99,6 +92,16 @@ export default function Sidebar({
           id: 'rh',
           name: 'Capital Humano & GPS',
           icon: UserCheck,
+        },
+      ],
+    },
+    {
+      label: 'Administración & Sistema',
+      items: [
+        {
+          id: 'configuracion',
+          name: 'Configuración',
+          icon: Sliders,
         },
       ],
     },
