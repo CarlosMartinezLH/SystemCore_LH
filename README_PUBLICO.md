@@ -133,7 +133,7 @@ LanAhora opera bajo los más altos estándares de ciberseguridad financiera:
 * **Protección Anti-Ingeniería Social (Vishing & Phishing)**:
   - Avisos preventivos en la tienda y mensajes oficiales: *"LanAhora NUNCA te pedirá transferencias a cuentas OXXO o personales"*.
   - Bloqueo preventivo de cuentas tras intentos fallidos repetidos.
-* **Bitácora de Ciberseguridad Transparente**: Todo el historial de pruebas, escaneos de vulnerabilidades y correcciones técnicas se documenta y audita en el archivo [`Pruebas_Ciberseguridad.md`](Pruebas_Ciberseguridad.md).
+* **Bitácora de Ciberseguridad Transparente**: Todo el historial de pruebas, escaneos de vulnerabilidades y correcciones técnicas se documenta y audita en el archivo [`PRUEBAS_CIBERSEGURIDAD.md`](PRUEBAS_CIBERSEGURIDAD.md).
 
 ---
 
