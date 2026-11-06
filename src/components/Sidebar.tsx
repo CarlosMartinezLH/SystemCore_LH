@@ -147,15 +147,12 @@ export default function Sidebar({
                   className="w-10 h-10 object-contain group-hover:scale-105 transition shrink-0"
                 />
               ) : (
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center min-w-0">
                   <img
                     src="/lanahora-logo.png"
                     alt="LanAhora"
-                    className="h-9 w-auto max-w-[145px] object-contain group-hover:scale-105 transition shrink-0"
+                    className="h-9 w-auto max-w-[170px] object-contain group-hover:scale-105 transition shrink-0"
                   />
-                  <span className="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
-                    Core
-                  </span>
                 </div>
               )}
             </div>

@@ -50,7 +50,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
       <div className="w-full max-w-md my-auto">
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-300/40 p-8 sm:p-10 space-y-6">
           {/* Logo & System Brand */}
-          <div className="text-center space-y-3">
+          <div className="text-center space-y-2">
             <div className="flex justify-center">
               <img
                 src="/lanahora-logo.png"
@@ -58,14 +58,9 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 className="h-16 w-auto object-contain"
               />
             </div>
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-black uppercase tracking-wider">
-                SystemCore
-              </div>
-              <p className="text-xs text-slate-500 mt-2 font-medium">
-                Acceso Institucional • Plataforma Central
-              </p>
-            </div>
+            <p className="text-xs text-slate-500 font-medium">
+              Acceso Institucional • Plataforma Central
+            </p>
           </div>
 
           {/* Error Alert */}
