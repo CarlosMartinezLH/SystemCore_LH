@@ -61,8 +61,6 @@ export default function Sidebar({
           id: 'core_dashboard',
           name: 'Buscador & Cartera',
           icon: LayoutDashboard,
-          badge: 'Live',
-          badgeColor: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
         },
         {
           id: 'crm',
@@ -73,8 +71,6 @@ export default function Sidebar({
           id: 'dispersion',
           name: 'Dispersión STP',
           icon: CreditCard,
-          badge: 'SPEI',
-          badgeColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
         },
       ],
     },
