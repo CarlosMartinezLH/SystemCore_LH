@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Building,
   Sliders,
+  ShoppingBag,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -72,6 +73,11 @@ export default function Sidebar({
           id: 'dispersion',
           name: 'Dispersión STP',
           icon: CreditCard,
+        },
+        {
+          id: 'lanatienda',
+          name: 'LanaTienda',
+          icon: ShoppingBag,
         },
       ],
     },

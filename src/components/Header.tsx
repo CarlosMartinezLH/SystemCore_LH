@@ -21,7 +21,8 @@ export type ActiveAppModule =
   | 'rh'
   | 'dispersion'
   | 'integraciones'
-  | 'configuracion';
+  | 'configuracion'
+  | 'lanatienda';
 
 interface HeaderProps {
   currentUser: UserSession;
@@ -78,6 +79,10 @@ export default function Header({
     configuracion: {
       title: 'Configuración del Sistema Core',
       subtitle: 'Administración de sucursales, usuarios institucionales, roles y asignaciones',
+    },
+    lanatienda: {
+      title: 'LanaTienda · Control de Pedidos',
+      subtitle: 'Monitoreo de compras en línea, estatus logístico y validación de entregas',
     },
   };
 
