@@ -10,6 +10,9 @@ Núcleo tecnológico, financiero y operativo de **LanAhora (SOFOM E.N.R.)** para
 | :--- | :--- |
 | **Framework Web Core** | **Next.js 16.4.5** (App Router, Turbopack Engine, React 19.3.0, TypeScript 5.x) |
 | **Estilos & UI System** | Tailwind CSS v4, Lucide Icons, Canvas Signature API |
+| **Servidor de Identidad (IAM)** | **Keycloak 26.1.3** (OpenID Connect, Realm `lanahora`, Client `systemcore-web`, PKCE) |
+| **Control de Acceso (RBAC)** | Middleware `serverAuth.ts` con validación estricta de roles y alcances por sucursal |
+| **Enrutador Multi-Dominio** | `src/proxy.ts` (Next.js 16 Proxy con soporte estricto para `tienda.lanahora.com`) |
 | **Framework Móvil** | **Flutter 3.x / Dart 3.x** (Android SDK 34, JVM 17, Gradle 8.x) |
 | **Flavors Móviles** | `lanapp` (`com.lanahora.lanapp`) y `asesores` (`com.lanahora.asesores`) |
 | **Seguridad Móvil** | Ofuscación de bytecode con R8 / ProGuard, Flutter Secure Storage (AES-256/RSA) |
@@ -127,10 +130,10 @@ Para garantizar la integridad en el canje de vales digitales sin costos por cons
 
 ## 4. Ciberseguridad & Pentesting Hardening
 
-El sistema cuenta con directivas de seguridad implementadas y verificadas contra ataques de inyección, secuestro de clics y robo de credenciales:
+El sistema cuenta con directivas de seguridad implementadas y verificadas contra ataques de inyección, secuestro de clics, BFLA/BOLA, y robo de credenciales. La bitácora detallada de hallazgos, pruebas y estados se encuentra documentada en [`Pruebas_Ciberseguridad.md`](Pruebas_Ciberseguridad.md).
 
+### 4.1. Encabezados HTTP de Seguridad (`next.config.ts`)
 ```typescript
-// next.config.ts — Encabezados HTTP de Seguridad
 headers: [
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -141,7 +144,16 @@ headers: [
 ]
 ```
 
-### Reglas de Ofuscación R8 / ProGuard (`mobile_app/android/app/proguard-rules.pro`)
+### 4.2. Control de Acceso y Autorización en APIs (`src/lib/auth/serverAuth.ts`)
+Validación estricta de tokens Bearer OIDC expedidos por Keycloak, expiración y control de roles institucionales (`ADMIN`, `DIRECTOR_GENERAL`, `MESA_CREDITO`) para proteger mutaciones en `/api/configuracion/*` y `/api/tienda/pedidos/[id]`.
+
+### 4.3. Prevención de Inyección de Fórmulas en CSV (`src/lib/utils/csv.ts` — CWE-1236)
+Sanitización automática de celdas anteponiendo un apóstrofe `'` a valores que comiencen con triggers de fórmulas (`=`, `+`, `-`, `@`, `\t`, `\r`) y codificación con BOM UTF-8 (`\uFEFF`) en todas las exportaciones del sistema.
+
+### 4.4. Hardening de Proxy Multi-Dominio (`src/proxy.ts` — CWE-644)
+Normalización del encabezado `Host` con lista blanca estricta (`ALLOWED_TIENDA_HOSTS`) para prevenir ataques de Host Header Injection y envenenamiento de caché.
+
+### 4.5. Reglas de Ofuscación R8 / ProGuard (`mobile_app/android/app/proguard-rules.pro`)
 * Retención de componentes Flutter esenciales (`io.flutter.app.**`, `io.flutter.plugin.**`).
 * Supresión de advertencias en dependencias diferidas (`-dontwarn com.google.android.play.core.**`).
 * Protección contra ingeniería inversa en SQLite y almacenamiento encriptado seguro (`FlutterSecureStorage`).
@@ -159,14 +171,23 @@ SystemCore_LH/
 │   ├── diseno-login-movil.md                # Design System corporativo y pantallas móviles
 │   ├── manual-dispersion-digital-lanapp.md  # Protocolo de canje y dispersión STP
 │   └── mapa-sistemas-integraciones.md       # Topología de la capa de integración ESB
+├── keycloak/                                # Configuración y exportaciones de Realm IAM
+│   └── data/import/lanahora-realm.json      # Realm OIDC oficial LanAhora (Roles y Clientes)
 ├── src/
 │   ├── app/
-│   │   ├── api/kyc/validate-curp/route.ts   # Edge API de validación RENAPO + SAT 69-B
+│   │   ├── api/
+│   │   │   ├── auth/                        # Endpoints de Login y Estado OIDC
+│   │   │   ├── configuracion/               # CRUD protegido de Sucursales y Usuarios
+│   │   │   ├── kyc/                         # APIs de RENAPO, Biometría y SAT 69-B
+│   │   │   ├── sync/                        # Bus reactivo de sincronización Core
+│   │   │   └── tienda/                      # Catálogo y procesamiento de pedidos LanaTienda
+│   │   ├── tienda/                          # Aplicación Web LanaTienda (Multi-Dominio)
 │   │   ├── globals.css                      # Estilos globales y paleta institucional
 │   │   ├── layout.tsx                       # Layout raíz
 │   │   └── page.tsx                         # Orquestador del Core y control de sesión
 │   ├── components/
 │   │   ├── Header.tsx                       # Barra de navegación principal del Core
+│   │   ├── Sidebar.tsx                      # Menú lateral modular del Sistema Core
 │   │   ├── LoginView.tsx                    # Autenticación segura por sucursal
 │   │   ├── KanbanBoard.tsx                  # Tablero visual de originación
 │   │   ├── TableView.tsx                    # Vista tabular de prospectos comerciales
@@ -176,17 +197,23 @@ SystemCore_LH/
 │   │   ├── DistribuidoresView.tsx           # Padrón de 7,171 distribuidoras con sidebar
 │   │   ├── RHView.tsx                       # Asistencia GPS, requisiciones y capacitaciones
 │   │   ├── DispersionView.tsx               # Desembolsos SPEI STP y recaudación Paynet
+│   │   ├── LanaTiendaAdminView.tsx          # Panel Core de Monitoreo y Despacho de Pedidos
+│   │   ├── ConfiguracionView.tsx            # Gestión de Sucursales y Usuarios Institucionales
 │   │   ├── IntegracionesView.tsx            # Monitor de salud ESB y consola interactiva
-│   │   ├── LanAppView.tsx                   # Simulador Web de LanApp y Canje con Cámara
 │   │   └── modals/                          # Modales de interacción operativa
 │   ├── lib/
+│   │   ├── auth/serverAuth.ts               # Middleware de validación JWT y roles RBAC
+│   │   ├── utils/csv.ts                     # Sanitizador contra CSV Formula Injection
+│   │   ├── store/                           # Almacenes de estado (Tienda y Configuración)
 │   │   ├── data/
 │   │   │   ├── coreData.ts                  # Padrón de semillas operativas
 │   │   │   ├── initialData.ts               # Semillas de prospectos y matriz documental
 │   │   │   └── sat/sat_69b_index.json       # Padrón indexado de contribuyentes SAT Art. 69-B
 │   │   └── security.ts                      # Sanitizadores y hashing criptográfico
-│   └── types/                               # Tipados TypeScript (Core, CRM, Auth, RH)
+│   ├── proxy.ts                             # Proxy perimetral multi-dominio Next.js 16
+│   └── types/                               # Tipados TypeScript (Core, CRM, Auth, Tienda, Config)
 ├── DOCUMENTACION_GENERAL.md                 # Documentación funcional para público en general
+├── Pruebas_Ciberseguridad.md                # Bitácora oficial de pruebas de pentesting y SAST
 └── README.md                                # Este documento (Especificación técnica)
 ```
 
@@ -198,6 +225,12 @@ SystemCore_LH/
 # Configuración del Entorno
 NEXT_PUBLIC_APP_ENV=development
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Servidor de Identidad Keycloak OIDC
+KEYCLOAK_URL=http://localhost:8080
+KEYCLOAK_REALM=lanahora
+KEYCLOAK_CLIENT_ID=systemcore-web
+KEYCLOAK_CLIENT_SECRET=systemcore_keycloak_secret_2026
 
 # API Nubarium KYC (RENAPO & Biometría)
 NUBARIUM_BASE_URL=https://api.nubarium.com

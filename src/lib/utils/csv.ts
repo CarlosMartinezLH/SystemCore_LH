@@ -33,3 +33,4 @@ export function buildSafeCsv(headers: string[], rows: (string | number | boolean
   const rowLines = rows.map((r) => r.map((cell) => sanitizeCsvField(cell)).join(',')).join('\n');
   return `\uFEFF${headerLine}\n${rowLines}`;
 }
+
