@@ -28,12 +28,9 @@ import {
   Star,
   Sparkles,
   Zap,
-  Flame,
-  BadgePercent,
   Check,
   Eye,
   MessageCircle,
-  ArrowUpRight,
   SlidersHorizontal,
 } from 'lucide-react';
 import {
@@ -49,7 +46,7 @@ import {
   MOCK_CLIENTES_DEFAULT,
 } from '@/lib/data/tiendaData';
 
-function TiendaModernContent() {
+function TiendaCoreContent() {
   const searchParams = useSearchParams();
   const refSku = searchParams.get('sku') || searchParams.get('ref') || '';
 
@@ -70,7 +67,7 @@ function TiendaModernContent() {
   const [viewHistoryModal, setViewHistoryModal] = useState(false);
   const [historyOrders, setHistoryOrders] = useState<LanaTiendaPedido[]>([]);
 
-  // Distribuidora Auth & Data
+  // Distribuidora Auth & Data (SystemCore)
   const [isDistribuidoraLoggedIn, setIsDistribuidoraLoggedIn] = useState(false);
   const [distribuidora, setDistribuidora] = useState<LanaTiendaDistribuidoraLineas>(MOCK_DISTRIBUIDORA_DEFAULT);
   const [clientes, setClientes] = useState<LanaTiendaCliente[]>(MOCK_CLIENTES_DEFAULT);
@@ -130,27 +127,27 @@ function TiendaModernContent() {
     }
   }, [refSku, products]);
 
-  // Premium Carousel Slides
+  // System Core Banners
   const banners = [
     {
       src: '/tienda/banners/banner_1.png',
-      tag: '🔥 ESPECIAL NOVIEMBRE',
+      tag: 'FINANCIAMIENTO OFICIAL',
       title: 'Equipa tu Hogar y Familia sin Enganche',
-      subtitle: 'Tus artículos favoritos a 16 quincenas fijas con cargo a tu distribuidora',
-      cta: 'Ver Artículos Destacados',
+      subtitle: 'Tus artículos favoritos a 16 quincenas fijas autorizadas por tu distribuidora LanAhora',
+      cta: 'Ver Artículos Disponibles',
     },
     {
       src: '/tienda/banners/banner_2.png',
-      tag: '📺 PANTALLAS Y ENTRETENIMIENTO',
+      tag: 'PANTALLAS & ENTRETENIMIENTO',
       title: 'Smart TV 4K y Audio de Alta Fidelidad',
-      subtitle: 'Disfruta de la mejor tecnología pagando poco a poco cada quincena',
+      subtitle: 'La mejor tecnología con cargo a tu línea de crédito autorizada',
       cta: 'Explorar Electrónica',
     },
     {
       src: '/tienda/banners/banner_3.png',
-      tag: '❄️ CONFORT TOTAL',
+      tag: 'CLIMATIZACIÓN & CONFORT',
       title: 'Minisplits Inverter de Máximo Ahorro',
-      subtitle: 'Entrega directa en tu domicilio o en tu sucursal más cercana',
+      subtitle: 'Entrega directa en tu domicilio o en tu sucursal Saltillo Centro',
       cta: 'Ver Climatización',
     },
   ];
@@ -282,100 +279,101 @@ function TiendaModernContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F3F4F6] text-slate-900 selection:bg-amber-400 selection:text-slate-950 font-sans">
-      {/* 1. TOP ANNOUNCEMENT BAR (Amazon/Mercado Libre Style) */}
-      <div className="bg-[#001E33] text-white text-[11px] font-medium tracking-wide border-b border-white/10">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 selection:bg-amber-400 selection:text-slate-900 font-sans">
+      {/* 1. TOP ANNOUNCEMENT BAR (SystemCore Slate-900 & Gold) */}
+      <div className="bg-slate-900 text-slate-200 text-[11px] font-medium tracking-wide border-b border-slate-800">
         <div className="w-full px-4 sm:px-8 xl:px-12 py-2 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-4 text-slate-300">
             <span className="flex items-center gap-1.5 text-amber-400 font-bold">
               <Zap className="w-3.5 h-3.5 fill-amber-400" />
-              <span>Financiamiento Oficial LanAhora</span>
+              <span>Financiera LanAhora • Crédito en Vales y Tienda</span>
             </span>
-            <span className="hidden md:inline text-white/30">•</span>
+            <span className="hidden md:inline text-slate-700">•</span>
             <span className="hidden md:inline">
-              Todos tus productos siempre a <strong>16 quincenas fijas</strong> sin comisiones ocultas
+              Plazo único institucional: <strong>16 quincenas fijas</strong> sin comisiones ocultas
             </span>
           </div>
 
           <div className="flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1 text-slate-300 hover:text-white transition cursor-pointer">
+            <div className="flex items-center gap-1 text-slate-300">
               <MapPin className="w-3 h-3 text-amber-400" />
               <span>
-                Entregas en: <strong>Saltillo, Coah.</strong>
+                Sucursal: <strong>Saltillo Centro (Hidalgo #382)</strong>
               </span>
             </div>
-            <span className="text-white/30">•</span>
+            <span className="text-slate-700">•</span>
             <a
               href="/"
               className="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition"
             >
-              <span>SystemCore</span>
+              <span>Volver a SystemCore</span>
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>
         </div>
       </div>
 
-      {/* 2. MAIN HEADER (Corporate Navy & Luxury Gold) */}
-      <header className="sticky top-0 z-40 bg-[#002B49] text-white shadow-lg border-b border-amber-400/30">
-        <div className="w-full px-4 sm:px-8 xl:px-12 py-3.5 flex items-center justify-between gap-4">
-          {/* Logo Brand */}
-          <a href="/tienda" className="flex items-center gap-2 group shrink-0">
-            <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 px-3 py-1.5 rounded-xl shadow-md font-black tracking-tight group-hover:scale-105 transition duration-200">
-              <span className="text-xl font-black">LanA</span>
-              <span className="text-xl font-black tracking-tighter text-blue-950">tienda</span>
-            </div>
-            <div className="hidden lg:flex flex-col text-left pl-1">
-              <span className="text-[10px] uppercase font-black tracking-wider text-amber-300 leading-none">
-                Financiera LanAhora
+      {/* 2. MAIN HEADER (SystemCore Clean White & Official Logo) */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+        <div className="w-full px-4 sm:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
+          {/* Official SystemCore Logo */}
+          <a href="/tienda" className="flex items-center gap-3 shrink-0 group">
+            <img
+              src="/lanahora-logo.png"
+              alt="LanAhora"
+              className="h-10 w-auto object-contain group-hover:scale-105 transition"
+            />
+            <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
+              <span className="bg-blue-600 text-white font-black text-xs px-2.5 py-0.5 rounded-lg tracking-wider uppercase shadow-xs">
+                LanaTienda
               </span>
-              <span className="text-[9px] text-white/60 font-semibold tracking-wide">
-                Tienda Oficial a 16 Quincenas
+              <span className="hidden xl:inline-block text-[11px] font-semibold text-slate-400">
+                16 Quincenas Fijas
               </span>
             </div>
           </a>
 
-          {/* Luxury Global Search Bar */}
-          <div className="flex-1 max-w-3xl xl:max-w-5xl mx-4">
+          {/* SystemCore Search Omnibar */}
+          <div className="flex-1 max-w-2xl xl:max-w-4xl mx-2">
             <div className="relative flex items-center">
+              <Search className="w-4 h-4 text-slate-400 absolute left-4" />
               <input
                 type="text"
-                placeholder="Busca marcas, productos, pantallas, laptops o SKU..."
+                placeholder="Buscar por artículo, marca, tecnología o SKU (ej. Maletín, Smart TV, Inverter)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-4 pr-12 bg-white text-slate-900 rounded-full text-sm font-medium placeholder-slate-400 shadow-inner focus:outline-none focus:ring-3 focus:ring-amber-400 transition"
+                className="w-full h-11 pl-11 pr-24 bg-slate-100 hover:bg-slate-100/90 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-medium"
               />
               <button
-                className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 flex items-center justify-center font-bold shadow-sm hover:brightness-105 transition"
-                title="Buscar"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-xs transition"
               >
-                <Search className="w-4 h-4 stroke-[2.5]" />
+                Buscar
               </button>
             </div>
           </div>
 
-          {/* Distribuidora Account & Cart Action */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          {/* User & Distribuidora Actions */}
+          <div className="flex items-center gap-3 shrink-0">
             {isDistribuidoraLoggedIn ? (
               <div className="flex items-center gap-2">
                 <button
                   onClick={loadHistory}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white border border-white/15 transition shadow-xs"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-bold text-slate-700 transition"
                 >
-                  <PackageCheck className="w-4 h-4 text-emerald-400" />
+                  <PackageCheck className="w-4 h-4 text-emerald-600" />
                   <span>Mis Pedidos</span>
                 </button>
 
                 {/* Profile Pill */}
-                <div className="flex items-center gap-2 bg-gradient-to-r from-blue-900/80 to-blue-950 border border-amber-400/50 rounded-xl px-3 py-1.5 shadow-sm">
-                  <div className="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xs">
+                <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5">
+                  <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
                     {distribuidora.distribuidoraNombre.charAt(0)}
                   </div>
                   <div className="text-left hidden sm:block">
-                    <div className="text-[11px] font-bold text-white truncate max-w-[110px]">
+                    <div className="text-xs font-bold text-slate-900 truncate max-w-[120px]">
                       {distribuidora.distribuidoraNombre}
                     </div>
-                    <div className="text-[9px] text-amber-300 font-black tracking-wide">
+                    <div className="text-[10px] text-blue-700 font-bold">
                       Nivel {distribuidora.nivel}
                     </div>
                   </div>
@@ -384,26 +382,25 @@ function TiendaModernContent() {
             ) : (
               <button
                 onClick={() => setIsLoginModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md transition duration-200 transform hover:scale-[1.02]"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition"
               >
-                <Lock className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span className="hidden sm:inline">Ingreso Distribuidora</span>
-                <span className="sm:hidden">Ingresar</span>
+                <Lock className="w-3.5 h-3.5" />
+                <span>Ingreso Distribuidora</span>
               </button>
             )}
 
-            {/* Quick Cart / Status Pill */}
+            {/* Quick Cart Pill */}
             {isDistribuidoraLoggedIn && (
               <button
                 onClick={() => {
                   if (cartProduct) setCartProduct(cartProduct);
                   else if (products[0]) handleOpenCart(products[0]);
                 }}
-                className="relative p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition flex items-center justify-center"
+                className="relative p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 transition"
                 title="Carrito de Distribuidora"
               >
-                <ShoppingCart className="w-4 h-4 text-amber-400" />
-                <span className="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                <ShoppingCart className="w-4 h-4 text-blue-600" />
+                <span className="absolute -top-1 -right-1 bg-amber-400 text-slate-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
                   {cartProduct ? 1 : 0}
                 </span>
               </button>
@@ -411,15 +408,15 @@ function TiendaModernContent() {
           </div>
         </div>
 
-        {/* Category & Deals Subnav */}
-        <div className="bg-[#001E33] border-t border-white/10">
+        {/* Category Subnav */}
+        <div className="bg-slate-50 border-t border-slate-200">
           <div className="w-full px-4 sm:px-8 xl:px-12 flex items-center gap-2 py-2 overflow-x-auto scrollbar-none text-xs">
             <button
               onClick={() => setSelectedCategory('TODOS')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition whitespace-nowrap ${
                 selectedCategory === 'TODOS'
-                  ? 'bg-amber-400 text-slate-950 shadow-sm'
-                  : 'text-slate-200 hover:bg-white/10'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:bg-slate-200/60'
               }`}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -432,50 +429,45 @@ function TiendaModernContent() {
                 onClick={() => setSelectedCategory(cat.nombre)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition whitespace-nowrap ${
                   selectedCategory.toLowerCase() === cat.nombre.toLowerCase()
-                    ? 'bg-amber-400 text-slate-950 font-bold shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    ? 'bg-blue-600 text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                 }`}
               >
                 <span>{cat.icono}</span>
                 <span>{cat.nombre}</span>
-                {cat.badge && (
-                  <span className="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase">
-                    {cat.badge}
-                  </span>
-                )}
               </button>
             ))}
 
-            <div className="ml-auto hidden md:flex items-center gap-4 text-slate-300 shrink-0 text-[11px] font-bold">
-              <span className="text-emerald-400 flex items-center gap-1">
-                <Truck className="w-3.5 h-3.5" /> Envíos Seguros a Domicilio
+            <div className="ml-auto hidden md:flex items-center gap-4 text-slate-500 shrink-0 text-xs font-semibold">
+              <span className="flex items-center gap-1 text-emerald-700">
+                <Truck className="w-3.5 h-3.5" /> Envíos Seguros a Domicilio o Sucursal
               </span>
-              <span className="text-amber-400 flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5" /> 16 Quincenas Fijas
+              <span className="flex items-center gap-1 text-blue-700 font-bold">
+                <Calendar className="w-3.5 h-3.5" /> Siempre a 16 Quincenas Fijas
               </span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* 3. MAIN STORE CONTENT */}
+      {/* 3. MAIN STORE CONTENT (Full-Width) */}
       <main className="w-full px-4 sm:px-8 xl:px-12 py-6 flex-1 space-y-7">
         {/* Referral Callout Banner if coming from WhatsApp */}
         {refSku && selectedProduct && (
-          <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 rounded-3xl p-5 shadow-xl text-slate-950 flex flex-col sm:flex-row items-center justify-between gap-5 border border-amber-300 animate-in fade-in duration-300">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-5 shadow-xs text-slate-900 flex flex-col sm:flex-row items-center justify-between gap-5 border border-amber-300 animate-in fade-in duration-300">
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-2xl bg-white p-1.5 shrink-0 overflow-hidden shadow-md">
-                <img src={selectedProduct.imagen} alt="" className="w-full h-full object-cover rounded-xl" />
+              <div className="w-20 h-20 rounded-xl bg-white p-1 shrink-0 overflow-hidden shadow-xs border border-amber-200">
+                <img src={selectedProduct.imagen} alt="" className="w-full h-full object-cover rounded-lg" />
               </div>
               <div>
-                <span className="bg-slate-950 text-amber-400 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-block">
+                <span className="bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-block">
                   Solicitud Recibida por WhatsApp
                 </span>
-                <h3 className="font-black text-lg sm:text-xl text-slate-950 mt-1 leading-snug">
+                <h3 className="font-bold text-lg sm:text-xl text-slate-900 mt-1 leading-snug">
                   {selectedProduct.nombre}
                 </h3>
-                <p className="text-xs text-slate-800 font-semibold mt-0.5">
-                  Monto a financiar: <strong>16 quincenas fijas de ${selectedProduct.pagoQuincenal.toFixed(2)}</strong>{' '}
+                <p className="text-xs text-slate-600 font-medium mt-0.5">
+                  Financiamiento institucional: <strong>16 quincenas de ${selectedProduct.pagoQuincenal.toFixed(2)}</strong>{' '}
                   (Total: ${selectedProduct.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })})
                 </p>
               </div>
@@ -486,9 +478,9 @@ function TiendaModernContent() {
                   if (!isDistribuidoraLoggedIn) setIsLoginModalOpen(true);
                   else handleOpenCart(selectedProduct);
                 }}
-                className="w-full sm:w-auto px-6 py-3.5 bg-slate-950 hover:bg-slate-900 text-white font-black text-xs rounded-2xl shadow-xl transition flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2"
               >
-                <ShoppingCart className="w-4 h-4 text-amber-400 group-hover:scale-110 transition" />
+                <ShoppingCart className="w-4 h-4 text-amber-400" />
                 <span>
                   {isDistribuidoraLoggedIn ? 'Procesar Pedido en Carrito' : 'Identificarme como Distribuidora'}
                 </span>
@@ -497,28 +489,28 @@ function TiendaModernContent() {
           </div>
         )}
 
-        {/* HERO SECTION WITH DUAL WIDGETS (Amazon/Mercado Libre Retail Grid) */}
+        {/* HERO SECTION WITH DUAL WIDGETS (Full-Width 5 Cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-5">
           {/* Main Carousel Banner (Col Span 3 on lg, 4 on xl) */}
-          <div className="lg:col-span-3 xl:col-span-4 relative rounded-3xl overflow-hidden shadow-xl bg-slate-950 h-64 sm:h-80 md:h-[420px] group">
+          <div className="lg:col-span-3 xl:col-span-4 relative rounded-2xl overflow-hidden shadow-xs bg-slate-900 h-64 sm:h-80 md:h-[400px] group border border-slate-200">
             {banners.map((b, idx) => (
               <div
                 key={idx}
-                className={`absolute inset-0 transition-all duration-700 ease-out ${
+                className={`absolute inset-0 transition-opacity duration-700 ease-out ${
                   idx === activeBanner
-                    ? 'opacity-100 scale-100 z-10'
-                    : 'opacity-0 scale-105 z-0 pointer-events-none'
+                    ? 'opacity-100 z-10'
+                    : 'opacity-0 z-0 pointer-events-none'
                 }`}
               >
                 <img src={b.src} alt={b.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
-                  <span className="text-xs sm:text-sm font-black tracking-widest uppercase bg-amber-400 text-slate-950 px-3 py-1 rounded-full w-max shadow-sm">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
+                  <span className="text-xs font-bold tracking-wider uppercase bg-blue-600 text-white px-3 py-1 rounded-full w-max shadow-xs">
                     {b.tag}
                   </span>
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mt-2 leading-tight max-w-2xl drop-shadow-md">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mt-2 leading-tight max-w-2xl">
                     {b.title}
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-200 mt-1.5 max-w-xl font-medium drop-shadow">
+                  <p className="text-xs sm:text-sm text-slate-200 mt-1 max-w-xl font-medium">
                     {b.subtitle}
                   </p>
                   <div className="mt-4 flex items-center gap-3">
@@ -527,12 +519,12 @@ function TiendaModernContent() {
                         const el = document.getElementById('catalogo-grid');
                         el?.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition flex items-center gap-1.5"
+                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5"
                     >
                       <span>{b.cta}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
-                    <span className="text-[11px] text-amber-300 font-bold hidden sm:inline">
+                    <span className="text-xs text-amber-300 font-bold hidden sm:inline">
                       16 Quincenas Fijas • Sin Enganche
                     </span>
                   </div>
@@ -547,136 +539,109 @@ function TiendaModernContent() {
                   key={idx}
                   onClick={() => setActiveBanner(idx)}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    idx === activeBanner ? 'w-8 bg-amber-400 shadow-sm' : 'w-2 bg-white/40 hover:bg-white/70'
+                    idx === activeBanner ? 'w-8 bg-amber-400' : 'w-2 bg-white/50 hover:bg-white/80'
                   }`}
                 />
               ))}
             </div>
           </div>
 
-          {/* Right Side Retail Cards (Col Span 1) */}
-          <div className="lg:col-span-1 flex flex-col gap-4 justify-between">
+          {/* Right Side Cards (Col Span 1) */}
+          <div className="lg:col-span-1 xl:col-span-1 flex flex-col gap-4 justify-between">
             {/* Card 1: Financiamiento sin enganche */}
-            <div className="bg-gradient-to-br from-[#002B49] to-blue-950 text-white rounded-3xl p-5 shadow-lg flex-1 flex flex-col justify-between border border-blue-900">
+            <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-xs flex-1 flex flex-col justify-between border border-slate-800">
               <div>
-                <div className="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
                   <CreditCard className="w-4 h-4" />
-                  <span>Tu Crédito LanAhora</span>
+                  <span>Crédito LanAhora</span>
                 </div>
-                <h3 className="text-base font-black text-white mt-2 leading-snug">
+                <h3 className="text-base font-bold text-white mt-2 leading-snug">
                   Compra con tu Distribuidora Autorizada
                 </h3>
                 <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                  Elige cualquier artículo del catálogo y págalo en <strong>16 cómodas quincenas</strong>.
+                  Adquiere productos en línea a <strong>16 quincenas fijas</strong> con cargo a tu línea autorizada.
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
                 <span className="text-amber-300 font-bold">16 Pagos Fijos</span>
-                <span className="text-white/60">0% Enganche</span>
+                <span className="text-slate-400">Sin Enganche</span>
               </div>
             </div>
 
             {/* Card 2: Garantía Oficial 48 hrs */}
-            <div className="bg-white rounded-3xl p-5 shadow-md flex-1 flex flex-col justify-between border border-slate-200">
+            <div className="bg-white rounded-2xl p-5 shadow-xs flex-1 flex flex-col justify-between border border-slate-200">
               <div>
-                <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider">
                   <ShieldAlert className="w-4 h-4" />
                   <span>Garantía Oficial</span>
                 </div>
-                <h3 className="text-base font-black text-slate-900 mt-2 leading-snug">
+                <h3 className="text-base font-bold text-slate-900 mt-2 leading-snug">
                   Protección de Entrega 48 Horas
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Cuentas con 48 hrs hábiles al recibir tu paquete para reportar cualquier detalle o daño de paquetería.
+                  Cuentas con 48 hrs hábiles tras recibir tu producto para reportar cualquier detalle o anomalía.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-emerald-700 font-black">Entrega en Sucursal o Casa</span>
+                <span className="text-emerald-700 font-bold">Entrega en Sucursal o Casa</span>
                 <span className="text-slate-400">100% Seguro</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 4. FLASH DEALS TICKER WITH COUNTDOWN (Top E-Commerce Feature) */}
-        <div className="bg-gradient-to-r from-rose-700 via-rose-600 to-orange-600 text-white rounded-2xl p-4 shadow-md flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white text-rose-600 flex items-center justify-center font-black shadow-inner">
-              <Flame className="w-6 h-6 fill-rose-600 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-black text-sm uppercase tracking-wide">Ofertas Quincenales Relámpago</span>
-                <span className="bg-amber-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full uppercase">
-                  Hasta 20% OFF
-                </span>
-              </div>
-              <p className="text-xs text-rose-100">Aprovecha precios especiales pagando en 16 quincenas fijas.</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-bold bg-black/20 px-3.5 py-1.5 rounded-xl border border-white/20">
-            <Clock className="w-4 h-4 text-amber-300" />
-            <span>Termina en:</span>
-            <span className="bg-white text-rose-700 px-2 py-0.5 rounded-md font-mono font-black text-xs">
-              {String(timeLeft.hours).padStart(2, '0')}h : {String(timeLeft.minutes).padStart(2, '0')}m :{' '}
-              {String(timeLeft.seconds).padStart(2, '0')}s
-            </span>
-          </div>
-        </div>
-
-        {/* 5. VISUAL CATEGORY CIRCLES SHOWCASE (Mercado Libre Style) */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+        {/* 4. VISUAL CATEGORY SHOWCASE (SystemCore Clean White) */}
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>Explora por Categoría</span>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-blue-600" />
+              <span>Departamentos Disponibles</span>
             </h3>
-            <span className="text-xs text-slate-400 font-semibold">Toca una categoría para filtrar</span>
+            <span className="text-xs text-slate-400">Selecciona para filtrar</span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
             {TIENDA_CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.nombre)}
-                className={`group flex flex-col items-center p-3 rounded-2xl border transition-all duration-200 text-center ${
+                className={`group flex flex-col items-center p-3 rounded-xl border transition text-center ${
                   selectedCategory.toLowerCase() === cat.nombre.toLowerCase()
-                    ? 'bg-amber-50 border-amber-400 ring-2 ring-amber-400/40 shadow-sm'
-                    : 'bg-slate-50 border-slate-200 hover:border-slate-300 hover:bg-slate-100 hover:shadow-xs'
+                    ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500'
+                    : 'bg-slate-50 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
                 }`}
               >
-                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-white shadow-xs mb-2 group-hover:scale-105 transition duration-300 border border-slate-100">
+                <div className="w-14 h-14 rounded-xl overflow-hidden bg-white mb-2 group-hover:scale-105 transition duration-200 border border-slate-200">
                   <img src={cat.imagen} alt={cat.nombre} className="w-full h-full object-cover" />
                 </div>
-                <span className="text-xs font-bold text-slate-800 group-hover:text-blue-900 leading-tight">
+                <span className="text-xs font-bold text-slate-800 group-hover:text-blue-700 leading-tight">
                   {cat.nombre}
                 </span>
-                <span className="text-[10px] text-slate-400 font-medium mt-0.5">16 Quincenas</span>
+                <span className="text-[10px] text-slate-400 mt-0.5">16 Quincenas</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* 6. PRODUCTS CATALOG (The Star of the Show) */}
+        {/* 5. PRODUCTS CATALOG (Full-Width 6 Columns on wide screens) */}
         <div id="catalogo-grid" className="space-y-4 pt-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
             <div>
-              <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <span>Catálogo de Productos Disponibles</span>
-                <span className="text-xs font-bold bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full">
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <span>Catálogo de Productos en Línea</span>
+                <span className="text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full">
                   {filteredProducts.length} Artículos
                 </span>
               </h2>
               <p className="text-xs text-slate-500">
-                Precios con entrega garantizada y financiamiento oficial a 16 quincenas
+                Todos los precios calculados automáticamente a 16 quincenas fijas
               </p>
             </div>
 
             {selectedCategory !== 'TODOS' && (
               <button
                 onClick={() => setSelectedCategory('TODOS')}
-                className="text-xs font-bold text-blue-700 hover:underline flex items-center gap-1"
+                className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
               >
                 <span>Mostrar todos los productos</span>
                 <X className="w-3.5 h-3.5" />
@@ -684,228 +649,194 @@ function TiendaModernContent() {
             )}
           </div>
 
-          {/* Product Cards Grid - Full Width Responsive Grid */}
+          {/* Full-Width Grid (1 to 6 columns) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
-            {filteredProducts.map((product) => {
-              const discountPercent = product.precioAnterior
-                ? Math.round(((product.precioAnterior - product.precio) / product.precioAnterior) * 100)
-                : 0;
-
-              return (
+            {filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col justify-between group"
+              >
+                {/* Image */}
                 <div
-                  key={product.id}
-                  className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group"
+                  className="relative aspect-square bg-slate-50 overflow-hidden cursor-pointer"
+                  onClick={() => setSelectedProduct(product)}
                 >
-                  {/* Image & Badges */}
-                  <div
-                    className="relative aspect-square bg-slate-50 overflow-hidden cursor-pointer"
-                    onClick={() => setSelectedProduct(product)}
-                  >
-                    <img
-                      src={product.imagen}
-                      alt={product.nombre}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                  <img
+                    src={product.imagen}
+                    alt={product.nombre}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
 
-                    {/* Promo Tag */}
-                    {product.tag && (
-                      <span className="absolute top-3 left-3 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-1 rounded-lg shadow-md tracking-wider">
-                        {product.tag}
+                  {/* Promo Tag */}
+                  {product.tag && (
+                    <span className="absolute top-2.5 left-2.5 bg-blue-600 text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded-md shadow-xs">
+                      {product.tag}
+                    </span>
+                  )}
+
+                  {/* Quick Action Overlay */}
+                  <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedProduct(product);
+                      }}
+                      className="w-7 h-7 rounded-full bg-white text-slate-700 shadow-xs hover:bg-slate-100 flex items-center justify-center transition border border-slate-200"
+                      title="Ver detalle"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShareModalProduct(product);
+                      }}
+                      className="w-7 h-7 rounded-full bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 flex items-center justify-center transition"
+                      title="Enviar a mi distribuidora"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Body Content */}
+                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                  <div>
+                    {/* Category & Rating */}
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                      <span className="font-semibold uppercase tracking-wider truncate max-w-[130px]">
+                        {product.categoria}
                       </span>
-                    )}
-
-                    {/* Discount Pill */}
-                    {discountPercent > 0 && (
-                      <span className="absolute top-3 right-3 bg-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md">
-                        -{discountPercent}%
-                      </span>
-                    )}
-
-                    {/* Quick overlay buttons */}
-                    <div className="absolute bottom-3 right-3 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedProduct(product);
-                        }}
-                        className="w-8 h-8 rounded-full bg-white/95 text-slate-800 shadow-md hover:bg-white flex items-center justify-center transition"
-                        title="Vista rápida"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShareModalProduct(product);
-                        }}
-                        className="w-8 h-8 rounded-full bg-emerald-600 text-white shadow-md hover:bg-emerald-700 flex items-center justify-center transition"
-                        title="Enviar a mi distribuidora"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1 text-amber-500 font-bold">
+                        <Star className="w-3 h-3 fill-amber-400" />
+                        <span>{product.rating || '4.9'}</span>
+                      </div>
                     </div>
+
+                    {/* Product Title */}
+                    <h3
+                      onClick={() => setSelectedProduct(product)}
+                      className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 hover:text-blue-700 cursor-pointer transition leading-snug"
+                      title={product.nombre}
+                    >
+                      {product.nombre}
+                    </h3>
                   </div>
 
-                  {/* Body Content */}
-                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                    <div>
-                      {/* Category & Rating */}
-                      <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-                        <span className="font-bold uppercase tracking-wider truncate max-w-[140px]">
-                          {product.categoria}
+                  {/* Pricing Block */}
+                  <div className="pt-2.5 border-t border-slate-100 space-y-2">
+                    {/* Hero Quincenal Price (SystemCore Blue Card) */}
+                    <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-2.5">
+                      <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider block">
+                        Pago Quincenal Fijo
+                      </span>
+                      <div className="flex items-baseline gap-1 mt-0.5">
+                        <span className="text-xl font-black text-blue-700 leading-none">
+                          ${product.pagoQuincenal.toFixed(2)}
                         </span>
-                        <div className="flex items-center gap-1 text-amber-500 font-bold">
-                          <Star className="w-3.5 h-3.5 fill-amber-400" />
-                          <span>{product.rating || '4.9'}</span>
-                          <span className="text-slate-400 font-normal">({product.reviewsCount || 100})</span>
-                        </div>
+                        <span className="text-xs font-bold text-blue-900">/ quincena</span>
                       </div>
-
-                      {/* Product Title */}
-                      <h3
-                        onClick={() => setSelectedProduct(product)}
-                        className="font-bold text-sm text-slate-900 line-clamp-2 hover:text-blue-800 cursor-pointer transition leading-snug"
-                        title={product.nombre}
-                      >
-                        {product.nombre}
-                      </h3>
+                      <div className="flex items-center justify-between mt-1 text-[10px] font-semibold text-slate-600">
+                        <span className="bg-amber-400 text-slate-950 px-2 py-0.2 rounded-full font-bold">
+                          16 Quincenas
+                        </span>
+                        <span className="text-slate-500">
+                          Total: ${product.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Pricing Block (Modern Retail Dual Display) */}
-                    <div className="pt-3 border-t border-slate-100 space-y-2">
-                      {/* Hero Quincenal Price */}
-                      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/80 rounded-2xl p-3">
-                        <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">
-                          Pago Quincenal Fijo
-                        </span>
-                        <div className="flex items-baseline gap-1 mt-0.5">
-                          <span className="text-xl sm:text-2xl font-black text-emerald-700 leading-none">
-                            ${product.pagoQuincenal.toFixed(2)}
-                          </span>
-                          <span className="text-xs font-bold text-emerald-800">/ quincena</span>
-                        </div>
-                        <div className="flex items-center justify-between mt-1 text-[10px] font-bold text-slate-600">
-                          <span className="bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full font-black">
-                            16 Quincenas
-                          </span>
-                          <span className="text-slate-500 font-semibold">
-                            Total: ${product.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                          </span>
-                        </div>
-                      </div>
+                    {/* Shipping free tag */}
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                      <Truck className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Entrega a domicilio o en sucursal</span>
+                    </div>
 
-                      {/* Cash comparison with strikethrough if discounted */}
-                      {product.precioAnterior && (
-                        <div className="flex items-center gap-2 text-xs text-slate-400">
-                          <span className="line-through">
-                            ${product.precioAnterior.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                          </span>
-                          <span className="text-emerald-700 font-bold">Ahorras ${product.precioAnterior - product.precio}</span>
-                        </div>
-                      )}
+                    {/* Primary CTA: "¡Compra con tu distribuidora aquí!" */}
+                    <div className="pt-1 flex flex-col gap-1.5">
+                      <button
+                        onClick={() => setShareModalProduct(product)}
+                        className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        <span>¡Compra con tu distribuidora aquí!</span>
+                      </button>
 
-                      {/* Shipping free tag */}
-                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-bold">
-                        <Truck className="w-3.5 h-3.5" />
-                        <span>Envío seguro a domicilio o sucursal</span>
-                      </div>
-
-                      {/* Primary CTA: "¡Compra con tu distribuidora aquí!" */}
-                      <div className="pt-1 flex flex-col gap-1.5">
+                      {isDistribuidoraLoggedIn && (
                         <button
-                          onClick={() => setShareModalProduct(product)}
-                          className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md transition flex items-center justify-center gap-1.5 group"
+                          onClick={() => handleOpenCart(product)}
+                          className="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[11px] rounded-xl transition flex items-center justify-center gap-1"
                         >
-                          <Share2 className="w-3.5 h-3.5 group-hover:scale-110 transition" />
-                          <span>¡Compra con tu distribuidora aquí!</span>
+                          <ShoppingCart className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Cargar a mi Carrito</span>
                         </button>
-
-                        {isDistribuidoraLoggedIn && (
-                          <button
-                            onClick={() => handleOpenCart(product)}
-                            className="w-full py-1.5 px-3 bg-[#002B49] hover:bg-blue-900 text-amber-300 font-bold text-[11px] rounded-xl transition flex items-center justify-center gap-1"
-                          >
-                            <ShoppingCart className="w-3.5 h-3.5" />
-                            <span>Cargar a mi Carrito</span>
-                          </button>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </main>
 
-      {/* 7. HIGH-END PRODUCT DETAIL MODAL */}
+      {/* 6. PRODUCT DETAIL MODAL */}
       {selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-3xl w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-6 border border-slate-200">
-            {/* Modal Top Bar */}
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full shadow-xl overflow-hidden animate-in zoom-in-95 duration-150 my-6 border border-slate-200">
+            {/* Top Bar */}
             <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase bg-[#002B49] text-amber-300 px-2.5 py-1 rounded-full">
+                <span className="text-[10px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-md">
                   SKU: {selectedProduct.sku}
                 </span>
-                <span className="text-xs font-semibold text-slate-500">• {selectedProduct.categoria}</span>
+                <span className="text-xs text-slate-500">• {selectedProduct.categoria}</span>
               </div>
               <button
                 onClick={() => setSelectedProduct(null)}
-                className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition"
+                className="w-7 h-7 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-6 max-h-[78vh] overflow-y-auto">
+            <div className="p-6 space-y-5 max-h-[78vh] overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Photo Container */}
+                {/* Photo */}
                 <div className="space-y-3">
-                  <div className="aspect-square rounded-3xl bg-slate-100 overflow-hidden border border-slate-200 shadow-inner">
+                  <div className="aspect-square rounded-xl bg-slate-100 overflow-hidden border border-slate-200">
                     <img src={selectedProduct.imagen} alt="" className="w-full h-full object-cover" />
                   </div>
                   <div className="flex items-center gap-2 text-xs text-slate-500 justify-center">
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
-                    <span>Producto nuevo y garantizado por Financiera LanAhora</span>
+                    <span>Garantizado por Financiera LanAhora</span>
                   </div>
                 </div>
 
                 {/* Details & Calculator */}
                 <div className="flex flex-col justify-between space-y-4">
                   <div>
-                    <div className="flex items-center gap-1.5 text-amber-500 font-bold text-xs">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        ))}
-                      </div>
-                      <span>{selectedProduct.rating || 4.9}</span>
-                      <span className="text-slate-400">({selectedProduct.reviewsCount || 100} opiniones)</span>
-                    </div>
-
-                    <h2 className="text-xl font-black text-slate-900 leading-snug mt-1">
+                    <h2 className="text-lg font-bold text-slate-900 leading-snug">
                       {selectedProduct.nombre}
                     </h2>
                     <p className="text-xs text-slate-600 mt-2 leading-relaxed">{selectedProduct.descripcion}</p>
                   </div>
 
                   {/* 16 Quincenas Official Matrix */}
-                  <div className="bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 border-2 border-emerald-300 rounded-2xl p-4 space-y-2 shadow-xs">
+                  <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-4 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-black uppercase tracking-wider text-emerald-950">
+                      <span className="text-xs font-bold uppercase tracking-wider text-blue-900">
                         Financiamiento LanAhora
                       </span>
-                      <span className="bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-0.5 rounded-full shadow-xs">
+                      <span className="bg-amber-400 text-slate-950 font-bold text-xs px-2.5 py-0.5 rounded-full">
                         16 Quincenas Fijas
                       </span>
                     </div>
 
-                    <div className="pt-2 border-t border-emerald-200 flex items-baseline justify-between">
+                    <div className="pt-2 border-t border-blue-200 flex items-baseline justify-between">
                       <span className="text-xs font-bold text-slate-700">Pago por Quincena:</span>
-                      <span className="text-2xl font-black text-emerald-800">
+                      <span className="text-2xl font-black text-blue-700">
                         ${selectedProduct.pagoQuincenal.toFixed(2)}
                       </span>
                     </div>
@@ -917,18 +848,18 @@ function TiendaModernContent() {
                       </span>
                     </div>
 
-                    <p className="text-[10px] text-slate-500 italic pt-1 border-t border-emerald-200/60">
+                    <p className="text-[10px] text-slate-400 italic pt-1 border-t border-blue-200/50">
                       *El precio no incluye el seguro de canje opcional.
                     </p>
                   </div>
 
                   {/* Delivery & 48h Notice */}
-                  <div className="bg-blue-50/80 border border-blue-200 rounded-2xl p-3.5 text-xs text-blue-900 space-y-1">
-                    <div className="flex items-center gap-2 font-bold">
-                      <Truck className="w-4 h-4 text-blue-700" />
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 space-y-1">
+                    <div className="flex items-center gap-2 font-bold text-slate-900">
+                      <Truck className="w-4 h-4 text-blue-600" />
                       <span>Entrega estimada: {selectedProduct.diasEntrega} días hábiles</span>
                     </div>
-                    <p className="text-[11px] text-blue-800 leading-relaxed">
+                    <p className="text-[11px] text-slate-600">
                       <strong>Garantía:</strong> Al recibir cuentas con <strong>48 hrs hábiles</strong> para reportar
                       algún daño o faltante.
                     </p>
@@ -938,13 +869,13 @@ function TiendaModernContent() {
 
               {/* Characteristics */}
               <div>
-                <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5">
-                  Especificaciones Oficiales
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
+                  Características del Artículo
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="space-y-1.5">
                   {selectedProduct.caracteristicas.map((c, i) => (
-                    <div key={i} className="text-xs text-slate-700 flex items-start gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div key={i} className="text-xs text-slate-600 flex items-start gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                      <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
                       <span>{c}</span>
                     </div>
                   ))}
@@ -955,7 +886,7 @@ function TiendaModernContent() {
               <div className="pt-3 border-t border-slate-200 space-y-2">
                 <button
                   onClick={() => setShareModalProduct(selectedProduct)}
-                  className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-sm shadow-lg transition flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-4 h-4" />
                   <span>¡Compra con tu distribuidora aquí!</span>
@@ -964,9 +895,9 @@ function TiendaModernContent() {
                 {isDistribuidoraLoggedIn ? (
                   <button
                     onClick={() => handleOpenCart(selectedProduct)}
-                    className="w-full py-2.5 px-4 bg-[#002B49] hover:bg-blue-900 text-amber-400 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2"
+                    className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition flex items-center justify-center gap-2"
                   >
-                    <ShoppingCart className="w-4 h-4" />
+                    <ShoppingCart className="w-4 h-4 text-amber-400" />
                     <span>Agregar a Mi Carrito de Distribuidora</span>
                   </button>
                 ) : (
@@ -983,18 +914,18 @@ function TiendaModernContent() {
         </div>
       )}
 
-      {/* 8. SHARE WHATSAPP MODAL */}
+      {/* 7. SHARE WHATSAPP MODAL */}
       {shareModalProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5" />
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                  <MessageCircle className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-black text-slate-900 text-sm">Enviar Solicitud a tu Distribuidora</h3>
-                  <p className="text-[10px] text-slate-500">Aprobación inmediata a 16 quincenas</p>
+                  <h3 className="font-bold text-slate-900 text-sm">Enviar Solicitud a tu Distribuidora</h3>
+                  <p className="text-[10px] text-slate-500">Compra a 16 quincenas fijas</p>
                 </div>
               </div>
               <button
@@ -1006,18 +937,18 @@ function TiendaModernContent() {
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed">
-              Elige a tu distribuidora de confianza en WhatsApp para enviarle la solicitud de:{' '}
+              Selecciona a tu distribuidora en WhatsApp para enviarle la solicitud de:{' '}
               <strong>{shareModalProduct.nombre}</strong> a 16 quincenas de{' '}
               <strong>${shareModalProduct.pagoQuincenal.toFixed(2)}</strong>.
             </p>
 
-            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs flex items-center justify-between gap-2">
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs flex items-center justify-between gap-2">
               <span className="truncate text-slate-600 font-mono text-[11px]">
                 https://tienda.lanahora.com/ref?sku={shareModalProduct.sku}
               </span>
               <button
                 onClick={() => copyReferralLink(shareModalProduct)}
-                className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl hover:bg-slate-100 text-slate-800 font-bold shrink-0 text-xs flex items-center gap-1 shadow-xs"
+                className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 text-slate-800 font-bold shrink-0 text-xs flex items-center gap-1"
               >
                 {copiedLink ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedLink ? 'Copiado' : 'Copiar'}</span>
@@ -1029,7 +960,7 @@ function TiendaModernContent() {
                 href={generateWhatsAppLink(shareModalProduct)}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-xs flex items-center justify-center gap-2 shadow-lg transition"
+                className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition"
               >
                 <Share2 className="w-4 h-4" />
                 <span>Abrir WhatsApp y Seleccionar Distribuidora</span>
@@ -1041,7 +972,7 @@ function TiendaModernContent() {
                   if (isDistribuidoraLoggedIn) handleOpenCart(shareModalProduct);
                   else setIsLoginModalOpen(true);
                 }}
-                className="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition"
+                className="w-full py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs transition"
               >
                 Soy la distribuidora (Procesar con mi cuenta)
               </button>
@@ -1050,17 +981,15 @@ function TiendaModernContent() {
         </div>
       )}
 
-      {/* 9. DISTRIBUIDORA LOGIN MODAL */}
+      {/* 8. DISTRIBUIDORA LOGIN MODAL */}
       {isLoginModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-[#002B49] text-amber-400 flex items-center justify-center shadow-md">
-                  <Lock className="w-5 h-5" />
-                </div>
+                <img src="/lanahora-icon.png" alt="LanAhora" className="w-8 h-8 object-contain" />
                 <div>
-                  <h3 className="font-black text-slate-900 text-base">Portal Distribuidora</h3>
+                  <h3 className="font-bold text-slate-900 text-base">Portal Distribuidora</h3>
                   <p className="text-[11px] text-slate-500">Mismos accesos que utilizas en tu LanApp</p>
                 </div>
               </div>
@@ -1102,7 +1031,7 @@ function TiendaModernContent() {
                 />
               </div>
 
-              <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
                 <p>
                   <strong>¿No cuentas con tus accesos?</strong> Comunícate con tu Coordinador de Negocios en tu
                   sucursal para activarlos de inmediato.
@@ -1111,7 +1040,7 @@ function TiendaModernContent() {
 
               <button
                 type="submit"
-                className="w-full py-3 px-4 bg-[#002B49] hover:bg-blue-900 text-white rounded-2xl font-black text-xs shadow-lg transition"
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-xs transition"
               >
                 Iniciar Sesión y Cargar Líneas
               </button>
@@ -1120,15 +1049,15 @@ function TiendaModernContent() {
         </div>
       )}
 
-      {/* 10. CHECKOUT / MI CARRITO MODAL */}
+      {/* 9. CHECKOUT / MI CARRITO MODAL */}
       {cartProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-6 border border-slate-200">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full shadow-xl overflow-hidden animate-in zoom-in-95 duration-150 my-6 border border-slate-200">
             {/* Header */}
-            <div className="bg-[#002B49] text-white p-4.5 flex items-center justify-between">
+            <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ShoppingCart className="w-5 h-5 text-amber-400" />
-                <h3 className="font-black text-sm uppercase tracking-wide">
+                <h3 className="font-bold text-sm uppercase tracking-wide">
                   MI CARRITO • SOLICITUD DE PEDIDO A 16 QUINCENAS
                 </h3>
               </div>
@@ -1149,17 +1078,17 @@ function TiendaModernContent() {
               )}
 
               {/* Product Row */}
-              <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <img
                   src={cartProduct.imagen}
                   alt=""
-                  className="w-16 h-16 rounded-2xl object-cover border border-slate-200 shrink-0"
+                  className="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black text-slate-400 uppercase">SKU: {cartProduct.sku}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">SKU: {cartProduct.sku}</span>
                   <h4 className="text-xs font-bold text-slate-900 truncate">{cartProduct.nombre}</h4>
                   <div className="flex items-center gap-3 mt-1 text-xs">
-                    <span className="text-emerald-700 font-black">
+                    <span className="text-blue-700 font-bold">
                       ${cartProduct.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                     </span>
                     <span className="text-slate-500 font-semibold">
@@ -1175,18 +1104,18 @@ function TiendaModernContent() {
                 </div>
               </div>
 
-              {/* CREDIT MATRIX GAUGE CARD (Official Page 5/11) */}
-              <div className="bg-gradient-to-br from-slate-950 via-[#002B49] to-blue-950 text-white rounded-3xl p-5 shadow-lg space-y-3.5 border border-white/10">
-                <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              {/* CREDIT MATRIX GAUGE CARD (SystemCore Slate-900 Card) */}
+              <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-xs space-y-3.5 border border-slate-800">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
                   <div>
-                    <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
                       Distribuidora Acreditada
                     </span>
-                    <h4 className="text-base font-black text-white">{distribuidora.distribuidoraNombre}</h4>
+                    <h4 className="text-base font-bold text-white">{distribuidora.distribuidoraNombre}</h4>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-white/60 font-semibold uppercase tracking-wider block">Nivel</span>
-                    <span className="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-xs font-black px-3 py-0.5 rounded-full shadow-sm">
+                    <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Nivel</span>
+                    <span className="bg-amber-400 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded-full">
                       {distribuidora.nivel}
                     </span>
                   </div>
@@ -1194,11 +1123,11 @@ function TiendaModernContent() {
 
                 {/* Lines Grid */}
                 <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="bg-white/5 rounded-2xl p-3 border border-white/10">
-                    <span className="text-[10px] text-amber-300 font-bold uppercase block">
+                  <div className="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
+                    <span className="text-[10px] text-amber-400 font-bold uppercase block">
                       Línea LanaTienda
                     </span>
-                    <div className="text-xs text-white/80">
+                    <div className="text-xs text-slate-300">
                       Total: ${distribuidora.lineaLanaTiendaTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                     </div>
                     <div className="text-sm font-black text-emerald-400 mt-0.5">
@@ -1207,9 +1136,9 @@ function TiendaModernContent() {
                     </div>
                   </div>
 
-                  <div className="bg-white/5 rounded-2xl p-3 border border-white/10">
-                    <span className="text-[10px] text-blue-300 font-bold uppercase block">Línea Personal</span>
-                    <div className="text-xs text-white/80">
+                  <div className="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
+                    <span className="text-[10px] text-blue-400 font-bold uppercase block">Línea Personal</span>
+                    <div className="text-xs text-slate-300">
                       Total: ${distribuidora.lineaPersonalTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                     </div>
                     <div className="text-sm font-black text-blue-300 mt-0.5">
@@ -1220,18 +1149,18 @@ function TiendaModernContent() {
                 </div>
 
                 {/* Tier deduction breakdown (Official Bronce $9,000 example) */}
-                <div className="bg-black/30 rounded-2xl p-3 text-[11px] text-white/80 space-y-1">
+                <div className="bg-black/30 rounded-xl p-3 text-[11px] text-slate-300 space-y-1">
                   <div className="flex justify-between font-bold text-amber-300">
                     <span>Límite Crédito Cliente Final ({distribuidora.nivel}):</span>
                     <span>
                       ${distribuidora.limiteClienteFinal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
-                  <div className="flex justify-between text-white/60 text-[10px]">
+                  <div className="flex justify-between text-slate-400 text-[10px]">
                     <span>(-) ValeLana con canje activo:</span>
                     <span>-${distribuidora.valelanaActivo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
                   </div>
-                  <div className="flex justify-between text-white/60 text-[10px]">
+                  <div className="flex justify-between text-slate-400 text-[10px]">
                     <span>(-) Kits de Belleza comprometidos:</span>
                     <span>
                       -${distribuidora.kitBellezaActivo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
@@ -1242,13 +1171,13 @@ function TiendaModernContent() {
 
               {/* CLIENT SELECTOR */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-black text-slate-800 uppercase tracking-wide">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
                   Selecciona a tu Cliente
                 </label>
                 <select
                   value={selectedClienteId}
                   onChange={(e) => setSelectedClienteId(e.target.value)}
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   {clientes.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -1263,15 +1192,15 @@ function TiendaModernContent() {
 
               {/* DELIVERY ADDRESS SELECTION */}
               <div className="space-y-2">
-                <label className="block text-xs font-black text-slate-800 uppercase tracking-wide">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
                   Dirección de Entrega
                 </label>
 
                 {/* Sucursal */}
                 <label
-                  className={`flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition ${
+                  className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition ${
                     tipoDireccion === 'SUCURSAL'
-                      ? 'bg-blue-50/60 border-blue-500 ring-2 ring-blue-500/20 shadow-xs'
+                      ? 'bg-blue-50/70 border-blue-500 ring-1 ring-blue-500'
                       : 'bg-white border-slate-200 hover:bg-slate-50'
                   }`}
                 >
@@ -1283,8 +1212,8 @@ function TiendaModernContent() {
                     className="mt-0.5 text-blue-600 focus:ring-blue-500"
                   />
                   <div className="text-xs">
-                    <span className="font-black text-slate-900 block flex items-center gap-1.5">
-                      <Building2 className="w-4 h-4 text-blue-700" />
+                    <span className="font-bold text-slate-900 block flex items-center gap-1.5">
+                      <Building2 className="w-4 h-4 text-blue-600" />
                       Domicilio de la Sucursal (Recoger en Sucursal)
                     </span>
                     <p className="text-slate-600 text-[11px] mt-0.5">{distribuidora.sucursal}</p>
@@ -1293,9 +1222,9 @@ function TiendaModernContent() {
 
                 {/* Cliente */}
                 <label
-                  className={`flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition ${
+                  className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition ${
                     tipoDireccion === 'DOMICILIO'
-                      ? 'bg-blue-50/60 border-blue-500 ring-2 ring-blue-500/20 shadow-xs'
+                      ? 'bg-blue-50/70 border-blue-500 ring-1 ring-blue-500'
                       : 'bg-white border-slate-200 hover:bg-slate-50'
                   }`}
                 >
@@ -1307,7 +1236,7 @@ function TiendaModernContent() {
                     className="mt-0.5 text-blue-600 focus:ring-blue-500"
                   />
                   <div className="text-xs">
-                    <span className="font-black text-slate-900 block flex items-center gap-1.5">
+                    <span className="font-bold text-slate-900 block flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-emerald-600" />
                       Domicilio del Cliente (Entrega a Domicilio)
                     </span>
@@ -1328,19 +1257,19 @@ function TiendaModernContent() {
                     value={referenciasDomicilio}
                     onChange={(e) => setReferenciasDomicilio(e.target.value)}
                     placeholder="Ej. Casa de altos, fachada café, barandal negro..."
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-2xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* TERMS */}
-              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex items-center justify-between">
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-center justify-between">
                 <div>
                   <span className="text-xs font-bold text-slate-700 block">Plazo Oficial Fijo</span>
                   <span className="text-[10px] text-slate-400">16 pagos quincenales iguales</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-base font-black text-emerald-700">
+                  <span className="text-base font-black text-blue-700">
                     ${(cartProduct.pagoQuincenal * cartQuantity).toFixed(2)}
                   </span>
                   <span className="text-[10px] text-slate-500 block">/ por quincena</span>
@@ -1352,10 +1281,10 @@ function TiendaModernContent() {
                 <button
                   onClick={() => setIsConfirmModalOpen(true)}
                   disabled={isSubmittingOrder}
-                  className="w-full py-4 px-4 bg-[#002B49] hover:bg-blue-900 text-white rounded-2xl font-black text-sm shadow-xl transition flex items-center justify-center gap-2 group"
+                  className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-xs transition flex items-center justify-center gap-2"
                 >
                   <span>Finalizar y Autorizar Pedido</span>
-                  <ArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition" />
+                  <ArrowRight className="w-4 h-4 text-amber-400" />
                 </button>
               </div>
             </div>
@@ -1363,21 +1292,21 @@ function TiendaModernContent() {
         </div>
       )}
 
-      {/* 11. CONFIRMATION POPUP */}
+      {/* 10. CONFIRMATION POPUP */}
       {isConfirmModalOpen && cartProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                <CheckCircle className="w-6 h-6 text-amber-600" />
+              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200">
+                <CheckCircle className="w-5 h-5 text-amber-600" />
               </div>
               <div>
-                <h3 className="font-black text-slate-900 text-base">Confirmar Pedido Institucional</h3>
+                <h3 className="font-bold text-slate-900 text-base">Confirmar Pedido Institucional</h3>
                 <p className="text-[11px] text-slate-500">Verifica los detalles antes de concluir</p>
               </div>
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs space-y-2">
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-2">
               <div className="flex justify-between">
                 <span className="text-slate-500">Producto:</span>
                 <span className="font-bold text-slate-800 text-right">{cartProduct.nombre}</span>
@@ -1394,7 +1323,7 @@ function TiendaModernContent() {
               </div>
               <div className="flex justify-between border-t border-slate-200 pt-2">
                 <span className="text-slate-700 font-bold">Plazo:</span>
-                <span className="font-black text-emerald-700">
+                <span className="font-black text-blue-700">
                   16 quincenas de ${(cartProduct.pagoQuincenal * cartQuantity).toFixed(2)}
                 </span>
               </div>
@@ -1403,20 +1332,20 @@ function TiendaModernContent() {
             <div className="flex gap-2.5 pt-2">
               <button
                 onClick={() => setIsConfirmModalOpen(false)}
-                className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-bold transition"
+                className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
               >
                 Modificar
               </button>
               <button
                 onClick={handleFinalizeOrder}
                 disabled={isSubmittingOrder}
-                className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black transition flex items-center justify-center gap-1.5 shadow-md"
+                className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs"
               >
                 {isSubmittingOrder ? (
                   <span>Procesando...</span>
                 ) : (
                   <>
-                    <CheckCircle className="w-4 h-4" />
+                    <CheckCircle className="w-4 h-4 text-amber-400" />
                     <span>Aceptar y Concluir</span>
                   </>
                 )}
@@ -1426,16 +1355,16 @@ function TiendaModernContent() {
         </div>
       )}
 
-      {/* 12. COMPLETED ORDER TICKET */}
+      {/* 11. COMPLETED ORDER TICKET */}
       {completedOrder && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150 text-center border border-slate-200">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-inner">
-              <CheckCircle className="w-9 h-9 text-emerald-600" />
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 text-center border border-slate-200">
+            <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
+              <CheckCircle className="w-8 h-8" />
             </div>
 
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full">
                 ¡Pedido Registrado con Éxito!
               </span>
               <h3 className="text-2xl font-black text-slate-900 mt-2">Folio: {completedOrder.folio}</h3>
@@ -1444,7 +1373,7 @@ function TiendaModernContent() {
               </p>
             </div>
 
-            <div className="bg-slate-50 rounded-2xl p-4 text-xs text-left border border-slate-200 space-y-2">
+            <div className="bg-slate-50 rounded-xl p-4 text-xs text-left border border-slate-200 space-y-2">
               <div className="flex justify-between">
                 <span className="text-slate-500">Distribuidora:</span>
                 <span className="font-bold text-slate-800">{completedOrder.distribuidoraNombre}</span>
@@ -1459,7 +1388,7 @@ function TiendaModernContent() {
                   {completedOrder.producto.nombre}
                 </span>
               </div>
-              <div className="flex justify-between border-t border-slate-200 pt-2 font-bold text-emerald-700">
+              <div className="flex justify-between border-t border-slate-200 pt-2 font-bold text-blue-700">
                 <span>16 Pagos Quincenales:</span>
                 <span>${completedOrder.producto.pagoQuincenal.toFixed(2)}</span>
               </div>
@@ -1467,7 +1396,7 @@ function TiendaModernContent() {
 
             <button
               onClick={() => setCompletedOrder(null)}
-              className="w-full py-3.5 px-4 bg-[#002B49] hover:bg-blue-900 text-white rounded-2xl font-black text-xs shadow-lg transition"
+              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-xs transition"
             >
               Regresar al Catálogo
             </button>
@@ -1475,14 +1404,14 @@ function TiendaModernContent() {
         </div>
       )}
 
-      {/* 13. ORDERS HISTORY MODAL */}
+      {/* 12. ORDERS HISTORY MODAL */}
       {viewHistoryModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <PackageCheck className="w-5 h-5 text-emerald-600" />
-                <h3 className="font-black text-slate-900 text-base">Mis Pedidos en LanaTienda</h3>
+                <PackageCheck className="w-5 h-5 text-blue-600" />
+                <h3 className="font-bold text-slate-900 text-base">Mis Pedidos en LanaTienda</h3>
               </div>
               <button
                 onClick={() => setViewHistoryModal(false)}
@@ -1497,16 +1426,16 @@ function TiendaModernContent() {
                 <p className="text-xs text-slate-500 text-center py-8">No tienes pedidos registrados aún.</p>
               ) : (
                 historyOrders.map((order) => (
-                  <div key={order.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-2">
+                  <div key={order.id} className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-black text-slate-900 text-sm">{order.folio}</span>
-                      <span className="bg-blue-100 text-blue-900 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                      <span className="font-bold text-slate-900 text-sm">{order.folio}</span>
+                      <span className="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
                         {order.estatus}
                       </span>
                     </div>
                     <div className="flex justify-between text-slate-600">
                       <span>Cliente: {order.clienteNombre}</span>
-                      <span className="font-bold text-emerald-700">
+                      <span className="font-bold text-blue-700">
                         16 quincenas de ${order.producto.pagoQuincenal.toFixed(2)}
                       </span>
                     </div>
@@ -1519,52 +1448,55 @@ function TiendaModernContent() {
         </div>
       )}
 
-      {/* 14. MEGA FOOTER (Official SOFOM Regulatory & Security Compliance) */}
-      <footer className="bg-[#001E33] text-white border-t border-white/10 mt-16 pt-12 pb-8 text-xs">
+      {/* 13. FOOTER (SystemCore Slate-900 Theme) */}
+      <footer className="bg-slate-900 text-white border-t border-slate-800 mt-16 pt-12 pb-8 text-xs">
         <div className="w-full px-4 sm:px-8 xl:px-12 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-black text-amber-400">LanA</span>
-                <span className="text-2xl font-black text-white">tienda</span>
+                <img
+                  src="/lanahora-logo.png"
+                  alt="LanAhora"
+                  className="h-10 w-auto object-contain brightness-0 invert"
+                />
               </div>
               <p className="text-slate-400 text-[11px] leading-relaxed">
                 Plataforma de comercio electrónico de Financiera LanAhora S.A.P.I. de C.V. SOFOM E.N.R. Adquiere
-                artículos de calidad financiados a 16 quincenas con tu distribuidora.
+                artículos de calidad financiados a 16 quincenas con tu distribuidora autorizada.
               </p>
             </div>
 
             <div>
-              <h4 className="font-black text-amber-300 uppercase tracking-wider mb-3 text-[11px]">Categorías</h4>
+              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Departamentos</h4>
               <ul className="space-y-2 text-slate-300 text-[11px]">
-                <li>Hogar y Electrodomésticos</li>
-                <li>Smart TV y Electrónica</li>
+                <li>Hogar y Cocina</li>
+                <li>Pantallas y Electrónica</li>
                 <li>Cómputo y Laptops</li>
-                <li>Salud, Belleza y Cuidado Personal</li>
-                <li>Moda, Equipaje y Accesorios</li>
+                <li>Salud y Belleza</li>
+                <li>Moda y Equipaje</li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-black text-amber-300 uppercase tracking-wider mb-3 text-[11px]">Garantía y Entrega</h4>
+              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Garantía y Entrega</h4>
               <ul className="space-y-2 text-slate-300 text-[11px]">
                 <li>48 horas hábiles para reporte de daños</li>
                 <li>Envíos directos a domicilio</li>
                 <li>Recolección en sucursal autorizada</li>
-                <li>Rastreo de envíos en tiempo real</li>
+                <li>Rastreo y folios oficiales en tiempo real</li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-black text-amber-300 uppercase tracking-wider mb-3 text-[11px]">Atención y Sucursales</h4>
+              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Sucursal Matriz</h4>
               <p className="text-slate-400 text-[11px] leading-relaxed">
-                Sucursal Matriz: C. Hidalgo #382 Nte., Col. Centro, Saltillo, Coahuila C.P. 25000.
+                C. Hidalgo #382 Nte., Col. Centro, Saltillo, Coahuila C.P. 25000.
               </p>
               <div className="mt-3 text-amber-400 font-bold text-xs">Teléfono: 844 601 1797</div>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400 text-[10px]">
+          <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[10px]">
             <p>© 2026 Financiera LanAhora S.A.P.I. de C.V. SOFOM E.N.R. Todos los derechos reservados.</p>
             <div className="flex gap-4">
               <span>Términos y Condiciones</span>
@@ -1588,7 +1520,7 @@ export default function TiendaPage() {
         </div>
       }
     >
-      <TiendaModernContent />
+      <TiendaCoreContent />
     </Suspense>
   );
 }
