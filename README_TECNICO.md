@@ -127,6 +127,56 @@ Para garantizar la integridad en el canje de vales digitales sin costos por cons
 * **Captura de Documentos:** Cámara trasera en modo `environment` con resolución nativa 1080p y preprocesamiento de imagen en Canvas (conversión Base64 y extracción OCR de código bidimensional PDF417).
 * **Selfie Biométrica Facial:** Cámara frontal en modo `user` con detección de vida (*liveness detection*), cálculo de distancia interocular y comparación facial contra la fotografía extraída del INE.
 
+### 3.5. Módulo del Perfil del Distribuidor & Ficha Técnica Operativa (`PerfilDistribuidorView.tsx`)
+* **Componente:** `src/components/PerfilDistribuidorView.tsx`
+* **Arquitectura de Datos:** Modela la entidad central de la Distribuidora (`DistribuidorCore`): número DV, ContratoID, línea autorizada base (\$240,000), línea adicional (\$15,000), nivel de fidelidad (Plata/Oro/Diamante), coordinador regional asignado, gestor de cobranza, promotor, teléfono y geolocalización de domicilio.
+* **Sección de Validación y Consolidación:** Registra trazabilidad de auditoría de contratos con sello de usuario (`Sistema`/`Mesa de Crédito`) y timestamp ISO.
+* **Matriz de 25 Acciones Operativas:** Agrupa las operaciones del distribuidor en 4 dominios funcionales:
+  1. *Cobranza & Reportes:* Relación quincenal oficial, recibos de cobranza, estado de cuenta descargable y auditoría de saldo.
+  2. *Expediente & Validaciones:* Contrato legal digital, expediente con valeras, solicitud de validación y aumento de línea.
+  3. *Financiamiento & Tiendita:* Dispersión de crédito personal para la DV, consulta de saldos LanaTienda y recálculo de relación.
+  4. *Supervisión & Asignaciones:* Cambio dinámico de gestor y coordinador, bitácora de gestoría, asignación de Lanapuntos, convenios de liquidación y marcado preventivo de cartera legal.
+
+### 3.6. Motor de Relación de Cobranza Quincenal Oficial (`RelacionCobranzaModal.tsx`)
+* **Componente:** `src/components/modals/RelacionCobranzaModal.tsx`
+* **Estructura Financiera Oficial:**
+  * **Líneas de Crédito:** Vale Lana (\$240,000 / Disp. \$204,633.20), LanaTienda (\$15,000 / Disp. \$15,000), Créditos Personales (\$10,000 / Disp. \$5,000).
+  * **Vales de Dinero:** Desglose pormenorizado de los 7 vales de la quincena (Esperanza Bustamante, Erika Luna, Alejandra Guillen, Ana Cecilia Aguilera, Paola Morales, Laura Bustamante, Andrea Alarcón) totalizando \$59,811.99 de saldo y \$9,974.00 de pago quincenal.
+  * **Préstamo Personal DV:** Amortización quincenal 6/10 con pago de \$1,360.00.
+  * **Seguro de Protección:** Cobertura de seguro de vida y saldo deudor de \$90.00 quincenales.
+  * **Total Quincenal:** \$11,424.00.
+  * **Tabla Escalar de Bonificaciones:** Matriz de descuento por pronto pago del **18.00%** (\$1,629.83 de bonificación directa), permitiendo liquidación neta de **\$9,795.00** a través de dispersión STP o Banorte, o \$9,806.00 vía Paynet (con tarifa de \$11.00 por transacción).
+
+### 3.7. Motor de Originación CRM con Arrastre Nativo (Drag & Drop) & Auditoría (`KanbanBoard.tsx`)
+* **Componente:** `src/components/KanbanBoard.tsx`
+* **Implementación:** Eventos HTML5 nativos Drag and Drop (`onDragStart`, `onDragOver`, `onDragEnter`, `onDragLeave`, `onDrop`) con cero dependencias pesadas de terceros.
+* **Sincronización Inmediata:** Al soltar la tarjeta en una columna, se despacha `onMoveStage(prospectId, newStage)` actualizando el pipeline en memoria y en `localStorage`, reseteando el contador de días en etapa a 0 y emitiendo un evento auditado de sistema en la bitácora del prospecto.
+
+### 3.8. Mesa de Control & Dictamen de Crédito (`MesaCreditoView.tsx`)
+* **Componente:** `src/components/MesaCreditoView.tsx`
+* **Funcionalidad:** Permite a los analistas de riesgo revisar la carpeta de 25 documentos, verificar la validación biométrica facial, evaluar el score crediticio, dictaminar la viabilidad del crédito y autorizar la emisión de vales con firma electrónica.
+
+### 3.9. Bitácora de Gestoría de Cobranza & Visitas de Campo (`GestoriaView.tsx`)
+* **Componente:** `src/components/GestoriaView.tsx`
+* **Funcionalidad:** Registro en tiempo real de visitas domiciliarias, llamadas de seguimiento preventivo, promesas de pago con fecha límite, convenios de reestructuración y alertas tempranas de riesgo de mora.
+
+### 3.10. Motor de Reglas de Negocio Dinámicas (`businessRulesEngine.ts` & `BusinessRulesView.tsx`)
+* **Motor:** `src/lib/rules/businessRulesEngine.ts`
+* **Interfaz de Control:** `src/components/BusinessRulesView.tsx`
+* **Capacidades:** Permite a la Dirección de Crédito y Riesgos ajustar en caliente matrices de capacidad de pago, topes de endeudamiento, límites de crédito por nivel (Plata, Oro, Platino, Diamante) y reglas de castigo automático sin necesidad de recompilar el código.
+
+### 3.11. Motor Contable & Pólizas de Operación (`ContabilidadView.tsx`)
+* **Componente:** `src/components/ContabilidadView.tsx`
+* **Funcionalidad:** Generación de pólizas de diario, ingresos y egresos vinculadas a desembolsos SPEI, amortizaciones de vales, bonificaciones del 18% y conciliación de cuentas deudoras/acreedoras según el catálogo de cuentas de la CNBV.
+
+### 3.12. Matriz de Cumplimiento PLD/FT & Buzón Confidencial (`BuzonPLDView.tsx`)
+* **Componente:** `src/components/BuzonPLDView.tsx`
+* **Funcionalidad:** Sistema integral para el Oficial de Cumplimiento con matriz de riesgo de clientes y distribuidoras, cruce contra listas de Personas Políticamente Expuestas (PEPs) y SAT 69-B, reporte de operaciones inusuales/relevantes y canal anónimo cifrado de denuncias conforme a la normativa de la UIF y CNBV.
+
+### 3.13. Central de Notificaciones Push Web & ADB Android (`webPushService.ts` & `adbNotifications.ts`)
+* **Servicio Web Push:** `src/lib/webPushService.ts` implementa suscripciones PWA según el estándar W3C Push API / VAPID con Service Worker (`public/sw.js`).
+* **ADB Shell Bridge:** `src/lib/adbNotifications.ts` despacha notificaciones nativas en terminales Android conectadas por depuración USB/Wi-Fi mediante `adb shell cmd notification post` con soporte de texto enriquecido (BigText) e iconografía institucional.
+
 ---
 
 ## 4. Ciberseguridad & Pentesting Hardening
@@ -180,39 +230,56 @@ SystemCore_LH/
 │   │   │   ├── auth/                        # Endpoints de Login y Estado OIDC
 │   │   │   ├── configuracion/               # CRUD protegido de Sucursales y Usuarios
 │   │   │   ├── kyc/                         # APIs de RENAPO, Biometría y SAT 69-B
+│   │   │   ├── notifications/               # API de suscripción Web Push PWA
 │   │   │   ├── sync/                        # Bus reactivo de sincronización Core
 │   │   │   └── tienda/                      # Catálogo y procesamiento de pedidos LanaTienda
 │   │   ├── tienda/                          # Aplicación Web LanaTienda (Multi-Dominio)
-│   │   ├── globals.css                      # Estilos globales y paleta institucional
+│   │   ├── lanapp/                          # Portal Web complementario LanApp
+│   │   ├── manifest.ts                      # Manifiesto oficial PWA instalable
+│   │   ├── globals.css                      # Estilos globales con Tailwind v4 y tipografía Geist
 │   │   ├── layout.tsx                       # Layout raíz
 │   │   └── page.tsx                         # Orquestador del Core y control de sesión
 │   ├── components/
-│   │   ├── Header.tsx                       # Barra de navegación principal del Core
-│   │   ├── Sidebar.tsx                      # Menú lateral modular del Sistema Core
+│   │   ├── Header.tsx                       # Barra de navegación ejecutiva Ballast (Ctrl+K, SPEI, Sesión)
+│   │   ├── Sidebar.tsx                      # Menú lateral unificado del Sistema Core
 │   │   ├── LoginView.tsx                    # Autenticación segura por sucursal
-│   │   ├── KanbanBoard.tsx                  # Tablero visual de originación
+│   │   ├── KanbanBoard.tsx                  # Tablero CRM interactivo con Drag & Drop nativo
 │   │   ├── TableView.tsx                    # Vista tabular de prospectos comerciales
 │   │   ├── LeadDetailView.tsx               # Expediente comercial y matriz de 25 documentos
-│   │   ├── CoreDashboard.tsx                # Buscador central por DV, Folio y CréditoID
+│   │   ├── CoreDashboard.tsx                # Buscador central omnicanal (DV, Folio y CréditoID)
+│   │   ├── PerfilDistribuidorView.tsx       # Ficha técnica de Distribuidora (Líneas y 25 Acciones)
 │   │   ├── PersonasView.tsx                 # Padrón de 122,144 personas con sidebar
-│   │   ├── DistribuidoresView.tsx           # Padrón de 7,171 distribuidoras con sidebar
+│   │   ├── DistribuidoresView.tsx           # Padrón de 7,171 distribuidoras con exportación
+│   │   ├── MesaCreditoView.tsx              # Mesa de Control, evaluación documental y dictamen
+│   │   ├── GestoriaView.tsx                 # Bitácora de gestoría de cobranza y visitas
+│   │   ├── ReportesView.tsx                 # Centro de analítica gerencial y morosidad
+│   │   ├── ContabilidadView.tsx             # Catálogo de cuentas y pólizas contables
+│   │   ├── BuzonPLDView.tsx                 # Prevención de Lavado de Dinero (PLD/FT)
+│   │   ├── BusinessRulesView.tsx            # Gestor dinámico de reglas de negocio crediticias
+│   │   ├── NotificationManagerView.tsx      # Central de notificaciones push PWA y ADB Bridge
 │   │   ├── RHView.tsx                       # Asistencia GPS, requisiciones y capacitaciones
 │   │   ├── DispersionView.tsx               # Desembolsos SPEI STP y recaudación Paynet
 │   │   ├── LanaTiendaAdminView.tsx          # Panel Core de Monitoreo y Despacho de Pedidos
 │   │   ├── ConfiguracionView.tsx            # Gestión de Sucursales y Usuarios Institucionales
 │   │   ├── IntegracionesView.tsx            # Monitor de salud ESB y consola interactiva
-│   │   └── modals/                          # Modales de interacción operativa
+│   │   └── modals/
+│   │       ├── RelacionCobranzaModal.tsx    # Relación Oficial Quincenal (3 líneas, bonificación 18%)
+│   │       ├── DistribuidorModals.tsx       # Modales de Estado de Cuenta, Mensajes y Castigo
+│   │       └── PersonaModals.tsx            # Modales de edición, bloqueo y expediente
 │   ├── lib/
 │   │   ├── auth/serverAuth.ts               # Middleware de validación JWT y roles RBAC
+│   │   ├── rules/businessRulesEngine.ts     # Motor evaluador de reglas crediticias
+│   │   ├── webPushService.ts                # Servicio de notificaciones Web Push PWA
+│   │   ├── adbNotifications.ts              # Emisor de notificaciones push vía ADB Android
 │   │   ├── utils/csv.ts                     # Sanitizador contra CSV Formula Injection
-│   │   ├── store/                           # Almacenes de estado (Tienda y Configuración)
+│   │   ├── store/                           # Almacenes de estado (Tienda, Servidor y Config)
 │   │   ├── data/
 │   │   │   ├── coreData.ts                  # Padrón de semillas operativas
 │   │   │   ├── initialData.ts               # Semillas de prospectos y matriz documental
 │   │   │   └── sat/sat_69b_index.json       # Padrón indexado de contribuyentes SAT Art. 69-B
 │   │   └── security.ts                      # Sanitizadores y hashing criptográfico
 │   ├── proxy.ts                             # Proxy perimetral multi-dominio Next.js 16
-│   └── types/                               # Tipados TypeScript (Core, CRM, Auth, Tienda, Config)
+│   └── types/                               # Tipados TypeScript (Core, CRM, Auth, Tienda, Reglas)
 ├── README.md                                # Índice maestro y resumen de documentación
 ├── README_TECNICO.md                        # Este documento (Especificación técnica)
 ├── README_PUBLICO.md                        # Documentación funcional para público en general

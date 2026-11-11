@@ -55,11 +55,14 @@ flowchart TD
     end
 
     subgraph MotoresCore ["Motores Internos de Negocio"]
-        CRM_ENG["Motor de Originación & Matriz de 25 Documentos"]
-        PADRON_ENG["Padrón Core: 122k Personas & 7k Distribuidoras"]
-        STP_ENG["Motor de Dispersión Automática SPEI (STP)"]
+        CRM_ENG["Motor de Originación (Drag & Drop) & Matriz de 25 Documentos"]
+        PADRON_ENG["Padrón Core: 122k Personas, 7k DVs & Ficha Perfil Distribuidora"]
+        STP_ENG["Motor de Dispersión Automática SPEI (STP) & Conciliación"]
+        REL_ENG["Motor de Relación de Cobranza Quincenal & Bonificaciones"]
         TIENDA_ENG["Motor LanaTienda: 16 Quincenas & Despacho"]
-        CONFIG_ENG["Motor de Configuración: Sucursales & Usuarios"]
+        RULES_ENG["Motor Dinámico de Reglas de Negocio & Mesa de Crédito"]
+        PLD_ENG["Motor de Cumplimiento PLD/FT & Buzón Confidencial"]
+        CONFIG_ENG["Motor de Configuración: Sucursales, Usuarios & Roles"]
     end
 
     subgraph IntegracionesESB ["ESB & Servicios Externos"]
@@ -158,24 +161,41 @@ SystemCore_LH/
 │   │   ├── layout.tsx                       # Layout raíz
 │   │   └── page.tsx                         # Orquestador del Core y control de sesión
 │   ├── components/
-│   │   ├── Header.tsx                       # Barra de navegación principal del Core
-│   │   ├── Sidebar.tsx                      # Menú lateral modular del Sistema Core
-│   │   ├── LoginView.tsx                    # Autenticación segura por sucursal
-│   │   ├── CoreDashboard.tsx                # Buscador central por DV, Folio y CréditoID
+│   │   ├── Header.tsx                       # Barra de navegación ejecutiva Ballast (Ctrl+K, SPEI, Sesión)
+│   │   ├── Sidebar.tsx                      # Menú lateral modular unificado del Sistema Core
+│   │   ├── LoginView.tsx                    # Autenticación segura por sucursal y roles
+│   │   ├── CoreDashboard.tsx                # Buscador central omnicanal (DV, Vale, CréditoID o Nombre)
+│   │   ├── PerfilDistribuidorView.tsx       # Ficha técnica de Distribuidora (Líneas, Validaciones y 25 Acciones)
 │   │   ├── PersonasView.tsx                 # Padrón de 122,144 personas con sidebar
-│   │   ├── DistribuidoresView.tsx           # Padrón de 7,171 distribuidoras con sidebar
+│   │   ├── DistribuidoresView.tsx           # Padrón de 7,171 distribuidoras con exportación y perfiles
+│   │   ├── KanbanBoard.tsx                  # Tablero CRM interactivo con Drag & Drop nativo y auditoría
+│   │   ├── LeadDetailView.tsx               # Expediente digital de prospecto y checklist de 25 documentos
+│   │   ├── MesaCreditoView.tsx              # Mesa de Control, evaluación documental y dictamen de crédito
+│   │   ├── GestoriaView.tsx                 # Bitácora de gestoría de cobranza, promesas y visitas de campo
+│   │   ├── ReportesView.tsx                 # Centro de analítica gerencial (Colocación, Cobranza y Cosechas)
+│   │   ├── ContabilidadView.tsx             # Catálogo de cuentas, pólizas contables y conciliación bancaria
+│   │   ├── BuzonPLDView.tsx                 # Prevención de Lavado de Dinero (PLD/FT) y canal confidencial
+│   │   ├── BusinessRulesView.tsx            # Gestor dinámico de reglas de negocio y matrices crediticias
+│   │   ├── NotificationManagerView.tsx      # Central de notificaciones push PWA y Android ADB Bridge
 │   │   ├── RHView.tsx                       # Asistencia GPS, requisiciones y capacitaciones
 │   │   ├── DispersionView.tsx               # Desembolsos SPEI STP y recaudación Paynet
 │   │   ├── LanaTiendaAdminView.tsx          # Panel Core de Monitoreo y Despacho de Pedidos
-│   │   ├── ConfiguracionView.tsx            # Gestión de Sucursales y Usuarios Institucionales
-│   │   └── IntegracionesView.tsx            # Monitor de salud ESB y consola interactiva
+│   │   ├── ConfiguracionView.tsx            # Gestión de Sucursales, Usuarios Institucionales y Permisos
+│   │   ├── IntegracionesView.tsx            # Monitor de salud ESB y consola interactiva
+│   │   └── modals/
+│   │       ├── RelacionCobranzaModal.tsx    # Relación Oficial Quincenal (3 líneas, 7 vales, bonificación 18%)
+│   │       ├── DistribuidorModals.tsx       # Modales de Estado de Cuenta, Mensajes y Quitar Castigo
+│   │       └── PersonaModals.tsx            # Modales de edición, bloqueo y expediente de personas
 │   ├── lib/
 │   │   ├── auth/serverAuth.ts               # Middleware de validación JWT y roles RBAC
+│   │   ├── rules/businessRulesEngine.ts     # Motor evaluador de reglas crediticias en tiempo real
+│   │   ├── webPushService.ts                # Servicio de notificaciones Web Push PWA
+│   │   ├── adbNotifications.ts              # Emisor de notificaciones push a terminales móviles Android
 │   │   ├── utils/csv.ts                     # Sanitizador contra CSV Formula Injection
-│   │   ├── store/                           # Almacenes de estado (Tienda y Configuración)
-│   │   └── data/                            # Semillas operativas y base SAT Art. 69-B
+│   │   ├── store/                           # Almacenes de estado (Tienda, Servidor y Configuración)
+│   │   └── data/                            # Semillas operativas y base SAT Art. 69-B (14,055 registros)
 │   ├── proxy.ts                             # Proxy perimetral multi-dominio Next.js 16
-│   └── types/                               # Tipados TypeScript (Core, CRM, Auth, Tienda, Config)
+│   └── types/                               # Tipados TypeScript (Core, CRM, Auth, Tienda, Config, Reglas)
 ```
 
 ---

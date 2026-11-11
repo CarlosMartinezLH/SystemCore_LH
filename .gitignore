@@ -42,3 +42,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# scratch and temp artifacts
+assets/
+scripts/last_notif.txt
+scripts/*.jpg
+scripts/*.png

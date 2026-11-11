@@ -94,12 +94,16 @@ El portal administrativo **SystemCore** unifica todas las áreas clave de la com
 
 | Módulo | Alcance Operativo | Capacidades Clave |
 | :--- | :--- | :--- |
-| **1. CRM & Originación** | Gestión comercial de prospectos y distribuidores | Tablero Kanban por etapas reglamentarias, matriz documental de 25 requisitos, dictamen de perfil crediticio y capacidad de pago. |
+| **1. CRM & Originación** | Gestión comercial de prospectos y distribuidoras | Tablero Kanban con Drag & Drop interactivo, matriz documental de 25 requisitos, dictamen de perfil crediticio y capacidad de pago. |
 | **2. Padrón de Personas** | Registro maestro de clientes y beneficiarios | Consulta de más de 122,000 registros, estatus de pagarés en blanco, validación de buró interno y expediente digital. |
-| **3. Red de Distribuidores (DV)** | Control de más de 7,000 distribuidoras | Monitoreo de límite de crédito, saldo actual, disponibilidad, relaciones de cobro quincenal, estados de cuenta y notificaciones push. |
-| **4. Capital Humano (RH)** | Administración del equipo y asesores en ruta | Control de asistencia satelital por GPS, asignación de zonas, requisición de materiales y chalecos, y seguimiento a capacitaciones normativas PLD. |
-| **5. Dispersión & Pagos** | Tesorería automatizada y recaudación | Dispersión masiva vía STP SPEI, conciliación bancaria en tiempo real, gestión de referencias de pago en tiendas de conveniencia (Paynet). |
-| **6. Integraciones (ESB)** | Salud tecnológica y conectividad externa | Consola de monitoreo de microservicios, conexión a RENAPO, SAT 69-B, Buró de Crédito y pasarelas bancarias. |
+| **3. Red de Distribuidores & Perfil DV** | Control de más de 7,000 distribuidoras | Ficha técnica integral (DV #1053), 25 opciones operativas, líneas autorizadas, estados de cuenta y Relación de Cobranza Oficial (3 líneas, 7 vales, bonificación 18%). |
+| **4. Mesa de Crédito** | Control de riesgos y dictamen colegiado | Validación documental, verificación biométrica, semaforización de capacidad de pago y autorización de emisión de vales. |
+| **5. Gestoría de Cobranza** | Recuperación y convenios de pago | Bitácora de gestoría en campo, promesas de pago con fecha límite, alertas de mora y acuerdos de reestructuración. |
+| **6. Capital Humano (RH)** | Administración del equipo y asesores en ruta | Control de asistencia satelital por GPS, asignación de zonas, requisición de materiales y seguimiento a capacitaciones normativas. |
+| **7. Dispersión & Tesorería** | Tesorería automatizada y recaudación | Dispersión masiva vía STP SPEI 24/7, conciliación bancaria en tiempo real, gestión de referencias de pago Paynet. |
+| **8. Contabilidad & Pólizas** | Cumplimiento fiscal y financiero | Catálogo de cuentas CNBV, pólizas contables automatizadas (diario, ingresos, egresos) y conciliación de saldos. |
+| **9. Prevención PLD/FT** | Blindaje regulatorio CNBV / UIF | Matriz de riesgo, validación continua SAT 69-B / PEPs, monitoreo de operaciones inusuales y buzón confidencial. |
+| **10. Integraciones (ESB)** | Salud tecnológica y conectividad externa | Consola de monitoreo de microservicios, conexión a RENAPO, SAT 69-B, Buró de Crédito y pasarelas bancarias. |
 
 ---
 

@@ -49,8 +49,8 @@ flowchart TD
 
 ## 📦 Módulos Principales del Sistema
 
-### 1. CRM & Originación Comercial (Cero Papel)
-* **Tablero Kanban de Crédito**: Seguimiento visual paso a paso de cada prospecto a través de sus etapas reglamentarias: Contacto inicial, Visita ocular en domicilio/negocio, Consulta en Buró, Integración de expediente, Mesa de Control y Autorización final.
+### 1. CRM & Originación Comercial (Cero Papel con Arrastre Interactivo)
+* **Tablero Kanban con Drag & Drop Nativo**: Seguimiento visual paso a paso de cada prospecto. Los asesores pueden arrastrar las tarjetas con el ratón directamente de una etapa a otra (*Prospecto*, *Contacto*, *Validación*, *Mesa de Crédito*, *Aprobado*), disparando alertas inmediatas y notas automáticas de auditoría.
 * **Expediente Digital Centralizado**: Almacena de forma ordenada y encriptada los 25 documentos de respaldo requeridos (identificaciones oficiales, comprobantes de domicilio, fotos de fachada/interior, cartas de aval y contratos).
 * **Dictamen de Capacidad**: Clasificación automática del perfil de la distribuidora según su nivel de solvencia y experiencia previa.
 
@@ -59,11 +59,11 @@ flowchart TD
 * **Historial Completo**: Visualización de antecedentes crediticios, pagarés firmados, documentación digitalizada y cartas declaratorias.
 * **Exportación Segura**: Descarga de reportes en Excel/CSV con protección criptográfica contra inyección de fórmulas (CWE-1236).
 
-### 3. Red de Distribuidoras (DVs)
-* **Control Integral de Cartera**: Consulta de líneas de crédito activas, saldo actual, disponibilidad para emisión de vales y estatus de cobranza.
-* **Estados de Cuenta Oficiales**: Generación y descarga inmediata de estados de cuenta detallados con desglose de cargos, pagos y comisiones.
-* **Relación de Cobro Quincenal**: Listados ordenados por coordinador y sucursal para agilizar el corte y la cobranza en campo.
-* **Comunicación Directa**: Envío de avisos oficiales, notificaciones push a la aplicación móvil y recordatorios vía WhatsApp.
+### 3. Red de Distribuidoras (DVs) & Ficha Perfil Integral
+* **Perfil Integral de Distribuidora**: Acceso a la ficha técnica de la empresaria (ej. DV #1053 Yolanda Torres Martínez) con consulta de contrato vigente, línea de crédito autorizada (\$240,000.00), línea adicional (\$15,000.00), nivel de fidelidad (Plata/Oro/Diamante), coordinador asignado y estatus de validación del contrato.
+* **Catálogo de 25 Acciones Operativas**: Menú directo agrupado en 4 bloques: Cobranza & Reportes, Expediente & Validaciones, Financiamiento & Tiendita, y Supervisión & Reasignaciones.
+* **Relación de Cobranza Quincenal Oficial**: Formato oficial idéntico al impreso/PDF con desglose de las 3 líneas autorizadas (Vale Lana, LanaTienda, Préstamo Personal), los 7 vales de dinero vigentes, el préstamo personal de DV, el seguro de protección (\$90.00) y la tabla de bonificaciones por pronto pago del **18.00%** para liquidación neta a través de transferencias STP o Banorte.
+* **Control Integral de Cartera**: Estados de cuenta oficiales descargables, avisos push y control de castigos/convenios.
 
 ### 4. LanaTienda (`tienda.lanahora.com`) — Comercio Electrónico a 16 Quincenas
 * **Catálogo Oficial en Línea**: Tienda digital accesible para todo el público con productos de alta demanda (telefonía celular, electrodomésticos, pantallas, cómputo y kits de belleza).
@@ -115,6 +115,11 @@ El ecosistema móvil de LanAhora cuenta con dos soluciones especializadas según
 * **Levantamiento en Campo**: Registro de nuevas solicitudes de crédito directamente en el domicilio o negocio del prospecto, sin necesidad de cargar papelería física.
 * **Validación en Frío**: Verificación de CURP en tiempo real durante la entrevista para descartar homónimos o adeudos previos antes de armar expediente.
 * **Asistencia y Geolocalización**: Registro de visita con coordenadas GPS para transparentar la cobertura de zonas comerciales asignadas.
+
+### 9. Control Operativo, Mesa de Crédito & Transparencia Institucional
+* **Mesa de Crédito**: Dictamen colegiado de solicitudes de vales y aumentos de cupo con validación de biometría y expedientes.
+* **Gestoría de Cobranza**: Bitácora operativa para registro de visitas domiciliarias, promesas de pago y convenios amistosos de liquidación.
+* **Prevención de Lavado de Dinero (PLD/FT)**: Canal confidencial y anónimo para denuncias internas, monitoreo de operaciones inusuales y cumplimiento estricto con los requerimientos de la Comisión Nacional Bancaria y de Valores (CNBV).
 
 ---
 
