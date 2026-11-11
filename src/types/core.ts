@@ -47,6 +47,21 @@ export interface DistribuidorCore {
   tieneLanaApp: boolean;
   fechaAlta: string;
   fechaCastigo?: string | null;
+  // Campos del Perfil de Distribuidor y Relación de Cobro (Sistema LanAhora)
+  contratoId?: number;
+  lineaAdicional?: number;
+  gestor?: string;
+  promotor?: string;
+  direccion?: string;
+  lanapuntos?: number;
+  usuarioValida?: string;
+  fechaValidacion?: string;
+  usuarioConsolida?: string;
+  fechaConsolidacion?: string;
+  lineaLanaTienda?: number;
+  disponibleLanaTienda?: number;
+  lineaPersonal?: number;
+  disponiblePersonal?: number;
 }
 
 export interface CreditoCore {
@@ -61,6 +76,14 @@ export interface CreditoCore {
   fechaOtorgamiento: string;
   quincenasPlazo: number;
   sucursal: string;
+  tipoCredito?: 'VALE_DINERO' | 'PRESTAMO_PERSONAL' | 'PROTECCION_RELACION';
+  plazoActual?: number;
+  dctoQuincenal?: number;
+  saldoCorriente?: number;
+  saldoVencido?: number;
+  valorCorte?: number;
+  pagoCliente?: number;
+  saldoDespuesPago?: number;
 }
 
 // STP Dispersión
@@ -106,6 +129,48 @@ export interface MatrizPagoRecord {
   diferenciaMora: number;
   porcentajeRecuperacion: number;
   estatusGestion: 'COMPLETO' | 'EN_GESTION' | 'CRITICO';
+}
+
+// SPEI STP Inbound & Cascada de Aplicación Automática a Créditos
+export interface SpeiInboundPago {
+  id: string;
+  folioSTP: string;
+  claveRastreo: string;
+  bancoEmisorId: string;
+  bancoEmisorNombre: string;
+  clabeVirtual: string;
+  noDist: number;
+  distribuidorNombre: string;
+  perfilDV: 'D-AAA' | 'D-AA' | 'D-A' | 'E-AAA' | 'E-AA' | 'E-A';
+  saldoExigible: number;
+  montoDepositado: number;
+  diaCorte: string;
+  porcentajeBonificacion: number;
+  montoBonificacion: number;
+  montoAplicadoCredito: number;
+  montoMoratorios: number;
+  montoAmortVencida: number;
+  montoAmortCorriente: number;
+  montoRemanenteFavor: number;
+  lineaPrevia: number;
+  lineaNuevaDisponible: number;
+  fechaHora: string;
+  concepto: string;
+  estatus: 'APLICADO_AUTOMATICO' | 'CONCILIADO' | 'EN_REVISION';
+  cepUrl?: string;
+  polizaContableId: string;
+}
+
+export interface ClabeVirtualSTP {
+  noDist: number;
+  distribuidorNombre: string;
+  clabe: string;
+  bancoConcentrador: 'STP (646)';
+  estatus: 'ACTIVA' | 'BLOQUEADA';
+  fechaAsignacion: string;
+  saldoPendienteQuincena: number;
+  perfil: 'D-AAA' | 'D-AA' | 'D-A' | 'E-AAA' | 'E-AA' | 'E-A';
+  sucursal: string;
 }
 
 // Integraciones Externas (Arquitectura Oficial)

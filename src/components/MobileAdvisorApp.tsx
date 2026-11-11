@@ -18,7 +18,9 @@ import {
   ChevronRight,
   LogOut,
   Phone,
+  Bell,
 } from 'lucide-react';
+import { useCoreSync } from '@/context/CoreSyncContext';
 
 interface MobileAdvisorAppProps {
   user: UserSession;
@@ -35,6 +37,13 @@ export default function MobileAdvisorApp({
   onLogout,
   onSwitchToDesktop,
 }: MobileAdvisorAppProps) {
+  const { notifications, markNotificationRead } = useCoreSync();
+  const [showAdvisorNotifs, setShowAdvisorNotifs] = useState(false);
+  const advisorNotifs = notifications.filter(
+    (n) => n.target === 'ASESORES_CAMPO' || n.target === 'TODOS'
+  );
+  const unreadAdvisorCount = advisorNotifs.filter((n) => !n.read).length;
+
   const [activeTab, setActiveTab] = useState<'leads' | 'nuevo' | 'gps' | 'perfil'>('leads');
   const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -211,6 +220,16 @@ export default function MobileAdvisorApp({
               EN RUTA
             </span>
             <button
+              onClick={() => setShowAdvisorNotifs(!showAdvisorNotifs)}
+              className="relative p-1 text-white hover:text-yellow-300 transition"
+              title="Notificaciones de Campo"
+            >
+              <Bell className="w-3.5 h-3.5" />
+              {unreadAdvisorCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+              )}
+            </button>
+            <button
               onClick={onLogout}
               title="Cerrar Sesión"
               className="text-white hover:text-yellow-300 transition"
@@ -219,6 +238,66 @@ export default function MobileAdvisorApp({
             </button>
           </div>
         </div>
+
+        {/* Modal / Drawer de Notificaciones para Asesores de Campo */}
+        {showAdvisorNotifs && (
+          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex flex-col p-4 animate-in fade-in">
+            <div className="bg-white rounded-3xl p-4 flex-1 flex flex-col text-slate-800 shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-blue-600" />
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-900">
+                    Avisos a Fuerza de Ventas
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowAdvisorNotifs(false)}
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700"
+                >
+                  Cerrar
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto py-3 space-y-2.5">
+                {advisorNotifs.length === 0 ? (
+                  <div className="text-center py-12 text-slate-400 space-y-2">
+                    <span className="text-3xl block">📋</span>
+                    <p className="text-xs font-bold">Sin avisos pendientes</p>
+                    <p className="text-[10px]">Las alertas operativas de mesa de crédito y ruta aparecerán aquí.</p>
+                  </div>
+                ) : (
+                  advisorNotifs.map((n) => (
+                    <div
+                      key={n.id}
+                      onClick={() => markNotificationRead(n.id)}
+                      className={`p-3 rounded-2xl border transition cursor-pointer space-y-1.5 ${
+                        n.read
+                          ? 'bg-slate-50 border-slate-200 opacity-80'
+                          : 'bg-blue-50/60 border-blue-200 shadow-xs'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-black uppercase text-blue-700">
+                          {n.category}
+                        </span>
+                        <span className="text-[9px] text-slate-400">
+                          {new Date(n.createdAt).toLocaleTimeString('es-MX', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                      <h5 className="text-[11px] font-bold text-slate-900 leading-tight">
+                        {n.title}
+                      </h5>
+                      <p className="text-[10px] text-slate-600 leading-snug">{n.body}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* User Card Bar in Royal Blue with Yellow Accent */}
         <div className="bg-gradient-to-r from-[#2563eb] to-[#1e40af] text-white px-4 py-3 flex items-center justify-between shadow-sm">

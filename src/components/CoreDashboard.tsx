@@ -3,29 +3,31 @@
 import React, { useState } from 'react';
 import {
   Search,
-  ShieldAlert,
-  FileText,
   Users,
   Briefcase,
+  FileText,
   FileSpreadsheet,
   CheckCircle2,
-  XCircle,
-  Clock,
-  ArrowRight,
+  DollarSign,
+  Calendar,
+  Building,
+  RefreshCw,
   ExternalLink,
   ChevronRight,
-  Sparkles,
-  CreditCard,
-  Send,
+  ShieldAlert,
 } from 'lucide-react';
 import { DistribuidorCore, CreditoCore } from '@/types/core';
 import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import PerfilDistribuidorView from './PerfilDistribuidorView';
+import RelacionCobranzaModal from './modals/RelacionCobranzaModal';
 
 interface CoreDashboardProps {
   onNavigateToPersonas: () => void;
   onNavigateToDistribuidores: () => void;
   onNavigateToDispersion?: () => void;
+  onNavigateToGestoria?: () => void;
+  onNavigateToPLD?: () => void;
   currentUser?: UserSession | null;
 }
 
@@ -33,21 +35,29 @@ export default function CoreDashboard({
   onNavigateToPersonas,
   onNavigateToDistribuidores,
   onNavigateToDispersion,
+  onNavigateToGestoria,
+  onNavigateToPLD,
   currentUser,
 }: CoreDashboardProps) {
   const { creditos, distribuidores } = useCoreSync();
   const [activeTab, setActiveTab] = useState<'todos' | 'distribuidores' | 'creditos'>('todos');
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchCategory, setSearchCategory] = useState<'ALL' | 'DV' | 'CREDITO' | 'VALE' | 'NOMBRE'>('ALL');
   const [selectedBranch, setSelectedBranch] = useState('ALL');
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  // Selected items for modal or quick inspector
-  const [selectedDv, setSelectedDv] = useState<DistribuidorCore | null>(null);
-  const [selectedCredito, setSelectedCredito] = useState<CreditoCore | null>(null);
+  // Perfil del Distribuidor y Relación de Cobranza
+  const [activePerfilDv, setActivePerfilDv] = useState<DistribuidorCore | null>(null);
+  const [activeRelacionDv, setActiveRelacionDv] = useState<DistribuidorCore | null>(null);
 
-  // Filter Distribuidores
+  const handleTriggerSync = () => {
+    setIsSyncing(true);
+    setTimeout(() => {
+      setIsSyncing(false);
+    }, 900);
+  };
+
+  // Filtrado de Distribuidores
   const filteredDistribuidores = distribuidores.filter((d) => {
-    // Permiso por sucursal
     if (currentUser && currentUser.branchScope === 'BRANCH') {
       const uB = currentUser.branch.toUpperCase();
       const dB = (d.sucursal || '').toUpperCase();
@@ -63,33 +73,21 @@ export default function CoreDashboard({
     if (!searchTerm.trim()) return true;
 
     const q = searchTerm.toLowerCase().trim();
-    if (searchCategory === 'DV') {
-      return d.noDist.toString().includes(q);
-    }
-    if (searchCategory === 'NOMBRE') {
-      return d.nombreDistribuidor.toLowerCase().includes(q);
-    }
     return (
       d.nombreDistribuidor.toLowerCase().includes(q) ||
       d.noDist.toString().includes(q) ||
-      d.coordinador.toLowerCase().includes(q)
+      d.coordinador.toLowerCase().includes(q) ||
+      d.sucursal.toLowerCase().includes(q)
     );
   });
 
-  // Filter Créditos
+  // Filtrado de Créditos
   const filteredCreditos = creditos.filter((c) => {
+    const matchBranch = selectedBranch === 'ALL' || c.sucursal === selectedBranch;
+    if (!matchBranch) return false;
     if (!searchTerm.trim()) return true;
     const q = searchTerm.toLowerCase().trim();
 
-    if (searchCategory === 'CREDITO') {
-      return c.creditoId.toLowerCase().includes(q);
-    }
-    if (searchCategory === 'VALE') {
-      return c.noVale.toLowerCase().includes(q);
-    }
-    if (searchCategory === 'DV') {
-      return c.noDist.toString().includes(q);
-    }
     return (
       c.creditoId.toLowerCase().includes(q) ||
       c.noVale.toLowerCase().includes(q) ||
@@ -99,526 +97,313 @@ export default function CoreDashboard({
     );
   });
 
+  const totalColocacion = creditos.reduce((acc, c) => acc + (c.monto || 0), 0);
+  const totalLinea = distribuidores.reduce((acc, d) => acc + (d.creditoLimite || 0), 0);
+
+  // Si está viendo el perfil de una distribuidora, se muestra la vista completa y limpia
+  if (activePerfilDv) {
+    return (
+      <PerfilDistribuidorView
+        distribuidor={activePerfilDv}
+        onBack={() => setActivePerfilDv(null)}
+        onNavigateToGestoria={onNavigateToGestoria}
+      />
+    );
+  }
+
   return (
-    <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-6 space-y-4">
-      {/* Top Action Toolbar: Botones de Acción y Filtros sobre la pantalla */}
-      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        {/* Left: Module Tabs as segmented buttons */}
-        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
-          {[
-            { id: 'todos', name: 'Búsqueda Global', icon: Search, count: `${distribuidores.length + creditos.length}` },
-            { id: 'distribuidores', name: 'Distribuidores por DV', icon: Briefcase, count: distribuidores.length },
-            { id: 'creditos', name: 'Créditos y Vales', icon: FileText, count: creditos.length },
-          ].map((opt) => (
+    <div className="w-full p-4 lg:p-8 space-y-6 bg-[#f8fafc] min-h-[calc(100vh-60px)] font-sans">
+      {/* 1. Header Toolbar Unificado: Búsqueda Global, Filtros y Acciones */}
+      <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/80 p-4 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Barra de Búsqueda Inteligente (Unificada) */}
+        <div className="flex-1 relative min-w-0">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar por DV (ej. 1053), No. Vale, CreditoID, Cliente o Distribuidora..."
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition font-medium"
+          />
+        </div>
+
+        {/* Controles de Filtro: Pestañas + Selector de Sucursal */}
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          {/* Pestañas de filtrado de contenido */}
+          <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80 text-xs font-semibold">
             <button
-              key={opt.id}
-              onClick={() => {
-                setActiveTab(opt.id as any);
-                setSelectedDv(null);
-                setSelectedCredito(null);
-              }}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 ${
-                activeTab === opt.id
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+              onClick={() => setActiveTab('todos')}
+              className={`px-3 py-1.5 rounded-lg transition ${
+                activeTab === 'todos'
+                  ? 'bg-white text-slate-900 shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <opt.icon className="w-3.5 h-3.5" />
-              <span>{opt.name}</span>
-              <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                  activeTab === opt.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-                }`}
-              >
-                {opt.count}
-              </span>
+              Todos ({distribuidores.length + creditos.length})
             </button>
-          ))}
-        </div>
-
-        {/* Right: Complementary Actions */}
-        <div className="flex flex-wrap items-center gap-2">
-          {onNavigateToPersonas && (
             <button
-              onClick={onNavigateToPersonas}
-              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+              onClick={() => setActiveTab('distribuidores')}
+              className={`px-3 py-1.5 rounded-lg transition ${
+                activeTab === 'distribuidores'
+                  ? 'bg-white text-slate-900 shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
-              <Users className="w-3.5 h-3.5 text-blue-600" />
-              <span>Padrón Personas</span>
+              Distribuidoras ({distribuidores.length})
             </button>
-          )}
-
-          {onNavigateToDistribuidores && (
             <button
-              onClick={onNavigateToDistribuidores}
-              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+              onClick={() => setActiveTab('creditos')}
+              className={`px-3 py-1.5 rounded-lg transition ${
+                activeTab === 'creditos'
+                  ? 'bg-white text-slate-900 shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
-              <Briefcase className="w-3.5 h-3.5 text-blue-600" />
-              <span>Red DV</span>
+              Vales & Créditos ({creditos.length})
             </button>
-          )}
+          </div>
 
-          <button
-            onClick={() => alert('Abriendo bitácora y notas de gestoría...')}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+          {/* Selector de Plaza */}
+          <select
+            value={selectedBranch}
+            onChange={(e) => setSelectedBranch(e.target.value)}
+            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:bg-white transition"
           >
-            <FileText className="w-3.5 h-3.5 text-slate-500" />
-            <span>Notas Gestoría</span>
-          </button>
+            <option value="ALL">Todas las Plazas</option>
+            <option value="SALTILLO">Saltillo</option>
+            <option value="TORREON">Torreón</option>
+            <option value="MONCLOVA">Monclova</option>
+          </select>
 
+          {/* Botón Sincronizar */}
           <button
-            onClick={() => alert('Canal seguro y anónimo de Prevención de Lavado de Dinero (PLD) LanAhora')}
-            className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs flex items-center gap-1.5 transition"
+            onClick={handleTriggerSync}
+            disabled={isSyncing}
+            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition flex items-center justify-center active:scale-95"
+            title="Refrescar cartera en vivo"
           >
-            <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
-            <span>PLD Anónimo</span>
-          </button>
-
-          <button
-            onClick={() => alert('Exportando resultados de búsqueda en formato Microsoft Excel (.xlsx)...')}
-            className="px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-2 border border-emerald-200 transition"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Exportar Excel</span>
+            <RefreshCw className={`w-4 h-4 text-slate-600 ${isSyncing ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
 
-      {/* Selected Item Detail Banner (if active) */}
-      {(selectedDv || selectedCredito) && (
-        <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl flex items-center justify-between shadow-xs">
-          {selectedDv ? (
-            <div className="flex flex-wrap items-center gap-4 text-xs">
-              <span className="font-extrabold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
-                DV #{selectedDv.noDist}
-              </span>
-              <span className="font-bold text-slate-900 text-sm">
-                {selectedDv.nombreDistribuidor}
-              </span>
-              <span className="text-slate-500">
-                {selectedDv.sucursal} • Nivel {selectedDv.nivel}
-              </span>
-              <span className="text-emerald-700 font-bold">
-                Línea: ${selectedDv.creditoLimite.toLocaleString('es-MX')}
-              </span>
-              <span className="text-rose-600 font-mono font-bold">
-                Saldo: ${selectedDv.saldoActual.toLocaleString('es-MX')}
-              </span>
-            </div>
-          ) : selectedCredito ? (
-            <div className="flex flex-wrap items-center gap-4 text-xs">
-              <span className="font-extrabold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
-                {selectedCredito.creditoId}
-              </span>
-              <span className="font-bold text-slate-900 text-sm">
-                {selectedCredito.clienteNombre}
-              </span>
-              <span className="text-slate-500">
-                Vale: {selectedCredito.noVale} • DV #{selectedCredito.noDist}
-              </span>
-              <span className="text-blue-700 font-bold">
-                Monto: ${selectedCredito.monto.toLocaleString('es-MX')}
-              </span>
-              <span className="text-emerald-700 font-bold">
-                ✓ {selectedCredito.estatus}
-              </span>
-            </div>
-          ) : null}
-
-          <button
-            onClick={() => {
-              setSelectedDv(null);
-              setSelectedCredito(null);
-            }}
-            className="text-slate-400 hover:text-slate-700 text-xs font-bold px-2 py-1 rounded-lg hover:bg-white transition"
-          >
-            ✕ Cerrar selección
-          </button>
-        </div>
-      )}
-
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 overflow-x-auto flex flex-col space-y-3">
-        {/* Search & Stats Bar */}
-        <div className="bg-white p-3 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-xs">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative">
-              <Search className="w-4 h-4 text-blue-600 absolute left-3 top-2.5" />
-              <input
-                type="text"
-                placeholder="Buscar por DV (ej. 1002), Nombre, CréditoID o Vale..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 pr-4 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs w-80 text-slate-900 focus:outline-none focus:border-[#2563eb] focus:bg-white font-medium"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-600 font-semibold">Criterio:</span>
-              <select
-                value={searchCategory}
-                onChange={(e) => setSearchCategory(e.target.value as any)}
-                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:outline-none focus:border-[#2563eb] font-semibold"
-              >
-                <option value="ALL">Todos los criterios</option>
-                <option value="DV">Por No. de DV (1001-1025)</option>
-                <option value="NOMBRE">Por Nombre de Persona</option>
-                <option value="CREDITO">Por Identificador CréditoID</option>
-                <option value="VALE">Por Folio de Vale</option>
-              </select>
-            </div>
-
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-600 font-semibold">Sucursal:</span>
-              <select
-                value={selectedBranch}
-                onChange={(e) => setSelectedBranch(e.target.value)}
-                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:outline-none focus:border-[#2563eb] font-semibold"
-              >
-                <option value="ALL">Todas las Sucursales</option>
-                <option value="SALTILLO">Saltillo</option>
-                <option value="TORREON">Torreón</option>
-                <option value="MONCLOVA">Monclova</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-500 font-medium">
-              Mostrando{' '}
-              <strong className="text-[#2563eb]">
-                {activeTab === 'creditos'
-                  ? filteredCreditos.length
-                  : filteredDistribuidores.length}
-              </strong>{' '}
-              coincidencias en Core
+      {/* 2. Tarjetas KPI de Estado Ejecutivo */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white/90 backdrop-blur-md p-5 rounded-2xl border border-slate-200/80 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+              Colocación en Cartera
+            </span>
+            <span className="text-xl lg:text-2xl font-black text-slate-900 font-mono mt-1 block">
+              ${totalColocacion.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+            </span>
+            <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1.5 mt-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              {creditos.length} Vales vigentes
             </span>
           </div>
+          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+            <DollarSign className="w-5 h-5" />
+          </div>
         </div>
 
-        {/* Selected Record Detail Panel (When clicking Detalle) */}
-        {selectedDv && (
-          <div className="bg-[#eff4fc] border border-blue-200 rounded-2xl p-4 shadow-sm animate-in fade-in space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <span className="text-xs font-mono font-bold text-[#2563eb]">
-                  DISTRIBUIDORA #{selectedDv.noDist} • EXPEDIENTE CENTRAL
-                </span>
-                <h3 className="text-lg font-black text-slate-900">
-                  {selectedDv.nombreDistribuidor}
-                </h3>
-                <p className="text-xs text-slate-600 font-medium">
-                  Sucursal {selectedDv.sucursal} • {selectedDv.zona} • Coordinador: <strong>{selectedDv.coordinador}</strong>
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full text-xs font-black bg-[#facc15] text-slate-950">
-                  NIVEL {selectedDv.nivel}
-                </span>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-black ${
-                    selectedDv.estatus === 'ACTIVO'
-                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                      : 'bg-rose-100 text-rose-800'
-                  }`}
-                >
-                  {selectedDv.estatus}
-                </span>
-                <button
-                  onClick={() => setSelectedDv(null)}
-                  className="px-3 py-1 text-xs text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition"
-                >
-                  ✕ Cerrar
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-blue-200 text-xs">
-              <div className="bg-white p-3 rounded-xl border border-blue-100">
-                <span className="text-slate-500 block font-medium">Línea Autorizada:</span>
-                <span className="font-black text-slate-900 font-mono text-base">
-                  ${selectedDv.creditoLimite.toLocaleString('es-MX')}
-                </span>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-blue-100">
-                <span className="text-slate-500 block font-medium">Saldo Actual:</span>
-                <span className="font-black text-rose-600 font-mono text-base">
-                  ${selectedDv.saldoActual.toLocaleString('es-MX')}
-                </span>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-blue-100">
-                <span className="text-slate-500 block font-medium">Disponible Vales:</span>
-                <span className="font-black text-[#16a34a] font-mono text-base">
-                  ${selectedDv.disponible.toLocaleString('es-MX')}
-                </span>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-blue-100">
-                <span className="text-slate-500 block font-medium">LanaApp Móvil:</span>
-                <span className="font-black text-[#2563eb] text-sm">
-                  {selectedDv.tieneLanaApp ? '✓ Instalada & Activa' : 'Sin Aplicación'}
-                </span>
-              </div>
-            </div>
+        <div className="bg-white/90 backdrop-blur-md p-5 rounded-2xl border border-slate-200/80 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+              Líneas Autorizadas
+            </span>
+            <span className="text-xl lg:text-2xl font-black text-slate-900 font-mono mt-1 block">
+              ${totalLinea.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+            </span>
+            <span className="text-[11px] text-slate-500 font-medium mt-1 block">
+              {distribuidores.length} Distribuidoras activas
+            </span>
           </div>
-        )}
-
-        {/* Selected Credito Detail Panel */}
-        {selectedCredito && (
-          <div className="bg-[#eff4fc] border border-blue-200 rounded-2xl p-4 shadow-sm animate-in fade-in space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <span className="text-xs font-mono font-bold text-[#2563eb]">
-                  CRÉDITO {selectedCredito.creditoId} • FOLIO DE VALE {selectedCredito.noVale}
-                </span>
-                <h3 className="text-lg font-black text-slate-900">
-                  Cliente: {selectedCredito.clienteNombre}
-                </h3>
-                <p className="text-xs text-slate-600 font-medium">
-                  Distribuidora Responsable: #{selectedCredito.noDist} - {selectedCredito.distribuidorNombre}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {onNavigateToDispersion && (
-                  <button
-                    onClick={onNavigateToDispersion}
-                    className="px-3 py-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1.5 transition shadow-xs"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Ver Dispersión STP</span>
-                  </button>
-                )}
-                <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  {selectedCredito.estatus}
-                </span>
-                <button
-                  onClick={() => setSelectedCredito(null)}
-                  className="px-3 py-1 text-xs text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition"
-                >
-                  ✕ Cerrar
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-blue-200 text-xs">
-              <div className="bg-white p-3 rounded-xl border border-blue-100">
-                <span className="text-slate-500 block font-medium">Monto Otorgado:</span>
-                <span className="font-black text-slate-900 font-mono text-base">
-                  ${selectedCredito.monto.toLocaleString('es-MX')}
-                </span>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-blue-100">
-                <span className="text-slate-500 block font-medium">Saldo Pendiente:</span>
-                <span className="font-black text-rose-600 font-mono text-base">
-                  ${selectedCredito.saldo.toLocaleString('es-MX')}
-                </span>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-blue-100">
-                <span className="text-slate-500 block font-medium">Plazo Quincenas:</span>
-                <span className="font-bold text-slate-800 font-mono">
-                  {selectedCredito.quincenasPlazo} quincenas
-                </span>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-blue-100">
-                <span className="text-slate-500 block font-medium">Fecha Otorgamiento:</span>
-                <span className="font-bold text-slate-800 font-mono">
-                  {selectedCredito.fechaOtorgamiento}
-                </span>
-              </div>
-            </div>
+          <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+            <Briefcase className="w-5 h-5" />
           </div>
-        )}
+        </div>
 
-        {/* Table Container (Matching PersonasView & RHView) */}
-        <div className="bg-white rounded-2xl border border-blue-100 overflow-hidden shadow-xs flex-1">
-          {activeTab !== 'creditos' ? (
-            /* DISTRIBUIDORAS TABLE */
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-                <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
-                  <tr>
-                    <th className="px-3.5 py-2.5">Acciones</th>
-                    <th className="px-3.5 py-2.5">No. DV</th>
-                    <th className="px-3.5 py-2.5">Nombre Distribuidor</th>
-                    <th className="px-3.5 py-2.5">Sucursal</th>
-                    <th className="px-3.5 py-2.5">Coordinador</th>
-                    <th className="px-3.5 py-2.5">Nivel</th>
-                    <th className="px-3.5 py-2.5">Estatus</th>
-                    <th className="px-3.5 py-2.5">Línea Crédito</th>
-                    <th className="px-3.5 py-2.5">Saldo Actual</th>
-                    <th className="px-3.5 py-2.5">Disponible</th>
-                    <th className="px-3.5 py-2.5">LanaApp</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredDistribuidores.length === 0 ? (
-                    <tr>
-                      <td colSpan={11} className="text-center py-10 text-slate-400">
-                        No se encontraron distribuidoras con los criterios de búsqueda ingresados
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredDistribuidores.map((d) => {
-                      const isSelected = selectedDv?.noDist === d.noDist;
-                      return (
-                        <tr
-                          key={d.noDist}
-                          onClick={() => {
-                            setSelectedDv(d);
-                            setSelectedCredito(null);
-                          }}
-                          className={`cursor-pointer transition ${
-                            isSelected ? 'bg-blue-50/90 font-medium' : 'hover:bg-blue-50/40'
-                          }`}
-                        >
-                          <td className="px-3.5 py-2 font-medium">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedDv(d);
-                                setSelectedCredito(null);
-                              }}
-                              className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white transition"
-                            >
-                              Detalle
-                            </button>
-                          </td>
-                          <td className="px-3.5 py-2 font-mono font-bold text-[#2563eb]">
-                            #{d.noDist}
-                          </td>
-                          <td className="px-3.5 py-2 font-bold text-slate-900">{d.nombreDistribuidor}</td>
-                          <td className="px-3.5 py-2 text-slate-700">{d.sucursal}</td>
-                          <td className="px-3.5 py-2 text-slate-600">{d.coordinador}</td>
-                          <td className="px-3.5 py-2">
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-yellow-100 text-yellow-900 border border-yellow-300">
-                              {d.nivel}
-                            </span>
-                          </td>
-                          <td className="px-3.5 py-2">
-                            <span
-                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                                d.estatus === 'ACTIVO'
-                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                                  : 'bg-rose-100 text-rose-800'
-                              }`}
-                            >
-                              {d.estatus}
-                            </span>
-                          </td>
-                          <td className="px-3.5 py-2 font-mono font-bold text-slate-800">
-                            ${d.creditoLimite.toLocaleString('es-MX')}
-                          </td>
-                          <td className="px-3.5 py-2 font-mono font-bold text-rose-600">
-                            ${d.saldoActual.toLocaleString('es-MX')}
-                          </td>
-                          <td className="px-3.5 py-2 font-mono font-bold text-emerald-700">
-                            ${d.disponible.toLocaleString('es-MX')}
-                          </td>
-                          <td className="px-3.5 py-2">
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                d.tieneLanaApp
-                                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                                  : 'text-slate-400'
-                              }`}
-                            >
-                              {d.tieneLanaApp ? '✓ Activa' : 'No'}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            /* CRÉDITOS Y VALES TABLE */
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-                <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
-                  <tr>
-                    <th className="px-3.5 py-2.5">Acciones</th>
-                    <th className="px-3.5 py-2.5">Crédito ID</th>
-                    <th className="px-3.5 py-2.5">No. Vale</th>
-                    <th className="px-3.5 py-2.5">Cliente Acreditado</th>
-                    <th className="px-3.5 py-2.5">No. DV</th>
-                    <th className="px-3.5 py-2.5">Distribuidor Asignado</th>
-                    <th className="px-3.5 py-2.5">Monto Otorgado</th>
-                    <th className="px-3.5 py-2.5">Saldo Pendiente</th>
-                    <th className="px-3.5 py-2.5">Plazo</th>
-                    <th className="px-3.5 py-2.5">Fecha Alta</th>
-                    <th className="px-3.5 py-2.5">Estatus</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredCreditos.length === 0 ? (
-                    <tr>
-                      <td colSpan={11} className="text-center py-10 text-slate-400">
-                        No se encontraron créditos o vales con los criterios de búsqueda ingresados
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredCreditos.map((c) => {
-                      const isSelected = selectedCredito?.creditoId === c.creditoId;
-                      return (
-                        <tr
-                          key={c.creditoId}
-                          onClick={() => {
-                            setSelectedCredito(c);
-                            setSelectedDv(null);
-                          }}
-                          className={`cursor-pointer transition ${
-                            isSelected ? 'bg-blue-50/90 font-medium' : 'hover:bg-blue-50/40'
-                          }`}
-                        >
-                          <td className="px-3.5 py-2 font-medium">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedCredito(c);
-                                setSelectedDv(null);
-                              }}
-                              className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white transition"
-                            >
-                              Detalle
-                            </button>
-                          </td>
-                          <td className="px-3.5 py-2 font-mono font-bold text-[#2563eb]">
-                            {c.creditoId}
-                          </td>
-                          <td className="px-3.5 py-2 font-mono font-bold text-slate-800">
-                            {c.noVale}
-                          </td>
-                          <td className="px-3.5 py-2 font-bold text-slate-900">{c.clienteNombre}</td>
-                          <td className="px-3.5 py-2 font-mono font-bold text-blue-700">#{c.noDist}</td>
-                          <td className="px-3.5 py-2 text-slate-700">{c.distribuidorNombre}</td>
-                          <td className="px-3.5 py-2 font-mono font-bold text-slate-800">
-                            ${c.monto.toLocaleString('es-MX')}
-                          </td>
-                          <td className="px-3.5 py-2 font-mono font-bold text-rose-600">
-                            ${c.saldo.toLocaleString('es-MX')}
-                          </td>
-                          <td className="px-3.5 py-2 font-mono text-slate-600">
-                            {c.quincenasPlazo} quincenas
-                          </td>
-                          <td className="px-3.5 py-2 font-mono text-slate-500">{c.fechaOtorgamiento}</td>
-                          <td className="px-3.5 py-2">
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                              {c.estatus}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+        <div className="bg-white/90 backdrop-blur-md p-5 rounded-2xl border border-slate-200/80 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+              Índice de Recuperación
+            </span>
+            <span className="text-xl lg:text-2xl font-black text-emerald-600 font-mono mt-1 block">
+              95.4%
+            </span>
+            <span className="text-[11px] text-emerald-700 font-bold flex items-center gap-1.5 mt-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              Comisiones 30-15 al corriente
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="bg-white/90 backdrop-blur-md p-5 rounded-2xl border border-slate-200/80 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+              Plazas en Operación
+            </span>
+            <span className="text-xl lg:text-2xl font-black text-slate-900 mt-1 block">
+              3 Plazas
+            </span>
+            <span className="text-[11px] text-slate-500 font-medium mt-1 block">
+              Saltillo · Torreón · Monclova
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+            <Building className="w-5 h-5" />
+          </div>
         </div>
       </div>
+
+      {/* 3. Tabla Principal de Cartera (Limpia, Espaciosa y de Alta Legibilidad) */}
+      <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-[0_2px_15px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-extrabold text-slate-900 tracking-tight">
+              {activeTab === 'distribuidores'
+                ? 'Padrón de Distribuidoras (DV)'
+                : activeTab === 'creditos'
+                ? 'Vales y Créditos en Cartera'
+                : 'Padrón y Cartera Integral'}
+            </h2>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Haz clic en cualquier fila para consultar el perfil completo o emitir la relación de cobranza
+            </p>
+          </div>
+
+          {/* Acceso Rápido Directo a DV #1053 Yolanda Torres */}
+          <button
+            onClick={() => {
+              const dv1053 = distribuidores.find((d) => d.noDist === 1053);
+              if (dv1053) setActivePerfilDv(dv1053);
+            }}
+            className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs active:scale-95"
+          >
+            <Users className="w-3.5 h-3.5 text-amber-400" />
+            <span>Ver DV #1053 Yolanda Torres</span>
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs font-sans">
+            <thead>
+              <tr className="bg-slate-50/90 text-slate-700 font-bold border-b border-slate-200/80 uppercase text-[11px] tracking-wider">
+                <th className="py-3 px-4">Identificador</th>
+                <th className="py-3 px-4">Titular / Nombre</th>
+                <th className="py-3 px-4">Plaza / Sucursal</th>
+                <th className="py-3 px-4 text-right">Línea / Monto</th>
+                <th className="py-3 px-4 text-right">Disponible / Saldo</th>
+                <th className="py-3 px-4 text-center">Estatus</th>
+                <th className="py-3 px-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
+              {/* Filas de Distribuidoras */}
+              {activeTab !== 'creditos' &&
+                filteredDistribuidores.map((dv) => (
+                  <tr
+                    key={`dv-${dv.noDist}`}
+                    className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
+                    onClick={() => setActivePerfilDv(dv)}
+                  >
+                    <td className="py-3 px-4 font-mono font-bold text-blue-700">
+                      DV #{dv.noDist}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-extrabold text-slate-900 block text-sm">
+                        {dv.nombreDistribuidor}
+                      </span>
+                      <span className="text-[11px] text-slate-500 block mt-0.5">
+                        Coord: {dv.coordinador} · Nivel {dv.nivel}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 font-medium">
+                      {dv.sucursal}
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
+                      ${dv.creditoLimite.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono font-bold text-emerald-600">
+                      ${dv.disponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        {dv.estatus}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => setActivePerfilDv(dv)}
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs transition"
+                          title="Abrir perfil completo"
+                        >
+                          Perfil
+                        </button>
+                        <button
+                          onClick={() => setActiveRelacionDv(dv)}
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition shadow-xs"
+                          title="Abrir relación de cobranza quincenal"
+                        >
+                          Relación
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+
+              {/* Filas de Créditos y Vales */}
+              {activeTab !== 'distribuidores' &&
+                filteredCreditos.map((c) => (
+                  <tr key={`cr-${c.creditoId}`} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                      {c.creditoId}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-extrabold text-slate-900 block text-sm">
+                        {c.clienteNombre}
+                      </span>
+                      <span className="text-[11px] text-slate-500 block mt-0.5">
+                        Vale #{c.noVale} · DV #{c.noDist} ({c.distribuidorNombre})
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 font-medium">
+                      {c.sucursal}
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
+                      ${c.monto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono font-bold text-rose-600">
+                      ${c.saldo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                        {c.estatus}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className="text-slate-400 font-mono text-[11px]">
+                        {c.quincenasPlazo} quincenas
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Relación de Cobranza Oficial Modal */}
+      <RelacionCobranzaModal
+        isOpen={!!activeRelacionDv}
+        onClose={() => setActiveRelacionDv(null)}
+        distribuidor={activeRelacionDv}
+      />
     </div>
   );
 }

@@ -22,6 +22,8 @@ import {
   QuitarCastigoModal,
   NotificacionAppModal,
 } from './modals/DistribuidorModals';
+import RelacionCobranzaModal from './modals/RelacionCobranzaModal';
+import PerfilDistribuidorView from './PerfilDistribuidorView';
 import { buildSafeCsv } from '@/lib/utils/csv';
 
 interface DistribuidoresViewProps {
@@ -30,7 +32,8 @@ interface DistribuidoresViewProps {
 
 export default function DistribuidoresView({ currentUser }: DistribuidoresViewProps = {}) {
   const { distribuidores, updateDistribuidor } = useCoreSync();
-  const [selectedNoDist, setSelectedNoDist] = useState<number | null>(1002);
+  const [selectedNoDist, setSelectedNoDist] = useState<number | null>(1053);
+  const [viewMode, setViewMode] = useState<'tabla' | 'perfil'>('tabla');
   const [coordinatorFilter, setCoordinatorFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -119,77 +122,66 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
     URL.revokeObjectURL(url);
   };
 
+  if (viewMode === 'perfil') {
+    return (
+      <PerfilDistribuidorView
+        distribuidor={selectedDist}
+        onBack={() => setViewMode('tabla')}
+      />
+    );
+  }
+
   return (
-    <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-6 space-y-4">
-      {/* Top Action Toolbar: Botones de Acción sobre la pantalla */}
-      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        {/* Left: Quick Actions */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => handleActionClick('Estado de Cuenta')}
-            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 shadow-xs transition"
+    <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-8 space-y-6">
+      {/* Barra de Control Unificada */}
+      <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Búsqueda */}
+        <div className="relative flex-1 min-w-0">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Buscar por DV, nombre, sucursal o coordinador..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 font-medium transition"
+          />
+        </div>
+
+        {/* Filtros & Acciones Principales */}
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <select
+            value={coordinatorFilter}
+            onChange={(e) => setCoordinatorFilter(e.target.value)}
+            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:bg-white"
           >
-            <FileText className="w-3.5 h-3.5" />
-            <span>Estado de Cuenta</span>
-          </button>
+            <option value="ALL">Todos los Coordinadores</option>
+            {coordinators.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
 
           <button
-            onClick={() => handleActionClick('Cartera de Clientes')}
-            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+            onClick={() => setViewMode('perfil')}
+            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition active:scale-95"
           >
-            <Users className="w-3.5 h-3.5 text-blue-600" />
-            <span>Cartera Clientes</span>
+            <Users className="w-3.5 h-3.5 text-amber-400" />
+            <span>Ver Perfil DV</span>
           </button>
 
           <button
             onClick={() => handleActionClick('Relación de Cobro')}
-            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
+            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition active:scale-95"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-blue-600" />
+            <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>Relación de Cobro</span>
           </button>
 
           <button
-            onClick={() => handleActionClick('Recibos Emitidos')}
-            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
-          >
-            <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
-            <span>Recibos Emitidos</span>
-          </button>
-
-          <button
-            onClick={() => handleActionClick('Notificación LanaApp')}
-            className="px-3.5 py-2 rounded-xl bg-[#facc15] hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-xs transition"
-          >
-            <Smartphone className="w-3.5 h-3.5 text-slate-950" />
-            <span>Notificación LanaApp</span>
-          </button>
-
-          <button
-            onClick={() => handleActionClick('Mensajes Masivos WhatsApp')}
-            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
-          >
-            <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
-            <span>WhatsApp Masivo</span>
-          </button>
-
-          <button
-            onClick={() => handleActionClick('Quitar Castigo / Reactivar')}
-            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-200 transition"
-          >
-            <Unlock className="w-3.5 h-3.5 text-amber-600" />
-            <span>Reactivar DV</span>
-          </button>
-        </div>
-
-        {/* Right: Export Button */}
-        <div>
-          <button
             onClick={handleExportXLS}
-            className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-2 border border-emerald-200 transition"
+            className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Exportar Excel</span>
+            <FileSpreadsheet className="w-3.5 h-3.5 text-blue-600" />
+            <span>Exportar CSV</span>
           </button>
         </div>
       </div>
@@ -495,6 +487,13 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
           </div>
         </div>
       )}
+
+      {/* Relación de Cobranza Oficial (Modal Imprimible Legacy) */}
+      <RelacionCobranzaModal
+        isOpen={activeModal === 'relacion'}
+        onClose={() => setActiveModal(null)}
+        distribuidor={selectedDist}
+      />
     </div>
   );
 }

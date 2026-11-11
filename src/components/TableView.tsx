@@ -16,20 +16,20 @@ export default function TableView({ prospects, onSelectProspect }: TableViewProp
   };
 
   return (
-    <div className="flex-1 p-4 bg-[#f0f4fa] min-h-[calc(100vh-105px)] overflow-x-auto">
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
+    <div className="flex-1 p-4 lg:p-6 bg-[#f8fafc] min-h-[calc(100vh-105px)] overflow-x-auto font-sans">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-slate-900">Listado Maestro de Prospectos</h2>
-            <p className="text-xs text-slate-500">Visualización tabular de originación LanAhora</p>
+            <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">Listado Maestro de Prospectos</h2>
+            <p className="text-xs text-slate-500 font-medium">Visualización tabular de originación LanAhora</p>
           </div>
-          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200/80">
             {prospects.length} Registros
           </span>
         </div>
 
         <table className="w-full text-left text-xs text-slate-700">
-          <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-bold">
+          <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 uppercase text-[10px] tracking-wider font-bold">
             <tr>
               <th className="px-4 py-3">Oportunidad / Prospecto</th>
               <th className="px-4 py-3">Etapa Actual</th>

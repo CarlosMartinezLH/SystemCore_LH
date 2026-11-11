@@ -29,7 +29,20 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { name, email, role, roleLabel, branch, branchScope, telefono, puesto, estatus } = body;
+    const {
+      name,
+      email,
+      role,
+      roleLabel,
+      branch,
+      branchScope,
+      telefono,
+      puesto,
+      estatus,
+      allowedModules,
+      permissions,
+      password,
+    } = body;
 
     if (!name || !email || !branch) {
       return NextResponse.json(
@@ -48,6 +61,9 @@ export async function POST(req: Request) {
       branchScope: branchScope || 'BRANCH',
       telefono: telefono || '',
       estatus: estatus || 'ACTIVO',
+      allowedModules: allowedModules || [],
+      permissions: permissions || undefined,
+      password: password || 'lanahora2026',
     });
 
     return NextResponse.json({ success: true, usuario: nuevo });

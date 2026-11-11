@@ -33,15 +33,163 @@ import {
   Minus,
   Sparkles,
   Search,
+  Bell,
+  Calendar,
 } from 'lucide-react';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { MobileNotification } from '@/types/notifications';
+import {
+  calcularAmortizacionVale,
+  calcularComisionDistribuidora,
+  validarCreditoGeneraCanje,
+} from '@/lib/rules/businessRulesEngine';
+import { CATEGORIAS_CONFIG } from '@/types/businessRules';
 
 interface LanAppViewProps {
   onNavigateToDispersion?: () => void;
+  fullScreenMobile?: boolean;
 }
 
-export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) {
-  const { registrarCanje } = useCoreSync();
+export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = false }: LanAppViewProps) {
+  const {
+    notifications,
+    mobileNotificationAccepted,
+    setMobileNotificationPermission,
+    markNotificationRead,
+    registrarCanje,
+  } = useCoreSync();
+
+  // Estados de Notificaciones Móviles
+  const [showNotificationsCenter, setShowNotificationsCenter] = useState(false);
+  const [notificationFilter, setNotificationFilter] = useState<'TODAS' | 'COBRO_VALE' | 'RECORDATORIO_PAGO'>('TODAS');
+  const [bannerToast, setBannerToast] = useState<MobileNotification | null>(null);
+  const [dismissedPermissionPrompt, setDismissedPermissionPrompt] = useState(false);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const playNotificationSound = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } catch {
+      // Audio autoplay may be muted by browser policy
+    }
+  };
+
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
+
+  const subscribeToWebPush = async () => {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return;
+    }
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+
+      // Obtener clave pública VAPID desde el Core
+      const res = await fetch('/api/notifications/push-subscription');
+      const data = await res.json();
+      if (!data.success || !data.publicKey) return;
+
+      const convertedKey = urlBase64ToUint8Array(data.publicKey);
+      const subscription = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: convertedKey,
+      });
+
+      // Enviar suscripción al servidor Core
+      await fetch('/api/notifications/push-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscription,
+          distribuidorId: 1002,
+        }),
+      });
+      console.log('[LanApp] ¡Suscripción Web Push remota registrada con éxito!');
+    } catch (err) {
+      console.warn('[LanApp] Error registrando WebPush:', err);
+    }
+  };
+
+  const handleAcceptNotificationPermission = async () => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          await subscribeToWebPush();
+        }
+      } catch (err) {
+        console.warn('Permiso de notificaciones del navegador:', err);
+      }
+    }
+    await setMobileNotificationPermission(true);
+  };
+
+  // Re-suscribir automáticamente si ya tenía permiso otorgado
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      subscribeToWebPush().catch(() => {});
+    }
+  }, []);
+
+  const prevNotifCountRef = useRef(notifications.length);
+  useEffect(() => {
+    if (notifications.length > prevNotifCountRef.current) {
+      const latest = notifications[0];
+      if (latest) {
+        setBannerToast(latest);
+        playNotificationSound();
+
+        // Vibración nativa en smartphones Android/Samsung
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          try {
+            navigator.vibrate([250, 100, 250]);
+          } catch {}
+        }
+
+        // Notificación nativa del sistema operativo / navegador móvil si se autorizó
+        if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+          try {
+            new Notification(latest.title, {
+              body: latest.body,
+              icon: '/icon.png',
+              badge: '/icon.png',
+              tag: latest.id,
+            });
+          } catch (e) {
+            console.warn('Native push notification error:', e);
+          }
+        }
+
+        const timer = setTimeout(() => setBannerToast(null), 6000);
+        return () => clearTimeout(timer);
+      }
+    }
+    prevNotifCountRef.current = notifications.length;
+  }, [notifications]);
+
   // Modo de simulación: 'dv' (Distribuidora - LanApp) | 'cliente' (Portal de Canje Acredítala)
   const [activeMode, setActiveMode] = useState<'dv' | 'cliente'>('dv');
 
@@ -100,8 +248,10 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
     { id: '13066', nombre: 'VICTOR GERARDO FARIAS AGUIRRE', plazos: '9/10', capital: 5000, actual: 7739.00, atrasado: 0.00 },
   ];
 
-  // Cálculo de pago por plazo ($1,000 en 6 plazos = $237.00)
-  const pagoPorPlazo = Math.round((importe * (1 + plazos * 0.071)) / plazos);
+  // Amortización oficial según reglas de negocio ($1,000 en 6 plazos = $237.00 exacto)
+  const amortizacionActual = calcularAmortizacionVale(importe, plazos, 'DISTRIBUIDORA_AAA');
+  const pagoPorPlazo = amortizacionActual.pagoQuincenalSinSeguro;
+  const seguroClienteActual = amortizacionActual.seguroCliente;
 
   // Estados del formulario del cliente
   const [tipoCuenta, setTipoCuenta] = useState<'tarjeta' | 'clabe'>('tarjeta');
@@ -333,108 +483,325 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f4fa] pb-16">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-[#1d4ed8] via-[#2563eb] to-[#1e40af] text-white py-6 px-4 md:px-8 border-b border-blue-400/30 shadow-md">
-        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-[#facc15] text-slate-950">
-                Oficial 2026
-              </span>
-              <span className="text-xs text-blue-200 font-bold">
-                Manual de Dispersión Digital v.1.16.7.0
-              </span>
+    <div className={fullScreenMobile ? 'w-full min-h-screen bg-[#132A60]' : 'min-h-screen bg-[#f0f4fa] pb-16'}>
+      {!fullScreenMobile && (
+        /* Header Banner */
+        <div className="bg-gradient-to-r from-[#1d4ed8] via-[#2563eb] to-[#1e40af] text-white py-6 px-4 md:px-8 border-b border-blue-400/30 shadow-md">
+          <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-[#facc15] text-slate-950">
+                  Oficial 2026
+                </span>
+                <span className="text-xs text-blue-200 font-bold">
+                  Manual de Dispersión Digital v.1.16.7.0
+                </span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight mt-1 flex items-center gap-3">
+                <Smartphone className="w-8 h-8 text-[#facc15]" />
+                LanApp — Vale Digital con Canje Inmediato
+              </h1>
+              <p className="text-xs md:text-sm text-blue-100 max-w-2xl mt-1">
+                Simulador interactivo del flujo integral: Emisión de Vale Digital por la Distribuidora (LanApp) y Canje Digital con validación biométrica facial, INE OCR y dispersión STP SPEI por el cliente.
+              </p>
             </div>
-            <h1 className="text-2xl md:text-3xl font-black tracking-tight mt-1 flex items-center gap-3">
-              <Smartphone className="w-8 h-8 text-[#facc15]" />
-              LanApp — Vale Digital con Canje Inmediato
-            </h1>
-            <p className="text-xs md:text-sm text-blue-100 max-w-2xl mt-1">
-              Simulador interactivo del flujo integral: Emisión de Vale Digital por la Distribuidora (LanApp) y Canje Digital con validación biométrica facial, INE OCR y dispersión STP SPEI por el cliente.
-            </p>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <a
-              href="/dist/apk/lanapp-distribuidoras.apk"
-              download="lanapp-distribuidoras.apk"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#facc15] text-slate-950 font-black text-xs hover:bg-yellow-400 shadow-md transition transform active:scale-95"
-            >
-              <Download className="w-4 h-4" />
-              Descargar APK LanApp (Android)
-            </a>
-            {onNavigateToDispersion && (
-              <button
-                onClick={onNavigateToDispersion}
-                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition"
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="/dist/apk/lanapp-distribuidoras.apk"
+                download="lanapp-distribuidoras.apk"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#facc15] text-slate-950 font-black text-xs hover:bg-yellow-400 shadow-md transition transform active:scale-95"
               >
-                <CreditCard className="w-4 h-4 text-[#facc15]" />
-                Ver en Dispersiones STP
-              </button>
-            )}
+                <Download className="w-4 h-4" />
+                Descargar APK LanApp (Android)
+              </a>
+              {onNavigateToDispersion && (
+                <button
+                  onClick={onNavigateToDispersion}
+                  className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition"
+                >
+                  <CreditCard className="w-4 h-4 text-[#facc15]" />
+                  Ver en Dispersiones STP
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Main Content Layout */}
-      <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left: Device Simulator (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col items-center">
-          {/* Simulator Toggle Pills */}
-          <div className="w-full max-w-[380px] bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-1 mb-4">
-            <button
-              onClick={() => {
-                setActiveMode('dv');
-              }}
-              className={`flex-1 py-2 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 ${
-                activeMode === 'dv'
-                  ? 'bg-[#1d4ed8] text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <Award className="w-3.5 h-3.5 text-[#facc15]" />
-              LanApp Distribuidora
-            </button>
-            <button
-              onClick={() => {
-                setActiveMode('cliente');
-              }}
-              className={`flex-1 py-2 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 ${
-                activeMode === 'cliente'
-                  ? 'bg-[#16a34a] text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Canje Cliente (Acredítala)
-            </button>
-          </div>
-
-          {/* Smartphone Frame */}
-          <div className="relative w-[360px] h-[740px] bg-slate-900 rounded-[48px] p-3 shadow-2xl border-[5px] border-slate-800 ring-4 ring-black/10 select-none">
-            {/* Speaker & Dynamic Island */}
-            <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-4 bg-black rounded-full z-30 flex items-center justify-center">
-              <div className="w-3 h-3 rounded-full bg-slate-900 mr-2" />
-              <div className="w-10 h-1 bg-slate-800 rounded-full" />
+      <div className={fullScreenMobile ? 'w-full min-h-screen flex flex-col' : 'max-w-[1600px] mx-auto px-4 md:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8'}>
+        {/* Left: Device Simulator */}
+        <div className={fullScreenMobile ? 'w-full min-h-screen flex flex-col' : 'lg:col-span-5 flex flex-col items-center'}>
+          {!fullScreenMobile && (
+            /* Simulator Toggle Pills */
+            <div className="w-full max-w-[380px] bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-1 mb-4">
+              <button
+                onClick={() => {
+                  setActiveMode('dv');
+                }}
+                className={`flex-1 py-2 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 ${
+                  activeMode === 'dv'
+                    ? 'bg-[#1d4ed8] text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                <Award className="w-3.5 h-3.5 text-[#facc15]" />
+                LanApp Distribuidora
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMode('cliente');
+                }}
+                className={`flex-1 py-2 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 ${
+                  activeMode === 'cliente'
+                    ? 'bg-[#16a34a] text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Canje Cliente (Acredítala)
+              </button>
             </div>
+          )}
+
+          {/* Smartphone Frame / Native Container */}
+          <div className={fullScreenMobile ? 'w-full min-h-screen flex flex-col' : 'relative w-[360px] h-[740px] bg-slate-900 rounded-[48px] p-3 shadow-2xl border-[5px] border-slate-800 ring-4 ring-black/10 select-none'}>
+            {!fullScreenMobile && (
+              /* Speaker & Dynamic Island */
+              <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-4 bg-black rounded-full z-30 flex items-center justify-center">
+                <div className="w-3 h-3 rounded-full bg-slate-900 mr-2" />
+                <div className="w-10 h-1 bg-slate-800 rounded-full" />
+              </div>
+            )}
 
             {/* Phone Screen Container */}
-            <div className="relative w-full h-full bg-[#132A60] rounded-[38px] overflow-hidden flex flex-col pt-7 pb-4">
-              {/* STATUS BAR */}
-              <div className="px-6 py-1 flex items-center justify-between text-[11px] font-bold text-white/80 z-20">
-                <span>8:55</span>
-                <div className="flex items-center gap-1.5">
-                  <span>5G</span>
-                  <div className="w-5 h-2.5 border border-white/60 rounded-sm p-0.5 flex items-center">
-                    <div className="h-full w-full bg-white rounded-2xs" />
+            <div className={fullScreenMobile ? 'relative w-full min-h-screen bg-[#132A60] overflow-hidden flex flex-col pt-3 pb-6' : 'relative w-full h-full bg-[#132A60] rounded-[38px] overflow-hidden flex flex-col pt-7 pb-4'}>
+              {!fullScreenMobile && (
+                /* STATUS BAR */
+                <div className="px-6 py-1 flex items-center justify-between text-[11px] font-bold text-white/80 z-20">
+                  <span>8:55</span>
+                  <div className="flex items-center gap-1.5">
+                    <span>5G</span>
+                    <div className="w-5 h-2.5 border border-white/60 rounded-sm p-0.5 flex items-center">
+                      <div className="h-full w-full bg-white rounded-2xs" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* PUSH BANNER FLOTANTE (IN-APP TOAST) */}
+              {bannerToast && (
+                <div
+                  onClick={() => {
+                    setShowNotificationsCenter(true);
+                    setBannerToast(null);
+                  }}
+                  className="absolute top-10 left-3 right-3 bg-slate-900/95 backdrop-blur-md text-white rounded-2xl p-3 shadow-2xl border border-amber-400/60 z-40 animate-bounce cursor-pointer ring-2 ring-amber-400/30"
+                >
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center shrink-0 font-bold text-sm shadow-md">
+                      {bannerToast.category === 'COBRO_VALE' ? '💰' : bannerToast.category === 'RECORDATORIO_PAGO' ? '📅' : '🔔'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-black tracking-wider text-amber-300 uppercase">LANAPP ALERTA</span>
+                        <span className="text-[9px] text-slate-400">Ahora</span>
+                      </div>
+                      <h5 className="text-[11px] font-black text-white truncate">{bannerToast.title}</h5>
+                      <p className="text-[10px] text-slate-300 line-clamp-2 leading-tight">{bannerToast.body}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* DIÁLOGO / MODAL DE ACEPTACIÓN DE NOTIFICACIONES */}
+              {dvStep >= 2 && !mobileNotificationAccepted && !dismissedPermissionPrompt && (
+                <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-end p-3 animate-in fade-in">
+                  <div className="w-full bg-[#1e293b] rounded-3xl p-4 text-white border border-slate-700 shadow-2xl space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center mx-auto text-xl shadow-lg shadow-amber-400/30">
+                      🔔
+                    </div>
+                    <div className="text-center space-y-1">
+                      <h4 className="text-xs font-black tracking-tight">¿Permitir notificaciones de LanApp?</h4>
+                      <p className="text-[10px] text-slate-300 leading-snug">
+                        Recibe alertas inmediatas en tu celular cuando tus clientes cobren vales digitales y recordatorios antes de tu fecha límite de pago para proteger tus comisiones.
+                      </p>
+                    </div>
+                    <div className="space-y-1.5 pt-1">
+                      <button
+                        onClick={handleAcceptNotificationPermission}
+                        className="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition shadow-md active:scale-95"
+                      >
+                        Permitir Notificaciones
+                      </button>
+                      <button
+                        onClick={() => setDismissedPermissionPrompt(true)}
+                        className="w-full py-2 rounded-xl bg-slate-800 text-slate-400 font-bold text-[11px] hover:text-white transition"
+                      >
+                        En otro momento
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* SCREEN CONTENT CONDITIONAL RENDERING */}
               <div className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col">
-                {activeMode === 'dv' ? (
+                {showNotificationsCenter ? (
+                  /* CENTRO DE NOTIFICACIONES DE LANAPP */
+                  <div className="flex-1 flex flex-col bg-[#0f172a] text-white">
+                    <div className="px-4 py-2.5 border-b border-white/10 flex items-center justify-between">
+                      <button
+                        onClick={() => setShowNotificationsCenter(false)}
+                        className="p-1 rounded-lg hover:bg-white/10 text-white transition flex items-center gap-1 text-[11px] font-bold"
+                      >
+                        <ArrowLeft className="w-4 h-4 text-white" />
+                        <span>Volver</span>
+                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <Bell className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="text-xs font-black uppercase text-white tracking-wider">
+                          Notificaciones
+                        </span>
+                      </div>
+                      <div className="w-12 text-right">
+                        {unreadCount > 0 ? (
+                          <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-[8px] font-black text-white">
+                            {unreadCount} nuevas
+                          </span>
+                        ) : (
+                          <span className="text-[9px] text-slate-400">Al día</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Filter Chips */}
+                    <div className="p-2 bg-slate-900 border-b border-white/5 flex gap-1.5 overflow-x-auto no-scrollbar">
+                      <button
+                        onClick={() => setNotificationFilter('TODAS')}
+                        className={`px-2 py-1 rounded-lg text-[9px] font-bold transition shrink-0 ${
+                          notificationFilter === 'TODAS'
+                            ? 'bg-amber-400 text-slate-950 font-black'
+                            : 'bg-white/5 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Todas ({notifications.length})
+                      </button>
+                      <button
+                        onClick={() => setNotificationFilter('COBRO_VALE')}
+                        className={`px-2 py-1 rounded-lg text-[9px] font-bold transition shrink-0 ${
+                          notificationFilter === 'COBRO_VALE'
+                            ? 'bg-emerald-500 text-slate-950 font-black'
+                            : 'bg-white/5 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        💰 Vales Cobrados
+                      </button>
+                      <button
+                        onClick={() => setNotificationFilter('RECORDATORIO_PAGO')}
+                        className={`px-2 py-1 rounded-lg text-[9px] font-bold transition shrink-0 ${
+                          notificationFilter === 'RECORDATORIO_PAGO'
+                            ? 'bg-blue-500 text-white font-black'
+                            : 'bg-white/5 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        📅 Fechas de Pago
+                      </button>
+                    </div>
+
+                    {/* Notifications List */}
+                    <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
+                      {notifications
+                        .filter((n) =>
+                          notificationFilter === 'TODAS' ? true : n.category === notificationFilter
+                        )
+                        .map((notif) => (
+                          <div
+                            key={notif.id}
+                            onClick={() => markNotificationRead(notif.id)}
+                            className={`p-3 rounded-2xl border transition cursor-pointer space-y-2 ${
+                              notif.read
+                                ? 'bg-white/5 border-white/10 opacity-75'
+                                : 'bg-slate-800/90 border-amber-400/40 shadow-md ring-1 ring-amber-400/20'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-sm">
+                                  {notif.category === 'COBRO_VALE'
+                                    ? '💰'
+                                    : notif.category === 'RECORDATORIO_PAGO'
+                                    ? '📅'
+                                    : notif.category === 'DISPERSION_STP'
+                                    ? '⚡'
+                                    : '📢'}
+                                </span>
+                                <span
+                                  className={`text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-sm ${
+                                    notif.category === 'COBRO_VALE'
+                                      ? 'bg-emerald-500/20 text-emerald-300'
+                                      : notif.category === 'RECORDATORIO_PAGO'
+                                      ? 'bg-amber-500/20 text-amber-300'
+                                      : 'bg-blue-500/20 text-blue-300'
+                                  }`}
+                                >
+                                  {notif.category === 'COBRO_VALE'
+                                    ? 'Vale Cobrado'
+                                    : notif.category === 'RECORDATORIO_PAGO'
+                                    ? 'Pago Quincenal'
+                                    : 'Aviso'}
+                                </span>
+                              </div>
+                              <span className="text-[8.5px] text-slate-400 font-medium">
+                                {new Date(notif.createdAt).toLocaleTimeString('es-MX', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </span>
+                            </div>
+
+                            <div>
+                              <h5 className="text-[10.5px] font-black text-white leading-tight">
+                                {notif.title}
+                              </h5>
+                              <p className="text-[9.5px] text-slate-300 mt-0.5 leading-snug">
+                                {notif.body}
+                              </p>
+                            </div>
+
+                            {notif.category === 'RECORDATORIO_PAGO' && (
+                              <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-[9px]">
+                                <span className="text-amber-300 font-bold">
+                                  Ref Paynet: 9812-4019-22
+                                </span>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    alert('Referencia de Pago Quincenal:\n\nConvenio Banorte: 10429\nPaynet: 9812 4019 2210 4492\nCLABE STP: 646180104298124019\n\nPreséntalo en 7-Eleven, OXXO, Farmacias o transfiere por SPEI.');
+                                  }}
+                                  className="px-2 py-0.5 rounded-lg bg-amber-400 text-slate-950 font-black text-[8.5px]"
+                                >
+                                  Pagar Ahora
+                                </button>
+                              </div>
+                            )}
+
+                            {notif.category === 'COBRO_VALE' && (
+                              <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-[9px]">
+                                <span className="text-emerald-300 font-bold">
+                                  Monto: ${notif.amount?.toLocaleString('es-MX', { minimumFractionDigits: 2 }) || '2,500.00'} MXN
+                                </span>
+                                <span className="text-[8.5px] text-slate-400">
+                                  Saldo actualizado
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                ) : activeMode === 'dv' ? (
                   /* ======================================================== */
                   /* MODO DISTRIBUIDORA: LANAPP                              */
                   /* ======================================================== */
@@ -511,7 +878,18 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                         <span className="text-xs font-black uppercase tracking-widest text-white">
                           Mi Perfil
                         </span>
-                        <div className="w-5" />
+                        <button
+                          onClick={() => setShowNotificationsCenter(true)}
+                          className="relative p-1 rounded-full text-white/80 hover:text-white transition"
+                          title="Centro de Notificaciones"
+                        >
+                          <Bell className="w-4 h-4 text-white" />
+                          {unreadCount > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-red-500 text-white text-[8px] font-black flex items-center justify-center animate-pulse">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </button>
                       </div>
 
                       {/* Silver Badge & DV Name */}
@@ -544,6 +922,28 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                           <p className="text-xs font-black text-white">PLATA</p>
                         </div>
                       </div>
+
+                      {/* Notificaciones Push Status Pill */}
+                      <button
+                        onClick={() => {
+                          if (!mobileNotificationAccepted) {
+                            handleAcceptNotificationPermission();
+                          } else {
+                            setShowNotificationsCenter(true);
+                          }
+                        }}
+                        className={`mt-2 py-1 px-3 rounded-xl text-[9px] font-bold flex items-center justify-between transition cursor-pointer ${
+                          mobileNotificationAccepted
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <Bell className="w-3.5 h-3.5" />
+                          <span>{mobileNotificationAccepted ? 'Notificaciones Push Activas' : 'Activar Notificaciones de Cobro'}</span>
+                        </div>
+                        <span className="text-[8.5px] underline font-black">{mobileNotificationAccepted ? 'Ver centro' : 'Aceptar'}</span>
+                      </button>
 
                       {/* Líneas de Crédito */}
                       <div className="space-y-1.5 mt-2.5">
@@ -624,7 +1024,18 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                         <span className="text-xs font-black uppercase text-white tracking-wider">
                           Mis Clientes
                         </span>
-                        <div className="w-4" />
+                        <button
+                          onClick={() => setShowNotificationsCenter(true)}
+                          className="relative p-1 rounded-full text-white/80 hover:text-white transition"
+                          title="Centro de Notificaciones"
+                        >
+                          <Bell className="w-3.5 h-3.5 text-white" />
+                          {unreadCount > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-red-500 text-white text-[7.5px] font-black flex items-center justify-center animate-pulse">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </button>
                       </div>
 
                       {/* Buscador de Clientes */}
@@ -724,7 +1135,18 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                         <span className="text-xs font-black uppercase text-white tracking-wider">
                           Crédito Nuevo
                         </span>
-                        <div className="w-4" />
+                        <button
+                          onClick={() => setShowNotificationsCenter(true)}
+                          className="relative p-1 rounded-full text-white/80 hover:text-white transition"
+                          title="Centro de Notificaciones"
+                        >
+                          <Bell className="w-3.5 h-3.5 text-white" />
+                          {unreadCount > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-red-500 text-white text-[7.5px] font-black flex items-center justify-center animate-pulse">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </button>
                       </div>
 
                       {/* Avatar y Nombre Cliente */}
@@ -767,7 +1189,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                         </p>
                         <div className="bg-[#facc15] rounded-full h-11 px-4 flex items-center justify-between shadow-md">
                           <button
-                            onClick={() => setImporte((prev) => Math.max(500, prev - 500))}
+                            onClick={() => setImporte((prev) => Math.max(1000, prev - 500))}
                             className="w-7 h-7 rounded-full bg-black/10 flex items-center justify-center text-slate-950 font-black text-sm active:scale-95"
                           >
                             <Minus className="w-4 h-4" />
@@ -776,7 +1198,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                             ${importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </span>
                           <button
-                            onClick={() => setImporte((prev) => Math.min(15000, prev + 500))}
+                            onClick={() => setImporte((prev) => Math.min(9000, prev + 500))}
                             className="w-7 h-7 rounded-full bg-black/10 flex items-center justify-center text-slate-950 font-black text-sm active:scale-95"
                           >
                             <Plus className="w-4 h-4" />
@@ -1855,14 +2277,17 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
                 </div>
               )}
 
-              {/* Home Indicator */}
-              <div className="w-28 h-1 bg-white/30 rounded-full mx-auto mt-1" />
+              {!fullScreenMobile && (
+                /* Home Indicator */
+                <div className="w-28 h-1 bg-white/30 rounded-full mx-auto mt-1" />
+              )}
             </div>
           </div>
         </div>
 
-        {/* Right: Manual Steps & System Status (7 cols) */}
-        <div className="lg:col-span-7 space-y-6">
+        {!fullScreenMobile && (
+          /* Right: Manual Steps & System Status (7 cols) */
+          <div className="lg:col-span-7 space-y-6">
           {/* Status & Flow Quick Guide */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -2034,6 +2459,7 @@ export default function LanAppView({ onNavigateToDispersion }: LanAppViewProps) 
             </div>
           </div>
         </div>
+      )}
       </div>
     </div>
   );

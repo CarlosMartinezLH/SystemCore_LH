@@ -10,7 +10,6 @@ import {
   Users,
   Briefcase,
   UserCheck,
-  Server,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -18,6 +17,16 @@ import {
   Building,
   Sliders,
   ShoppingBag,
+  Bell,
+  HeartHandshake,
+  ChevronDown,
+  Layers,
+  Sparkles,
+  ClipboardCheck,
+  FileText,
+  BarChart3,
+  Receipt,
+  ShieldAlert,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -35,9 +44,6 @@ interface NavItem {
   id: ActiveAppModule;
   name: string;
   icon: React.ComponentType<{ className?: string }>;
-  badge?: string;
-  badgeColor?: string;
-  hasPulse?: boolean;
 }
 
 interface NavSection {
@@ -57,11 +63,11 @@ export default function Sidebar({
 }: SidebarProps) {
   const navSections: NavSection[] = [
     {
-      label: 'Operaciones & Vales',
+      label: 'Operaciones & Cartera',
       items: [
         {
           id: 'core_dashboard',
-          name: 'Buscador & Cartera',
+          name: 'Buscador & Cartera Core',
           icon: LayoutDashboard,
         },
         {
@@ -70,60 +76,92 @@ export default function Sidebar({
           icon: Filter,
         },
         {
+          id: 'mesa_credito',
+          name: 'Mesa de Crédito & Riesgos',
+          icon: ClipboardCheck,
+        },
+        {
           id: 'dispersion',
-          name: 'Dispersión STP',
+          name: 'Bancos & SPEI STP',
           icon: CreditCard,
         },
         {
           id: 'lanatienda',
-          name: 'LanaTienda',
+          name: 'LanaTienda Vales',
           icon: ShoppingBag,
         },
       ],
     },
     {
-      label: 'Directorio & Gestión',
+      label: 'Cobranza & Distribución',
       items: [
         {
-          id: 'personas',
-          name: 'Personas & KYC',
-          icon: Users,
-        },
-        {
           id: 'distribuidores',
-          name: 'Distribuidores (DV)',
+          name: 'Padrón Distribuidoras (DV)',
           icon: Briefcase,
         },
         {
-          id: 'rh',
-          name: 'Capital Humano & GPS',
-          icon: UserCheck,
+          id: 'personas',
+          name: 'Personas & Clientes KYC',
+          icon: Users,
+        },
+        {
+          id: 'gestoria',
+          name: 'Gestoría & Notas Cobranza',
+          icon: FileText,
         },
       ],
     },
     {
-      label: 'Administración & Sistema',
+      label: 'Reportes & Contabilidad',
       items: [
         {
+          id: 'reportes',
+          name: 'Reportes & Colocación DV',
+          icon: BarChart3,
+        },
+        {
+          id: 'contabilidad',
+          name: 'Contabilidad & Pólizas Core',
+          icon: Receipt,
+        },
+      ],
+    },
+    {
+      label: 'Gobernanza & Cumplimiento',
+      items: [
+        {
+          id: 'reglas',
+          name: 'Reglas del Negocio',
+          icon: ShieldCheck,
+        },
+        {
+          id: 'pld',
+          name: 'Buzón PLD & Fraude',
+          icon: ShieldAlert,
+        },
+        {
+          id: 'notificaciones',
+          name: 'Alertas & Notificaciones',
+          icon: Bell,
+        },
+      ],
+    },
+    {
+      label: 'Administración Interna & RH',
+      items: [
+        {
+          id: 'rh',
+          name: 'Capital Humano (Buk RH)',
+          icon: HeartHandshake,
+        },
+        {
           id: 'configuracion',
-          name: 'Configuración',
+          name: 'Configuración & Sucursales',
           icon: Sliders,
         },
       ],
     },
-    /*
-    {
-      label: 'Infraestructura',
-      items: [
-        {
-          id: 'integraciones',
-          name: 'Nubarium & STP ESB',
-          icon: Server,
-          hasPulse: true,
-        },
-      ],
-    },
-    */
   ];
 
   return (
@@ -132,13 +170,13 @@ export default function Sidebar({
       {isMobileOpen && (
         <div
           onClick={onCloseMobile}
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 lg:hidden transition-opacity"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 lg:hidden transition-opacity"
         />
       )}
 
-      {/* Main Sidebar Element */}
+      {/* Main Sidebar Element (Ballast Aesthetic con Difuminado Frosted Glass) */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 h-screen z-50 flex flex-col justify-between bg-white text-slate-800 border-r border-slate-200 transition-all duration-300 ease-in-out shrink-0 select-none shadow-xs ${
+        className={`fixed lg:sticky top-0 left-0 h-screen z-50 flex flex-col justify-between bg-white/90 backdrop-blur-lg text-slate-700 border-r border-slate-200/80 transition-all duration-300 ease-in-out shrink-0 select-none shadow-[1px_0_3px_rgba(0,0,0,0.02)] ${
           isCollapsed ? 'w-20' : 'w-64'
         } ${
           isMobileOpen
@@ -146,26 +184,22 @@ export default function Sidebar({
             : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        {/* Top: Logo Brand Header */}
+        {/* Top: Brand Header & Workspace Selector */}
         <div className="flex flex-col">
-          <div className="flex items-center justify-between px-3.5 py-3 border-b border-slate-100">
+          {/* Logo brand */}
+          <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
             <div
               onClick={() => onModuleChange('core_dashboard')}
               className="flex items-center gap-2.5 cursor-pointer group min-w-0"
+              title="Ir a Buscador Core"
             >
-              {isCollapsed ? (
-                <img
-                  src="/lanahora-icon.png"
-                  alt="LanAhora"
-                  className="w-10 h-10 object-contain group-hover:scale-105 transition shrink-0"
-                />
-              ) : (
-                <div className="flex items-center min-w-0">
-                  <img
-                    src="/lanahora-logo.png"
-                    alt="LanAhora"
-                    className="h-9 w-auto max-w-[170px] object-contain group-hover:scale-105 transition shrink-0"
-                  />
+              <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-xs font-black text-xs">
+                LH
+              </div>
+              {!isCollapsed && (
+                <div className="flex flex-col min-w-0 leading-none">
+                  <span className="text-sm font-extrabold text-slate-900 tracking-tight">LanAhora</span>
+                  <span className="text-[10px] text-slate-400 font-medium mt-0.5">Fintech Core v1.16</span>
                 </div>
               )}
             </div>
@@ -173,96 +207,107 @@ export default function Sidebar({
             {/* Desktop Collapse Toggle Button */}
             <button
               onClick={onToggleCollapse}
-              className="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-700 border border-slate-200 transition"
+              className="hidden lg:flex items-center justify-center w-6 h-6 rounded-md bg-slate-100/70 hover:bg-slate-200/70 text-slate-400 hover:text-slate-700 transition"
               title={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
             >
               {isCollapsed ? (
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5" />
               ) : (
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-3.5 h-3.5" />
               )}
             </button>
           </div>
 
-          {/* Navigation Groups */}
-          <div className="px-3 py-4 space-y-5 overflow-y-auto max-h-[calc(100vh-165px)]">
-            {navSections.map((section, idx) => (
-              <div key={idx} className="space-y-1">
-                {!isCollapsed && (
-                  <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    {section.label}
+          {/* Workspace Switcher Pill (Ballast Style) */}
+          {!isCollapsed && (
+            <div className="px-3 pt-3 pb-1">
+              <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-between gap-2 text-xs cursor-pointer hover:bg-slate-100/70 transition">
+                <div className="min-w-0">
+                  <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">
+                    LanAhora Financiera
                   </p>
-                )}
+                  <p className="text-[10px] text-slate-500 truncate">
+                    3 plazas · Saltillo, Torreón, Monclova
+                  </p>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              </div>
+            </div>
+          )}
 
-                <div className="space-y-1">
-                  {section.items.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = activeModule === item.id;
+          {/* Navigation Groups con Filtro de Permisos por Rol y Módulo */}
+          <div className="px-3 py-3 space-y-4 overflow-y-auto max-h-[calc(100vh-190px)] no-scrollbar">
+            {navSections.map((section, idx) => {
+              const isModulePermitted = (modId: ActiveAppModule) => {
+                if (!currentUser) return true;
+                if (currentUser.role === 'ADMINISTRADOR') return true;
+                if (currentUser.allowedModules && currentUser.allowedModules.length > 0) {
+                  return currentUser.allowedModules.includes(modId);
+                }
+                return true;
+              };
 
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          onModuleChange(item.id);
-                          onCloseMobile();
-                        }}
-                        title={isCollapsed ? item.name : undefined}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition ${
-                          isActive
-                            ? 'bg-blue-600 text-white shadow-sm font-bold'
-                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <Icon
-                            className={`w-4 h-4 shrink-0 ${
-                              isActive ? 'text-white' : 'text-slate-400'
-                            }`}
-                          />
-                          {!isCollapsed && (
-                            <span className="truncate">{item.name}</span>
-                          )}
-                        </div>
+              const visibleItems = section.items.filter((item) => isModulePermitted(item.id));
+              if (visibleItems.length === 0) return null;
 
-                        {!isCollapsed && (
-                          <div className="flex items-center gap-2">
-                            {item.badge && (
-                              <span
-                                className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                                  isActive
-                                    ? 'bg-white/20 text-white'
-                                    : item.badgeColor
-                                }`}
-                              >
-                                {item.badge}
-                              </span>
-                            )}
-                            {item.hasPulse && (
-                              <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                              </span>
+              return (
+                <div key={idx} className="space-y-0.5">
+                  {!isCollapsed && (
+                    <p className="px-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      {section.label}
+                    </p>
+                  )}
+
+                  <div className="space-y-0.5">
+                    {visibleItems.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeModule === item.id;
+
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            onModuleChange(item.id);
+                            onCloseMobile();
+                          }}
+                          title={isCollapsed ? item.name : undefined}
+                          className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold transition group ${
+                            isActive
+                              ? 'bg-slate-900 text-white shadow-xs font-bold'
+                              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <Icon
+                              className={`w-4 h-4 shrink-0 transition ${
+                                isActive
+                                  ? 'text-white'
+                                  : 'text-slate-400 group-hover:text-slate-700'
+                              }`}
+                            />
+                            {!isCollapsed && (
+                              <span className="truncate">{item.name}</span>
                             )}
                           </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Bottom: User Card & Logout */}
-        <div className="p-3 border-t border-slate-100 bg-slate-50/80">
+        {/* Bottom: User Profile Card (Dana Okafor Ballast Style) */}
+        <div className="p-3 border-t border-slate-100 bg-white">
           <div
-            className={`flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200/80 shadow-xs ${
+            className={`flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200/70 ${
               isCollapsed ? 'flex-col gap-2' : ''
             }`}
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-[#facc15] text-slate-950 font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-8 h-8 rounded-full bg-slate-800 text-white font-bold text-xs flex items-center justify-center shrink-0">
                 {currentUser.avatarInitials || 'LH'}
               </div>
 
@@ -271,9 +316,8 @@ export default function Sidebar({
                   <p className="text-xs font-bold text-slate-900 leading-tight truncate">
                     {currentUser.name}
                   </p>
-                  <p className="text-[10px] text-slate-500 truncate flex items-center gap-1 font-medium">
-                    <Building className="w-2.5 h-2.5 text-blue-600 inline shrink-0" />
-                    {currentUser.branch || 'Matriz'}
+                  <p className="text-[10px] text-slate-500 truncate">
+                    {currentUser.branch || 'Matriz'} · {currentUser.roleLabel || 'Admin'}
                   </p>
                 </div>
               )}

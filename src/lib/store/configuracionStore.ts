@@ -68,6 +68,7 @@ const INITIAL_USUARIOS: InstitutionalUserConfig[] = INSTITUTIONAL_USERS.map((u, 
   id: u.id,
   name: u.name,
   email: u.email,
+  password: u.password || 'lanahora2026',
   puesto: u.roleLabel,
   role: u.role,
   roleLabel: u.roleLabel,
@@ -77,6 +78,8 @@ const INITIAL_USUARIOS: InstitutionalUserConfig[] = INSTITUTIONAL_USERS.map((u, 
   estatus: 'ACTIVO',
   createdAt: '2024-01-15T00:00:00.000Z',
   avatarInitials: u.avatarInitials,
+  allowedModules: u.allowedModules || [],
+  permissions: u.permissions,
 }));
 
 class ConfiguracionStore {

@@ -1,7 +1,12 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 :root {
-  --background: #f0f4fa;
+  --background: #f8fafc;
   --foreground: #0f172a;
   --lh-blue: #2563eb;
   --lh-blue-dark: #1d4ed8;
@@ -11,11 +16,70 @@
   --lh-green: #22c55e;
 }
 
-body {
+html, body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   min-height: 100vh;
+}
+
+/* Efectos de carga: Shimmer Skeleton Animation */
+@keyframes shimmerAnim {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-effect::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.45) 20%,
+    rgba(255, 255, 255, 0.75) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmerAnim 1.8s infinite;
+  content: '';
+  pointer-events: none;
+}
+
+/* Difuminado suave ambiental pulsante */
+@keyframes ambientGlow {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.08);
+  }
+}
+
+.animate-ambient-glow {
+  animation: ambientGlow 6s ease-in-out infinite;
+}
+
+/* Difuminado de bordes para scroll horizontal */
+.mask-fade-edges {
+  mask-image: linear-gradient(to right, transparent, black 28px, black calc(100% - 28px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 28px, black calc(100% - 28px), transparent);
 }
 
 /* Hide Next.js Development Badge / Devtools Indicator */

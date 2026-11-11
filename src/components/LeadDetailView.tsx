@@ -174,7 +174,7 @@ export default function LeadDetailView({
 
   return (
     <div className="flex-1 bg-[#f0f4fa] min-h-[calc(100vh-105px)] p-3 md:p-6 text-slate-800">
-      <div className="max-w-7xl mx-auto space-y-4">
+      <div className="w-full space-y-4">
         {/* Top Control Bar */}
         <div className="bg-white border border-slate-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 shadow-sm">
           {/* Back & Actions */}

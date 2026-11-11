@@ -17,9 +17,17 @@ import DispersionView from '@/components/DispersionView';
 import IntegracionesView from '@/components/IntegracionesView';
 import ConfiguracionView from '@/components/ConfiguracionView';
 import LanaTiendaAdminView from '@/components/LanaTiendaAdminView';
+import NotificationManagerView from '@/components/NotificationManagerView';
+import LanAppView from '@/components/LanAppView';
+import BusinessRulesView from '@/components/BusinessRulesView';
+import MesaCreditoView from '@/components/MesaCreditoView';
+import GestoriaView from '@/components/GestoriaView';
+import ReportesView from '@/components/ReportesView';
+import ContabilidadView from '@/components/ContabilidadView';
+import BuzonPLDView from '@/components/BuzonPLDView';
 import { UserSession } from '@/types/auth';
 import { Prospect, StageId, OriginType } from '@/types/crm';
-import { INITIAL_PROSPECTS, createDefaultDocuments } from '@/lib/data/initialData';
+import { INITIAL_PROSPECTS, STAGES, createDefaultDocuments } from '@/lib/data/initialData';
 import { CoreSyncProvider } from '@/context/CoreSyncContext';
 
 const STORAGE_KEY = 'lanahora_crm_prospects_v2';
@@ -167,6 +175,32 @@ export default function Home() {
     saveProspects(updated);
   };
 
+  // Move prospect across Kanban stages via Drag and Drop
+  const handleMoveStage = (prospectId: string, newStage: StageId) => {
+    const target = prospects.find((p) => p.id === prospectId);
+    if (!target || target.stage === newStage) return;
+    const stageObj = STAGES.find((s) => s.id === newStage);
+    const stageName = stageObj ? stageObj.name : newStage;
+    const updated: Prospect = {
+      ...target,
+      stage: newStage,
+      daysInStage: 0,
+      updatedAt: new Date().toISOString(),
+      messages: [
+        {
+          id: `msg-${Date.now()}`,
+          author: currentUser?.name || 'Sistema',
+          authorEmail: currentUser?.email || 'admin@lanahora.com',
+          type: 'sistema',
+          content: `Prospecto movido a etapa "${stageName}" arrastrado en Kanban`,
+          createdAt: new Date().toLocaleString('es-MX'),
+        },
+        ...target.messages,
+      ],
+    };
+    saveProspects(prospects.map((p) => (p.id === prospectId ? updated : p)));
+  };
+
   // Filter prospects
   const filteredProspects = prospects.filter((p) => {
     if (!searchQuery.trim()) return true;
@@ -191,7 +225,11 @@ export default function Home() {
 
   return (
     <CoreSyncProvider>
-      <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-800 font-sans">
+      <div className="flex h-screen overflow-hidden bg-[#f8fafc] text-slate-800 font-sans relative">
+        {/* Difuminados Ambientales de Fondo (Luz Mesh Suave de Alta Fidelidad) */}
+        <div className="fixed top-[-100px] left-[20%] w-[550px] h-[380px] bg-blue-100/30 rounded-full blur-3xl pointer-events-none animate-ambient-glow z-0" />
+        <div className="fixed bottom-[-80px] right-[5%] w-[650px] h-[450px] bg-indigo-50/40 rounded-full blur-3xl pointer-events-none z-0" />
+
         {/* Unified App Sidebar */}
         <Sidebar
           activeModule={activeModule}
@@ -208,7 +246,7 @@ export default function Home() {
         />
 
         {/* Main Content Workspace */}
-        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-slate-50">
+        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-transparent relative z-10">
           <Header
             currentUser={currentUser}
             activeModule={activeModule}
@@ -223,14 +261,26 @@ export default function Home() {
             onSearchChange={setSearchQuery}
           />
 
-          <main className="flex-1 flex flex-col min-w-0 bg-slate-50">
+          <main className="flex-1 flex flex-col min-w-0 bg-transparent">
             {activeModule === 'core_dashboard' ? (
               <CoreDashboard
                 currentUser={currentUser}
                 onNavigateToPersonas={() => setActiveModule('personas')}
                 onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
                 onNavigateToDispersion={() => setActiveModule('dispersion')}
+                onNavigateToGestoria={() => setActiveModule('gestoria')}
+                onNavigateToPLD={() => setActiveModule('pld')}
               />
+            ) : activeModule === 'mesa_credito' ? (
+              <MesaCreditoView />
+            ) : activeModule === 'gestoria' ? (
+              <GestoriaView />
+            ) : activeModule === 'reportes' ? (
+              <ReportesView />
+            ) : activeModule === 'contabilidad' ? (
+              <ContabilidadView />
+            ) : activeModule === 'pld' ? (
+              <BuzonPLDView />
             ) : activeModule === 'personas' ? (
               <PersonasView />
             ) : activeModule === 'distribuidores' ? (
@@ -247,6 +297,22 @@ export default function Home() {
               </div>
             ) : activeModule === 'lanatienda' ? (
               <LanaTiendaAdminView />
+            ) : activeModule === 'notificaciones' ? (
+              <NotificationManagerView />
+            ) : activeModule === 'reglas' ? (
+              <BusinessRulesView />
+            ) : activeModule === 'lanapp' ? (
+              <LanAppView onNavigateToDispersion={() => setActiveModule('dispersion')} />
+            ) : activeModule === 'asesores' ? (
+              <div className="p-4 flex justify-center">
+                <MobileAdvisorApp
+                  user={currentUser}
+                  prospects={prospects}
+                  onAddNewProspect={handleAddMobileLead}
+                  onLogout={handleLogout}
+                  onSwitchToDesktop={() => setActiveModule('crm')}
+                />
+              </div>
             ) : (
               /* MODULE CRM DESKTOP */
               selectedProspect ? (
@@ -263,6 +329,7 @@ export default function Home() {
                     setQuickAddStage(st);
                     setIsNewLeadOpen(true);
                   }}
+                  onMoveStage={handleMoveStage}
                 />
               ) : (
                 <TableView

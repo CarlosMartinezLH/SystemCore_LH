@@ -1,14 +1,30 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { PersonaCore, DistribuidorCore, DispersionSTP, PagoCore, CreditoCore } from '@/types/core';
+import {
+  PersonaCore,
+  DistribuidorCore,
+  DispersionSTP,
+  PagoCore,
+  CreditoCore,
+  SpeiInboundPago,
+  ClabeVirtualSTP,
+} from '@/types/core';
 import { Prospect } from '@/types/crm';
+import {
+  MobileNotification,
+  NotificationRuleConfig,
+  DEFAULT_NOTIFICATION_RULES,
+  INITIAL_NOTIFICATIONS,
+} from '@/types/notifications';
 import {
   INITIAL_PERSONAS,
   INITIAL_DISTRIBUIDORES,
   INITIAL_DISPERSIONES,
   INITIAL_PAGOS,
   INITIAL_CREDITOS,
+  INITIAL_CLABES_VIRTUALES,
+  INITIAL_SPEI_INBOUND,
 } from '@/lib/data/coreData';
 import { INITIAL_PROSPECTS } from '@/lib/data/initialData';
 
@@ -19,10 +35,19 @@ interface CoreSyncContextType {
   pagos: PagoCore[];
   creditos: CreditoCore[];
   prospects: Prospect[];
+  clabesVirtuales: ClabeVirtualSTP[];
+  speiInboundPagos: SpeiInboundPago[];
+  notifications: MobileNotification[];
+  notificationRules: NotificationRuleConfig;
+  mobileNotificationAccepted: boolean;
   isLoading: boolean;
   refreshSync: () => Promise<void>;
   updatePersona: (updated: PersonaCore) => void;
   updateDistribuidor: (updated: DistribuidorCore) => void;
+  sendNotification: (payload: Partial<MobileNotification>) => Promise<any>;
+  updateNotificationRules: (rules: Partial<NotificationRuleConfig>) => Promise<any>;
+  markNotificationRead: (id: string) => Promise<any>;
+  setMobileNotificationPermission: (accepted: boolean) => Promise<any>;
   registrarCanje: (payload: {
     folio?: string;
     personaId?: number;
@@ -53,6 +78,15 @@ interface CoreSyncContextType {
     establecimiento?: string;
     referencia?: string;
   }) => Promise<any>;
+  registrarSpeiInbound: (payload: {
+    noDist: number;
+    montoDepositado: number;
+    bancoEmisorId?: string;
+    bancoEmisorNombre?: string;
+    claveRastreo?: string;
+    diaCorte?: string;
+    concepto?: string;
+  }) => Promise<any>;
 }
 
 const CoreSyncContext = createContext<CoreSyncContextType | null>(null);
@@ -64,6 +98,11 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
   const [pagos, setPagos] = useState<PagoCore[]>(INITIAL_PAGOS);
   const [creditos, setCreditos] = useState<CreditoCore[]>(INITIAL_CREDITOS);
   const [prospects, setProspects] = useState<Prospect[]>(INITIAL_PROSPECTS);
+  const [clabesVirtuales, setClabesVirtuales] = useState<ClabeVirtualSTP[]>(INITIAL_CLABES_VIRTUALES);
+  const [speiInboundPagos, setSpeiInboundPagos] = useState<SpeiInboundPago[]>(INITIAL_SPEI_INBOUND);
+  const [notifications, setNotifications] = useState<MobileNotification[]>(INITIAL_NOTIFICATIONS);
+  const [notificationRules, setNotificationRules] = useState<NotificationRuleConfig>(DEFAULT_NOTIFICATION_RULES);
+  const [mobileNotificationAccepted, setMobileNotificationAccepted] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchSyncData = useCallback(async () => {
@@ -78,6 +117,13 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
           setPagos(json.data.pagos);
           setCreditos(json.data.creditos);
           setProspects(json.data.prospects);
+          if (json.data.clabesVirtuales) setClabesVirtuales(json.data.clabesVirtuales);
+          if (json.data.speiInboundPagos) setSpeiInboundPagos(json.data.speiInboundPagos);
+          if (json.data.notifications) setNotifications(json.data.notifications);
+          if (json.data.notificationRules) setNotificationRules(json.data.notificationRules);
+          if (json.data.mobileNotificationAccepted !== undefined) {
+            setMobileNotificationAccepted(json.data.mobileNotificationAccepted);
+          }
         }
       }
     } catch (e) {
@@ -180,6 +226,94 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const sendNotification = async (payload: Partial<MobileNotification>) => {
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SEND_NOTIFICATION', payload }),
+      });
+      const data = await res.json();
+      await fetchSyncData();
+      return data;
+    } catch (e) {
+      console.error('Error enviando notificación:', e);
+      throw e;
+    }
+  };
+
+  const updateNotificationRules = async (rules: Partial<NotificationRuleConfig>) => {
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'UPDATE_NOTIFICATION_RULES', payload: rules }),
+      });
+      const data = await res.json();
+      await fetchSyncData();
+      return data;
+    } catch (e) {
+      console.error('Error actualizando reglas de notificación:', e);
+      throw e;
+    }
+  };
+
+  const markNotificationRead = async (id: string) => {
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'MARK_NOTIFICATION_READ', payload: { id } }),
+      });
+      const data = await res.json();
+      await fetchSyncData();
+      return data;
+    } catch (e) {
+      console.error('Error marcando notificación como leída:', e);
+      throw e;
+    }
+  };
+
+  const setMobileNotificationPermission = async (accepted: boolean) => {
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SET_MOBILE_NOTIFICATION_PERMISSION', payload: { accepted } }),
+      });
+      const data = await res.json();
+      await fetchSyncData();
+      return data;
+    } catch (e) {
+      console.error('Error actualizando permiso de notificaciones:', e);
+      throw e;
+    }
+  };
+
+  const registrarSpeiInbound = async (payload: {
+    noDist: number;
+    montoDepositado: number;
+    bancoEmisorId?: string;
+    bancoEmisorNombre?: string;
+    claveRastreo?: string;
+    diaCorte?: string;
+    concepto?: string;
+  }) => {
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'REGISTRAR_SPEI_INBOUND', payload }),
+      });
+      const data = await res.json();
+      await fetchSyncData();
+      return data;
+    } catch (e) {
+      console.error('Error registrando pago SPEI inbound:', e);
+      throw e;
+    }
+  };
+
   return (
     <CoreSyncContext.Provider
       value={{
@@ -189,13 +323,23 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
         pagos,
         creditos,
         prospects,
+        clabesVirtuales,
+        speiInboundPagos,
+        notifications,
+        notificationRules,
+        mobileNotificationAccepted,
         isLoading,
         refreshSync: fetchSyncData,
         updatePersona,
         updateDistribuidor,
+        sendNotification,
+        updateNotificationRules,
+        markNotificationRead,
+        setMobileNotificationPermission,
         registrarCanje,
         registrarCliente,
         registrarPago,
+        registrarSpeiInbound,
       }}
     >
       {children}

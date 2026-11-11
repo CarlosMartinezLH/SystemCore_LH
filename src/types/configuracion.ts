@@ -1,4 +1,4 @@
-import { UserRole } from './auth';
+import { UserRole, ActionPermissions } from './auth';
 
 export interface Sucursal {
   id: string;
@@ -17,6 +17,7 @@ export interface InstitutionalUserConfig {
   id: string;
   name: string;
   email: string;
+  password?: string;
   puesto: string;
   role: UserRole;
   roleLabel: string;
@@ -26,5 +27,7 @@ export interface InstitutionalUserConfig {
   estatus: 'ACTIVO' | 'INACTIVO';
   createdAt: string;
   avatarInitials: string;
+  allowedModules?: string[];
+  permissions?: ActionPermissions;
 }
 
