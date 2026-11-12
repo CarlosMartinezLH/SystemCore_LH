@@ -2909,9 +2909,6 @@ export default function EditarClienteModal({
                     <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm">
                       Carta Declaratoria de Prestanombres
                     </h4>
-                    <p className="text-[11px] text-slate-500 font-medium">
-                      Documento oficial LanAhora amparado en el expediente digital del cliente.
-                    </p>
                   </div>
                 </div>
 

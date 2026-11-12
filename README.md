@@ -161,15 +161,15 @@ SystemCore_LH/
 │   │   ├── layout.tsx                       # Layout raíz
 │   │   └── page.tsx                         # Orquestador del Core y control de sesión
 │   ├── components/
-│   │   ├── Header.tsx                       # Barra de navegación ejecutiva Ballast (Ctrl+K, SPEI, Sesión)
+│   │   ├── Header.tsx                       # Barra superior con navegación modular rápida (Dashboard y Personas)
 │   │   ├── Sidebar.tsx                      # Menú lateral modular unificado del Sistema Core
 │   │   ├── LoginView.tsx                    # Autenticación segura por sucursal y roles
-│   │   ├── CoreDashboard.tsx                # Buscador central omnicanal (DV, Vale, CréditoID o Nombre)
-│   │   ├── PerfilDistribuidorView.tsx       # Ficha técnica de Distribuidora (Líneas, Validaciones y 25 Acciones)
-│   │   ├── PersonasView.tsx                 # Padrón de 122,144 personas con sidebar
-│   │   ├── DistribuidoresView.tsx           # Padrón de 7,171 distribuidoras con exportación y perfiles
+│   │   ├── CoreDashboard.tsx                # Panel ejecutivo analítico macro con gráficas SVG de colocación, cobranza y zonas
+│   │   ├── PerfilDistribuidorView.tsx       # Ficha técnica de Distribuidora (Líneas, Validaciones y Acciones)
+│   │   ├── PersonasView.tsx                 # Padrón de Personas con filtros In-Grid por columna y exportación a Excel (.xlsx)
+│   │   ├── DistribuidoresView.tsx           # Padrón de distribuidoras con exportación y perfiles
 │   │   ├── KanbanBoard.tsx                  # Tablero CRM interactivo con Drag & Drop nativo y auditoría
-│   │   ├── LeadDetailView.tsx               # Expediente digital de prospecto y checklist de 25 documentos
+│   │   ├── LeadDetailView.tsx               # Expediente digital de prospecto y checklist documental
 │   │   ├── MesaCreditoView.tsx              # Mesa de Control, evaluación documental y dictamen de crédito
 │   │   ├── GestoriaView.tsx                 # Bitácora de gestoría de cobranza, promesas y visitas de campo
 │   │   ├── ReportesView.tsx                 # Centro de analítica gerencial (Colocación, Cobranza y Cosechas)
@@ -183,9 +183,12 @@ SystemCore_LH/
 │   │   ├── ConfiguracionView.tsx            # Gestión de Sucursales, Usuarios Institucionales y Permisos
 │   │   ├── IntegracionesView.tsx            # Monitor de salud ESB y consola interactiva
 │   │   └── modals/
+│   │       ├── EditarClienteModal.tsx       # Centro de gestión integral del cliente (7 pestañas: Datos, Opciones, Créditos, Bancos, Expediente, Carta Prestanombres y Notas)
+│   │       ├── CartaPrestanombresModal.tsx  # Visor oficial de impresión de Carta Declaratoria Prestanombres (React Portal & @media print)
+│   │       ├── CapturaClienteModal.tsx      # Formulario de alta rápida de clientes con consulta previa a Buró
 │   │       ├── RelacionCobranzaModal.tsx    # Relación Oficial Quincenal (3 líneas, 7 vales, bonificación 18%)
 │   │       ├── DistribuidorModals.tsx       # Modales de Estado de Cuenta, Mensajes y Quitar Castigo
-│   │       └── PersonaModals.tsx            # Modales de edición, bloqueo y expediente de personas
+│   │       └── PersonaModals.tsx            # Modales modulares de canje, buró y cuentas bancarias
 │   ├── lib/
 │   │   ├── auth/serverAuth.ts               # Middleware de validación JWT y roles RBAC
 │   │   ├── rules/businessRulesEngine.ts     # Motor evaluador de reglas crediticias en tiempo real

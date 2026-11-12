@@ -471,4 +471,42 @@ Módulo de administración central en SystemCore (`/configuracion`) para la gest
 | `/api/configuracion/usuarios/[id]` | `PATCH` | Edición de usuario, cambio de sucursal o toggle de estatus (`ACTIVO`/`INACTIVO`). |
 | `/api/configuracion/usuarios/[id]` | `DELETE` | Baja de colaborador del sistema. |
 
+---
+
+## 10. Padrón Central de Personas & Panel Ejecutivo de Cartera
+
+### 10.1. Padrón de Personas & Filtrado In-Grid (`PersonasView.tsx`)
+* **Arquitectura de Cuadrícula al 100%:** Tabla completa sin barras laterales obstructivas, maximizando el espacio de visualización de datos.
+* **Filtros In-Grid por Columna:** Fila de filtrado directo integrada debajo de los encabezados de columna (`Persona ID`, `Nombre`, `Apellido Paterno`, `Apellido Materno`, `Pagaré Estatus`, `Buró Interno`, `Observaciones`, `Saldo Actual` y `Capital Vencido`).
+* **Segmentación de Categoría:** Selector rápido para `CF` (Cliente Final), `DV` (Distribuidora Oficial), `AV` (Aval) y `CO` (Cónyuge).
+* **Exportación Nativa a Microsoft Excel (`.xlsx`):**
+  - Implementación con librería `xlsx` (SheetJS) reemplazando volcados CSV simples.
+  - Formateo de anchos de columna automáticos (`!cols`) y estructura de datos con nombres desglosados, montos numéricos, estatus y folio de pagaré.
+
+### 10.2. Centro de Gestión Integral del Cliente (`EditarClienteModal.tsx`)
+Modal unificado de 7 pestañas que elimina la fragmentación de ventanas secundarias:
+1. **Editar Datos:** Formulario estructurado de 40 campos en 3 columnas (Datos Generales, Domicilio Oficial y Empleo & Finanzas).
+2. **Opciones & Operación:** Verificación de Buró Interno, Canje de Vales con referencia Paynet/SPEI y Promoción a Distribuidora Oficial (DV).
+3. **Historial de Créditos:** Tabla detallada de contratos con desglose de amortizaciones, cuotas quincenales, intereses ordinarios y moratorios, generación de convenios y exportación.
+4. **Datos Bancarios:** Gestión de cuentas, tarjetas de débito asociadas, CLABE interbancaria para dispersión STP SPEI, fecha y usuario de captura, y switch de cuenta principal.
+5. **Expediente Digital Cotejado:** Visor de documentos integrado "in situ" para INE/IFE (anverso y reverso conmutables), Comprobante CFE y Pagaré firmado, con zoom dinámico (+/-), visualización en pantalla y reemplazo de archivos.
+6. **Carta Declaratoria de Prestanombres:** Documento legal oficial generado en formato tamaño carta con logotipo institucional, datos cotejados del cliente y su distribuidora, 3 cláusulas legales numeradas, línea de firma e impresión directa (`window.print()`).
+7. **Notas Internas de Auditoría:** Registro cronológico de anotaciones con autor institucional, módulo de origen (Mesa de Control, Buró, Cartera, etc.) y marca de tiempo exacta (fecha y hora).
+
+### 10.3. Visor Oficial de Impresión (`CartaPrestanombresModal.tsx`)
+* **Montaje con React Portal:** Renderizado directo en `document.body` con `z-[100]` para garantizar independencia de apilamiento frente a contenedores con transformaciones CSS.
+* **Barra de Control Superior Fija:** Interfaz no imprimible con botones de `Imprimir Carta` y `Cerrar` permanente en pantalla sin desbordamiento negativo en el viewport.
+* **Estilos `@media print`:** Aislamiento de la hoja carta amparada, ocultando la interfaz del sistema para impresión nítida en papel físico o PDF.
+
+### 10.4. Panel Ejecutivo de Cartera & Métricas (`CoreDashboard.tsx`)
+* **Orientación Analítica Pura:** Eliminación de selectores individuales de clientes o distribuidoras para consolidar una vista macro de datos y métricas en tiempo real.
+* **Visualizaciones SVG Nativas:**
+  - **Tendencia Histórica:** Gráfica de área con curvas Bézier y gradientes duales que compara Colocación frente a Cobranza quincenal y mensual.
+  - **Salud de Cartera:** Gráfica Donut que visualiza la proporción de cartera al corriente (95.4%) frente a mora escalonada (1-15 días, 16-30 días, >30 días).
+  - **Desempeño por Zona:** Gráfica de barras dobles comparativa de colocación y cobranza por Zona A (Saltillo), Zona B (Torreón) y Zona C (Monclova).
+  - **Composición del Padrón:** Barra segmentada de roles y distribución de canales de dispersión (STP SPEI vs Paynet).
+* **Matriz Consolidada:** Tabla de solo lectura con balance consolidado por zona operativa.
+* **Sin Explicaciones en Interfaz:** Diseño limpio y conciso enfocado en cifras, KPIs y analítica operativa.
+
+
 

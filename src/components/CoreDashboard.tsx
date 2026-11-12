@@ -157,9 +157,6 @@ export default function CoreDashboard({
               <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
                 Panel Ejecutivo de Cartera & Métricas
               </h1>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Consolidado macro de colocación, cobranza y distribución en tiempo real.
-              </p>
             </div>
           </div>
         </div>
@@ -336,9 +333,6 @@ export default function CoreDashboard({
                 <BarChart3 className="w-4 h-4 text-blue-600" />
                 <span>Evolución Histórica: Colocación vs Cobranza</span>
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Comportamiento de dispersión crediticia frente a retorno recuperado por quincena.
-              </p>
             </div>
 
             {/* Leyenda de la gráfica */}
@@ -491,9 +485,6 @@ export default function CoreDashboard({
               <PieChart className="w-4 h-4 text-emerald-600" />
               <span>Calidad y Salud de Cartera</span>
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Estatus de cobro y distribución del capital en circulación.
-            </p>
           </div>
 
           {/* Gráfico Donut SVG */}
@@ -618,9 +609,6 @@ export default function CoreDashboard({
                 <Building className="w-4 h-4 text-blue-600" />
                 <span>Desempeño y Cartera por Zona</span>
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Comparativa de Colocación vs Cobranza por zona operativa.
-              </p>
             </div>
             <div className="flex items-center gap-3 text-xs font-bold">
               <span className="flex items-center gap-1 text-blue-700">
@@ -726,9 +714,6 @@ export default function CoreDashboard({
               <Layers className="w-4 h-4 text-purple-600" />
               <span>Composición del Padrón & Canales de Canje</span>
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Desglose de roles registrados y vías operativas de dispersión.
-            </p>
           </div>
 
           {/* Desglose de Categorías en Barra Segmentada */}
@@ -815,9 +800,6 @@ export default function CoreDashboard({
             <h3 className="font-extrabold text-sm sm:text-base text-slate-900 tracking-tight">
               Matriz Consolidada de Cartera por Zona
             </h3>
-            <p className="text-xs text-slate-500 font-medium">
-              Datos analíticos de balance, capital colocado y efectividad quincenal.
-            </p>
           </div>
           <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
             Corte: 15 y 30 del Mes
