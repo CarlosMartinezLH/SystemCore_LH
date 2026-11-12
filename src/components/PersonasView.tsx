@@ -108,7 +108,7 @@ export default function PersonasView() {
     }
 
     return true;
-  });
+  }).sort((a, b) => b.personaId - a.personaId);
 
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -165,6 +165,7 @@ export default function PersonasView() {
       'Buro Interno Esta',
       'Observaciones',
       'saldo Actual',
+      'capital Vencido',
     ];
     const rows = personas.map((p) => [
       p.personaId,
@@ -181,6 +182,7 @@ export default function PersonasView() {
       p.buroInternoEstatus,
       p.observaciones || '',
       p.saldoActual || '',
+      p.capitalVencido || '',
     ]);
     const csvContent = buildSafeCsv(headers, rows);
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -303,7 +305,7 @@ export default function PersonasView() {
 
             <button
               onClick={() => setActiveModal('captura')}
-              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition active:scale-95"
+              className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition active:scale-95"
             >
               <UserPlus className="w-3.5 h-3.5" />
               <span>+ Captura de Cliente</span>
@@ -355,6 +357,7 @@ export default function PersonasView() {
                   <th className="px-3 py-3">Buro Interno Esta</th>
                   <th className="px-3.5 py-3">Observaciones</th>
                   <th className="px-3.5 py-3 text-right">saldo Actual</th>
+                  <th className="px-3.5 py-3 text-right">capital Vencido</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
@@ -480,6 +483,13 @@ export default function PersonasView() {
                             ? `$${p.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
                             : ''}
                         </td>
+
+                        {/* capital Vencido */}
+                        <td className="px-3.5 py-2.5 font-mono text-right font-bold text-rose-600">
+                          {p.capitalVencido
+                            ? `$${p.capitalVencido.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+                            : ''}
+                        </td>
                       </tr>
                     );
                   })
@@ -495,7 +505,7 @@ export default function PersonasView() {
             {/* Panel Header */}
             <div className="p-4 border-b border-slate-100 flex items-start justify-between gap-3 bg-slate-50/50">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-slate-900 text-white font-extrabold flex items-center justify-center text-sm shadow-xs shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white font-extrabold flex items-center justify-center text-sm shadow-xs shrink-0">
                   {`${selectedPersona.nombre.charAt(0)}${selectedPersona.apellidoPaterno.charAt(0)}`.toUpperCase()}
                 </div>
                 <div className="min-w-0">
@@ -569,7 +579,7 @@ export default function PersonasView() {
                   <div className="space-y-1.5">
                     <button
                       onClick={() => setActiveModal('canjear')}
-                      className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition active:scale-98"
+                      className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition active:scale-98"
                     >
                       <Barcode className="w-4 h-4" />
                       <span>Canjear Vale a este Cliente</span>

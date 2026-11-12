@@ -74,6 +74,13 @@ export function getServerSyncData(): CoreSyncData {
       speiInboundPagos: [...INITIAL_SPEI_INBOUND],
       lastUpdate: Date.now(),
     };
+  } else {
+    // Ensure any newly added personas from INITIAL_PERSONAS are loaded in correct order
+    const existingIds = new Set(globalThis.__coreSyncData.personas.map((ep) => ep.personaId));
+    const toAdd = INITIAL_PERSONAS.filter((p) => !existingIds.has(p.personaId));
+    if (toAdd.length > 0) {
+      globalThis.__coreSyncData.personas = [...toAdd, ...globalThis.__coreSyncData.personas];
+    }
   }
   if (!globalThis.__coreSyncData.clabesVirtuales) {
     globalThis.__coreSyncData.clabesVirtuales = [...INITIAL_CLABES_VIRTUALES];
