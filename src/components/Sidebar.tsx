@@ -19,7 +19,6 @@ import {
   ShoppingBag,
   Bell,
   HeartHandshake,
-  ChevronDown,
   Layers,
   Sparkles,
   ClipboardCheck,
@@ -127,23 +126,6 @@ export default function Sidebar({
               )}
             </button>
           </div>
-
-          {/* Workspace Switcher Pill (Ballast Style) */}
-          {!isCollapsed && (
-            <div className="px-3 pt-3 pb-1">
-              <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-between gap-2 text-xs cursor-pointer hover:bg-slate-100/70 transition">
-                <div className="min-w-0">
-                  <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">
-                    LanAhora Financiera
-                  </p>
-                  <p className="text-[10px] text-slate-500 truncate">
-                    3 plazas · Saltillo, Torreón, Monclova
-                  </p>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              </div>
-            </div>
-          )}
 
           {/* Navigation Groups con Filtro de Permisos por Rol y Módulo */}
           <div className="px-3 py-3 space-y-4 overflow-y-auto max-h-[calc(100vh-190px)] no-scrollbar">
