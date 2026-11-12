@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { DistribuidorCore, CreditoHistorialPersona, NotaClienteCore } from '@/types/core';
+import { DistribuidorCore, NotaClienteCore } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import {
   X,
@@ -31,274 +31,24 @@ import {
   Download,
   Receipt,
   ExternalLink,
-  FileSpreadsheet,
   Scissors,
 } from 'lucide-react';
-import * as XLSX from 'xlsx';
 import EstadoCuentaDistribuidorModal from './EstadoCuentaDistribuidorModal';
 import RecibosRelacionModal from './RecibosRelacionModal';
 import ContratoAperturaModal from './ContratoAperturaModal';
+import CarteraDistribuidorModal from './CarteraDistribuidorModal';
 
 interface PerfilDistribuidorModalProps {
   isOpen: boolean;
   onClose: () => void;
   distribuidor: DistribuidorCore;
-  initialTab?: 'detalle' | 'opciones' | 'cartera' | 'notas';
+  initialTab?: 'detalle' | 'opciones' | 'notas';
   onSelectDv?: (noDist: number) => void;
   onOpenCartera?: (distribuidor: DistribuidorCore) => void;
   onOpenRelacion?: (distribuidor: DistribuidorCore) => void;
   onOpenEstadoCuenta?: (distribuidor: DistribuidorCore) => void;
   onOpenCastigo?: (distribuidor: DistribuidorCore) => void;
 }
-
-// Datos auténticos de cartera por defecto
-const DEFAULT_CARTERA_DV: CreditoHistorialPersona[] = [
-  {
-    contratoId: 2605,
-    coordinador: 'REYNA ELIZABETH GUTIERREZ ROSALES',
-    creditoId: 429144,
-    nombreDistribuidor: 'DIANA YANET PEREZ MARTINEZ',
-    distribuidorId: 1035,
-    personaId: 2606,
-    nombreCompleto: 'DIANA YANET PEREZ MARTINEZ',
-    plazos: 1,
-    porcTasaMensual: 0.0,
-    producto: 'VALE 0 QUINCENA(S)',
-    capital: 0.0,
-    interes: 0.0,
-    seguro: 90.0,
-    iva: 0.0,
-    importeTotal: 90.0,
-    abonos: 0.0,
-    pagoModa: 0.0,
-    saldoActual: 90.0,
-    diasAtraso: 0,
-    saldoAtrasado: 0,
-    fechaHoraRegistro: '2026-05-15',
-    fechaHoraDesembolso: '2026-05-15',
-    fechaHoraUltimoPago: '2026-10-31',
-    valeCanje: 0,
-    capitalPagado: 0,
-    capitalPendiente: 0,
-    interesPendiente: 0,
-    seguroPendiente: 90,
-    ivaPendiente: 0,
-    usuarioIdRegistro: 1,
-    nomUsuarioRegistro: 'Sistema',
-    pagosAtrasados: 0,
-    tipoDesembolso: 'DIGITAL',
-    estatus: 'ACTIVO',
-    pagareEstatusDesc: 'FIRMADO',
-    fechaPrimerPlazo: '2026-06-15',
-    fechaUltimoPlazo: '2026-11-30',
-    capitalAtrasado: 0,
-    interesAtrasado: 0,
-    comisionAtrasado: 0,
-    seguroAtrasado: 0,
-    cargoAtrasado: 0,
-    ivaAtrasado: 0,
-    observacion: 'Protección relación de cobranza',
-    sucursal: 'SALTILLO',
-    tipo: 'PROTECCION',
-    clasificacionDesc: 'CREDITO PROTECCION RELACION',
-  },
-  {
-    contratoId: 2605,
-    coordinador: 'REYNA ELIZABETH GUTIERREZ ROSALES',
-    creditoId: 398837,
-    nombreDistribuidor: 'DIANA YANET PEREZ MARTINEZ',
-    distribuidorId: 1035,
-    personaId: 2606,
-    nombreCompleto: 'DIANA YANET PEREZ MARTINEZ',
-    plazos: 8,
-    porcTasaMensual: 0.0,
-    producto: 'VALE 8 QUINCENA(S) DISTRIBUIDOR',
-    capital: 16500.0,
-    interes: 3982.76,
-    seguro: 480.0,
-    iva: 637.24,
-    importeTotal: 21600.0,
-    abonos: 13500.0,
-    pagoModa: 2700.0,
-    saldoActual: 8100.0,
-    diasAtraso: 0,
-    saldoAtrasado: 0,
-    fechaHoraRegistro: '2026-06-01',
-    fechaHoraDesembolso: '2026-06-01',
-    fechaHoraUltimoPago: '2026-10-31',
-    valeCanje: 101,
-    capitalPagado: 10312.5,
-    capitalPendiente: 6187.5,
-    interesPendiente: 1493.53,
-    seguroPendiente: 180,
-    ivaPendiente: 238.97,
-    usuarioIdRegistro: 1,
-    nomUsuarioRegistro: 'Sistema',
-    pagosAtrasados: 0,
-    tipoDesembolso: 'VALE',
-    estatus: 'ACTIVO',
-    pagareEstatusDesc: 'FIRMADO',
-    fechaPrimerPlazo: '2026-06-15',
-    fechaUltimoPlazo: '2026-09-30',
-    capitalAtrasado: 0,
-    interesAtrasado: 0,
-    comisionAtrasado: 0,
-    seguroAtrasado: 0,
-    cargoAtrasado: 0,
-    ivaAtrasado: 0,
-    observacion: 'Préstamo personal a distribuidora',
-    sucursal: 'SALTILLO',
-    tipo: 'PERSONAL',
-    clasificacionDesc: 'PRESTAMO PERSONAL DV',
-  },
-  {
-    contratoId: 2605,
-    coordinador: 'REYNA ELIZABETH GUTIERREZ ROSALES',
-    creditoId: 420094,
-    nombreDistribuidor: 'DIANA YANET PEREZ MARTINEZ',
-    distribuidorId: 1035,
-    personaId: 2606,
-    nombreCompleto: 'DIANA YANET PEREZ MARTINEZ',
-    plazos: 8,
-    porcTasaMensual: 0.0,
-    producto: 'VALE 8 QUINCENA(S) DISTRIBUIDOR',
-    capital: 16500.0,
-    interes: 3982.76,
-    seguro: 480.0,
-    iva: 637.24,
-    importeTotal: 21600.0,
-    abonos: 2700.0,
-    pagoModa: 2700.0,
-    saldoActual: 18900.0,
-    diasAtraso: 0,
-    saldoAtrasado: 0,
-    fechaHoraRegistro: '2026-09-15',
-    fechaHoraDesembolso: '2026-09-15',
-    fechaHoraUltimoPago: '2026-10-31',
-    valeCanje: 102,
-    capitalPagado: 2062.5,
-    capitalPendiente: 14437.5,
-    interesPendiente: 3484.92,
-    seguroPendiente: 420,
-    ivaPendiente: 557.58,
-    usuarioIdRegistro: 1,
-    nomUsuarioRegistro: 'Sistema',
-    pagosAtrasados: 0,
-    tipoDesembolso: 'VALE',
-    estatus: 'ACTIVO',
-    pagareEstatusDesc: 'FIRMADO',
-    fechaPrimerPlazo: '2026-09-30',
-    fechaUltimoPlazo: '2027-01-15',
-    capitalAtrasado: 0,
-    interesAtrasado: 0,
-    comisionAtrasado: 0,
-    seguroAtrasado: 0,
-    cargoAtrasado: 0,
-    ivaAtrasado: 0,
-    observacion: 'Préstamo personal de apoyo DV',
-    sucursal: 'SALTILLO',
-    tipo: 'PERSONAL',
-    clasificacionDesc: 'PRESTAMO PERSONAL DV',
-  },
-  {
-    contratoId: 2605,
-    coordinador: 'REYNA ELIZABETH GUTIERREZ ROSALES',
-    creditoId: 340521,
-    nombreDistribuidor: 'DIANA YANET PEREZ MARTINEZ',
-    distribuidorId: 1035,
-    personaId: 39047,
-    nombreCompleto: 'ADRIANA PATRICIA RODRIGUEZ SALAS',
-    plazos: 16,
-    porcTasaMensual: 0.0,
-    producto: 'VALE 16 QUINCENA(S)',
-    capital: 13000.0,
-    interes: 8089.65,
-    seguro: 960.0,
-    iva: 1294.34,
-    importeTotal: 23344.0,
-    abonos: 21885.0,
-    pagoModa: 1459.0,
-    saldoActual: 1459.0,
-    diasAtraso: 0,
-    saldoAtrasado: 0,
-    fechaHoraRegistro: '2026-03-01',
-    fechaHoraDesembolso: '2026-03-01',
-    fechaHoraUltimoPago: '2026-10-31',
-    valeCanje: 340521,
-    capitalPagado: 12187.5,
-    capitalPendiente: 812.5,
-    interesPendiente: 505.6,
-    seguroPendiente: 60,
-    ivaPendiente: 80.9,
-    usuarioIdRegistro: 1,
-    nomUsuarioRegistro: 'Sistema',
-    pagosAtrasados: 0,
-    tipoDesembolso: 'VALE',
-    estatus: 'ACTIVO',
-    pagareEstatusDesc: 'FIRMADO',
-    fechaPrimerPlazo: '2026-03-15',
-    fechaUltimoPlazo: '2026-10-31',
-    capitalAtrasado: 0,
-    interesAtrasado: 0,
-    comisionAtrasado: 0,
-    seguroAtrasado: 0,
-    cargoAtrasado: 0,
-    ivaAtrasado: 0,
-    observacion: 'Vale de dinero cliente final',
-    sucursal: 'SALTILLO',
-    tipo: 'VALE_DINERO',
-    clasificacionDesc: 'VALE DE DINERO',
-  },
-  {
-    contratoId: 2605,
-    coordinador: 'REYNA ELIZABETH GUTIERREZ ROSALES',
-    creditoId: 344944,
-    nombreDistribuidor: 'DIANA YANET PEREZ MARTINEZ',
-    distribuidorId: 1035,
-    personaId: 9010,
-    nombreCompleto: 'LIDIA MAGDALENA RODRIGUEZ GARCIA',
-    plazos: 16,
-    porcTasaMensual: 0.0,
-    producto: 'VALE 16 QUINCENA(S)',
-    capital: 13000.0,
-    interes: 8089.65,
-    seguro: 960.0,
-    iva: 1294.34,
-    importeTotal: 23344.0,
-    abonos: 20426.0,
-    pagoModa: 1459.0,
-    saldoActual: 2918.0,
-    diasAtraso: 0,
-    saldoAtrasado: 0,
-    fechaHoraRegistro: '2026-03-15',
-    fechaHoraDesembolso: '2026-03-15',
-    fechaHoraUltimoPago: '2026-10-31',
-    valeCanje: 344944,
-    capitalPagado: 11375.0,
-    capitalPendiente: 1625.0,
-    interesPendiente: 1011.2,
-    seguroPendiente: 120,
-    ivaPendiente: 161.8,
-    usuarioIdRegistro: 1,
-    nomUsuarioRegistro: 'Sistema',
-    pagosAtrasados: 0,
-    tipoDesembolso: 'VALE',
-    estatus: 'ACTIVO',
-    pagareEstatusDesc: 'FIRMADO',
-    fechaPrimerPlazo: '2026-04-01',
-    fechaUltimoPlazo: '2026-11-15',
-    capitalAtrasado: 0,
-    interesAtrasado: 0,
-    comisionAtrasado: 0,
-    seguroAtrasado: 0,
-    cargoAtrasado: 0,
-    ivaAtrasado: 0,
-    observacion: 'Vale de dinero cliente final',
-    sucursal: 'SALTILLO',
-    tipo: 'VALE_DINERO',
-    clasificacionDesc: 'VALE DE DINERO',
-  },
-];
 
 export default function PerfilDistribuidorModal({
   isOpen,
@@ -313,7 +63,8 @@ export default function PerfilDistribuidorModal({
 }: PerfilDistribuidorModalProps) {
   const { distribuidores, updateDistribuidor } = useCoreSync();
 
-  const [activeTab, setActiveTab] = useState<'detalle' | 'opciones' | 'cartera' | 'notas'>(initialTab || 'detalle');
+  const [activeTab, setActiveTab] = useState<'detalle' | 'opciones' | 'notas'>(initialTab || 'detalle');
+  const [isCarteraModalOpen, setIsCarteraModalOpen] = useState(false);
   const [currentDv, setCurrentDv] = useState<DistribuidorCore>(distribuidor);
   const [isEditing, setIsEditing] = useState(false);
   const [isEstadoCuentaModalOpen, setIsEstadoCuentaModalOpen] = useState(false);
@@ -322,8 +73,6 @@ export default function PerfilDistribuidorModal({
   const [formData, setFormData] = useState<Partial<DistribuidorCore>>({});
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
-  // Filtro de búsqueda dentro del tab Cartera
-  const [carteraSearch, setCarteraSearch] = useState('');
 
   // Notas internas de la distribuidora
   const [internalNotes, setInternalNotes] = useState<NotaClienteCore[]>([
@@ -411,40 +160,6 @@ export default function PerfilDistribuidorModal({
     showToast('Nota registrada en la bitácora.');
   };
 
-  const handleExportCarteraExcel = () => {
-    const rows = DEFAULT_CARTERA_DV.map((c) => ({
-      Contrato: c.contratoId,
-      'Crédito ID': c.creditoId,
-      'Cliente / DV': c.nombreCompleto,
-      Plazos: c.plazos,
-      Producto: c.producto,
-      Capital: c.capital,
-      Interés: c.interes,
-      Seguro: c.seguro,
-      IVA: c.iva,
-      'Importe Total': c.importeTotal,
-      Abonos: c.abonos,
-      'Saldo Actual': c.saldoActual,
-      Clasificación: c.clasificacionDesc,
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Cartera DV');
-    XLSX.writeFile(wb, `Cartera_DV_${currentDv.noDist}_${new Date().toISOString().slice(0, 10)}.xlsx`);
-  };
-
-  const filteredCartera = DEFAULT_CARTERA_DV.filter((item) => {
-    if (!carteraSearch.trim()) return true;
-    const q = carteraSearch.toLowerCase();
-    return (
-      item.nombreCompleto.toLowerCase().includes(q) ||
-      item.creditoId.toString().includes(q) ||
-      item.producto.toLowerCase().includes(q) ||
-      item.clasificacionDesc.toLowerCase().includes(q)
-    );
-  });
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
       <div className="relative w-full max-w-6xl xl:max-w-7xl max-h-[92vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-150">
@@ -506,19 +221,6 @@ export default function PerfilDistribuidorModal({
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 <span>Opciones & Operación</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('cartera')}
-                className={`px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 ${
-                  activeTab === 'cartera'
-                    ? 'bg-white text-blue-700 shadow-xs font-black'
-                    : 'hover:text-slate-900'
-                }`}
-              >
-                <Briefcase className="w-3.5 h-3.5" />
-                <span>Cartera de Clientes</span>
               </button>
 
               <button
@@ -595,7 +297,7 @@ export default function PerfilDistribuidorModal({
                 </span>
                 <button
                   type="button"
-                  onClick={() => setActiveTab('cartera')}
+                  onClick={() => { if (onOpenCartera) onOpenCartera(currentDv); else setIsCarteraModalOpen(true); }}
                   className="px-3.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs inline-flex items-center gap-1.5 border border-emerald-200 transition active:scale-95 shadow-2xs cursor-pointer"
                 >
                   <Briefcase className="w-3.5 h-3.5 text-emerald-700" />
@@ -989,7 +691,7 @@ export default function PerfilDistribuidorModal({
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => setActiveTab('cartera')}
+                    onClick={() => { if (onOpenCartera) onOpenCartera(currentDv); else setIsCarteraModalOpen(true); }}
                     className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-slate-800 hover:text-blue-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
                     <Briefcase className="w-4 h-4 text-blue-600" />
@@ -1151,98 +853,6 @@ export default function PerfilDistribuidorModal({
             </div>
           )}
 
-          {/* TAB 3: CARTERA DE CLIENTES INTEGRADA */}
-          {activeTab === 'cartera' && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col">
-              {/* Barra Superior de la Cartera */}
-              <div className="p-3 bg-slate-50/80 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
-                <div className="relative min-w-[260px] flex-1 max-w-md">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <input
-                    type="text"
-                    placeholder="Buscar cliente, vale, crédito o clasificación..."
-                    value={carteraSearch}
-                    onChange={(e) => setCarteraSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleExportCarteraExcel}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition active:scale-95 cursor-pointer"
-                  >
-                    <FileSpreadsheet className="w-3.5 h-3.5" />
-                    <span>Exportar Cartera</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Tabla de Cartera */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs whitespace-nowrap font-sans">
-                  <thead className="bg-slate-100 text-slate-700 uppercase text-[10px] tracking-wider font-extrabold border-b border-slate-200">
-                    <tr>
-                      <th className="px-3 py-2.5">Crédito ID</th>
-                      <th className="px-3 py-2.5">Cliente Final / DV</th>
-                      <th className="px-3 py-2.5">Clasificación</th>
-                      <th className="px-3 py-2.5">Producto</th>
-                      <th className="px-3 py-2.5 text-center">Plazos</th>
-                      <th className="px-3 py-2.5 text-right">Capital</th>
-                      <th className="px-3 py-2.5 text-right">Importe Total</th>
-                      <th className="px-3 py-2.5 text-right">Abonos</th>
-                      <th className="px-3 py-2.5 text-right">Saldo Actual</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium">
-                    {filteredCartera.map((c) => (
-                      <tr key={c.creditoId} className="hover:bg-slate-50 transition">
-                        <td className="px-3 py-2 font-mono font-bold text-blue-600">
-                          #{c.creditoId}
-                        </td>
-                        <td className="px-3 py-2 font-bold text-slate-900">
-                          {c.nombreCompleto}
-                        </td>
-                        <td className="px-3 py-2">
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              c.clasificacionDesc === 'CREDITO PROTECCION RELACION'
-                                ? 'bg-sky-50 text-sky-700 border border-sky-200'
-                                : c.clasificacionDesc === 'PRESTAMO PERSONAL DV'
-                                ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            }`}
-                          >
-                            {c.clasificacionDesc}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2 text-slate-700">
-                          {c.producto}
-                        </td>
-                        <td className="px-3 py-2 text-center font-mono">
-                          {c.plazos}
-                        </td>
-                        <td className="px-3 py-2 text-right font-mono text-slate-700">
-                          ${c.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="px-3 py-2 text-right font-mono text-slate-700">
-                          ${c.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="px-3 py-2 text-right font-mono text-emerald-600">
-                          ${c.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="px-3 py-2 text-right font-mono font-bold text-slate-900">
-                          ${c.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
           {/* TAB: BITÁCORA & NOTAS (IDÉNTICO a EditarClienteModal) */}
           {activeTab === 'notas' && (
             <div className="space-y-4">
@@ -1326,6 +936,15 @@ export default function PerfilDistribuidorModal({
         <ContratoAperturaModal
           isOpen={isContratoModalOpen}
           onClose={() => setIsContratoModalOpen(false)}
+          distribuidor={currentDv}
+        />
+      )}
+
+      {/* Modal Oficial de Cartera de Clientes */}
+      {isCarteraModalOpen && (
+        <CarteraDistribuidorModal
+          isOpen={isCarteraModalOpen}
+          onClose={() => setIsCarteraModalOpen(false)}
           distribuidor={currentDv}
         />
       )}
