@@ -95,9 +95,9 @@ export default function Header({
       subtitle: 'Líneas de crédito autorizadas, comisiones y saldos de colocación',
     },
     personas: {
-      category: 'Cobranza & Distribución',
-      title: 'Directorio de Personas & Clientes',
-      subtitle: 'Expedientes integrales, validación RENAPO en vivo y listas negras SAT 69-B',
+      category: 'Padrón Central',
+      title: 'Personas',
+      subtitle: 'Padrón central de personas, expedientes, buró y estatus de pagarés',
     },
     gestoria: {
       category: 'Cobranza & Distribución',

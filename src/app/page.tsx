@@ -36,7 +36,7 @@ const AUTH_KEY = 'lanahora_user_session_v2';
 
 export default function Home() {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
-  const [activeModule, setActiveModule] = useState<ActiveAppModule>('core_dashboard');
+  const [activeModule, setActiveModule] = useState<ActiveAppModule>('personas');
   const [prospects, setProspects] = useState<Prospect[]>(INITIAL_PROSPECTS);
   const [selectedProspectId, setSelectedProspectId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'kanban' | 'list'>('kanban');

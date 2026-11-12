@@ -63,102 +63,12 @@ export default function Sidebar({
 }: SidebarProps) {
   const navSections: NavSection[] = [
     {
-      label: 'Operaciones & Cartera',
+      label: 'Módulos Activos',
       items: [
-        {
-          id: 'core_dashboard',
-          name: 'Buscador & Cartera Core',
-          icon: LayoutDashboard,
-        },
-        {
-          id: 'crm',
-          name: 'CRM Originación',
-          icon: Filter,
-        },
-        {
-          id: 'mesa_credito',
-          name: 'Mesa de Crédito & Riesgos',
-          icon: ClipboardCheck,
-        },
-        {
-          id: 'dispersion',
-          name: 'Bancos & SPEI STP',
-          icon: CreditCard,
-        },
-        {
-          id: 'lanatienda',
-          name: 'LanaTienda Vales',
-          icon: ShoppingBag,
-        },
-      ],
-    },
-    {
-      label: 'Cobranza & Distribución',
-      items: [
-        {
-          id: 'distribuidores',
-          name: 'Padrón Distribuidoras (DV)',
-          icon: Briefcase,
-        },
         {
           id: 'personas',
-          name: 'Personas & Clientes KYC',
+          name: 'Personas',
           icon: Users,
-        },
-        {
-          id: 'gestoria',
-          name: 'Gestoría & Notas Cobranza',
-          icon: FileText,
-        },
-      ],
-    },
-    {
-      label: 'Reportes & Contabilidad',
-      items: [
-        {
-          id: 'reportes',
-          name: 'Reportes & Colocación DV',
-          icon: BarChart3,
-        },
-        {
-          id: 'contabilidad',
-          name: 'Contabilidad & Pólizas Core',
-          icon: Receipt,
-        },
-      ],
-    },
-    {
-      label: 'Gobernanza & Cumplimiento',
-      items: [
-        {
-          id: 'reglas',
-          name: 'Reglas del Negocio',
-          icon: ShieldCheck,
-        },
-        {
-          id: 'pld',
-          name: 'Buzón PLD & Fraude',
-          icon: ShieldAlert,
-        },
-        {
-          id: 'notificaciones',
-          name: 'Alertas & Notificaciones',
-          icon: Bell,
-        },
-      ],
-    },
-    {
-      label: 'Administración Interna & RH',
-      items: [
-        {
-          id: 'rh',
-          name: 'Capital Humano (Buk RH)',
-          icon: HeartHandshake,
-        },
-        {
-          id: 'configuracion',
-          name: 'Configuración & Sucursales',
-          icon: Sliders,
         },
       ],
     },
