@@ -11,7 +11,6 @@ import {
   RefreshCw,
   PieChart,
   BarChart3,
-  Activity,
   Layers,
   ArrowUpRight,
   ShieldCheck,
@@ -146,72 +145,56 @@ export default function CoreDashboard({
 
   return (
     <div className="flex-1 bg-[#f8fafc] text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-6 space-y-5">
-      {/* 1. Header Ejecutivo del Dashboard (Solo visualización de datos macro) */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-blue-50 text-blue-700 rounded-xl border border-blue-200/80">
-              <Activity className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                Panel Ejecutivo de Cartera & Métricas
-              </h1>
-            </div>
-          </div>
-        </div>
-
-        {/* Controles de Vista de Datos (No elegible de personas o dv) */}
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-          {/* Selector de Periodo */}
-          <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80 text-xs font-bold text-slate-600">
-            <button
-              onClick={() => setSelectedPeriod('12M')}
-              className={`px-3 py-1 rounded-lg transition ${
-                selectedPeriod === '12M' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'hover:text-slate-900'
-              }`}
-            >
-              12 Meses
-            </button>
-            <button
-              onClick={() => setSelectedPeriod('6M')}
-              className={`px-3 py-1 rounded-lg transition ${
-                selectedPeriod === '6M' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'hover:text-slate-900'
-              }`}
-            >
-              6 Meses
-            </button>
-            <button
-              onClick={() => setSelectedPeriod('3M')}
-              className={`px-3 py-1 rounded-lg transition ${
-                selectedPeriod === '3M' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'hover:text-slate-900'
-              }`}
-            >
-              3 Meses
-            </button>
-          </div>
-
-          {/* Selector de Zona */}
-          <select
-            value={selectedZone}
-            onChange={(e) => setSelectedZone(e.target.value as any)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:bg-white transition cursor-pointer"
-          >
-            <option value="ALL">Todas las Zonas</option>
-            <option value="ZONA A">Zona A · Saltillo</option>
-            <option value="ZONA B">Zona B · Torreón</option>
-            <option value="ZONA C">Zona C · Monclova</option>
-          </select>
-
-          {/* Botón Refrescar Datos */}
+      {/* Controles de Filtro de Dashboard (Periodo y Zona) */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-wrap items-center justify-end gap-2.5">
+        {/* Selector de Periodo */}
+        <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80 text-xs font-bold text-slate-600">
           <button
-            onClick={handleRefresh}
-            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition flex items-center justify-center active:scale-95"
-            title="Actualizar datos consolidados"
+            onClick={() => setSelectedPeriod('12M')}
+            className={`px-3 py-1 rounded-lg transition ${
+              selectedPeriod === '12M' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'hover:text-slate-900'
+            }`}
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
+            12 Meses
+          </button>
+          <button
+            onClick={() => setSelectedPeriod('6M')}
+            className={`px-3 py-1 rounded-lg transition ${
+              selectedPeriod === '6M' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'hover:text-slate-900'
+            }`}
+          >
+            6 Meses
+          </button>
+          <button
+            onClick={() => setSelectedPeriod('3M')}
+            className={`px-3 py-1 rounded-lg transition ${
+              selectedPeriod === '3M' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'hover:text-slate-900'
+            }`}
+          >
+            3 Meses
           </button>
         </div>
+
+        {/* Selector de Zona */}
+        <select
+          value={selectedZone}
+          onChange={(e) => setSelectedZone(e.target.value as any)}
+          className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:bg-white transition cursor-pointer"
+        >
+          <option value="ALL">Todas las Zonas</option>
+          <option value="ZONA A">Zona A · Saltillo</option>
+          <option value="ZONA B">Zona B · Torreón</option>
+          <option value="ZONA C">Zona C · Monclova</option>
+        </select>
+
+        {/* Botón Refrescar Datos */}
+        <button
+          onClick={handleRefresh}
+          className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition flex items-center justify-center active:scale-95"
+          title="Actualizar datos consolidados"
+        >
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
+        </button>
       </div>
 
       {/* 2. Tarjetas KPI de Estado Financiero y Cartera */}
