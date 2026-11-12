@@ -280,10 +280,7 @@ export default function PersonasView() {
                     return (
                       <tr
                         key={p.personaId}
-                        onClick={() => {
-                          setSelectedPersonaId(p.personaId);
-                          setActiveModal('editar');
-                        }}
+                        onClick={() => setSelectedPersonaId(p.personaId)}
                         className={`cursor-pointer transition-colors group ${
                           isSelected
                             ? 'bg-blue-50/70 font-semibold'
