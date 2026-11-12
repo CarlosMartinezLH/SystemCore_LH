@@ -37,6 +37,7 @@ import {
 import * as XLSX from 'xlsx';
 import EstadoCuentaDistribuidorModal from './EstadoCuentaDistribuidorModal';
 import RecibosRelacionModal from './RecibosRelacionModal';
+import ContratoAperturaModal from './ContratoAperturaModal';
 
 interface PerfilDistribuidorModalProps {
   isOpen: boolean;
@@ -317,6 +318,7 @@ export default function PerfilDistribuidorModal({
   const [isEditing, setIsEditing] = useState(false);
   const [isEstadoCuentaModalOpen, setIsEstadoCuentaModalOpen] = useState(false);
   const [isRecibosModalOpen, setIsRecibosModalOpen] = useState(false);
+  const [isContratoModalOpen, setIsContratoModalOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<DistribuidorCore>>({});
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
@@ -617,6 +619,14 @@ export default function PerfilDistribuidorModal({
                 </button>
                 <button
                   type="button"
+                  onClick={() => setIsContratoModalOpen(true)}
+                  className="px-3.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs inline-flex items-center gap-1.5 border border-amber-200 transition active:scale-95 shadow-2xs cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Contrato de Apertura</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setActiveTab('opciones')}
                   className="px-3.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs inline-flex items-center gap-1.5 border border-slate-200 transition active:scale-95 shadow-2xs cursor-pointer"
                 >
@@ -871,6 +881,14 @@ export default function PerfilDistribuidorModal({
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsContratoModalOpen(true)}
+                    className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs inline-flex items-center gap-1.5 shadow-2xs transition active:scale-95 cursor-pointer"
+                  >
+                    <FileCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Validar Contrato</span>
+                  </button>
                   {!isEditing ? (
                     <button
                       type="button"
@@ -950,12 +968,12 @@ export default function PerfilDistribuidorModal({
 
                   <button
                     type="button"
-                    onClick={() => showToast('Contrato de apertura generado.')}
+                    onClick={() => setIsContratoModalOpen(true)}
                     className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-800 hover:text-emerald-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
                     <FileCheck className="w-4 h-4 text-emerald-600" />
                     <span className="font-bold text-xs">Contrato de Apertura</span>
-                    <span className="text-[10px] text-slate-500">Expediente legal</span>
+                    <span className="text-[10px] text-slate-500">Expediente legal completo</span>
                   </button>
                 </div>
               </div>
@@ -1299,6 +1317,15 @@ export default function PerfilDistribuidorModal({
         <RecibosRelacionModal
           isOpen={isRecibosModalOpen}
           onClose={() => setIsRecibosModalOpen(false)}
+          distribuidor={currentDv}
+        />
+      )}
+
+      {/* Modal Oficial de Contrato de Apertura de Crédito */}
+      {isContratoModalOpen && (
+        <ContratoAperturaModal
+          isOpen={isContratoModalOpen}
+          onClose={() => setIsContratoModalOpen(false)}
           distribuidor={currentDv}
         />
       )}
