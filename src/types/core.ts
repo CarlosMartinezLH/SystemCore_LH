@@ -46,6 +46,16 @@ export function getCategoriaInfo(cat: CategoriaPersona) {
   }
 }
 
+export interface NotaClienteCore {
+  id?: string;
+  text: string;
+  date: string; // Cuándo se puso (Fecha y hora)
+  author: string; // Quién la puso (Nombre del usuario/analista)
+  authorRole?: string; // Rol o puesto del usuario
+  modulo: string; // Dónde se puso (El módulo del sistema)
+  avatarInitials?: string;
+}
+
 export interface PersonaCore {
   personaId: number;
   nombre: string;

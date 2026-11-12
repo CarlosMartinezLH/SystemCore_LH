@@ -34,13 +34,18 @@ import {
   RefreshCw,
   FileSignature,
   QrCode,
+  User,
+  Tag,
+  Layers,
 } from 'lucide-react';
 import {
   PersonaCore,
   CategoriaPersona,
   getCategoriaPersona,
   getCategoriaInfo,
+  NotaClienteCore,
 } from '@/types/core';
+import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
 
 interface EditarClienteModalProps {
@@ -55,8 +60,9 @@ interface EditarClienteModalProps {
   onLaunchExpediente?: () => void;
   onLaunchPrestanombres?: () => void;
   onPromoteToDv?: (persona: PersonaCore) => void;
-  notes?: { text: string; date: string }[];
-  onAddNote?: (text: string) => void;
+  notes?: NotaClienteCore[];
+  onAddNote?: (nota: NotaClienteCore) => void;
+  currentUser?: UserSession | null;
 }
 
 const ESTADOS_MEXICO = [
@@ -128,6 +134,7 @@ export default function EditarClienteModal({
   onPromoteToDv,
   notes = [],
   onAddNote,
+  currentUser,
 }: EditarClienteModalProps) {
   const { updatePersona } = useCoreSync();
 
@@ -232,8 +239,9 @@ export default function EditarClienteModal({
   const [observaciones, setObservaciones] = useState('');
   const [firmaElectronicaAvanzada, setFirmaElectronicaAvanzada] = useState('');
 
-  // Notas internas locales
+  // Notas internas locales con trazabilidad de autor, módulo y fecha
   const [noteInput, setNoteInput] = useState('');
+  const [noteModulo, setNoteModulo] = useState('Padrón de Clientes');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -382,10 +390,81 @@ export default function EditarClienteModal({
     }, 600);
   };
 
+  const getModuloBadge = (moduloName: string = 'Padrón de Clientes') => {
+    switch (moduloName) {
+      case 'Buró de Crédito':
+        return {
+          badge: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+          dot: 'bg-indigo-500',
+        };
+      case 'Mesa de Crédito':
+        return {
+          badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          dot: 'bg-emerald-500',
+        };
+      case 'Crédito y Cartera':
+        return {
+          badge: 'bg-sky-50 text-sky-700 border-sky-200',
+          dot: 'bg-sky-500',
+        };
+      case 'PLD / Cumplimiento':
+        return {
+          badge: 'bg-purple-50 text-purple-700 border-purple-200',
+          dot: 'bg-purple-500',
+        };
+      case 'Cobranza':
+        return {
+          badge: 'bg-amber-50 text-amber-700 border-amber-200',
+          dot: 'bg-amber-500',
+        };
+      case 'Padrón de Clientes':
+      default:
+        return {
+          badge: 'bg-blue-50 text-blue-700 border-blue-200',
+          dot: 'bg-blue-500',
+        };
+    }
+  };
+
   const handleCreateNote = () => {
     if (!noteInput.trim()) return;
+    const now = new Date();
+    const dateStr =
+      now.toLocaleDateString('es-MX', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }) +
+      ' ' +
+      now.toLocaleTimeString('es-MX', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+
+    const authorName = currentUser?.name || 'Carlos Martínez';
+    const authorRole = currentUser?.roleLabel || 'Mesa de Control';
+    const initials =
+      currentUser?.avatarInitials ||
+      authorName
+        .split(' ')
+        .map((p) => p[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
+
+    const newNote: NotaClienteCore = {
+      id: `note-${Date.now()}`,
+      text: noteInput.trim(),
+      date: dateStr,
+      author: authorName,
+      authorRole: authorRole,
+      modulo: noteModulo,
+      avatarInitials: initials,
+    };
+
     if (onAddNote) {
-      onAddNote(noteInput.trim());
+      onAddNote(newNote);
     }
     setNoteInput('');
   };
@@ -1933,53 +2012,129 @@ export default function EditarClienteModal({
                     Bitácora y Notas Internas
                   </h4>
                 </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  {notes.length} {notes.length === 1 ? 'Nota registrada' : 'Notas registradas'}
+                </span>
               </div>
 
-              {/* Agregar nota */}
-              <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <input
-                  type="text"
-                  placeholder="Escribe una nueva nota u observación sobre este cliente..."
-                  value={noteInput}
-                  onChange={(e) => setNoteInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleCreateNote();
-                    }
-                  }}
-                  className="flex-1 px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                />
-                <button
-                  type="button"
-                  onClick={handleCreateNote}
-                  disabled={!noteInput.trim()}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 transition shrink-0"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Agregar Nota</span>
-                </button>
-              </div>
-
-              {/* Listado de notas */}
-              <div className="space-y-2">
-                {notes.length === 0 ? (
-                  <p className="text-center py-8 text-slate-400 text-xs">
-                    No hay notas internas registradas para este cliente todavía.
-                  </p>
-                ) : (
-                  notes.map((note, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start justify-between gap-3 text-xs"
+              {/* Agregar nota con trazabilidad completa */}
+              <div className="p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                  {/* Selector de Módulo */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-slate-600 text-[11px] flex items-center gap-1">
+                      <Layers className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Módulo de Registro:</span>
+                    </span>
+                    <select
+                      value={noteModulo}
+                      onChange={(e) => setNoteModulo(e.target.value)}
+                      className="px-2.5 py-1 bg-white rounded-lg border border-slate-300 font-bold text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600"
                     >
-                      <p className="text-slate-800 font-medium leading-relaxed">{note.text}</p>
-                      <span className="text-[10px] font-mono text-slate-400 whitespace-nowrap flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        <span>{note.date}</span>
-                      </span>
-                    </div>
-                  ))
+                      <option value="Padrón de Clientes">Padrón de Clientes</option>
+                      <option value="Buró de Crédito">Buró de Crédito</option>
+                      <option value="Mesa de Crédito">Mesa de Crédito</option>
+                      <option value="Crédito y Cartera">Crédito y Cartera</option>
+                      <option value="PLD / Cumplimiento">PLD / Cumplimiento</option>
+                      <option value="Cobranza">Cobranza</option>
+                    </select>
+                  </div>
+
+                  {/* Usuario que firma la nota */}
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
+                    <User className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Registrando como:</span>
+                    <span className="font-bold text-slate-800">{currentUser?.name || 'Carlos Martínez'}</span>
+                    <span className="text-slate-400">({currentUser?.roleLabel || 'Mesa de Control'})</span>
+                  </div>
+                </div>
+
+                {/* Campo de texto y botón */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Escribe una nueva nota u observación sobre este cliente..."
+                    value={noteInput}
+                    onChange={(e) => setNoteInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleCreateNote();
+                      }
+                    }}
+                    className="flex-1 px-3.5 py-2 bg-white rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCreateNote}
+                    disabled={!noteInput.trim()}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition shrink-0 shadow-xs"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Agregar Nota</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Listado de notas con Quién, Dónde y Cuándo */}
+              <div className="space-y-2.5">
+                {notes.length === 0 ? (
+                  <div className="text-center py-10 text-slate-400 text-xs">
+                    <Clock className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="font-semibold">No hay notas internas registradas para este cliente todavía.</p>
+                  </div>
+                ) : (
+                  notes.map((note, idx) => {
+                    const modBadge = getModuloBadge(note.modulo);
+                    return (
+                      <div
+                        key={note.id || idx}
+                        className="p-3.5 bg-white rounded-xl border border-slate-200 hover:border-slate-300 transition space-y-2.5 shadow-2xs"
+                      >
+                        {/* Header de la nota: Quién la puso | Dónde (Módulo) | Cuándo (Fecha y Hora) */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                          {/* Quién la puso */}
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-6 h-6 rounded-full bg-slate-900 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                              {note.avatarInitials || (note.author ? note.author.charAt(0) : 'U')}
+                            </div>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-bold text-slate-900 text-xs">
+                                {note.author || 'Mesa de Control'}
+                              </span>
+                              {note.authorRole && (
+                                <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                                  {note.authorRole}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Dónde se puso (Módulo) y Cuándo (Fecha y Hora) */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {/* Dónde (Módulo) */}
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 ${modBadge.badge}`}
+                            >
+                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${modBadge.dot}`} />
+                              <span>{note.modulo || 'Padrón de Clientes'}</span>
+                            </span>
+
+                            {/* Cuándo (Fecha y Hora) */}
+                            <span className="text-[10px] font-mono font-medium text-slate-500 flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200">
+                              <Clock className="w-3 h-3 text-slate-400" />
+                              <span>{note.date} hrs</span>
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Cuerpo de la nota */}
+                        <p className="text-slate-800 text-xs font-normal leading-relaxed pl-1">
+                          {note.text}
+                        </p>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>

@@ -283,7 +283,7 @@ export default function Home() {
             ) : activeModule === 'pld' ? (
               <BuzonPLDView />
             ) : activeModule === 'personas' ? (
-              <PersonasView />
+              <PersonasView currentUser={currentUser} />
             ) : activeModule === 'distribuidores' ? (
               <DistribuidoresView currentUser={currentUser} />
             ) : activeModule === 'rh' ? (

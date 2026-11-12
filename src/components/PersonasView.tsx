@@ -6,7 +6,9 @@ import {
   CategoriaPersona,
   getCategoriaPersona,
   getCategoriaInfo,
+  NotaClienteCore,
 } from '@/types/core';
+import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import {
   UserPlus,
@@ -45,7 +47,45 @@ import CapturaClienteModal from './modals/CapturaClienteModal';
 import EditarClienteModal from './modals/EditarClienteModal';
 import { buildSafeCsv } from '@/lib/utils/csv';
 
-export default function PersonasView() {
+interface PersonasViewProps {
+  currentUser?: UserSession | null;
+}
+
+const DEFAULT_INTERNAL_NOTES: Record<number, NotaClienteCore[]> = {
+  122144: [
+    {
+      id: 'note-1',
+      text: 'Cliente validado en mesa de crédito.',
+      date: '12/11/2026 09:15',
+      author: 'Lic. Sandra Morales',
+      authorRole: 'Mesa de Crédito',
+      modulo: 'Mesa de Crédito',
+      avatarInitials: 'SM',
+    },
+    {
+      id: 'note-2',
+      text: 'Pagaré digital ratificado en sucursal.',
+      date: '11/11/2026 14:30',
+      author: 'Carlos Martínez',
+      authorRole: 'Mesa de Control',
+      modulo: 'Crédito y Cartera',
+      avatarInitials: 'CM',
+    },
+  ],
+  122143: [
+    {
+      id: 'note-3',
+      text: 'Antecedente en Buró de Crédito por mora en financiera externa.',
+      date: '10/11/2026 11:20',
+      author: 'Roberto Garza',
+      authorRole: 'Analista de Riesgo',
+      modulo: 'Buró de Crédito',
+      avatarInitials: 'RG',
+    },
+  ],
+};
+
+export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
   const { personas, registrarCliente, updatePersona } = useCoreSync();
 
   // NO auto-selection: starts as null so user sees a clean table
@@ -71,17 +111,18 @@ export default function PersonasView() {
     'buro' | 'bancarios' | 'expediente' | 'canjear' | 'prestanombres' | 'captura' | 'editar' | null
   >(null);
 
-  // Internal Notes per persona
-  const [internalNotes, setInternalNotes] = useState<Record<number, { text: string; date: string }[]>>({
-    122144: [
-      { text: 'Cliente validado en mesa de crédito.', date: '12/11/2026 09:15' },
-      { text: 'Pagaré digital ratificado en sucursal.', date: '11/11/2026 14:30' },
-    ],
-    122143: [
-      { text: 'Antecedente en Buró de Crédito por mora en financiera externa.', date: '10/11/2026 11:20' },
-    ],
+  // Internal Notes per persona con autor, módulo y fecha/hora
+  const [internalNotes, setInternalNotes] = useState<Record<number, NotaClienteCore[]>>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('LANAHORA_INTERNAL_NOTES');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {
+        console.error('Error reading notes from localStorage', e);
+      }
+    }
+    return DEFAULT_INTERNAL_NOTES;
   });
-  const [newNoteText, setNewNoteText] = useState('');
 
   // Copy feedback state
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -132,25 +173,6 @@ export default function PersonasView() {
     if (!confirmPromote) return;
 
     updatePersona({ ...persona, isDistribuidor: true, categoria: 'DV', distribuidorId: 1025 });
-  };
-
-  const handleAddNote = () => {
-    if (!selectedPersona || !newNoteText.trim()) return;
-    const nowStr = new Date().toLocaleString('es-MX', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-    setInternalNotes((prev) => ({
-      ...prev,
-      [selectedPersona.personaId]: [
-        { text: newNoteText.trim(), date: nowStr },
-        ...(prev[selectedPersona.personaId] || []),
-      ],
-    }));
-    setNewNoteText('');
   };
 
   const handleExportCSV = () => {
@@ -518,22 +540,26 @@ export default function PersonasView() {
             onClose={() => setActiveModal(null)}
             persona={selectedPersona}
             initialTab={activeModal === 'expediente' ? 'expediente' : 'editar'}
+            currentUser={currentUser}
             notes={internalNotes[selectedPersona.personaId] || []}
-            onAddNote={(text) => {
-              const nowStr = new Date().toLocaleString('es-MX', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
+            onAddNote={(newNote) => {
+              setInternalNotes((prev) => {
+                const next = {
+                  ...prev,
+                  [selectedPersona.personaId]: [
+                    newNote,
+                    ...(prev[selectedPersona.personaId] || []),
+                  ],
+                };
+                if (typeof window !== 'undefined') {
+                  try {
+                    localStorage.setItem('LANAHORA_INTERNAL_NOTES', JSON.stringify(next));
+                  } catch (e) {
+                    console.error('Error saving notes to localStorage', e);
+                  }
+                }
+                return next;
               });
-              setInternalNotes((prev) => ({
-                ...prev,
-                [selectedPersona.personaId]: [
-                  { text, date: nowStr },
-                  ...(prev[selectedPersona.personaId] || []),
-                ],
-              }));
             }}
             onLaunchCanje={() => setActiveModal('canjear')}
             onLaunchBuro={() => setActiveModal('buro')}
