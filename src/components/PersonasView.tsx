@@ -244,33 +244,25 @@ export default function PersonasView() {
           </div>
 
           {/* Scrollable Data Table */}
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-x-auto overflow-y-auto">
             <table className="w-full text-left text-xs border-collapse whitespace-nowrap font-sans">
               <thead className="sticky top-0 bg-slate-100/95 backdrop-blur-xs text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-200 z-10">
                 <tr>
-                  <th className="px-3.5 py-3 text-center">
-                    <button
-                      onClick={() => setActiveModal('captura')}
-                      className="text-blue-600 hover:text-blue-800 hover:underline font-extrabold normal-case text-xs"
-                    >
-                      Nuevo
-                    </button>
-                  </th>
-                  <th className="px-3 py-3">Persona ID</th>
-                  <th className="px-3.5 py-3">Nombre</th>
-                  <th className="px-3 py-3">Nombre Adicional</th>
-                  <th className="px-3.5 py-3">Apellido Paterno</th>
-                  <th className="px-3.5 py-3">Apellido Materno</th>
-                  <th className="px-3 py-3">Fecha Nacimiento</th>
-                  <th className="px-3 py-3">pagare Estatus Id</th>
-                  <th className="px-3 py-3 text-right">pagare Cantidad</th>
-                  <th className="px-3.5 py-3">CURP</th>
-                  <th className="px-3.5 py-3">RFC</th>
-                  <th className="px-3 py-3">Sexo ID</th>
-                  <th className="px-3 py-3">Buro Interno Esta</th>
-                  <th className="px-3.5 py-3">Observaciones</th>
-                  <th className="px-3.5 py-3 text-right">saldo Actual</th>
-                  <th className="px-3.5 py-3 text-right">capital Vencido</th>
+                  <th className="px-2.5 py-2.5">Persona ID</th>
+                  <th className="px-2.5 py-2.5">Nombre</th>
+                  <th className="px-2.5 py-2.5">Nombre Adicional</th>
+                  <th className="px-2.5 py-2.5">Apellido Paterno</th>
+                  <th className="px-2.5 py-2.5">Apellido Materno</th>
+                  <th className="px-2.5 py-2.5">Fecha Nacimiento</th>
+                  <th className="px-2.5 py-2.5">pagare Estatus Id</th>
+                  <th className="px-2.5 py-2.5 text-right">pagare Cantidad</th>
+                  <th className="px-2.5 py-2.5 min-w-[170px]">CURP</th>
+                  <th className="px-2.5 py-2.5">RFC</th>
+                  <th className="px-2.5 py-2.5">Sexo ID</th>
+                  <th className="px-2.5 py-2.5">Buro Interno Esta</th>
+                  <th className="px-2.5 py-2.5">Observaciones</th>
+                  <th className="px-2.5 py-2.5 text-right">saldo Actual</th>
+                  <th className="px-2.5 py-2.5 text-right">capital Vencido</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
@@ -294,51 +286,38 @@ export default function PersonasView() {
                             : 'hover:bg-slate-50/80'
                         }`}
                       >
-                        {/* Editar */}
-                        <td className="px-3.5 py-2.5 text-center" onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedPersonaId(p.personaId);
-                        }}>
-                          <button
-                            type="button"
-                            className="text-blue-600 hover:text-blue-800 hover:underline font-bold text-xs"
-                          >
-                            Editar
-                          </button>
-                        </td>
-
                         {/* Persona ID */}
-                        <td className="px-3 py-2.5 font-mono font-bold text-slate-900">
+                        <td className="px-2.5 py-2 font-mono font-bold text-slate-900">
                           {p.personaId}
                         </td>
 
                         {/* Nombre */}
-                        <td className="px-3.5 py-2.5 font-bold text-slate-900">
+                        <td className="px-2.5 py-2 font-bold text-slate-900">
                           {p.nombre}
                         </td>
 
                         {/* Nombre Adicional */}
-                        <td className="px-3 py-2.5 text-slate-600">
+                        <td className="px-2.5 py-2 text-slate-600">
                           {p.nombreAdicional || ''}
                         </td>
 
                         {/* Apellido Paterno */}
-                        <td className="px-3.5 py-2.5 text-slate-900 font-semibold">
+                        <td className="px-2.5 py-2 text-slate-900 font-semibold">
                           {p.apellidoPaterno}
                         </td>
 
                         {/* Apellido Materno */}
-                        <td className="px-3.5 py-2.5 text-slate-700">
+                        <td className="px-2.5 py-2 text-slate-700">
                           {p.apellidoMaterno || ''}
                         </td>
 
                         {/* Fecha Nacimiento */}
-                        <td className="px-3 py-2.5 font-mono text-slate-700">
+                        <td className="px-2.5 py-2 font-mono text-slate-700">
                           {p.fechaNacimiento}
                         </td>
 
                         {/* pagare Estatus Id */}
-                        <td className="px-3 py-2.5">
+                        <td className="px-2.5 py-2">
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               p.pagareEstatusId === 'FIRMADO EN BLANCO'
@@ -353,27 +332,27 @@ export default function PersonasView() {
                         </td>
 
                         {/* pagare Cantidad */}
-                        <td className="px-3 py-2.5 font-mono text-right text-slate-700">
+                        <td className="px-2.5 py-2 font-mono text-right text-slate-700">
                           {(p.pagareCantidad || 0).toFixed(4)}
                         </td>
 
                         {/* CURP */}
-                        <td className="px-3.5 py-2.5 font-mono text-[11px] text-slate-800 font-semibold">
+                        <td className="px-2.5 py-2 font-mono text-[11px] text-slate-800 font-semibold min-w-[170px]">
                           {p.curp}
                         </td>
 
                         {/* RFC */}
-                        <td className="px-3.5 py-2.5 font-mono text-[11px] text-slate-700">
+                        <td className="px-2.5 py-2 font-mono text-[11px] text-slate-700">
                           {p.rfc || ''}
                         </td>
 
                         {/* Sexo ID */}
-                        <td className="px-3 py-2.5 text-slate-700">
+                        <td className="px-2.5 py-2 text-slate-700">
                           {p.sexoId}
                         </td>
 
                         {/* Buro Interno Esta */}
-                        <td className="px-3 py-2.5">
+                        <td className="px-2.5 py-2">
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               p.buroInternoEstatus === 'NORMAL'
@@ -386,19 +365,19 @@ export default function PersonasView() {
                         </td>
 
                         {/* Observaciones */}
-                        <td className="px-3.5 py-2.5 text-slate-600 max-w-[220px] truncate text-[11px]">
+                        <td className="px-2.5 py-2 text-slate-600 max-w-[220px] truncate text-[11px]">
                           {p.observaciones || ''}
                         </td>
 
                         {/* saldo Actual */}
-                        <td className="px-3.5 py-2.5 font-mono text-right font-bold text-slate-900">
+                        <td className="px-2.5 py-2 font-mono text-right font-bold text-slate-900">
                           {p.saldoActual
                             ? `$${p.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
                             : ''}
                         </td>
 
                         {/* capital Vencido */}
-                        <td className="px-3.5 py-2.5 font-mono text-right font-bold text-rose-600">
+                        <td className="px-2.5 py-2 font-mono text-right font-bold text-rose-600">
                           {p.capitalVencido
                             ? `$${p.capitalVencido.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
                             : ''}
@@ -414,7 +393,7 @@ export default function PersonasView() {
 
         {/* Right Inspector / Detail Panel (Aesthetic like user's reference image) */}
         {selectedPersona && (
-          <aside className="w-full lg:w-[410px] bg-white rounded-2xl border border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col shrink-0 overflow-hidden animate-in slide-in-from-right-4 duration-200">
+          <aside className="w-full lg:w-[335px] xl:w-[350px] bg-white rounded-2xl border border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col shrink-0 overflow-hidden animate-in slide-in-from-right-4 duration-200">
             {/* Panel Header */}
             <div className="p-4 border-b border-slate-100 flex items-start justify-between gap-3 bg-slate-50/50">
               <div className="flex items-center gap-3 min-w-0">
@@ -508,13 +487,13 @@ export default function PersonasView() {
                       Gestión del Cliente
                     </span>
 
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-1.5">
                       {/* Solicitar Buró */}
                       <button
                         onClick={() => setActiveModal('buro')}
-                        className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
+                        className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
                       >
-                        <div className="flex items-center justify-between w-full mb-2">
+                        <div className="flex items-center justify-between w-full mb-1.5">
                           <ShieldCheck className="w-4 h-4 text-slate-700" />
                           <span
                             className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
@@ -528,16 +507,16 @@ export default function PersonasView() {
                         </div>
                         <div>
                           <p className="font-bold text-slate-900 text-xs">Solicitar Buró</p>
-                          <p className="text-[10px] text-slate-500">Consulta Score FICO</p>
+                          <p className="text-[10px] text-slate-500">Score FICO</p>
                         </div>
                       </button>
 
                       {/* Expediente Digital */}
                       <button
                         onClick={() => setActiveModal('expediente')}
-                        className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
+                        className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
                       >
-                        <div className="flex items-center justify-between w-full mb-2">
+                        <div className="flex items-center justify-between w-full mb-1.5">
                           <FolderOpen className="w-4 h-4 text-slate-700" />
                           <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 border border-blue-200">
                             Digital
@@ -545,33 +524,33 @@ export default function PersonasView() {
                         </div>
                         <div>
                           <p className="font-bold text-slate-900 text-xs">Expediente</p>
-                          <p className="text-[10px] text-slate-500">INE, Domicilio, KYC</p>
+                          <p className="text-[10px] text-slate-500">INE, KYC</p>
                         </div>
                       </button>
 
                       {/* Datos Bancarios */}
                       <button
                         onClick={() => setActiveModal('bancarios')}
-                        className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
+                        className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
                       >
-                        <div className="flex items-center justify-between w-full mb-2">
+                        <div className="flex items-center justify-between w-full mb-1.5">
                           <CreditCard className="w-4 h-4 text-slate-700" />
                           <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-200 text-slate-600">
-                            STP SPEI
+                            STP
                           </span>
                         </div>
                         <div>
                           <p className="font-bold text-slate-900 text-xs">Datos Bancarios</p>
-                          <p className="text-[10px] text-slate-500">CLABE y Tarjetas</p>
+                          <p className="text-[10px] text-slate-500">CLABE/SPEI</p>
                         </div>
                       </button>
 
                       {/* Carta Prestanombres */}
                       <button
                         onClick={() => setActiveModal('prestanombres')}
-                        className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
+                        className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
                       >
-                        <div className="flex items-center justify-between w-full mb-2">
+                        <div className="flex items-center justify-between w-full mb-1.5">
                           <Printer className="w-4 h-4 text-slate-700" />
                           <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200">
                             CNBV
@@ -579,7 +558,7 @@ export default function PersonasView() {
                         </div>
                         <div>
                           <p className="font-bold text-slate-900 text-xs">Prestanombres</p>
-                          <p className="text-[10px] text-slate-500">Carta Declaratoria</p>
+                          <p className="text-[10px] text-slate-500">Declaratoria</p>
                         </div>
                       </button>
                     </div>
