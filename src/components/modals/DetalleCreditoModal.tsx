@@ -133,7 +133,7 @@ export default function DetalleCreditoModal({
 
   const modalContent = (
     <div className="fixed inset-0 z-[130] flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col font-sans max-h-[90vh] animate-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col font-sans max-h-[92vh] animate-in zoom-in-95 duration-150">
         
         {/* ======================================================== */}
         {/* HEADER                                                   */}
