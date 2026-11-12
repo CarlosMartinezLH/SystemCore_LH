@@ -45,10 +45,8 @@ export default function PersonasView() {
   // NO auto-selection: starts as null so user sees a clean table
   const [selectedPersonaId, setSelectedPersonaId] = useState<number | null>(null);
 
-  // Filters & Search
+  // Search
   const [searchFilter, setSearchFilter] = useState('');
-  const [filterPagare, setFilterPagare] = useState<'ALL' | 'FIRMADO' | 'SIN_PAGARE'>('ALL');
-  const [filterBuro, setFilterBuro] = useState<'ALL' | 'NORMAL' | 'ALERTA'>('ALL');
 
   // Inspector Panel Tab ('opciones' | 'expediente' | 'bitacora')
   const [inspectorTab, setInspectorTab] = useState<'opciones' | 'expediente' | 'bitacora'>('opciones');
@@ -78,37 +76,23 @@ export default function PersonasView() {
     : null;
 
   // Filtered persons
-  const filtered = personas.filter((p) => {
-    // Search term
-    if (searchFilter.trim()) {
-      const q = searchFilter.toLowerCase().trim();
-      const fullName = `${p.nombre} ${p.nombreAdicional || ''} ${p.apellidoPaterno} ${p.apellidoMaterno}`.toLowerCase();
-      const matchText =
-        fullName.includes(q) ||
-        p.curp.toLowerCase().includes(q) ||
-        p.personaId.toString().includes(q) ||
-        (p.telefono && p.telefono.includes(q));
-      if (!matchText) return false;
-    }
+  const filtered = personas
+    .filter((p) => {
+      // Search term
+      if (searchFilter.trim()) {
+        const q = searchFilter.toLowerCase().trim();
+        const fullName = `${p.nombre} ${p.nombreAdicional || ''} ${p.apellidoPaterno} ${p.apellidoMaterno}`.toLowerCase();
+        const matchText =
+          fullName.includes(q) ||
+          p.curp.toLowerCase().includes(q) ||
+          p.personaId.toString().includes(q) ||
+          (p.telefono && p.telefono.includes(q));
+        if (!matchText) return false;
+      }
 
-    // Pagaré filter
-    if (filterPagare === 'FIRMADO' && p.pagareEstatusId !== 'FIRMADO EN BLANCO') {
-      return false;
-    }
-    if (filterPagare === 'SIN_PAGARE' && p.pagareEstatusId !== 'SIN PAGARE') {
-      return false;
-    }
-
-    // Buró filter
-    if (filterBuro === 'NORMAL' && p.buroInternoEstatus !== 'NORMAL') {
-      return false;
-    }
-    if (filterBuro === 'ALERTA' && p.buroInternoEstatus === 'NORMAL') {
-      return false;
-    }
-
-    return true;
-  }).sort((a, b) => b.personaId - a.personaId);
+      return true;
+    })
+    .sort((a, b) => b.personaId - a.personaId);
 
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -219,77 +203,6 @@ export default function PersonasView() {
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
-          </div>
-
-          {/* Center: Segmented Filter Controls */}
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            {/* Filter by Pagaré */}
-            <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/70 text-[11px] font-semibold text-slate-600">
-              <button
-                onClick={() => setFilterPagare('ALL')}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  filterPagare === 'ALL'
-                    ? 'bg-white text-slate-900 shadow-xs font-bold'
-                    : 'hover:text-slate-900'
-                }`}
-              >
-                Todos ({personas.length})
-              </button>
-              <button
-                onClick={() => setFilterPagare('FIRMADO')}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  filterPagare === 'FIRMADO'
-                    ? 'bg-white text-slate-900 shadow-xs font-bold'
-                    : 'hover:text-slate-900'
-                }`}
-              >
-                Con Pagaré
-              </button>
-              <button
-                onClick={() => setFilterPagare('SIN_PAGARE')}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  filterPagare === 'SIN_PAGARE'
-                    ? 'bg-white text-slate-900 shadow-xs font-bold'
-                    : 'hover:text-slate-900'
-                }`}
-              >
-                Sin Pagaré
-              </button>
-            </div>
-
-            {/* Filter by Buró */}
-            <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/70 text-[11px] font-semibold text-slate-600">
-              <button
-                onClick={() => setFilterBuro('ALL')}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  filterBuro === 'ALL'
-                    ? 'bg-white text-slate-900 shadow-xs font-bold'
-                    : 'hover:text-slate-900'
-                }`}
-              >
-                Buró: Todos
-              </button>
-              <button
-                onClick={() => setFilterBuro('NORMAL')}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  filterBuro === 'NORMAL'
-                    ? 'bg-white text-slate-900 shadow-xs font-bold'
-                    : 'hover:text-slate-900'
-                }`}
-              >
-                Normal
-              </button>
-              <button
-                onClick={() => setFilterBuro('ALERTA')}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  filterBuro === 'ALERTA'
-                    ? 'bg-white text-slate-900 shadow-xs font-bold'
-                    : 'hover:text-slate-900'
-                }`}
-              >
-                Alerta
-              </button>
-            </div>
           </div>
 
           {/* Right: Primary CTAs */}
