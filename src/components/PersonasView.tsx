@@ -229,18 +229,25 @@ export default function PersonasView() {
         </div>
       </div>
 
-      {/* Main Workspace: Table on the left, Inspector on the right */}
-      <div className="flex-1 flex min-h-0 px-4 lg:px-6 pb-4 gap-4 overflow-hidden">
-        {/* Table Canvas */}
+      {/* Main Workspace: Full-Width Table on top, Docked Inspector at bottom */}
+      <div className="flex-1 flex flex-col min-h-0 px-4 lg:px-6 pb-3 gap-3 overflow-hidden">
+        {/* Table Canvas: Takes 100% full width */}
         <div className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
           {/* Table Header Stats */}
-          <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+          <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between bg-slate-50/60 shrink-0">
             <span className="text-xs text-slate-500 font-medium">
               Mostrando <strong className="text-slate-900 font-bold">{filtered.length}</strong> de {personas.length} personas registradas
             </span>
-            {selectedPersona && (
-              <span className="text-[11px] text-slate-500 hidden sm:inline">
-                Seleccionado: <strong className="text-slate-900 font-semibold">{selectedPersona.nombre} {selectedPersona.apellidoPaterno}</strong>
+            {selectedPersona ? (
+              <span className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                <span>Cliente activo en panel inferior:</span>
+                <strong className="text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                  {selectedPersona.nombre} {selectedPersona.apellidoPaterno} (ID #{selectedPersona.personaId})
+                </strong>
+              </span>
+            ) : (
+              <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
+                💡 Haz clic en cualquier persona para abrir sus opciones y gestión abajo
               </span>
             )}
           </div>
@@ -393,77 +400,62 @@ export default function PersonasView() {
           </div>
         </div>
 
-        {/* Right Inspector / Detail Panel (Aesthetic like user's reference image) */}
+        {/* Bottom Inspector Panel: Spreads horizontally across full screen width */}
         {selectedPersona && (
-          <aside className="w-full lg:w-[335px] xl:w-[350px] bg-white rounded-2xl border border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col shrink-0 overflow-hidden animate-in slide-in-from-right-4 duration-200">
-            {/* Panel Header */}
-            <div className="p-4 border-b border-slate-100 flex items-start justify-between gap-3 bg-slate-50/50">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white font-extrabold flex items-center justify-center text-sm shadow-xs shrink-0">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.06)] flex flex-col shrink-0 overflow-hidden animate-in slide-in-from-bottom-3 duration-200">
+            {/* Header / Top Bar of the Bottom Dock */}
+            <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 shrink-0">
+              {/* Left: Persona identity & Quick Edit */}
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-blue-600 text-white font-extrabold flex items-center justify-center text-xs shadow-xs shrink-0">
                   {`${selectedPersona.nombre.charAt(0)}${selectedPersona.apellidoPaterno.charAt(0)}`.toUpperCase()}
                 </div>
-                <div className="min-w-0">
-                  <h2 className="text-sm font-extrabold text-slate-900 truncate leading-snug">
+                <div className="flex items-center gap-2 min-w-0">
+                  <h3 className="font-extrabold text-xs text-slate-900 truncate">
                     {selectedPersona.nombre} {selectedPersona.apellidoPaterno} {selectedPersona.apellidoMaterno}
-                  </h2>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
-                      ID #{selectedPersona.personaId}
-                    </span>
-                    <span className="text-[10px] font-bold text-slate-400">·</span>
-                    <span className="text-[10px] font-bold text-slate-600">
-                      {selectedPersona.sexoId}
-                    </span>
-                  </div>
+                  </h3>
+                  <span className="text-[10px] font-mono font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                    ID #{selectedPersona.personaId}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500">
+                    {selectedPersona.sexoId}
+                  </span>
+                  <button
+                    onClick={() => setActiveModal('editar')}
+                    className="ml-1 px-2.5 py-0.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[11px] flex items-center gap-1 border border-blue-200 transition active:scale-95"
+                    title="Editar los 40 campos del cliente"
+                  >
+                    <Pencil className="w-3 h-3" />
+                    <span>Editar Cliente</span>
+                  </button>
                 </div>
               </div>
 
-              {/* Header Actions: Editar & Cerrar */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                <button
-                  onClick={() => setActiveModal('editar')}
-                  className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[11px] flex items-center gap-1 border border-blue-200 transition active:scale-95 shadow-2xs"
-                  title="Editar datos completos de este cliente"
-                >
-                  <Pencil className="w-3 h-3" />
-                  <span>Editar</span>
-                </button>
-                <button
-                  onClick={() => setSelectedPersonaId(null)}
-                  className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 flex items-center justify-center transition"
-                  title="Cerrar panel de opciones"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Segmented Pill Tabs (Inspector Switcher) */}
-            <div className="p-3 border-b border-slate-100">
-              <div className="grid grid-cols-3 p-1 bg-slate-100 rounded-xl border border-slate-200/60 text-xs font-semibold text-slate-600">
+              {/* Center: Tabs Switcher */}
+              <div className="inline-flex p-0.5 bg-slate-100 rounded-lg border border-slate-200/60 text-xs font-semibold text-slate-600">
                 <button
                   onClick={() => setInspectorTab('opciones')}
-                  className={`py-1.5 rounded-lg text-center transition ${
+                  className={`px-3 py-1 rounded-md transition text-[11px] ${
                     inspectorTab === 'opciones'
                       ? 'bg-white text-slate-900 shadow-xs font-bold'
                       : 'hover:text-slate-900'
                   }`}
                 >
-                  Opciones
+                  Opciones y Gestión
                 </button>
                 <button
                   onClick={() => setInspectorTab('expediente')}
-                  className={`py-1.5 rounded-lg text-center transition ${
+                  className={`px-3 py-1 rounded-md transition text-[11px] ${
                     inspectorTab === 'expediente'
                       ? 'bg-white text-slate-900 shadow-xs font-bold'
                       : 'hover:text-slate-900'
                   }`}
                 >
-                  Expediente
+                  Expediente Digital
                 </button>
                 <button
                   onClick={() => setInspectorTab('bitacora')}
-                  className={`py-1.5 rounded-lg text-center transition ${
+                  className={`px-3 py-1 rounded-md transition text-[11px] ${
                     inspectorTab === 'bitacora'
                       ? 'bg-white text-slate-900 shadow-xs font-bold'
                       : 'hover:text-slate-900'
@@ -472,340 +464,239 @@ export default function PersonasView() {
                   Notas ({internalNotes[selectedPersona.personaId]?.length || 0})
                 </button>
               </div>
+
+              {/* Right: Close button */}
+              <button
+                onClick={() => setSelectedPersonaId(null)}
+                className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 flex items-center justify-center transition"
+                title="Cerrar panel inferior"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* Panel Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
-              {/* TAB 1: OPCIONES Y ACCIONES */}
+            {/* Body of Bottom Dock */}
+            <div className="p-3 overflow-y-auto max-h-[220px]">
               {inspectorTab === 'opciones' && (
-                <>
-                  {/* Primary Action Button: Canjear Vale */}
-                  <div className="space-y-1.5">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch">
+                  {/* Left Column (3 cols): Primary Canjear Vale CTA + Promo DV */}
+                  <div className="md:col-span-3 flex flex-col justify-between gap-1.5 bg-slate-50/80 p-2.5 rounded-xl border border-slate-200/70">
                     <button
                       onClick={() => setActiveModal('canjear')}
-                      className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition active:scale-98"
+                      className="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition active:scale-95"
                     >
                       <Barcode className="w-4 h-4" />
                       <span>Canjear Vale a este Cliente</span>
                     </button>
-                    <p className="text-[10px] text-slate-400 text-center font-medium">
-                      Inicia validación biométrica y dispersión bancaria
-                    </p>
-                  </div>
 
-                  {/* Quick Action Cards Grid */}
-                  <div className="space-y-2 pt-1">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                      Gestión del Cliente
-                    </span>
-
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {/* Solicitar Buró */}
-                      <button
-                        onClick={() => setActiveModal('buro')}
-                        className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
-                      >
-                        <div className="flex items-center justify-between w-full mb-1.5">
-                          <ShieldCheck className="w-4 h-4 text-slate-700" />
-                          <span
-                            className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
-                              selectedPersona.scoreBuro
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-slate-200 text-slate-600'
-                            }`}
-                          >
-                            {selectedPersona.scoreBuro ? `${selectedPersona.scoreBuro} pts` : 'API'}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 text-xs">Solicitar Buró</p>
-                          <p className="text-[10px] text-slate-500">Score FICO</p>
-                        </div>
-                      </button>
-
-                      {/* Expediente Digital */}
-                      <button
-                        onClick={() => setActiveModal('expediente')}
-                        className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
-                      >
-                        <div className="flex items-center justify-between w-full mb-1.5">
-                          <FolderOpen className="w-4 h-4 text-slate-700" />
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                            Digital
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 text-xs">Expediente</p>
-                          <p className="text-[10px] text-slate-500">INE, KYC</p>
-                        </div>
-                      </button>
-
-                      {/* Datos Bancarios */}
-                      <button
-                        onClick={() => setActiveModal('bancarios')}
-                        className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
-                      >
-                        <div className="flex items-center justify-between w-full mb-1.5">
-                          <CreditCard className="w-4 h-4 text-slate-700" />
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-200 text-slate-600">
-                            STP
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 text-xs">Datos Bancarios</p>
-                          <p className="text-[10px] text-slate-500">CLABE/SPEI</p>
-                        </div>
-                      </button>
-
-                      {/* Carta Prestanombres */}
-                      <button
-                        onClick={() => setActiveModal('prestanombres')}
-                        className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-left transition flex flex-col justify-between group"
-                      >
-                        <div className="flex items-center justify-between w-full mb-1.5">
-                          <Printer className="w-4 h-4 text-slate-700" />
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                            CNBV
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 text-xs">Prestanombres</p>
-                          <p className="text-[10px] text-slate-500">Declaratoria</p>
-                        </div>
-                      </button>
-                    </div>
-
-                    {/* Asignar Distribuidor (Full width action) */}
                     <button
                       onClick={() => handlePromoteToDv(selectedPersona)}
-                      className={`w-full p-2.5 rounded-xl border text-left transition flex items-center justify-between ${
+                      className={`w-full p-1.5 rounded-lg border text-left transition flex items-center justify-between text-xs ${
                         selectedPersona.isDistribuidor
-                          ? 'bg-blue-50/60 border-blue-200 text-blue-900'
-                          : 'bg-slate-50 hover:bg-slate-100/80 border-slate-200 text-slate-800'
+                          ? 'bg-blue-50/60 border-blue-200 text-blue-900 font-bold'
+                          : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700 font-semibold'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <ArrowRightLeft className="w-4 h-4 text-slate-600" />
-                        <div>
-                          <p className="font-bold text-xs">
-                            {selectedPersona.isDistribuidor
-                              ? `Distribuidora Activa (DV #${selectedPersona.distribuidorId || 1025})`
-                              : 'Asignar como Distribuidora (DV)'}
-                          </p>
-                          <p className="text-[10px] text-slate-500">
-                            {selectedPersona.isDistribuidor
-                              ? 'Cuenta con línea de crédito habilitada'
-                              : 'Promover al padrón de colocación'}
-                          </p>
-                        </div>
+                      <div className="flex items-center gap-2 truncate">
+                        <ArrowRightLeft className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                        <span className="truncate">
+                          {selectedPersona.isDistribuidor
+                            ? `DV Activa (#${selectedPersona.distribuidorId || 1025})`
+                            : 'Asignar como Distribuidora (DV)'}
+                        </span>
                       </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     </button>
+                  </div>
 
-                    {/* Editar Datos Completos del Cliente */}
+                  {/* Middle Column (5 cols): Quick Action Cards Grid */}
+                  <div className="md:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {/* Solicitar Buró */}
                     <button
-                      onClick={() => setActiveModal('editar')}
-                      className="w-full p-2.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100/80 text-blue-950 text-left transition flex items-center justify-between group active:scale-98"
+                      onClick={() => setActiveModal('buro')}
+                      className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group"
                     >
-                      <div className="flex items-center gap-2.5">
-                        <Pencil className="w-4 h-4 text-blue-600 group-hover:scale-110 transition" />
-                        <div>
-                          <p className="font-bold text-xs text-blue-900">Editar Información Completa</p>
-                          <p className="text-[10px] text-blue-600/80">
-                            Domicilio, laboral, pagaré y referencias (40 campos)
-                          </p>
-                        </div>
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <ShieldCheck className="w-4 h-4 text-slate-700" />
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                            selectedPersona.scoreBuro
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-slate-200 text-slate-600'
+                          }`}
+                        >
+                          {selectedPersona.scoreBuro ? `${selectedPersona.scoreBuro} pts` : 'API'}
+                        </span>
                       </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-600" />
+                      <div>
+                        <p className="font-bold text-slate-900 text-xs">Solicitar Buró</p>
+                        <p className="text-[10px] text-slate-500">Score FICO</p>
+                      </div>
                     </button>
-                  </div>
 
-                  {/* Ficha Rápida del Cliente */}
-                  <div className="pt-2 space-y-2 border-t border-slate-100">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                      Datos de Identificación
-                    </span>
-
-                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80 space-y-2">
-                      {/* CURP with Copy */}
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500 font-medium">CURP:</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-slate-900">
-                            {selectedPersona.curp}
-                          </span>
-                          <button
-                            onClick={() => handleCopy(selectedPersona.curp, 'curp')}
-                            className="p-1 hover:bg-slate-200/60 rounded text-slate-400 hover:text-slate-700 transition"
-                            title="Copiar CURP"
-                          >
-                            {copiedKey === 'curp' ? (
-                              <Check className="w-3 h-3 text-emerald-600" />
-                            ) : (
-                              <Copy className="w-3 h-3" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* RFC with Copy */}
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500 font-medium">RFC:</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-slate-900">
-                            {selectedPersona.rfc}
-                          </span>
-                          <button
-                            onClick={() => handleCopy(selectedPersona.rfc, 'rfc')}
-                            className="p-1 hover:bg-slate-200/60 rounded text-slate-400 hover:text-slate-700 transition"
-                            title="Copiar RFC"
-                          >
-                            {copiedKey === 'rfc' ? (
-                              <Check className="w-3 h-3 text-emerald-600" />
-                            ) : (
-                              <Copy className="w-3 h-3" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Teléfono */}
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500 font-medium">Teléfono:</span>
-                        <span className="font-mono font-bold text-slate-900">
-                          {selectedPersona.telefono || '844-120-3344'}
-                        </span>
-                      </div>
-
-                      {/* Fecha Nacimiento */}
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500 font-medium">Fecha Nac.:</span>
-                        <span className="font-mono text-slate-700">
-                          {selectedPersona.fechaNacimiento}
-                        </span>
-                      </div>
-
-                      {/* Pagaré Status */}
-                      <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-200/60">
-                        <span className="text-slate-500 font-medium">Pagaré:</span>
-                        <div className="text-right">
-                          <span className="font-mono font-bold text-slate-900 block">
-                            ${selectedPersona.pagareCantidad.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                          </span>
-                          <span className="text-[10px] text-emerald-700 font-bold">
-                            {selectedPersona.pagareEstatusId}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* TAB 2: EXPEDIENTE DIGITAL */}
-              {inspectorTab === 'expediente' && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                      Documentos Integrados
-                    </span>
+                    {/* Expediente Digital */}
                     <button
                       onClick={() => setActiveModal('expediente')}
-                      className="text-xs font-bold text-slate-900 hover:underline flex items-center gap-1"
+                      className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group"
                     >
-                      <span>Abrir visor</span>
-                      <ExternalLink className="w-3 h-3" />
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <FolderOpen className="w-4 h-4 text-slate-700" />
+                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                          Digital
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 text-xs">Expediente</p>
+                        <p className="text-[10px] text-slate-500">INE, KYC</p>
+                      </div>
+                    </button>
+
+                    {/* Datos Bancarios */}
+                    <button
+                      onClick={() => setActiveModal('bancarios')}
+                      className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group"
+                    >
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <CreditCard className="w-4 h-4 text-slate-700" />
+                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-200 text-slate-600">
+                          STP
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 text-xs">Datos Bancarios</p>
+                        <p className="text-[10px] text-slate-500">CLABE/SPEI</p>
+                      </div>
+                    </button>
+
+                    {/* Prestanombres */}
+                    <button
+                      onClick={() => setActiveModal('prestanombres')}
+                      className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group"
+                    >
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <Printer className="w-4 h-4 text-slate-700" />
+                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                          CNBV
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 text-xs">Prestanombres</p>
+                        <p className="text-[10px] text-slate-500">Declaratoria</p>
+                      </div>
                     </button>
                   </div>
 
-                  <div className="space-y-2">
-                    {/* INE Document */}
-                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
-                          INE
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 text-xs">Identificación Oficial (INE)</p>
-                          <p className="text-[10px] text-slate-500 font-mono">Frente y Reverso cotejado</p>
-                        </div>
+                  {/* Right Column (4 cols): Ficha rápida horizontal */}
+                  <div className="md:col-span-4 bg-slate-50/80 p-2.5 rounded-xl border border-slate-200/70 text-xs space-y-1.5 flex flex-col justify-between">
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+                      <div>
+                        <span className="text-slate-400 font-medium">CURP: </span>
+                        <span className="font-mono font-bold text-slate-900">{selectedPersona.curp}</span>
                       </div>
-                      <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                        Vigente
-                      </span>
+                      <div>
+                        <span className="text-slate-400 font-medium">RFC: </span>
+                        <span className="font-mono font-bold text-slate-900">{selectedPersona.rfc || 'S/D'}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 font-medium">Tel: </span>
+                        <span className="font-mono font-bold text-slate-900">{selectedPersona.telefono || '(844) 120-3344'}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 font-medium">Nac: </span>
+                        <span className="font-mono text-slate-800">{selectedPersona.fechaNacimiento}</span>
+                      </div>
                     </div>
-
-                    {/* Comprobante Domicilio */}
-                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
-                          CFE
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 text-xs">Comprobante de Domicilio</p>
-                          <p className="text-[10px] text-slate-500 font-mono">Antigüedad &lt; 3 meses</p>
-                        </div>
+                    <div className="pt-1 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-slate-400 font-medium">Pagaré:</span>
+                        <span className="font-bold text-slate-900 font-mono">
+                          ${(selectedPersona.pagareCantidad || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        </span>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1 rounded border border-emerald-200">
+                          {selectedPersona.pagareEstatusId}
+                        </span>
                       </div>
-                      <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                        Validado
-                      </span>
-                    </div>
-
-                    {/* Pagaré Ratificado */}
-                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
-                          DOC
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 text-xs">Pagaré Legal en Blanco</p>
-                          <p className="text-[10px] text-slate-500 font-mono">
-                            {selectedPersona.pagareEstatusId}
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          selectedPersona.pagareEstatusId === 'FIRMADO EN BLANCO'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-rose-100 text-rose-800'
-                        }`}
+                      <button
+                        onClick={() => setActiveModal('editar')}
+                        className="text-blue-600 hover:text-blue-800 font-bold text-[11px] hover:underline flex items-center gap-1"
                       >
-                        {selectedPersona.pagareEstatusId === 'FIRMADO EN BLANCO' ? 'Firmado' : 'Faltante'}
-                      </span>
+                        <Pencil className="w-3 h-3" />
+                        <span>Ver los 40 campos</span>
+                      </button>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Expediente Tab */}
+              {inspectorTab === 'expediente' && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-2 items-center">
+                  <div className="p-2 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
+                        INE
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 text-xs">Identificación Oficial</p>
+                        <p className="text-[10px] text-slate-500 font-mono">Frente y Reverso</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded-full">
+                      Vigente
+                    </span>
+                  </div>
+
+                  <div className="p-2 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
+                        CFE
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 text-xs">Comprobante Domicilio</p>
+                        <p className="text-[10px] text-slate-500 font-mono">&lt; 3 meses</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded-full">
+                      Validado
+                    </span>
+                  </div>
+
+                  <div className="p-2 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
+                        DOC
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 text-xs">Pagaré Legal</p>
+                        <p className="text-[10px] text-slate-500 font-mono">{selectedPersona.pagareEstatusId}</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded-full">
+                      Firmado
+                    </span>
                   </div>
 
                   <button
                     onClick={() => setActiveModal('expediente')}
-                    className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs transition"
+                    className="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl text-xs transition border border-blue-200 flex items-center justify-center gap-1.5"
                   >
-                    Gestionar Documentos y Subir Nuevos
+                    <FolderOpen className="w-4 h-4" />
+                    <span>Abrir Visor de Expediente</span>
                   </button>
                 </div>
               )}
 
-              {/* TAB 3: BITÁCORA Y NOTAS INTERNAS */}
+              {/* Bitácora Tab */}
               {inspectorTab === 'bitacora' && (
-                <div className="space-y-3">
-                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                    Historial de Seguimiento
-                  </span>
-
-                  {/* List of notes */}
-                  <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                  <div className="md:col-span-8 flex gap-2 overflow-x-auto py-1">
                     {(internalNotes[selectedPersona.personaId] || []).length === 0 ? (
-                      <p className="text-slate-400 text-xs text-center py-4">
-                        Sin notas registradas para este cliente.
-                      </p>
+                      <p className="text-slate-400 text-xs py-2">Sin notas registradas para este cliente.</p>
                     ) : (
                       internalNotes[selectedPersona.personaId].map((note, idx) => (
-                        <div
-                          key={idx}
-                          className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-700 text-xs space-y-1"
-                        >
-                          <p className="leading-snug">{note.text}</p>
-                          <p className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                        <div key={idx} className="min-w-[240px] p-2 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-700 text-xs shrink-0">
+                          <p className="leading-snug truncate">{note.text}</p>
+                          <p className="text-[10px] text-slate-400 font-mono flex items-center gap-1 mt-1">
                             <Clock className="w-2.5 h-2.5" />
                             <span>{note.date}</span>
                           </p>
@@ -813,29 +704,27 @@ export default function PersonasView() {
                       ))
                     )}
                   </div>
-
-                  {/* Add note input */}
-                  <div className="pt-2 border-t border-slate-100 space-y-2">
-                    <textarea
-                      rows={2}
-                      placeholder="Escribe una nota interna para este cliente..."
+                  <div className="md:col-span-4 flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="Nueva nota para este cliente..."
                       value={newNoteText}
                       onChange={(e) => setNewNoteText(e.target.value)}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900 transition bg-slate-50 focus:bg-white"
+                      className="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50 focus:bg-white"
                     />
                     <button
                       onClick={handleAddNote}
                       disabled={!newNoteText.trim()}
-                      className="w-full py-2 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition"
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-bold rounded-lg text-xs flex items-center gap-1 shrink-0"
                     >
-                      <Send className="w-3.5 h-3.5" />
-                      <span>Agregar Nota</span>
+                      <Send className="w-3 h-3" />
+                      <span>Guardar</span>
                     </button>
                   </div>
                 </div>
               )}
             </div>
-          </aside>
+          </div>
         )}
       </div>
 
