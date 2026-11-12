@@ -22,8 +22,8 @@ import * as XLSX from 'xlsx';
 
 import PerfilDistribuidorModal from './modals/PerfilDistribuidorModal';
 import CarteraDistribuidorModal from './modals/CarteraDistribuidorModal';
+import EstadoCuentaDistribuidorModal from './modals/EstadoCuentaDistribuidorModal';
 import {
-  EstadoCuentaModal,
   MensajesMasivosModal,
   QuitarCastigoModal,
   NotificacionAppModal,
@@ -816,10 +816,11 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
       />
 
       {/* MODAL 4: ESTADO DE CUENTA */}
-      <EstadoCuentaModal
+      <EstadoCuentaDistribuidorModal
         isOpen={isEstadoCuentaOpen}
         onClose={() => setIsEstadoCuentaOpen(false)}
         distribuidor={selectedDist}
+        currentUser={currentUser}
       />
 
       {/* MODAL 5: MENSAJES MASIVOS WHATSAPP */}

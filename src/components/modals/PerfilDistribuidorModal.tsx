@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   Award,
 } from 'lucide-react';
+import EstadoCuentaDistribuidorModal from './EstadoCuentaDistribuidorModal';
 
 interface PerfilDistribuidorModalProps {
   isOpen: boolean;
@@ -54,6 +55,7 @@ export default function PerfilDistribuidorModal({
   const [currentDv, setCurrentDv] = useState<DistribuidorCore>(distribuidor);
   const [searchDvInput, setSearchDvInput] = useState<string>(distribuidor.noDist.toString());
   const [isEditing, setIsEditing] = useState(false);
+  const [isEstadoCuentaOpen, setIsEstadoCuentaOpen] = useState(false);
   const [editFormData, setEditFormData] = useState<Partial<DistribuidorCore>>({});
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
@@ -100,8 +102,8 @@ export default function PerfilDistribuidorModal({
       if (onOpenRelacion) onOpenRelacion(currentDv);
       else showToast('Abriendo Relación de Cobro...');
     } else if (btnName === 'Estado de Cuenta') {
+      setIsEstadoCuentaOpen(true);
       if (onOpenEstadoCuenta) onOpenEstadoCuenta(currentDv);
-      else showToast('Abriendo Estado de Cuenta...');
     } else if (btnName === 'Notas') {
       if (onOpenNotas) onOpenNotas(currentDv);
       else showToast('Abriendo Notas de la distribuidora...');
@@ -760,6 +762,15 @@ export default function PerfilDistribuidorModal({
           </button>
         </div>
       </div>
+
+      {/* Modal Oficial de Estado de Cuenta Imprimible */}
+      {isEstadoCuentaOpen && (
+        <EstadoCuentaDistribuidorModal
+          isOpen={isEstadoCuentaOpen}
+          onClose={() => setIsEstadoCuentaOpen(false)}
+          distribuidor={currentDv}
+        />
+      )}
     </div>
   );
 }
