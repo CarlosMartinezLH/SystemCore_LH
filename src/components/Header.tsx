@@ -69,7 +69,7 @@ const PRIMARY_MODULES: NavModuleItem[] = [
   { id: 'personas', name: 'Personas', icon: Users },
   { id: 'distribuidores', name: 'Distribuidoras', icon: UserCheck },
   { id: 'mesa_credito', name: 'Mesa Crédito', icon: ClipboardCheck },
-  { id: 'dispersion', name: 'Bancos & SPEI', icon: CreditCard },
+  { id: 'dispersion', name: 'Dispersión & SPEI', icon: CreditCard },
   { id: 'gestoria', name: 'Gestoría', icon: Briefcase },
   { id: 'contabilidad', name: 'Contabilidad', icon: Receipt },
   { id: 'reportes', name: 'Reportes', icon: BarChart3 },
