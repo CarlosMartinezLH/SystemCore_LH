@@ -52,6 +52,7 @@ import {
   AmortizacionCuota,
 } from '@/types/core';
 import { getHistorialCreditosPersona } from '@/lib/data/historialCreditosData';
+import DatosBancariosPersonaView from './DatosBancariosPersonaView';
 import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
 
@@ -59,7 +60,7 @@ interface EditarClienteModalProps {
   isOpen: boolean;
   onClose: () => void;
   persona: PersonaCore | null;
-  initialTab?: 'editar' | 'opciones' | 'historial_creditos' | 'expediente' | 'notas';
+  initialTab?: 'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas';
   onSuccess?: (updated: PersonaCore) => void;
   onLaunchCanje?: () => void;
   onLaunchBuro?: () => void;
@@ -145,8 +146,8 @@ export default function EditarClienteModal({
 }: EditarClienteModalProps) {
   const { updatePersona } = useCoreSync();
 
-  // Tab activo: 'editar' | 'opciones' | 'historial_creditos' | 'expediente' | 'notas'
-  const [activeTab, setActiveTab] = useState<'editar' | 'opciones' | 'historial_creditos' | 'expediente' | 'notas'>(initialTab);
+  // Tab activo: 'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas'
+  const [activeTab, setActiveTab] = useState<'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas'>(initialTab);
 
   // Categoría en Padrón (CF, DV, AV, CO)
   const [categoria, setCategoria] = useState<CategoriaPersona>(getCategoriaPersona(persona));
@@ -599,6 +600,18 @@ export default function EditarClienteModal({
               >
                 <Receipt className="w-3.5 h-3.5" />
                 <span>Historial Créditos</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('datos_bancarios')}
+                className={`px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 ${
+                  activeTab === 'datos_bancarios'
+                    ? 'bg-white text-blue-700 shadow-xs'
+                    : 'hover:text-slate-900'
+                }`}
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>Datos Bancarios</span>
               </button>
               <button
                 type="button"
@@ -1291,8 +1304,7 @@ export default function EditarClienteModal({
                 <button
                   type="button"
                   onClick={() => {
-                    onClose();
-                    if (onLaunchBancarios) onLaunchBancarios();
+                    setActiveTab('datos_bancarios');
                   }}
                   className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
                 >
@@ -1959,6 +1971,22 @@ export default function EditarClienteModal({
               </div>
             );
           })()}
+
+          {/* ========================================================= */}
+          {/* PESTAÑA: DATOS BANCARIOS DE LA PERSONA (ERP LEGACY)        */}
+          {/* ========================================================= */}
+          {activeTab === 'datos_bancarios' && (
+            <div className="p-1">
+              <DatosBancariosPersonaView
+                persona={persona}
+                onUpdatePersona={(up) => {
+                  updatePersona(up);
+                  if (onSuccess) onSuccess(up);
+                }}
+                currentUser={currentUser}
+              />
+            </div>
+          )}
 
           {/* ========================================================= */}
           {/* PESTAÑA 3: EXPEDIENTE DIGITAL (VISOR INTEGRADO DIRECTO)   */}

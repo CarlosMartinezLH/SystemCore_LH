@@ -31,103 +31,48 @@ interface ModalProps {
 }
 
 import SolicitarBuroModal from './SolicitarBuroModal';
+import DatosBancariosPersonaView from './DatosBancariosPersonaView';
 export { SolicitarBuroModal };
 
-// 2. DATOS BANCARIOS (STP SPEI) MODAL
+// 2. DATOS BANCARIOS MODAL
 export function DatosBancariosModal({ isOpen, onClose, persona, onUpdatePersona }: ModalProps) {
-  const [banco, setBanco] = useState(persona.banco || 'BBVA México');
-  const [clabe, setClabe] = useState(persona.clabe || '012180015599881122');
-  const [validating, setValidating] = useState(false);
-  const [verified, setVerified] = useState(Boolean(persona.clabe));
-
   if (!isOpen) return null;
 
-  const handleValidarSTP = () => {
-    if (clabe.length !== 18) {
-      alert('La CLABE interbancaria debe contener exactamente 18 dígitos numéricos.');
-      return;
-    }
-    setValidating(true);
-    setTimeout(() => {
-      setValidating(false);
-      setVerified(true);
-      if (onUpdatePersona) {
-        onUpdatePersona({ ...persona, banco, clabe });
-      }
-      alert('✓ CLABE validada exitosamente con el Gateway de STP (Sistema de Transferencias y Pagos). Titular coincide con la persona.');
-    }, 1000);
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 w-full max-w-md overflow-hidden animate-in fade-in">
-        <div className="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-sm">
-            <CreditCard className="w-4 h-4 text-yellow-300" />
-            <span>Datos Bancarios para Dispersión STP</span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+        {/* Header con botón cerrar */}
+        <div className="bg-slate-100 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 font-bold text-sm text-slate-800">
+            <CreditCard className="w-4 h-4 text-blue-600" />
+            <span>Datos Bancarios</span>
           </div>
-          <button onClick={onClose} className="text-white/80 hover:text-white p-1">✕</button>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
+            title="Cerrar ventana"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        <div className="p-5 space-y-4 text-xs">
-          <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-200">
-            <span className="text-[10px] text-blue-700 font-bold block uppercase">Beneficiario Registrado</span>
-            <span className="font-bold text-slate-900 text-sm block">{persona.nombre} {persona.apellidoPaterno}</span>
-            <span className="text-[11px] font-mono text-slate-500">RFC: {persona.rfc}</span>
-          </div>
+        {/* Cuerpo con la vista legacy completa */}
+        <div className="flex-1 overflow-y-auto p-5">
+          <DatosBancariosPersonaView
+            persona={persona}
+            onUpdatePersona={onUpdatePersona}
+          />
+        </div>
 
-          <div>
-            <label className="block text-slate-700 font-bold mb-1">Institución Bancaria</label>
-            <select
-              value={banco}
-              onChange={(e) => setBanco(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-slate-300 bg-white font-medium"
-            >
-              <option value="BBVA México">012 - BBVA México</option>
-              <option value="Banorte">072 - Banorte</option>
-              <option value="Banco Azteca">127 - Banco Azteca</option>
-              <option value="Santander">014 - Santander</option>
-              <option value="Banamex">002 - Citibanamex</option>
-              <option value="Spin by OXXO">638 - Spin by OXXO</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-slate-700 font-bold mb-1">CLABE Interbancaria (18 dígitos)</label>
-            <input
-              type="text"
-              maxLength={18}
-              value={clabe}
-              onChange={(e) => {
-                setClabe(e.target.value.replace(/\D/g, ''));
-                setVerified(false);
-              }}
-              placeholder="Ej. 012180015599881122"
-              className="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-sm tracking-wider font-bold"
-            />
-            <span className="text-[10px] text-slate-400 mt-0.5 block">{clabe.length}/18 dígitos capturados</span>
-          </div>
-
-          {verified ? (
-            <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-800 text-[11px] font-bold flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Cuenta verificada con STP SPEI. Habilitada para dispersión inmediata.</span>
-            </div>
-          ) : (
-            <button
-              onClick={handleValidarSTP}
-              disabled={validating}
-              className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow transition"
-            >
-              {validating ? 'Verificando con STP...' : 'Verificar y Enlazar con STP'}
-            </button>
-          )}
-
-          <div className="pt-2 border-t border-slate-200 flex justify-end">
-            <button onClick={onClose} className="px-4 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold">
-              Cerrar
-            </button>
-          </div>
+        {/* Footer */}
+        <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs transition cursor-pointer"
+          >
+            Cerrar
+          </button>
         </div>
       </div>
     </div>

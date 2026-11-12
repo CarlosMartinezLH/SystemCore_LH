@@ -122,6 +122,17 @@ export interface CreditoHistorialPersona {
   amortizaciones?: AmortizacionCuota[];
 }
 
+export interface CuentaBancariaPersona {
+  id: number;
+  banco: string;
+  tarjetaDebito?: string;
+  clabeInterbancaria?: string;
+  numeroCuenta?: string;
+  fhRegistro: string;
+  usuarioRegistra: string;
+  esPrincipal: boolean;
+}
+
 export interface PersonaCore {
   personaId: number;
   nombre: string;
@@ -144,6 +155,7 @@ export interface PersonaCore {
   email?: string;
   clabe?: string;
   banco?: string;
+  cuentasBancarias?: CuentaBancariaPersona[];
   scoreBuro?: number;
   fotoUrl?: string;
   numeroExterior?: string;

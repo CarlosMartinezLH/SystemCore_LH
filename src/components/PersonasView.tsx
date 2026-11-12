@@ -126,7 +126,9 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
   });
 
   // Tab inicial para EditarClienteModal
-  const [editingInitialTab, setEditingInitialTab] = useState<'editar' | 'opciones' | 'historial_creditos' | 'expediente' | 'notas'>('editar');
+  const [editingInitialTab, setEditingInitialTab] = useState<
+    'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas'
+  >('editar');
 
   // Copy feedback state
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -496,6 +498,19 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                             >
                               <Receipt className="w-3 h-3 text-blue-600" />
                               <span>Créditos</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedPersonaId(p.personaId);
+                                setEditingInitialTab('datos_bancarios');
+                                setActiveModal('editar');
+                              }}
+                              className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-blue-700 font-bold text-xs inline-flex items-center gap-1 border border-slate-200 transition active:scale-95 shadow-2xs"
+                              title="Ver Datos Bancarios"
+                            >
+                              <CreditCard className="w-3 h-3 text-emerald-600" />
+                              <span>Bancos</span>
                             </button>
                             <button
                               type="button"

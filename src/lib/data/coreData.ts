@@ -24,6 +24,19 @@ export const INITIAL_PERSONAS: PersonaCore[] = [
     codigoPostal: '27000',
     localidad: 'TORREON',
     estadoNacimiento: 'COAHUILA',
+    banco: 'BANORTE',
+    cuentasBancarias: [
+      {
+        id: 150544,
+        banco: 'BANORTE',
+        tarjetaDebito: '4189140154852072',
+        clabeInterbancaria: '',
+        numeroCuenta: '',
+        fhRegistro: '12/11/2026',
+        usuarioRegistra: 'Sistema',
+        esPrincipal: true,
+      },
+    ],
   },
   {
     personaId: 122776,
@@ -43,6 +56,20 @@ export const INITIAL_PERSONAS: PersonaCore[] = [
     isDistribuidor: false,
     telefono: '8441112233',
     direccion: 'AV. CUAUHTEMOC 500, SALTILLO',
+    banco: 'BBVA BANCOMER',
+    clabe: '012180015599881122',
+    cuentasBancarias: [
+      {
+        id: 150520,
+        banco: 'BBVA BANCOMER',
+        tarjetaDebito: '4555123489012345',
+        clabeInterbancaria: '012180015599881122',
+        numeroCuenta: '1559988112',
+        fhRegistro: '10/11/2026',
+        usuarioRegistra: 'Sistema',
+        esPrincipal: true,
+      },
+    ],
   },
   {
     personaId: 122775,
