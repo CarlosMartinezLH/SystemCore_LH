@@ -13,10 +13,14 @@ import {
   ChevronDown,
   ChevronRight,
   ExternalLink,
+  Briefcase,
+  Layers,
+  DollarSign,
+  TrendingUp,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
-// Datos auténticos basados en el sistema anterior (DV #1035 DIANA YANET PEREZ MARTINEZ)
+// Datos auténticos basados en el sistema (DV #1035 DIANA YANET PEREZ MARTINEZ)
 const DEFAULT_CARTERA_DV_ITEMS: CreditoHistorialPersona[] = [
   // 1. CREDITO PROTECCION RELACION
   {
@@ -103,7 +107,7 @@ const DEFAULT_CARTERA_DV_ITEMS: CreditoHistorialPersona[] = [
     usuarioIdRegistro: 1,
     nomUsuarioRegistro: 'Sistema',
     pagosAtrasados: 0,
-    tipoDesembolso: 'SPEI',
+    tipoDesembolso: 'VALE',
     estatus: 'ACTIVO',
     pagareEstatusDesc: 'FIRMADO',
     fechaPrimerPlazo: '2026-06-15',
@@ -114,9 +118,9 @@ const DEFAULT_CARTERA_DV_ITEMS: CreditoHistorialPersona[] = [
     seguroAtrasado: 0,
     cargoAtrasado: 0,
     ivaAtrasado: 0,
-    observacion: 'Préstamo personal quincenal',
+    observacion: 'Préstamo personal a distribuidora',
     sucursal: 'SALTILLO',
-    tipo: 'PRESTAMO_PERSONAL',
+    tipo: 'PERSONAL',
     clasificacionDesc: 'PRESTAMO PERSONAL DV',
   },
   {
@@ -140,32 +144,32 @@ const DEFAULT_CARTERA_DV_ITEMS: CreditoHistorialPersona[] = [
     saldoActual: 18900.0,
     diasAtraso: 0,
     saldoAtrasado: 0,
-    fechaHoraRegistro: '2026-09-01',
-    fechaHoraDesembolso: '2026-09-01',
+    fechaHoraRegistro: '2026-09-15',
+    fechaHoraDesembolso: '2026-09-15',
     fechaHoraUltimoPago: '2026-10-31',
     valeCanje: 102,
     capitalPagado: 2062.5,
     capitalPendiente: 14437.5,
-    interesPendiente: 3484.91,
+    interesPendiente: 3484.92,
     seguroPendiente: 420,
-    ivaPendiente: 557.59,
+    ivaPendiente: 557.58,
     usuarioIdRegistro: 1,
     nomUsuarioRegistro: 'Sistema',
     pagosAtrasados: 0,
-    tipoDesembolso: 'SPEI',
+    tipoDesembolso: 'VALE',
     estatus: 'ACTIVO',
     pagareEstatusDesc: 'FIRMADO',
-    fechaPrimerPlazo: '2026-09-15',
-    fechaUltimoPlazo: '2026-12-31',
+    fechaPrimerPlazo: '2026-09-30',
+    fechaUltimoPlazo: '2027-01-15',
     capitalAtrasado: 0,
     interesAtrasado: 0,
     comisionAtrasado: 0,
     seguroAtrasado: 0,
     cargoAtrasado: 0,
     ivaAtrasado: 0,
-    observacion: 'Préstamo personal 2do ciclo',
+    observacion: 'Préstamo personal de apoyo DV',
     sucursal: 'SALTILLO',
-    tipo: 'PRESTAMO_PERSONAL',
+    tipo: 'PERSONAL',
     clasificacionDesc: 'PRESTAMO PERSONAL DV',
   },
 
@@ -289,8 +293,8 @@ const DEFAULT_CARTERA_DV_ITEMS: CreditoHistorialPersona[] = [
     saldoActual: 1153.0,
     diasAtraso: 0,
     saldoAtrasado: 0,
-    fechaHoraRegistro: '2026-04-15',
-    fechaHoraDesembolso: '2026-04-15',
+    fechaHoraRegistro: '2026-04-01',
+    fechaHoraDesembolso: '2026-04-01',
     fechaHoraUltimoPago: '2026-10-31',
     valeCanje: 355717,
     capitalPagado: 8357.14,
@@ -304,8 +308,8 @@ const DEFAULT_CARTERA_DV_ITEMS: CreditoHistorialPersona[] = [
     tipoDesembolso: 'VALE',
     estatus: 'ACTIVO',
     pagareEstatusDesc: 'FIRMADO',
-    fechaPrimerPlazo: '2026-05-01',
-    fechaUltimoPlazo: '2026-11-15',
+    fechaPrimerPlazo: '2026-04-15',
+    fechaUltimoPlazo: '2026-10-31',
     capitalAtrasado: 0,
     interesAtrasado: 0,
     comisionAtrasado: 0,
@@ -442,20 +446,20 @@ export default function CarteraDistribuidorModal({
     }));
   };
 
-  // Filtrado de créditos de cartera
-  const filteredCredits = DEFAULT_CARTERA_DV_ITEMS.filter((item) => {
+  // Filtrado de créditos por búsqueda
+  const filteredCredits = DEFAULT_CARTERA_DV_ITEMS.filter((c) => {
     if (!searchTerm.trim()) return true;
-    const q = searchTerm.toLowerCase();
+    const q = searchTerm.toLowerCase().trim();
     return (
-      item.nombreCompleto.toLowerCase().includes(q) ||
-      item.creditoId.toString().includes(q) ||
-      item.personaId.toString().includes(q) ||
-      item.producto.toLowerCase().includes(q) ||
-      item.clasificacionDesc.toLowerCase().includes(q)
+      c.nombreCompleto.toLowerCase().includes(q) ||
+      c.creditoId.toString().includes(q) ||
+      c.producto.toLowerCase().includes(q) ||
+      (c.clasificacionDesc && c.clasificacionDesc.toLowerCase().includes(q)) ||
+      (c.observacion && c.observacion.toLowerCase().includes(q))
     );
   });
 
-  // Agrupación por credito Clasificacion Desc
+  // Agrupamiento por Clasificación de Crédito
   const grouped = filteredCredits.reduce((acc, item) => {
     const key = item.clasificacionDesc || 'VALE DE DINERO';
     if (!acc[key]) acc[key] = [];
@@ -464,37 +468,35 @@ export default function CarteraDistribuidorModal({
   }, {} as Record<string, CreditoHistorialPersona[]>);
 
   // Totales Generales
-  const grandTotals = useMemo(() => {
-    return filteredCredits.reduce(
-      (acc, c) => ({
-        capital: acc.capital + c.capital,
-        interes: acc.interes + c.interes,
-        seguro: acc.seguro + c.seguro,
-        iva: acc.iva + c.iva,
-        importeTotal: acc.importeTotal + c.importeTotal,
-        abonos: acc.abonos + c.abonos,
-        pagoModa: acc.pagoModa + c.pagoModa,
-        saldoActual: acc.saldoActual + c.saldoActual,
-      }),
-      {
-        capital: 0,
-        interes: 0,
-        seguro: 0,
-        iva: 0,
-        importeTotal: 0,
-        abonos: 0,
-        pagoModa: 0,
-        saldoActual: 0,
-      }
-    );
-  }, [filteredCredits]);
+  const grandTotals = filteredCredits.reduce(
+    (acc, item) => {
+      acc.capital += item.capital;
+      acc.interes += item.interes;
+      acc.seguro += item.seguro;
+      acc.iva += item.iva;
+      acc.importeTotal += item.importeTotal;
+      acc.abonos += item.abonos;
+      acc.pagoModa += item.pagoModa;
+      acc.saldoActual += item.saldoActual;
+      return acc;
+    },
+    {
+      capital: 0,
+      interes: 0,
+      seguro: 0,
+      iva: 0,
+      importeTotal: 0,
+      abonos: 0,
+      pagoModa: 0,
+      saldoActual: 0,
+    }
+  );
 
-  // Exportar a Excel
   const handleExportXLS = () => {
     const rows = filteredCredits.map((c) => ({
       'Contrato ID': c.contratoId,
       Coordinador: c.coordinador,
-      'Credito ID': c.creditoId,
+      'Crédito ID': c.creditoId,
       'Nombre Distribuidor': c.nombreDistribuidor,
       'Distribuidor ID': c.distribuidorId,
       'Persona ID': c.personaId,
@@ -519,127 +521,130 @@ export default function CarteraDistribuidorModal({
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Cartera DV');
     XLSX.writeFile(
       workbook,
-      `cartera_dv_${distribuidor.noDist}_${new Date().toISOString().slice(0, 10)}.xlsx`
+      `Cartera_DV_${distribuidor.noDist}_${new Date().toISOString().slice(0, 10)}.xlsx`
     );
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-7xl max-h-[95vh] flex flex-col overflow-hidden text-slate-800 font-sans">
-        {/* Barra Superior de Herramientas de Cartera */}
-        <div className="bg-white p-3.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-700">Distribuidor:</span>
-            <input
-              type="text"
-              disabled
-              value={distribuidor.noDist}
-              className="w-20 px-2 py-1 text-xs font-mono font-bold bg-slate-100 border border-slate-300 rounded text-slate-900 text-center"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-full max-w-7xl max-h-[92vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-150">
+        {/* Header Superior del Modal (IDÉNTICO a Personas/EditarClienteModal) */}
+        <div className="px-5 py-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/80 shrink-0">
+          <div className="flex items-center gap-3">
+            <img
+              src="/lanahora-logo-transparent.png"
+              alt="LanAhora"
+              className="h-7 w-auto object-contain"
             />
-            <button
-              type="button"
-              onClick={() => {
-                if (onOpenDetallePerfil) onOpenDetallePerfil(distribuidor);
-              }}
-              className="px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 rounded text-xs font-bold transition cursor-pointer"
-            >
-              Ver Detalles
-            </button>
-            <span className="text-xs font-bold text-slate-900 ml-2 hidden sm:inline">
-              {distribuidor.nombreDistribuidor}
-            </span>
+            <div className="h-6 w-px bg-slate-300" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight">
+                Cartera de Clientes · {distribuidor.nombreDistribuidor}
+              </h2>
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                DV #{distribuidor.noDist}
+              </span>
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                {distribuidor.estatus} · {distribuidor.nivel}
+              </span>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex items-center gap-2">
+            {onOpenDetallePerfil && (
+              <button
+                type="button"
+                onClick={() => onOpenDetallePerfil(distribuidor)}
+                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs transition cursor-pointer"
+              >
+                Ver Detalle / Perfil
+              </button>
+            )}
             <button
-              type="button"
-              onClick={() => alert('Generando convenio para DV...')}
-              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded text-xs font-semibold transition"
-            >
-              Generar convenio
-            </button>
-            <button
-              type="button"
-              onClick={() => setSearchTerm('')}
-              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded text-xs font-semibold transition"
-            >
-              Actualizar
-            </button>
-            <button
-              type="button"
-              onClick={handleExportXLS}
-              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded text-xs font-semibold transition flex items-center gap-1"
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Exportar a excel</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => alert('Personalización de columnas disponible')}
-              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded text-xs font-semibold transition"
-            >
-              Personalizar Columnas
-            </button>
-            <button
-              type="button"
               onClick={onClose}
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition ml-2 cursor-pointer"
+              className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+              title="Cerrar modal"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Barra de Búsqueda */}
-        <div className="bg-slate-50 px-4 py-2 border-b border-slate-200 flex items-center gap-2 shrink-0">
-          <Search className="w-4 h-4 text-slate-400 shrink-0" />
-          <input
-            type="text"
-            placeholder="Introduzca el texto a buscar..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-slate-300 px-3 py-1 text-xs rounded focus:outline-none focus:border-blue-500 font-medium text-slate-900"
-          />
+        {/* Resumen Financiero de la Cartera */}
+        <div className="px-5 py-3 bg-[#f8fafc] border-b border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0">
+          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+            <span className="text-[10px] font-bold text-slate-500 block mb-0.5">Línea de Crédito</span>
+            <span className="text-sm font-extrabold text-slate-900 font-mono">
+              ${distribuidor.creditoLimite.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+            <span className="text-[10px] font-bold text-slate-500 block mb-0.5">Saldo Cartera Vigente</span>
+            <span className="text-sm font-extrabold text-slate-900 font-mono">
+              ${grandTotals.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+            <span className="text-[10px] font-bold text-slate-500 block mb-0.5">Saldo Disponible</span>
+            <span className="text-sm font-extrabold text-emerald-600 font-mono">
+              ${distribuidor.disponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+            <span className="text-[10px] font-bold text-slate-500 block mb-0.5">Créditos / Vales</span>
+            <span className="text-sm font-extrabold text-blue-700 font-mono">
+              {filteredCredits.length} activos
+            </span>
+          </div>
         </div>
 
-        {/* Píldora de Agrupamiento Activo */}
-        <div className="bg-slate-100/90 px-4 py-1.5 border-b border-slate-200 flex items-center gap-2 text-xs shrink-0">
-          <span className="text-[11px] font-bold text-slate-600 bg-white border border-slate-300 px-2 py-0.5 rounded shadow-2xs inline-flex items-center gap-1">
-            <span>credito Clasificacion Desc</span>
-            <span className="text-[9px] text-slate-400 font-mono">▲</span>
-          </span>
-          <span className="text-[11px] text-slate-400">
-            (Arrastre una columna aquí para agrupar por dicha columna)
-          </span>
+        {/* Toolbar de Búsqueda y Exportación */}
+        <div className="px-5 py-2.5 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div className="relative min-w-[260px] flex-1 max-w-md">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Buscar cliente, vale, crédito o clasificación..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900 transition"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportXLS}
+              className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition active:scale-95 cursor-pointer"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Exportar a Excel</span>
+            </button>
+          </div>
         </div>
 
         {/* Tabla Agrupada con Scroll */}
         <div className="flex-1 overflow-x-auto overflow-y-auto">
           <table className="w-full text-left text-xs border-collapse whitespace-nowrap font-sans">
-            <thead className="sticky top-0 bg-slate-200 text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-300 z-10">
+            <thead className="sticky top-0 bg-slate-100/95 backdrop-blur-xs text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-200 z-10">
               <tr>
-                <th className="p-2 border-r border-slate-300">Contrato ID</th>
-                <th className="p-2 border-r border-slate-300">Coordinador</th>
-                <th className="p-2 border-r border-slate-300">Credito ID</th>
-                <th className="p-2 border-r border-slate-300">Nombre Distribuidor</th>
-                <th className="p-2 border-r border-slate-300">Distribuidor ID</th>
-                <th className="p-2 border-r border-slate-300">Persona ID</th>
-                <th className="p-2 border-r border-slate-300">Nombre Completo</th>
-                <th className="p-2 border-r border-slate-300 text-center">Plazos</th>
-                <th className="p-2 border-r border-slate-300 text-center">Porc Tasa Mensual</th>
-                <th className="p-2 border-r border-slate-300">Producto</th>
-                <th className="p-2 border-r border-slate-300 text-right">Capital</th>
-                <th className="p-2 border-r border-slate-300 text-right">Interes</th>
-                <th className="p-2 border-r border-slate-300 text-right">Seguro</th>
-                <th className="p-2 border-r border-slate-300 text-right">IVA</th>
-                <th className="p-2 border-r border-slate-300 text-right">Importe Total</th>
-                <th className="p-2 border-r border-slate-300 text-right">Abonos</th>
-                <th className="p-2 border-r border-slate-300 text-right">Pago Moda</th>
-                <th className="p-2 border-r border-slate-300 text-right">Saldo Actual</th>
-                <th className="p-2 text-center">Dias Atraso</th>
+                <th className="px-3 py-2.5">Contrato</th>
+                <th className="px-3 py-2.5">Crédito ID</th>
+                <th className="px-3 py-2.5">Cliente Final / DV</th>
+                <th className="px-3 py-2.5 text-center">Plazos</th>
+                <th className="px-3 py-2.5">Producto</th>
+                <th className="px-3 py-2.5 text-right">Capital</th>
+                <th className="px-3 py-2.5 text-right">Interés</th>
+                <th className="px-3 py-2.5 text-right">Seguro</th>
+                <th className="px-3 py-2.5 text-right">IVA</th>
+                <th className="px-3 py-2.5 text-right">Importe Total</th>
+                <th className="px-3 py-2.5 text-right">Abonos</th>
+                <th className="px-3 py-2.5 text-right">Pago Moda</th>
+                <th className="px-3 py-2.5 text-right">Saldo Actual</th>
+                <th className="px-3 py-2.5 text-center">Días Atraso</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 text-[11px]">
+            <tbody className="divide-y divide-slate-100 font-medium">
               {Object.entries(grouped).map(([groupName, items]) => {
                 const isCollapsed = !!collapsedGroups[groupName];
 
@@ -658,20 +663,20 @@ export default function CarteraDistribuidorModal({
                     {/* Fila Encabezado de Grupo */}
                     <tr
                       onClick={() => toggleGroup(groupName)}
-                      className="bg-slate-300/80 font-bold text-slate-900 cursor-pointer hover:bg-slate-300 transition select-none"
+                      className="bg-slate-100 font-bold text-slate-900 cursor-pointer hover:bg-slate-200/80 transition select-none"
                     >
-                      <td colSpan={19} className="p-2">
-                        <div className="flex items-center gap-1.5">
+                      <td colSpan={14} className="px-3 py-2">
+                        <div className="flex items-center gap-2">
                           {isCollapsed ? (
-                            <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
                           ) : (
-                            <ChevronDown className="w-3.5 h-3.5 text-slate-600" />
+                            <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
                           )}
-                          <span>
-                            credito Clasificacion Desc: <strong>{groupName}</strong>
+                          <span className="font-extrabold text-xs tracking-wide">
+                            {groupName}
                           </span>
-                          <span className="text-slate-500 font-normal">
-                            ({items.length} créditos)
+                          <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200">
+                            {items.length} {items.length === 1 ? 'crédito' : 'créditos'}
                           </span>
                         </div>
                       </td>
@@ -680,62 +685,47 @@ export default function CarteraDistribuidorModal({
                     {/* Filas de Créditos dentro del Grupo */}
                     {!isCollapsed &&
                       items.map((c) => (
-                        <tr key={c.creditoId} className="hover:bg-blue-50/40 transition bg-white">
-                          <td className="p-2 border-r border-slate-200 font-mono text-center">
-                            {c.contratoId}
+                        <tr key={c.creditoId} className="hover:bg-slate-50 transition bg-white">
+                          <td className="px-3 py-2 font-mono text-slate-600 text-center">
+                            #{c.contratoId}
                           </td>
-                          <td className="p-2 border-r border-slate-200 font-bold text-slate-800">
-                            {c.coordinador}
+                          <td className="px-3 py-2 font-mono font-bold text-blue-600">
+                            #{c.creditoId}
                           </td>
-                          <td className="p-2 border-r border-slate-200 font-mono font-bold text-blue-600 hover:underline cursor-pointer">
-                            {c.creditoId}
-                          </td>
-                          <td className="p-2 border-r border-slate-200 font-semibold text-slate-800">
-                            {c.nombreDistribuidor}
-                          </td>
-                          <td className="p-2 border-r border-slate-200 font-mono text-center text-slate-600">
-                            {c.distribuidorId}
-                          </td>
-                          <td className="p-2 border-r border-slate-200 font-mono text-center text-slate-600">
-                            {c.personaId}
-                          </td>
-                          <td className="p-2 border-r border-slate-200 font-bold text-slate-900">
+                          <td className="px-3 py-2 font-bold text-slate-900">
                             {c.nombreCompleto}
                           </td>
-                          <td className="p-2 border-r border-slate-200 text-center font-mono">
+                          <td className="px-3 py-2 text-center font-mono">
                             {c.plazos}
                           </td>
-                          <td className="p-2 border-r border-slate-200 text-center font-mono">
-                            {c.porcTasaMensual.toFixed(2)} %
-                          </td>
-                          <td className="p-2 border-r border-slate-200 font-mono text-slate-700">
+                          <td className="px-3 py-2 text-slate-700 text-[11px]">
                             {c.producto}
                           </td>
-                          <td className="p-2 border-r border-slate-200 text-right font-mono">
-                            {c.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          <td className="px-3 py-2 text-right font-mono text-slate-700">
+                            ${c.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="p-2 border-r border-slate-200 text-right font-mono">
-                            {c.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          <td className="px-3 py-2 text-right font-mono text-slate-700">
+                            ${c.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="p-2 border-r border-slate-200 text-right font-mono">
-                            {c.seguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          <td className="px-3 py-2 text-right font-mono text-slate-700">
+                            ${c.seguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="p-2 border-r border-slate-200 text-right font-mono">
-                            {c.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          <td className="px-3 py-2 text-right font-mono text-slate-700">
+                            ${c.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
-                            {c.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          <td className="px-3 py-2 text-right font-mono font-bold text-slate-900">
+                            ${c.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="p-2 border-r border-slate-200 text-right font-mono text-emerald-700 font-semibold">
-                            {c.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          <td className="px-3 py-2 text-right font-mono text-emerald-600 font-semibold">
+                            ${c.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="p-2 border-r border-slate-200 text-right font-mono">
-                            {c.pagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          <td className="px-3 py-2 text-right font-mono text-slate-700">
+                            ${c.pagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-blue-700">
-                            {c.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          <td className="px-3 py-2 text-right font-mono font-bold text-slate-900">
+                            ${c.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="p-2 text-center font-mono font-bold text-slate-700">
+                          <td className="px-3 py-2 text-center font-mono font-bold text-emerald-600">
                             {c.diasAtraso}
                           </td>
                         </tr>
@@ -743,35 +733,35 @@ export default function CarteraDistribuidorModal({
 
                     {/* Fila Subtotal del Grupo */}
                     {!isCollapsed && (
-                      <tr className="bg-slate-100 font-bold border-b-2 border-slate-300 text-[11px]">
-                        <td colSpan={10} className="p-2 text-right border-r border-slate-200">
+                      <tr className="bg-slate-50/80 font-bold border-b border-slate-200 text-xs">
+                        <td colSpan={5} className="px-3 py-2 text-right text-slate-600">
                           Subtotal {groupName}:
                         </td>
-                        <td className="p-2 text-right font-mono border-r border-slate-200">
-                          {subCapital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        <td className="px-3 py-2 text-right font-mono text-slate-700">
+                          ${subCapital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="p-2 text-right font-mono border-r border-slate-200">
-                          {subInteres.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        <td className="px-3 py-2 text-right font-mono text-slate-700">
+                          ${subInteres.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="p-2 text-right font-mono border-r border-slate-200">
-                          {subSeguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        <td className="px-3 py-2 text-right font-mono text-slate-700">
+                          ${subSeguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="p-2 text-right font-mono border-r border-slate-200">
-                          {subIva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        <td className="px-3 py-2 text-right font-mono text-slate-700">
+                          ${subIva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="p-2 text-right font-mono text-slate-900 border-r border-slate-200">
-                          {subImporte.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        <td className="px-3 py-2 text-right font-mono font-bold text-slate-900">
+                          ${subImporte.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="p-2 text-right font-mono text-emerald-800 border-r border-slate-200">
-                          {subAbonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        <td className="px-3 py-2 text-right font-mono text-emerald-700">
+                          ${subAbonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="p-2 text-right font-mono border-r border-slate-200">
-                          {subPagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        <td className="px-3 py-2 text-right font-mono text-slate-700">
+                          ${subPagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="p-2 text-right font-mono text-blue-800 border-r border-slate-200">
-                          {subSaldo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        <td className="px-3 py-2 text-right font-mono font-bold text-blue-700">
+                          ${subSaldo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="p-2"></td>
+                        <td className="px-3 py-2"></td>
                       </tr>
                     )}
                   </React.Fragment>
@@ -780,51 +770,51 @@ export default function CarteraDistribuidorModal({
             </tbody>
 
             {/* Fila Gran Total al Fondo */}
-            <tfoot className="sticky bottom-0 bg-slate-200/95 font-extrabold text-slate-900 border-t-2 border-slate-400 text-xs shadow-md">
+            <tfoot className="sticky bottom-0 bg-slate-100 font-extrabold text-slate-900 border-t-2 border-slate-300 text-xs shadow-md">
               <tr>
-                <td colSpan={10} className="p-2.5 text-right border-r border-slate-300">
+                <td colSpan={5} className="px-3 py-2.5 text-right text-slate-800">
                   TOTAL GENERAL CARTERA:
                 </td>
-                <td className="p-2.5 text-right font-mono border-r border-slate-300">
-                  {grandTotals.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                <td className="px-3 py-2.5 text-right font-mono">
+                  ${grandTotals.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </td>
-                <td className="p-2.5 text-right font-mono border-r border-slate-300">
-                  {grandTotals.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                <td className="px-3 py-2.5 text-right font-mono">
+                  ${grandTotals.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </td>
-                <td className="p-2.5 text-right font-mono border-r border-slate-300">
-                  {grandTotals.seguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                <td className="px-3 py-2.5 text-right font-mono">
+                  ${grandTotals.seguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </td>
-                <td className="p-2.5 text-right font-mono border-r border-slate-300">
-                  {grandTotals.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                <td className="px-3 py-2.5 text-right font-mono">
+                  ${grandTotals.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </td>
-                <td className="p-2.5 text-right font-mono text-slate-950 border-r border-slate-300">
-                  {grandTotals.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                <td className="px-3 py-2.5 text-right font-mono text-slate-950 font-black">
+                  ${grandTotals.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </td>
-                <td className="p-2.5 text-right font-mono text-emerald-900 border-r border-slate-300">
-                  {grandTotals.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                <td className="px-3 py-2.5 text-right font-mono text-emerald-800 font-bold">
+                  ${grandTotals.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </td>
-                <td className="p-2.5 text-right font-mono border-r border-slate-300">
-                  {grandTotals.pagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                <td className="px-3 py-2.5 text-right font-mono">
+                  ${grandTotals.pagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </td>
-                <td className="p-2.5 text-right font-mono text-blue-900 border-r border-slate-300">
-                  {grandTotals.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                <td className="px-3 py-2.5 text-right font-mono text-blue-900 font-black">
+                  ${grandTotals.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </td>
-                <td className="p-2.5"></td>
+                <td className="px-3 py-2.5"></td>
               </tr>
             </tfoot>
           </table>
         </div>
 
         {/* Footer */}
-        <div className="bg-slate-100 px-4 py-2.5 border-t border-slate-300 flex items-center justify-between text-xs text-slate-600 shrink-0">
+        <div className="bg-slate-50 px-5 py-2.5 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600 shrink-0">
           <span>
             Mostrando <strong>{filteredCredits.length}</strong> créditos vigentes de la distribuidora
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-lg transition"
+            className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition cursor-pointer"
           >
-            Volver a Distribuidores
+            Cerrar
           </button>
         </div>
       </div>

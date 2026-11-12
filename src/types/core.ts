@@ -232,6 +232,7 @@ export interface DistribuidorCore {
   lineaLanaTienda?: number;
   disponibleLanaTienda?: number;
   perfil?: string; // ej. 'Distribuidor AAA'
+  valesActivos?: number;
   lineaPersonal?: number;
   disponiblePersonal?: number;
 }

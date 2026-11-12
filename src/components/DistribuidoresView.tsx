@@ -7,28 +7,32 @@ import { useCoreSync } from '@/context/CoreSyncContext';
 import {
   Search,
   FileSpreadsheet,
-  FileText,
-  MessageSquare,
-  Smartphone,
-  RotateCcw,
-  SlidersHorizontal,
-  Printer,
+  X,
+  RefreshCw,
+  Pencil,
+  Briefcase,
+  Users,
+  Copy,
+  Check,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Printer,
+  Award,
+  UserPlus,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 import PerfilDistribuidorModal from './modals/PerfilDistribuidorModal';
 import CarteraDistribuidorModal from './modals/CarteraDistribuidorModal';
 import EstadoCuentaDistribuidorModal from './modals/EstadoCuentaDistribuidorModal';
+import RelacionCobranzaModal from './modals/RelacionCobranzaModal';
 import {
   MensajesMasivosModal,
   QuitarCastigoModal,
   NotificacionAppModal,
 } from './modals/DistribuidorModals';
-import RelacionCobranzaModal from './modals/RelacionCobranzaModal';
 
 interface DistribuidoresViewProps {
   currentUser?: UserSession | null;
@@ -36,51 +40,101 @@ interface DistribuidoresViewProps {
 
 export default function DistribuidoresView({ currentUser }: DistribuidoresViewProps = {}) {
   const { distribuidores, updateDistribuidor } = useCoreSync();
-  const [selectedNoDist, setSelectedNoDist] = useState<number | null>(1001);
 
-  // Filtro superior único
-  const [searchTerm, setSearchTerm] = useState('');
-  const [coordinatorTopFilter, setCoordinatorTopFilter] = useState('ALL');
+  // Distribuidor seleccionado (null inicialmente, idéntico a PersonasView)
+  const [selectedNoDist, setSelectedNoDist] = useState<number | null>(null);
 
-  // Filtros individuales in-grid por columna
-  const [colFilterSucursal, setColFilterSucursal] = useState('');
-  const [colFilterZonaId, setColFilterZonaId] = useState('');
-  const [colFilterZona, setColFilterZona] = useState('');
-  const [colFilterSubzonaId, setColFilterSubzonaId] = useState('');
-  const [colFilterSubzona, setColFilterSubzona] = useState('');
-  const [colFilterCoordinador, setColFilterCoordinador] = useState('');
+  // Buscador superior único
+  const [searchFilter, setSearchFilter] = useState('');
+  const [coordinatorFilter, setCoordinatorFilter] = useState('ALL');
+  const [estatusSegment, setEstatusSegment] = useState<'TODOS' | 'ACTIVO' | 'REESTRUCTURA' | 'CANCELADO'>('TODOS');
+
+  // Filtros individuales in-grid por columna (idéntico al módulo de Personas)
   const [colFilterNoDist, setColFilterNoDist] = useState('');
   const [colFilterNombre, setColFilterNombre] = useState('');
+  const [colFilterCoordinador, setColFilterCoordinador] = useState('');
+  const [colFilterSucursal, setColFilterSucursal] = useState('');
+  const [colFilterZona, setColFilterZona] = useState('');
+  const [colFilterSubzona, setColFilterSubzona] = useState('');
   const [colFilterGenero, setColFilterGenero] = useState('TODOS');
   const [colFilterEstatus, setColFilterEstatus] = useState('TODOS');
   const [colFilterNivel, setColFilterNivel] = useState('TODOS');
   const [colFilterPerfil, setColFilterPerfil] = useState('TODOS');
-  const [colFilterSaldo, setColFilterSaldo] = useState('TODOS');
+  const [colFilterSaldo, setColFilterSaldo] = useState<'TODOS' | 'CON_SALDO' | 'SIN_SALDO'>('TODOS');
+
+  // Feedback de copiado en portapapeles
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // Modales
   const [isDetalleOpen, setIsDetalleOpen] = useState(false);
+  const [detalleInitialTab, setDetalleInitialTab] = useState<'detalle' | 'opciones' | 'cartera' | 'estado_cuenta' | 'notas'>('detalle');
   const [isCarteraOpen, setIsCarteraOpen] = useState(false);
-  const [isRelacionOpen, setIsRelacionOpen] = useState(false);
   const [isEstadoCuentaOpen, setIsEstadoCuentaOpen] = useState(false);
-  const [isNotasOpen, setIsNotasOpen] = useState(false);
+  const [isRelacionOpen, setIsRelacionOpen] = useState(false);
   const [isMensajesOpen, setIsMensajesOpen] = useState(false);
   const [isCastigoOpen, setIsCastigoOpen] = useState(false);
   const [isPushOpen, setIsPushOpen] = useState(false);
-  const [activeNotice, setActiveNotice] = useState<string | null>(null);
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const [itemsPerPage, setItemsPerPage] = useState(25);
 
-  const selectedDist =
-    distribuidores.find((d) => d.noDist === selectedNoDist) || distribuidores[0];
+  const selectedDist = useMemo(() => {
+    return distribuidores.find((d) => d.noDist === selectedNoDist) || distribuidores[0] || null;
+  }, [distribuidores, selectedNoDist]);
 
-  // Lista única de coordinadores para el selector superior
-  const coordinatorsList = useMemo(() => {
-    return Array.from(new Set(distribuidores.map((d) => d.coordinador).filter(Boolean)));
+  // Lista única de coordinadores
+  const coordinators = useMemo(() => {
+    return Array.from(new Set(distribuidores.map((d) => d.coordinador).filter(Boolean))).sort();
   }, [distribuidores]);
 
-  // Filtrado de la tabla
+  // Conteo por estatus
+  const countActivas = distribuidores.filter((d) => d.estatus === 'ACTIVO').length;
+  const countReestructura = distribuidores.filter((d) => d.estatus === 'REESTRUCTURA').length;
+  const countCanceladas = distribuidores.filter((d) => d.estatus === 'CANCELADO').length;
+
+  // Bandera de filtros activos (para mostrar botón "Limpiar" idéntico a PersonasView)
+  const hasActiveFilters =
+    searchFilter.trim() !== '' ||
+    coordinatorFilter !== 'ALL' ||
+    estatusSegment !== 'TODOS' ||
+    colFilterNoDist.trim() !== '' ||
+    colFilterNombre.trim() !== '' ||
+    colFilterCoordinador.trim() !== '' ||
+    colFilterSucursal.trim() !== '' ||
+    colFilterZona.trim() !== '' ||
+    colFilterSubzona.trim() !== '' ||
+    colFilterGenero !== 'TODOS' ||
+    colFilterEstatus !== 'TODOS' ||
+    colFilterNivel !== 'TODOS' ||
+    colFilterPerfil !== 'TODOS' ||
+    colFilterSaldo !== 'TODOS';
+
+  const handleResetFilters = () => {
+    setSearchFilter('');
+    setCoordinatorFilter('ALL');
+    setEstatusSegment('TODOS');
+    setColFilterNoDist('');
+    setColFilterNombre('');
+    setColFilterCoordinador('');
+    setColFilterSucursal('');
+    setColFilterZona('');
+    setColFilterSubzona('');
+    setColFilterGenero('TODOS');
+    setColFilterEstatus('TODOS');
+    setColFilterNivel('TODOS');
+    setColFilterPerfil('TODOS');
+    setColFilterSaldo('TODOS');
+    setCurrentPage(1);
+  };
+
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 1800);
+  };
+
+  // Filtrado reactivo de la tabla
   const filtered = useMemo(() => {
     return distribuidores.filter((d) => {
       // Alcance por sucursal de usuario institucional
@@ -91,45 +145,45 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
       }
 
       // Filtro superior por coordinador
-      if (coordinatorTopFilter !== 'ALL' && d.coordinador !== coordinatorTopFilter) {
+      if (coordinatorFilter !== 'ALL' && d.coordinador !== coordinatorFilter) {
+        return false;
+      }
+
+      // Segmented status filter
+      if (estatusSegment !== 'TODOS' && d.estatus !== estatusSegment) {
         return false;
       }
 
       // Buscador superior único
-      if (searchTerm.trim()) {
-        const q = searchTerm.toLowerCase();
+      if (searchFilter.trim()) {
+        const q = searchFilter.toLowerCase();
         const matchesGlobal =
           d.nombreDistribuidor.toLowerCase().includes(q) ||
           d.noDist.toString().includes(q) ||
           (d.coordinador && d.coordinador.toLowerCase().includes(q)) ||
           (d.sucursal && d.sucursal.toLowerCase().includes(q)) ||
-          (d.curp && d.curp.toLowerCase().includes(q));
+          (d.curp && d.curp.toLowerCase().includes(q)) ||
+          (d.telefono && d.telefono.includes(q));
         if (!matchesGlobal) return false;
       }
 
       // Filtros in-grid por columna
-      if (colFilterSucursal.trim() && !d.sucursal.toLowerCase().includes(colFilterSucursal.toLowerCase())) {
+      if (colFilterNoDist.trim() && !d.noDist.toString().includes(colFilterNoDist.trim())) {
         return false;
       }
-      if (colFilterZonaId.trim() && !(d.zonaId || '').toLowerCase().includes(colFilterZonaId.toLowerCase())) {
-        return false;
-      }
-      if (colFilterZona.trim() && !(d.zona || '').toLowerCase().includes(colFilterZona.toLowerCase())) {
-        return false;
-      }
-      if (colFilterSubzonaId.trim() && !(d.subzonaId || '').toLowerCase().includes(colFilterSubzonaId.toLowerCase())) {
-        return false;
-      }
-      if (colFilterSubzona.trim() && !(d.subzona || '').toLowerCase().includes(colFilterSubzona.toLowerCase())) {
+      if (colFilterNombre.trim() && !d.nombreDistribuidor.toLowerCase().includes(colFilterNombre.toLowerCase())) {
         return false;
       }
       if (colFilterCoordinador.trim() && !d.coordinador.toLowerCase().includes(colFilterCoordinador.toLowerCase())) {
         return false;
       }
-      if (colFilterNoDist.trim() && !d.noDist.toString().includes(colFilterNoDist.trim())) {
+      if (colFilterSucursal.trim() && !d.sucursal.toLowerCase().includes(colFilterSucursal.toLowerCase())) {
         return false;
       }
-      if (colFilterNombre.trim() && !d.nombreDistribuidor.toLowerCase().includes(colFilterNombre.toLowerCase())) {
+      if (colFilterZona.trim() && !(d.zona || d.zonaId || '').toLowerCase().includes(colFilterZona.toLowerCase())) {
+        return false;
+      }
+      if (colFilterSubzona.trim() && !(d.subzona || d.subzonaId || '').toLowerCase().includes(colFilterSubzona.toLowerCase())) {
         return false;
       }
       if (colFilterGenero !== 'TODOS' && d.genero !== colFilterGenero) {
@@ -156,16 +210,15 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
   }, [
     distribuidores,
     currentUser,
-    coordinatorTopFilter,
-    searchTerm,
-    colFilterSucursal,
-    colFilterZonaId,
-    colFilterZona,
-    colFilterSubzonaId,
-    colFilterSubzona,
-    colFilterCoordinador,
+    coordinatorFilter,
+    estatusSegment,
+    searchFilter,
     colFilterNoDist,
     colFilterNombre,
+    colFilterCoordinador,
+    colFilterSucursal,
+    colFilterZona,
+    colFilterSubzona,
     colFilterGenero,
     colFilterEstatus,
     colFilterNivel,
@@ -178,601 +231,691 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
   const paginatedDistribuidores = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return filtered.slice(start, start + itemsPerPage);
-  }, [filtered, currentPage]);
+  }, [filtered, currentPage, itemsPerPage]);
 
-  const showToast = (msg: string) => {
-    setActiveNotice(msg);
-    setTimeout(() => setActiveNotice(null), 3000);
-  };
-
-  // Manejador de botones superiores de acción
-  const handleTopActionClick = (actionName: string) => {
-    if (!selectedDist) {
-      alert('Seleccione primero una distribuidora en la tabla.');
-      return;
-    }
-
-    if (actionName === 'Relacion' || actionName === 'Relacion Recibos') {
-      setIsRelacionOpen(true);
-    } else if (actionName === 'Estado de Cuenta') {
-      setIsEstadoCuentaOpen(true);
-    } else if (actionName === 'Notas') {
-      setIsNotasOpen(true);
-    } else if (actionName === 'Mensajes masivos') {
-      setIsMensajesOpen(true);
-    } else if (actionName === 'Historial de relaciones') {
-      setIsRelacionOpen(true);
-    } else if (actionName === 'Quitar fecha castigo') {
-      setIsCastigoOpen(true);
-    } else if (actionName === 'Enviar notificación APP') {
-      setIsPushOpen(true);
-    }
-  };
-
-  // Exportar a Excel XLS
-  const handleExportXLS = () => {
-    const rows = filtered.map((d) => ({
+  // Exportar a Excel XLSX (SheetJS - Idéntico a PersonasView)
+  const handleExportExcel = () => {
+    const exportData = filtered.map((d) => ({
+      'No. Dist': d.noDist,
+      'Nombre Distribuidor': d.nombreDistribuidor,
       Sucursal: d.sucursal,
-      zonaId: d.zonaId || '',
-      zona: d.zona || '',
-      subzonaId: d.subzonaId || '',
-      subzona: d.subzona || '',
+      Zona: d.zona || d.zonaId || '',
+      Subzona: d.subzona || d.subzonaId || '',
       Coordinador: d.coordinador,
-      'No Dist': d.noDist,
-      'Nombre de Distribuidor': d.nombreDistribuidor,
-      Genero: d.genero,
+      Género: d.genero,
       Estatus: d.estatus,
       Nivel: d.nivel,
       Perfil: d.perfil || 'Distribuidor AAA',
-      'Saldo Actual': d.saldoActual,
       'Línea de Crédito': d.creditoLimite,
+      'Saldo Actual': d.saldoActual,
       Disponible: d.disponible,
       Teléfono: d.telefono,
+      CURP: d.curp,
+      'LanaApp Activa': d.tieneLanaApp ? 'SÍ' : 'NO',
     }));
 
-    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    worksheet['!cols'] = [
+      { wch: 12 },
+      { wch: 32 },
+      { wch: 16 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 28 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 12 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 16 },
+      { wch: 22 },
+      { wch: 14 },
+    ];
+
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Distribuidores');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Padrón de Distribuidores');
     XLSX.writeFile(
       workbook,
-      `distribuidores_lanahora_${new Date().toISOString().slice(0, 10)}.xlsx`
+      `Padron_Distribuidores_LanAhora_${new Date().toISOString().slice(0, 10)}.xlsx`
     );
   };
 
   return (
-    <div className="flex-1 bg-slate-100/70 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-2 sm:p-4 space-y-2">
-      {/* 1. Barra Superior de Botones de Acción (Idéntica a la Foto del ERP Anterior) */}
-      <div className="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-300 shadow-2xs flex flex-wrap items-center justify-between gap-2 text-xs">
-        {/* Selector de Coordinadores */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <span className="font-bold text-slate-700">Coordinadores</span>
-          <select
-            value={coordinatorTopFilter}
-            onChange={(e) => {
-              setCoordinatorTopFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500"
-          >
-            <option value="ALL">-- Todos --</option>
-            {coordinatorsList.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
+    <div className="flex-1 bg-[#f8fafc] text-slate-800 flex flex-col min-h-0 overflow-hidden font-sans">
+      {/* 1. Header Toolbar (Diseño IDÉNTICO a PersonasView) */}
+      <div className="px-4 lg:px-6 pt-4 pb-3">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-3">
+          {/* Buscador Único Principal */}
+          <div className="flex-1 relative min-w-[240px]">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Buscar por Nombre, No. Dist, Coordinador, Sucursal, CURP o Teléfono..."
+              value={searchFilter}
+              onChange={(e) => {
+                setSearchFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full pl-10 pr-9 py-2 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900 transition font-medium"
+            />
+            {searchFilter && (
+              <button
+                onClick={() => setSearchFilter('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
 
-        {/* Botones de Acción Superiores */}
-        <div className="flex flex-wrap items-center gap-1">
-          <button
-            type="button"
-            onClick={() => handleTopActionClick('Relacion')}
-            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
-          >
-            Relacion
-          </button>
+          {/* Acciones & Filtros Globales a la Derecha */}
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            {/* Limpiar Filtros */}
+            {hasActiveFilters && (
+              <button
+                onClick={handleResetFilters}
+                className="px-2.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs flex items-center gap-1 border border-red-200 transition active:scale-95 cursor-pointer"
+                title="Limpiar todos los filtros activos"
+              >
+                <RefreshCw className="w-3 h-3 text-red-600" />
+                <span>Limpiar</span>
+              </button>
+            )}
 
-          <button
-            type="button"
-            onClick={() => handleTopActionClick('Relacion Recibos')}
-            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
-          >
-            Relacion Recibos
-          </button>
+            {/* Selector de Coordinador */}
+            <select
+              value={coordinatorFilter}
+              onChange={(e) => {
+                setCoordinatorFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:bg-white cursor-pointer"
+            >
+              <option value="ALL">-- Todos los Coordinadores --</option>
+              {coordinators.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
 
-          <button
-            type="button"
-            onClick={() => handleTopActionClick('Estado de Cuenta')}
-            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
-          >
-            Estado de Cuenta
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTopActionClick('Notas')}
-            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
-          >
-            Notas
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTopActionClick('Mensajes masivos')}
-            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
-          >
-            Mensajes masivos
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTopActionClick('Historial de relaciones')}
-            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
-          >
-            Historial de relaciones
-          </button>
-
-          {/* Botón XLS Verde Oficial */}
-          <button
-            type="button"
-            onClick={handleExportXLS}
-            className="px-3 py-1 bg-[#4CAF50] hover:bg-[#43A047] text-white font-bold text-xs rounded transition active:scale-95 cursor-pointer shadow-2xs"
-            title="Exportar padrón a Excel"
-          >
-            XLS
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTopActionClick('Quitar fecha castigo')}
-            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
-          >
-            Quitar fecha castigo
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTopActionClick('Enviar notificación APP')}
-            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
-          >
-            Enviar notificación APP
-          </button>
+            {/* Exportar a Excel (.xlsx) */}
+            <button
+              onClick={handleExportExcel}
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 border border-emerald-600 transition active:scale-95 shadow-2xs cursor-pointer"
+              title="Descargar padrón completo en Microsoft Excel (.xlsx)"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-white" />
+              <span>Exportar a Excel</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 2. Barra Única de Búsqueda Superior */}
-      <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-300 shadow-2xs flex items-center gap-2">
-        <Search className="w-4 h-4 text-slate-400 shrink-0" />
-        <input
-          type="text"
-          placeholder="Introduzca el texto a buscar..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="w-full text-xs bg-transparent focus:outline-none text-slate-800 font-medium placeholder-slate-400"
-        />
-        {searchTerm && (
-          <button
-            onClick={() => setSearchTerm('')}
-            className="text-xs text-slate-400 hover:text-slate-600 font-bold"
-          >
-            ✕
-          </button>
-        )}
-      </div>
-
-      {/* 3. Indicador de Agrupación de Columnas */}
-      <div className="px-2 py-0.5 text-[11px] text-slate-500 italic">
-        Arrastre una columna aquí para agrupar por dicha columna
-      </div>
-
-      {/* 4. Tabla Principal de Distribuidores con Filtros In-Grid */}
-      <div className="bg-white rounded-xl border border-slate-300 shadow-sm overflow-hidden flex-1 flex flex-col min-h-0">
-        <div className="overflow-x-auto flex-1">
-          <table className="w-full text-left text-xs border-collapse whitespace-nowrap font-sans">
-            {/* Encabezados Principales */}
-            <thead className="sticky top-0 bg-slate-200 text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-300 z-10">
-              <tr>
-                <th className="p-2 border-r border-slate-300 text-center">Detalle</th>
-                <th className="p-2 border-r border-slate-300 text-center">Cartera</th>
-                <th className="p-2 border-r border-slate-300">Sucursal</th>
-                <th className="p-2 border-r border-slate-300">zonaId</th>
-                <th className="p-2 border-r border-slate-300">zona</th>
-                <th className="p-2 border-r border-slate-300">subzonaId</th>
-                <th className="p-2 border-r border-slate-300">subzona</th>
-                <th className="p-2 border-r border-slate-300">Coordinador</th>
-                <th className="p-2 border-r border-slate-300">No Dist</th>
-                <th className="p-2 border-r border-slate-300">Nombre de Distribuidor</th>
-                <th className="p-2 border-r border-slate-300 text-center">Genero</th>
-                <th className="p-2 border-r border-slate-300 text-center">Estatus</th>
-                <th className="p-2 border-r border-slate-300 text-center">Nivel</th>
-                <th className="p-2 border-r border-slate-300">Perfil</th>
-                <th className="p-2 text-right">Saldo Actual</th>
-              </tr>
-
-              {/* Fila de Filtros In-Grid Abajo de Cada Columna */}
-              <tr className="bg-slate-100 font-normal lowercase border-t border-slate-300">
-                <th className="p-1 border-r border-slate-300"></th>
-                <th className="p-1 border-r border-slate-300"></th>
-                {/* Sucursal */}
-                <th className="p-1 border-r border-slate-300">
-                  <input
-                    type="text"
-                    value={colFilterSucursal}
-                    onChange={(e) => {
-                      setColFilterSucursal(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
-                  />
-                </th>
-                {/* zonaId */}
-                <th className="p-1 border-r border-slate-300">
-                  <input
-                    type="text"
-                    value={colFilterZonaId}
-                    onChange={(e) => {
-                      setColFilterZonaId(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
-                  />
-                </th>
-                {/* zona */}
-                <th className="p-1 border-r border-slate-300">
-                  <input
-                    type="text"
-                    value={colFilterZona}
-                    onChange={(e) => {
-                      setColFilterZona(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
-                  />
-                </th>
-                {/* subzonaId */}
-                <th className="p-1 border-r border-slate-300">
-                  <input
-                    type="text"
-                    value={colFilterSubzonaId}
-                    onChange={(e) => {
-                      setColFilterSubzonaId(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
-                  />
-                </th>
-                {/* subzona */}
-                <th className="p-1 border-r border-slate-300">
-                  <input
-                    type="text"
-                    value={colFilterSubzona}
-                    onChange={(e) => {
-                      setColFilterSubzona(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
-                  />
-                </th>
-                {/* Coordinador */}
-                <th className="p-1 border-r border-slate-300">
-                  <input
-                    type="text"
-                    value={colFilterCoordinador}
-                    onChange={(e) => {
-                      setColFilterCoordinador(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
-                  />
-                </th>
-                {/* No Dist */}
-                <th className="p-1 border-r border-slate-300">
-                  <input
-                    type="text"
-                    value={colFilterNoDist}
-                    onChange={(e) => {
-                      setColFilterNoDist(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-mono font-normal text-slate-800 focus:outline-none focus:border-blue-500"
-                  />
-                </th>
-                {/* Nombre de Distribuidor */}
-                <th className="p-1 border-r border-slate-300">
-                  <input
-                    type="text"
-                    value={colFilterNombre}
-                    onChange={(e) => {
-                      setColFilterNombre(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
-                  />
-                </th>
-                {/* Genero */}
-                <th className="p-1 border-r border-slate-300">
-                  <select
-                    value={colFilterGenero}
-                    onChange={(e) => {
-                      setColFilterGenero(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[10px] bg-white border border-slate-300 rounded text-slate-800 font-normal focus:outline-none"
-                  >
-                    <option value="TODOS">(Todos)</option>
-                    <option value="FEMENINO">FEMENINO</option>
-                    <option value="MASCULINO">MASCULINO</option>
-                    <option value="NO DEFINIDO">NO DEFINIDO</option>
-                  </select>
-                </th>
-                {/* Estatus */}
-                <th className="p-1 border-r border-slate-300">
-                  <select
-                    value={colFilterEstatus}
-                    onChange={(e) => {
-                      setColFilterEstatus(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[10px] bg-white border border-slate-300 rounded text-slate-800 font-normal focus:outline-none"
-                  >
-                    <option value="TODOS">(Todos)</option>
-                    <option value="ACTIVO">ACTIVO</option>
-                    <option value="CANCELADO">CANCELADO</option>
-                    <option value="REESTRUCTURA">REESTRUCTURA</option>
-                  </select>
-                </th>
-                {/* Nivel */}
-                <th className="p-1 border-r border-slate-300">
-                  <select
-                    value={colFilterNivel}
-                    onChange={(e) => {
-                      setColFilterNivel(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[10px] bg-white border border-slate-300 rounded text-slate-800 font-normal focus:outline-none"
-                  >
-                    <option value="TODOS">(Todos)</option>
-                    <option value="BRONCE">BRONCE</option>
-                    <option value="PLATA">PLATA</option>
-                    <option value="ORO">ORO</option>
-                    <option value="DIAMANTE">DIAMANTE</option>
-                  </select>
-                </th>
-                {/* Perfil */}
-                <th className="p-1 border-r border-slate-300">
-                  <select
-                    value={colFilterPerfil}
-                    onChange={(e) => {
-                      setColFilterPerfil(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[10px] bg-white border border-slate-300 rounded text-slate-800 font-normal focus:outline-none"
-                  >
-                    <option value="TODOS">(Todos)</option>
-                    <option value="Distribuidor AAA">Distribuidor AAA</option>
-                    <option value="Distribuidor AA">Distribuidor AA</option>
-                    <option value="Distribuidor A">Distribuidor A</option>
-                  </select>
-                </th>
-                {/* Saldo Actual */}
-                <th className="p-1">
-                  <select
-                    value={colFilterSaldo}
-                    onChange={(e) => {
-                      setColFilterSaldo(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1 py-0.5 text-[10px] bg-white border border-slate-300 rounded text-slate-800 font-normal focus:outline-none"
-                  >
-                    <option value="TODOS">(Todos)</option>
-                    <option value="CON_SALDO">Con Saldo</option>
-                    <option value="SIN_SALDO">$0.00</option>
-                  </select>
-                </th>
-              </tr>
-            </thead>
-
-            {/* Filas de Datos */}
-            <tbody className="divide-y divide-slate-200 text-[11px]">
-              {paginatedDistribuidores.map((d) => {
-                const isSelected = selectedNoDist === d.noDist;
-                return (
-                  <tr
-                    key={d.noDist}
-                    onClick={() => setSelectedNoDist(d.noDist)}
-                    className={`cursor-pointer transition ${
-                      isSelected ? 'bg-blue-100/70 font-semibold' : 'hover:bg-blue-50/40 bg-white'
-                    }`}
-                  >
-                    {/* Botón Detalle -> PerfilDistribuidorModal */}
-                    <td className="p-1.5 border-r border-slate-200 text-center">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedNoDist(d.noDist);
-                          setIsDetalleOpen(true);
-                        }}
-                        className="text-blue-600 hover:text-blue-800 underline font-medium cursor-pointer"
-                      >
-                        Detalle
-                      </button>
-                    </td>
-
-                    {/* Botón Cartera -> CarteraDistribuidorModal */}
-                    <td className="p-1.5 border-r border-slate-200 text-center">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedNoDist(d.noDist);
-                          setIsCarteraOpen(true);
-                        }}
-                        className="text-blue-600 hover:text-blue-800 underline font-medium cursor-pointer"
-                      >
-                        Cartera
-                      </button>
-                    </td>
-
-                    <td className="p-1.5 border-r border-slate-200 text-slate-800">{d.sucursal}</td>
-                    <td className="p-1.5 border-r border-slate-200 font-mono text-center text-slate-600">
-                      {d.zonaId || ''}
-                    </td>
-                    <td className="p-1.5 border-r border-slate-200 text-center text-slate-600">
-                      {d.zona || ''}
-                    </td>
-                    <td className="p-1.5 border-r border-slate-200 font-mono text-center text-slate-600">
-                      {d.subzonaId || ''}
-                    </td>
-                    <td className="p-1.5 border-r border-slate-200 text-center text-slate-600">
-                      {d.subzona || ''}
-                    </td>
-                    <td className="p-1.5 border-r border-slate-200 text-slate-800 font-medium">
-                      {d.coordinador}
-                    </td>
-                    <td className="p-1.5 border-r border-slate-200 font-mono font-bold text-slate-900">
-                      {d.noDist}
-                    </td>
-                    <td className="p-1.5 border-r border-slate-200 font-bold text-slate-900">
-                      {d.nombreDistribuidor}
-                    </td>
-                    <td className="p-1.5 border-r border-slate-200 text-center text-slate-600">
-                      {d.genero}
-                    </td>
-                    <td className="p-1.5 border-r border-slate-200 text-center">
-                      <span
-                        className={`font-bold ${
-                          d.estatus === 'ACTIVO'
-                            ? 'text-emerald-700'
-                            : d.estatus === 'REESTRUCTURA'
-                            ? 'text-amber-700'
-                            : 'text-slate-500'
-                        }`}
-                      >
-                        {d.estatus}
-                      </span>
-                    </td>
-                    <td className="p-1.5 border-r border-slate-200 text-center font-bold text-slate-700">
-                      {d.nivel}
-                    </td>
-                    <td className="p-1.5 border-r border-slate-200 text-slate-700">
-                      {d.perfil || 'Distribuidor AAA'}
-                    </td>
-                    <td className="p-1.5 text-right font-mono font-bold text-slate-900">
-                      ${(d.saldoActual || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* 5. Barra Inferior de Paginación (Fiel al ERP Legacy: Página 1 de 145 (7204 elementos)) */}
-        <div className="bg-slate-100 px-4 py-2 border-t border-slate-300 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-700 shrink-0 select-none">
-          <div className="flex items-center gap-3">
-            <span>
-              Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({filtered.length} elementos)
+      {/* 2. Main Workspace: Full-Width Table 100% (Diseño IDÉNTICO a PersonasView) */}
+      <div className="flex-1 flex flex-col min-h-0 px-4 lg:px-6 pb-4 overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
+          {/* Sub-header con conteo y segmented filter de estatus */}
+          <div className="px-4 py-2 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 bg-slate-50/60 shrink-0">
+            <span className="text-xs text-slate-600 font-medium">
+              Mostrando <strong className="text-slate-900 font-bold">{filtered.length}</strong> de {distribuidores.length} distribuidoras registradas
             </span>
 
-            {/* Controles de página */}
-            <div className="inline-flex items-center gap-1">
+            {/* Segmented status filter (idéntico a PersonasView) */}
+            <div className="inline-flex p-0.5 bg-slate-200/70 rounded-lg border border-slate-300/60 text-[11px] font-bold">
               <button
                 type="button"
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-                className="p-1 rounded hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                title="Primera página"
+                onClick={() => {
+                  setEstatusSegment('TODOS');
+                  setCurrentPage(1);
+                }}
+                className={`px-2.5 py-1 rounded-md transition ${
+                  estatusSegment === 'TODOS'
+                    ? 'bg-white text-slate-900 shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
               >
-                <ChevronsLeft className="w-3.5 h-3.5" />
+                Todos ({distribuidores.length})
               </button>
 
               <button
                 type="button"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="p-1 rounded hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                title="Página anterior"
+                onClick={() => {
+                  setEstatusSegment('ACTIVO');
+                  setCurrentPage(1);
+                }}
+                className={`px-2.5 py-1 rounded-md transition flex items-center gap-1.5 ${
+                  estatusSegment === 'ACTIVO'
+                    ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
               >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-
-              {/* Botones numéricos de página */}
-              {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                const pageNum = i + 1;
-                return (
-                  <button
-                    key={pageNum}
-                    type="button"
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`px-2 py-0.5 rounded text-xs font-bold transition ${
-                      currentPage === pageNum
-                        ? 'bg-blue-600 text-white'
-                        : 'text-slate-700 hover:bg-slate-200'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-
-              {totalPages > 5 && <span className="px-1 text-slate-400">...</span>}
-
-              {totalPages > 5 && (
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage(totalPages)}
-                  className={`px-2 py-0.5 rounded text-xs font-bold transition ${
-                    currentPage === totalPages
-                      ? 'bg-blue-600 text-white'
-                      : 'text-slate-700 hover:bg-slate-200'
-                  }`}
-                >
-                  {totalPages}
-                </button>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="p-1 rounded hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                title="Página siguiente"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span>Activas ({countActivas})</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
-                className="p-1 rounded hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                title="Última página"
+                onClick={() => {
+                  setEstatusSegment('REESTRUCTURA');
+                  setCurrentPage(1);
+                }}
+                className={`px-2.5 py-1 rounded-md transition flex items-center gap-1.5 ${
+                  estatusSegment === 'REESTRUCTURA'
+                    ? 'bg-white text-amber-700 shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
               >
-                <ChevronsRight className="w-3.5 h-3.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                <span>Reestructura ({countReestructura})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEstatusSegment('CANCELADO');
+                  setCurrentPage(1);
+                }}
+                className={`px-2.5 py-1 rounded-md transition flex items-center gap-1.5 ${
+                  estatusSegment === 'CANCELADO'
+                    ? 'bg-white text-slate-700 shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                <span>Canceladas ({countCanceladas})</span>
               </button>
             </div>
           </div>
 
-          <div className="text-[11px] text-slate-500 font-mono">
-            Sistema LanAhora · Cartera de Distribuidores
+          {/* Tabla de Datos con Scroll */}
+          <div className="flex-1 overflow-x-auto overflow-y-auto">
+            <table className="w-full text-left text-xs border-collapse whitespace-nowrap font-sans">
+              <thead className="sticky top-0 bg-slate-100/95 backdrop-blur-xs text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-200 z-10">
+                <tr>
+                  <th className="px-2.5 py-2.5">No Dist</th>
+                  <th className="px-2.5 py-2.5">Nombre Distribuidor</th>
+                  <th className="px-2.5 py-2.5">Coordinador</th>
+                  <th className="px-2.5 py-2.5">Sucursal</th>
+                  <th className="px-2.5 py-2.5 text-center">Zona</th>
+                  <th className="px-2.5 py-2.5 text-center">Subzona</th>
+                  <th className="px-2.5 py-2.5 text-center">Género</th>
+                  <th className="px-2.5 py-2.5 text-center">Estatus</th>
+                  <th className="px-2.5 py-2.5 text-center">Nivel</th>
+                  <th className="px-2.5 py-2.5">Perfil</th>
+                  <th className="px-2.5 py-2.5 text-right">Línea Crédito</th>
+                  <th className="px-2.5 py-2.5 text-right">Saldo Actual</th>
+                  <th className="px-2.5 py-2.5 text-right">Disponible</th>
+                  <th className="px-3 py-2.5 text-center sticky right-0 bg-slate-100 z-10 shadow-[-1px_0_0_0_#e2e8f0]">
+                    Acciones
+                  </th>
+                </tr>
+
+                {/* Fila de Filtros In-Grid debajo de cada columna (idéntico a PersonasView) */}
+                <tr className="bg-slate-50/95 border-t border-slate-200/80 font-normal lowercase">
+                  {/* No Dist */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Filtrar..."
+                      value={colFilterNoDist}
+                      onChange={(e) => {
+                        setColFilterNoDist(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-mono font-normal focus:outline-none focus:border-blue-500"
+                    />
+                  </th>
+
+                  {/* Nombre Distribuidor */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Filtrar..."
+                      value={colFilterNombre}
+                      onChange={(e) => {
+                        setColFilterNombre(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    />
+                  </th>
+
+                  {/* Coordinador */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Filtrar..."
+                      value={colFilterCoordinador}
+                      onChange={(e) => {
+                        setColFilterCoordinador(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    />
+                  </th>
+
+                  {/* Sucursal */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Filtrar..."
+                      value={colFilterSucursal}
+                      onChange={(e) => {
+                        setColFilterSucursal(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    />
+                  </th>
+
+                  {/* Zona */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Zona..."
+                      value={colFilterZona}
+                      onChange={(e) => {
+                        setColFilterZona(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500 text-center"
+                    />
+                  </th>
+
+                  {/* Subzona */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Sub..."
+                      value={colFilterSubzona}
+                      onChange={(e) => {
+                        setColFilterSubzona(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500 text-center"
+                    />
+                  </th>
+
+                  {/* Género */}
+                  <th className="p-1">
+                    <select
+                      value={colFilterGenero}
+                      onChange={(e) => {
+                        setColFilterGenero(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1 py-1 text-[10px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="TODOS">(Todos)</option>
+                      <option value="FEMENINO">FEMENINO</option>
+                      <option value="MASCULINO">MASCULINO</option>
+                      <option value="NO DEFINIDO">NO DEF</option>
+                    </select>
+                  </th>
+
+                  {/* Estatus */}
+                  <th className="p-1">
+                    <select
+                      value={colFilterEstatus}
+                      onChange={(e) => {
+                        setColFilterEstatus(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1 py-1 text-[10px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="TODOS">(Todos)</option>
+                      <option value="ACTIVO">ACTIVO</option>
+                      <option value="CANCELADO">CANCELADO</option>
+                      <option value="REESTRUCTURA">REESTRUCTURA</option>
+                    </select>
+                  </th>
+
+                  {/* Nivel */}
+                  <th className="p-1">
+                    <select
+                      value={colFilterNivel}
+                      onChange={(e) => {
+                        setColFilterNivel(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1 py-1 text-[10px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="TODOS">(Todos)</option>
+                      <option value="BRONCE">BRONCE</option>
+                      <option value="PLATA">PLATA</option>
+                      <option value="ORO">ORO</option>
+                      <option value="DIAMANTE">DIAMANTE</option>
+                    </select>
+                  </th>
+
+                  {/* Perfil */}
+                  <th className="p-1">
+                    <select
+                      value={colFilterPerfil}
+                      onChange={(e) => {
+                        setColFilterPerfil(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1 py-1 text-[10px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="TODOS">(Todos)</option>
+                      <option value="Distribuidor AAA">Dist. AAA</option>
+                      <option value="Distribuidor AA">Dist. AA</option>
+                      <option value="Distribuidor A">Dist. A</option>
+                    </select>
+                  </th>
+
+                  {/* Línea Crédito */}
+                  <th className="p-1"></th>
+
+                  {/* Saldo Actual */}
+                  <th className="p-1">
+                    <select
+                      value={colFilterSaldo}
+                      onChange={(e) => {
+                        setColFilterSaldo(e.target.value as any);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1 py-1 text-[10px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="TODOS">(Todos)</option>
+                      <option value="CON_SALDO">Con Saldo</option>
+                      <option value="SIN_SALDO">$0.00</option>
+                    </select>
+                  </th>
+
+                  {/* Disponible */}
+                  <th className="p-1"></th>
+
+                  {/* Acciones */}
+                  <th className="p-1 text-center sticky right-0 bg-slate-50 z-10 shadow-[-1px_0_0_0_#e2e8f0]">
+                    {hasActiveFilters && (
+                      <button
+                        onClick={handleResetFilters}
+                        title="Limpiar filtros"
+                        className="px-2 py-0.5 text-[10px] text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded font-bold border border-red-200 cursor-pointer"
+                      >
+                        Limpiar
+                      </button>
+                    )}
+                  </th>
+                </tr>
+              </thead>
+
+              {/* Cuerpo de la Tabla */}
+              <tbody className="divide-y divide-slate-100 font-sans">
+                {paginatedDistribuidores.length === 0 ? (
+                  <tr>
+                    <td colSpan={14} className="py-12 text-center text-slate-400">
+                      No se encontraron distribuidoras con los filtros aplicados.
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedDistribuidores.map((d) => {
+                    const isSelected = selectedNoDist === d.noDist;
+
+                    return (
+                      <tr
+                        key={d.noDist}
+                        onClick={() => setSelectedNoDist(d.noDist)}
+                        className={`transition-colors group cursor-pointer ${
+                          isSelected
+                            ? 'bg-blue-50/70 font-semibold'
+                            : 'hover:bg-slate-50/80 bg-white'
+                        }`}
+                      >
+                        {/* No. Dist (con botón de copiar rápido) */}
+                        <td className="px-2.5 py-2 font-mono font-bold text-blue-600">
+                          <div className="flex items-center gap-1.5">
+                            <span>#{d.noDist}</span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                copyToClipboard(d.noDist.toString(), `dist-${d.noDist}`);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-slate-600 transition p-0.5 cursor-pointer"
+                              title="Copiar No. de Distribuidor"
+                            >
+                              {copiedKey === `dist-${d.noDist}` ? (
+                                <Check className="w-3 h-3 text-emerald-600" />
+                              ) : (
+                                <Copy className="w-3 h-3" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Nombre del Distribuidor */}
+                        <td className="px-2.5 py-2 font-bold text-slate-900">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[10px] font-black tracking-wider border font-mono shrink-0 shadow-2xs ${
+                                d.nivel === 'DIAMANTE'
+                                  ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                  : d.nivel === 'ORO'
+                                  ? 'bg-yellow-50 text-yellow-800 border-yellow-200'
+                                  : d.nivel === 'PLATA'
+                                  ? 'bg-slate-100 text-slate-700 border-slate-200'
+                                  : 'bg-amber-50 text-amber-800 border-amber-200'
+                              }`}
+                              title={`Nivel: ${d.nivel}`}
+                            >
+                              {d.nivel.slice(0, 3)}
+                            </span>
+                            <span>{d.nombreDistribuidor}</span>
+                          </div>
+                        </td>
+
+                        {/* Coordinador */}
+                        <td className="px-2.5 py-2 text-slate-700 font-medium">
+                          {d.coordinador}
+                        </td>
+
+                        {/* Sucursal */}
+                        <td className="px-2.5 py-2 text-slate-600">
+                          {d.sucursal}
+                        </td>
+
+                        {/* Zona */}
+                        <td className="px-2.5 py-2 text-center text-slate-600 font-mono">
+                          {d.zona || d.zonaId || '-'}
+                        </td>
+
+                        {/* Subzona */}
+                        <td className="px-2.5 py-2 text-center text-slate-600 font-mono">
+                          {d.subzona || d.subzonaId || '-'}
+                        </td>
+
+                        {/* Género */}
+                        <td className="px-2.5 py-2 text-center text-slate-500 text-[11px]">
+                          {d.genero}
+                        </td>
+
+                        {/* Estatus */}
+                        <td className="px-2.5 py-2 text-center">
+                          <span
+                            className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                              d.estatus === 'ACTIVO'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : d.estatus === 'REESTRUCTURA'
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : 'bg-slate-100 text-slate-600 border border-slate-200'
+                            }`}
+                          >
+                            {d.estatus}
+                          </span>
+                        </td>
+
+                        {/* Nivel */}
+                        <td className="px-2.5 py-2 text-center">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${
+                              d.nivel === 'DIAMANTE'
+                                ? 'bg-purple-100 text-purple-900 border border-purple-200'
+                                : d.nivel === 'ORO'
+                                ? 'bg-yellow-100 text-yellow-900 border border-yellow-300'
+                                : d.nivel === 'PLATA'
+                                ? 'bg-slate-200 text-slate-800 border border-slate-300'
+                                : 'bg-amber-100 text-amber-900 border border-amber-300'
+                            }`}
+                          >
+                            {d.nivel}
+                          </span>
+                        </td>
+
+                        {/* Perfil */}
+                        <td className="px-2.5 py-2 text-slate-600 text-[11px]">
+                          {d.perfil || 'Distribuidor AAA'}
+                        </td>
+
+                        {/* Línea de Crédito */}
+                        <td className="px-2.5 py-2 text-right font-mono text-slate-700">
+                          ${d.creditoLimite.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        </td>
+
+                        {/* Saldo Actual */}
+                        <td className="px-2.5 py-2 text-right font-mono font-bold text-slate-900">
+                          ${(d.saldoActual || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        </td>
+
+                        {/* Disponible */}
+                        <td className="px-2.5 py-2 text-right font-mono font-bold text-emerald-600">
+                          ${d.disponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        </td>
+
+                        {/* Columna Acciones (Sticky Right - IDÉNTICA a PersonasView) */}
+                        <td
+                          className="px-2.5 py-2 text-center sticky right-0 bg-white group-hover:bg-slate-50 z-10 shadow-[-1px_0_0_0_#f1f5f9]"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="inline-flex items-center gap-1.5">
+                            {/* Botón Detalle -> PerfilDistribuidorModal (Tab Detalle) */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedNoDist(d.noDist);
+                                setDetalleInitialTab('detalle');
+                                setIsDetalleOpen(true);
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs inline-flex items-center gap-1 border border-blue-200 transition active:scale-95 shadow-2xs cursor-pointer"
+                              title="Ver y editar detalle del distribuidor"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                              <span>Detalle</span>
+                            </button>
+
+                            {/* Botón Cartera -> CarteraDistribuidorModal */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedNoDist(d.noDist);
+                                setIsCarteraOpen(true);
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs inline-flex items-center gap-1 border border-emerald-200 transition active:scale-95 shadow-2xs cursor-pointer"
+                              title="Ver cartera de clientes y créditos"
+                            >
+                              <Briefcase className="w-3.5 h-3.5 text-emerald-700" />
+                              <span>Cartera</span>
+                            </button>
+
+                            {/* Botón Estado de Cuenta directo */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedNoDist(d.noDist);
+                                setIsEstadoCuentaOpen(true);
+                              }}
+                              className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs inline-flex items-center gap-1 border border-slate-200 transition active:scale-95 shadow-2xs cursor-pointer"
+                              title="Generar Estado de Cuenta imprimible"
+                            >
+                              <Printer className="w-3.5 h-3.5 text-slate-600" />
+                              <span>Edo. Cta</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 3. Footer de Paginación Moderno (IDÉNTICO a PersonasView) */}
+          <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/60 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 shrink-0">
+            <div className="flex items-center gap-2">
+              <span>Filas por página:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none"
+              >
+                <option value={15}>15</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-slate-600">
+                Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+              </span>
+
+              <div className="inline-flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Primera página"
+                >
+                  <ChevronsLeft className="w-3.5 h-3.5 text-slate-600" />
+                </button>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Página anterior"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5 text-slate-600" />
+                </button>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Página siguiente"
+                >
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+                </button>
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Última página"
+                >
+                  <ChevronsRight className="w-3.5 h-3.5 text-slate-600" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* MODAL 1: PERFIL DEL DISTRIBUIDOR (DETALLE) */}
+      {/* MODAL 1: PERFIL DEL DISTRIBUIDOR (DETALLE MODERNO CON PESTAÑAS) */}
       {isDetalleOpen && selectedDist && (
         <PerfilDistribuidorModal
           isOpen={isDetalleOpen}
           onClose={() => setIsDetalleOpen(false)}
           distribuidor={selectedDist}
+          initialTab={detalleInitialTab}
           onSelectDv={(noDist) => setSelectedNoDist(noDist)}
           onOpenCartera={(d) => {
-            setIsDetalleOpen(false);
             setSelectedNoDist(d.noDist);
             setIsCarteraOpen(true);
           }}
@@ -784,10 +927,6 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
             setSelectedNoDist(d.noDist);
             setIsEstadoCuentaOpen(true);
           }}
-          onOpenNotas={(d) => {
-            setSelectedNoDist(d.noDist);
-            setIsNotasOpen(true);
-          }}
           onOpenCastigo={(d) => {
             setSelectedNoDist(d.noDist);
             setIsCastigoOpen(true);
@@ -795,7 +934,7 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
         />
       )}
 
-      {/* MODAL 2: CARTERA DEL DISTRIBUIDOR (DETALLE DE CLIENTES & CRÉDITOS) */}
+      {/* MODAL 2: CARTERA DEL DISTRIBUIDOR */}
       {isCarteraOpen && selectedDist && (
         <CarteraDistribuidorModal
           isOpen={isCarteraOpen}
@@ -803,46 +942,49 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
           distribuidor={selectedDist}
           onOpenDetallePerfil={(d) => {
             setSelectedNoDist(d.noDist);
+            setDetalleInitialTab('detalle');
             setIsDetalleOpen(true);
           }}
         />
       )}
 
-      {/* MODAL 3: RELACIÓN DE COBRANZA QUINCENAL */}
+      {/* MODAL 3: ESTADO DE CUENTA OFICIAL IMPRIMIBLE */}
+      {isEstadoCuentaOpen && selectedDist && (
+        <EstadoCuentaDistribuidorModal
+          isOpen={isEstadoCuentaOpen}
+          onClose={() => setIsEstadoCuentaOpen(false)}
+          distribuidor={selectedDist}
+          currentUser={currentUser}
+        />
+      )}
+
+      {/* MODAL 4: RELACIÓN DE COBRANZA */}
       <RelacionCobranzaModal
         isOpen={isRelacionOpen}
         onClose={() => setIsRelacionOpen(false)}
-        distribuidor={selectedDist}
-      />
-
-      {/* MODAL 4: ESTADO DE CUENTA */}
-      <EstadoCuentaDistribuidorModal
-        isOpen={isEstadoCuentaOpen}
-        onClose={() => setIsEstadoCuentaOpen(false)}
-        distribuidor={selectedDist}
-        currentUser={currentUser}
+        distribuidor={selectedDist || distribuidores[0]}
       />
 
       {/* MODAL 5: MENSAJES MASIVOS WHATSAPP */}
       <MensajesMasivosModal
         isOpen={isMensajesOpen}
         onClose={() => setIsMensajesOpen(false)}
-        distribuidor={selectedDist}
+        distribuidor={selectedDist || distribuidores[0]}
       />
 
       {/* MODAL 6: QUITAR FECHA CASTIGO */}
       <QuitarCastigoModal
         isOpen={isCastigoOpen}
         onClose={() => setIsCastigoOpen(false)}
-        distribuidor={selectedDist}
+        distribuidor={selectedDist || distribuidores[0]}
         onUpdateDistribuidor={(up) => updateDistribuidor(up)}
       />
 
-      {/* MODAL 7: NOTIFICACIÓN PUSH LANAAPP */}
+      {/* MODAL 7: NOTIFICACIÓN PUSH APP */}
       <NotificacionAppModal
         isOpen={isPushOpen}
         onClose={() => setIsPushOpen(false)}
-        distribuidor={selectedDist}
+        distribuidor={selectedDist || distribuidores[0]}
       />
     </div>
   );
