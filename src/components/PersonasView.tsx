@@ -339,12 +339,8 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                   <th className="px-2.5 py-2.5">Nombre Adicional</th>
                   <th className="px-2.5 py-2.5">Apellido Paterno</th>
                   <th className="px-2.5 py-2.5">Apellido Materno</th>
-                  <th className="px-2.5 py-2.5">Fecha Nacimiento</th>
                   <th className="px-2.5 py-2.5">pagare Estatus Id</th>
                   <th className="px-2.5 py-2.5 text-right">pagare Cantidad</th>
-                  <th className="px-2.5 py-2.5 min-w-[170px]">CURP</th>
-                  <th className="px-2.5 py-2.5">RFC</th>
-                  <th className="px-2.5 py-2.5">Sexo ID</th>
                   <th className="px-2.5 py-2.5">Buro Interno Esta</th>
                   <th className="px-2.5 py-2.5">Observaciones</th>
                   <th className="px-2.5 py-2.5 text-right">saldo Actual</th>
@@ -355,7 +351,7 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
               <tbody className="divide-y divide-slate-100 font-medium">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={16} className="py-12 text-center text-slate-400">
+                    <td colSpan={12} className="py-12 text-center text-slate-400">
                       No se encontraron personas con los filtros seleccionados.
                     </td>
                   </tr>
@@ -408,11 +404,6 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                           {p.apellidoMaterno || ''}
                         </td>
 
-                        {/* Fecha Nacimiento */}
-                        <td className="px-2.5 py-2 font-mono text-slate-700">
-                          {p.fechaNacimiento}
-                        </td>
-
                         {/* pagare Estatus Id */}
                         <td className="px-2.5 py-2">
                           <span
@@ -431,21 +422,6 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                         {/* pagare Cantidad */}
                         <td className="px-2.5 py-2 font-mono text-right text-slate-700">
                           {(p.pagareCantidad || 0).toFixed(4)}
-                        </td>
-
-                        {/* CURP */}
-                        <td className="px-2.5 py-2 font-mono text-[11px] text-slate-800 font-semibold min-w-[170px]">
-                          {p.curp}
-                        </td>
-
-                        {/* RFC */}
-                        <td className="px-2.5 py-2 font-mono text-[11px] text-slate-700">
-                          {p.rfc || ''}
-                        </td>
-
-                        {/* Sexo ID */}
-                        <td className="px-2.5 py-2 text-slate-700">
-                          {p.sexoId}
                         </td>
 
                         {/* Buro Interno Esta */}
@@ -480,38 +456,12 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                             : ''}
                         </td>
 
-                        {/* Acciones: Editar Cliente Modal & Historial de Créditos */}
+                        {/* Acciones: Editar Cliente Modal */}
                         <td
                           className="px-2.5 py-2 text-center sticky right-0 bg-white group-hover:bg-slate-50 z-10 shadow-[-1px_0_0_0_#f1f5f9]"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <div className="flex items-center justify-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedPersonaId(p.personaId);
-                                setEditingInitialTab('historial_creditos');
-                                setActiveModal('editar');
-                              }}
-                              className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-blue-700 font-bold text-xs inline-flex items-center gap-1 border border-slate-200 transition active:scale-95 shadow-2xs"
-                              title="Ver Historial de Créditos"
-                            >
-                              <Receipt className="w-3 h-3 text-blue-600" />
-                              <span>Créditos</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedPersonaId(p.personaId);
-                                setEditingInitialTab('datos_bancarios');
-                                setActiveModal('editar');
-                              }}
-                              className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-blue-700 font-bold text-xs inline-flex items-center gap-1 border border-slate-200 transition active:scale-95 shadow-2xs"
-                              title="Ver Datos Bancarios"
-                            >
-                              <CreditCard className="w-3 h-3 text-emerald-600" />
-                              <span>Bancos</span>
-                            </button>
+                          <div className="flex items-center justify-center">
                             <button
                               type="button"
                               onClick={() => {
@@ -519,10 +469,10 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                                 setEditingInitialTab('editar');
                                 setActiveModal('editar');
                               }}
-                              className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs inline-flex items-center gap-1 border border-blue-200 transition active:scale-95 shadow-2xs"
+                              className="px-3 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs inline-flex items-center gap-1.5 border border-blue-200 transition active:scale-95 shadow-2xs"
                               title="Editar datos y gestionar cliente"
                             >
-                              <Pencil className="w-3 h-3" />
+                              <Pencil className="w-3.5 h-3.5" />
                               <span>Editar</span>
                             </button>
                           </div>
