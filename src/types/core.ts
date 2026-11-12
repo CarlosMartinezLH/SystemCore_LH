@@ -30,6 +30,8 @@ export interface PersonaCore {
   localidadNacimiento?: string;
   consultaBuroInicial?: boolean;
   folioBuroPrevia?: string;
+  saldoActual?: number;
+  capitalVencido?: number;
 }
 
 export type DistribuidorEstatus = 'ACTIVO' | 'CANCELADO' | 'REESTRUCTURA';

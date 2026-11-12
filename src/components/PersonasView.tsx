@@ -151,30 +151,36 @@ export default function PersonasView() {
 
   const handleExportCSV = () => {
     const headers = [
-      'PersonaID',
+      'Persona ID',
       'Nombre',
+      'Nombre Adicional',
       'Apellido Paterno',
       'Apellido Materno',
+      'Fecha Nacimiento',
+      'pagare Estatus Id',
+      'pagare Cantidad',
       'CURP',
       'RFC',
-      'Teléfono',
-      'Pagaré Estatus',
-      'Pagaré Monto',
-      'Buró Estatus',
-      'Distribuidor',
+      'Sexo ID',
+      'Buro Interno Esta',
+      'Observaciones',
+      'saldo Actual',
     ];
     const rows = personas.map((p) => [
       p.personaId,
       p.nombre,
+      p.nombreAdicional || '',
       p.apellidoPaterno,
-      p.apellidoMaterno,
-      p.curp,
-      p.rfc,
-      p.telefono || '',
+      p.apellidoMaterno || '',
+      p.fechaNacimiento,
       p.pagareEstatusId,
-      p.pagareCantidad,
+      (p.pagareCantidad || 0).toFixed(4),
+      p.curp,
+      p.rfc || '',
+      p.sexoId,
       p.buroInternoEstatus,
-      p.isDistribuidor ? 'SI' : 'NO',
+      p.observaciones || '',
+      p.saldoActual || '',
     ]);
     const csvContent = buildSafeCsv(headers, rows);
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -324,30 +330,43 @@ export default function PersonasView() {
 
           {/* Scrollable Data Table */}
           <div className="flex-1 overflow-auto">
-            <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-              <thead className="sticky top-0 bg-slate-100/90 backdrop-blur-xs text-slate-600 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-200 z-10">
+            <table className="w-full text-left text-xs border-collapse whitespace-nowrap font-sans">
+              <thead className="sticky top-0 bg-slate-100/95 backdrop-blur-xs text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-200 z-10">
                 <tr>
-                  <th className="px-4 py-3">Persona</th>
-                  <th className="px-3.5 py-3">ID Core</th>
+                  <th className="px-3.5 py-3 text-center">
+                    <button
+                      onClick={() => setActiveModal('captura')}
+                      className="text-blue-600 hover:text-blue-800 hover:underline font-extrabold normal-case text-xs"
+                    >
+                      Nuevo
+                    </button>
+                  </th>
+                  <th className="px-3 py-3">Persona ID</th>
+                  <th className="px-3.5 py-3">Nombre</th>
+                  <th className="px-3 py-3">Nombre Adicional</th>
+                  <th className="px-3.5 py-3">Apellido Paterno</th>
+                  <th className="px-3.5 py-3">Apellido Materno</th>
+                  <th className="px-3 py-3">Fecha Nacimiento</th>
+                  <th className="px-3 py-3">pagare Estatus Id</th>
+                  <th className="px-3 py-3 text-right">pagare Cantidad</th>
                   <th className="px-3.5 py-3">CURP</th>
-                  <th className="px-3.5 py-3">Teléfono</th>
-                  <th className="px-3.5 py-3">Estatus Pagaré</th>
-                  <th className="px-3.5 py-3">Monto Pagaré</th>
-                  <th className="px-3.5 py-3">Buró Interno</th>
-                  <th className="px-3.5 py-3 text-right">Opciones</th>
+                  <th className="px-3.5 py-3">RFC</th>
+                  <th className="px-3 py-3">Sexo ID</th>
+                  <th className="px-3 py-3">Buro Interno Esta</th>
+                  <th className="px-3.5 py-3">Observaciones</th>
+                  <th className="px-3.5 py-3 text-right">saldo Actual</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-slate-400">
+                    <td colSpan={15} className="py-12 text-center text-slate-400">
                       No se encontraron personas con los filtros seleccionados.
                     </td>
                   </tr>
                 ) : (
                   filtered.map((p) => {
                     const isSelected = selectedPersonaId === p.personaId;
-                    const initials = `${p.nombre.charAt(0)}${p.apellidoPaterno.charAt(0)}`.toUpperCase();
 
                     return (
                       <tr
@@ -355,99 +374,111 @@ export default function PersonasView() {
                         onClick={() => setSelectedPersonaId(p.personaId)}
                         className={`cursor-pointer transition-colors ${
                           isSelected
-                            ? 'bg-slate-100/80 ring-1 ring-inset ring-slate-300/80 font-semibold'
-                            : 'hover:bg-slate-50/70'
+                            ? 'bg-blue-50/80 ring-1 ring-inset ring-blue-300 font-semibold'
+                            : 'hover:bg-slate-50/80'
                         }`}
                       >
-                        {/* Persona Name & Initials */}
-                        <td className="px-4 py-2.5">
-                          <div className="flex items-center gap-2.5">
-                            <div
-                              className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-[11px] shrink-0 transition ${
-                                isSelected
-                                  ? 'bg-slate-900 text-white'
-                                  : 'bg-slate-100 text-slate-700'
-                              }`}
-                            >
-                              {initials}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-slate-900 font-bold text-xs truncate">
-                                {p.nombre} {p.apellidoPaterno} {p.apellidoMaterno}
-                              </p>
-                              {p.isDistribuidor && (
-                                <span className="inline-block text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200">
-                                  Distribuidora (DV #{p.distribuidorId || 1025})
-                                </span>
-                              )}
-                            </div>
-                          </div>
+                        {/* Editar */}
+                        <td className="px-3.5 py-2.5 text-center" onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedPersonaId(p.personaId);
+                        }}>
+                          <button
+                            type="button"
+                            className="text-blue-600 hover:text-blue-800 hover:underline font-bold text-xs"
+                          >
+                            Editar
+                          </button>
                         </td>
 
-                        {/* ID Core */}
-                        <td className="px-3.5 py-2.5 font-mono text-[11px] font-bold text-slate-600">
-                          #{p.personaId}
+                        {/* Persona ID */}
+                        <td className="px-3 py-2.5 font-mono font-bold text-slate-900">
+                          {p.personaId}
                         </td>
 
-                        {/* CURP */}
-                        <td className="px-3.5 py-2.5 font-mono text-[11px] text-slate-700">
-                          {p.curp}
+                        {/* Nombre */}
+                        <td className="px-3.5 py-2.5 font-bold text-slate-900">
+                          {p.nombre}
                         </td>
 
-                        {/* Teléfono */}
-                        <td className="px-3.5 py-2.5 font-mono text-[11px] text-slate-600">
-                          {p.telefono || 'Sin teléfono'}
+                        {/* Nombre Adicional */}
+                        <td className="px-3 py-2.5 text-slate-600">
+                          {p.nombreAdicional || ''}
                         </td>
 
-                        {/* Pagaré Estatus */}
-                        <td className="px-3.5 py-2.5">
+                        {/* Apellido Paterno */}
+                        <td className="px-3.5 py-2.5 text-slate-900 font-semibold">
+                          {p.apellidoPaterno}
+                        </td>
+
+                        {/* Apellido Materno */}
+                        <td className="px-3.5 py-2.5 text-slate-700">
+                          {p.apellidoMaterno || ''}
+                        </td>
+
+                        {/* Fecha Nacimiento */}
+                        <td className="px-3 py-2.5 font-mono text-slate-700">
+                          {p.fechaNacimiento}
+                        </td>
+
+                        {/* pagare Estatus Id */}
+                        <td className="px-3 py-2.5">
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               p.pagareEstatusId === 'FIRMADO EN BLANCO'
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                 : p.pagareEstatusId === 'SIN PAGARE'
-                                ? 'bg-rose-50 text-rose-700 border-rose-200'
-                                : 'bg-slate-50 text-slate-600 border-slate-200'
+                                ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                : 'bg-slate-100 text-slate-600'
                             }`}
                           >
                             {p.pagareEstatusId}
                           </span>
                         </td>
 
-                        {/* Monto Pagaré */}
-                        <td className="px-3.5 py-2.5 font-mono font-bold text-slate-800">
-                          ${p.pagareCantidad.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {/* pagare Cantidad */}
+                        <td className="px-3 py-2.5 font-mono text-right text-slate-700">
+                          {(p.pagareCantidad || 0).toFixed(4)}
                         </td>
 
-                        {/* Buró Interno */}
-                        <td className="px-3.5 py-2.5">
+                        {/* CURP */}
+                        <td className="px-3.5 py-2.5 font-mono text-[11px] text-slate-800 font-semibold">
+                          {p.curp}
+                        </td>
+
+                        {/* RFC */}
+                        <td className="px-3.5 py-2.5 font-mono text-[11px] text-slate-700">
+                          {p.rfc || ''}
+                        </td>
+
+                        {/* Sexo ID */}
+                        <td className="px-3 py-2.5 text-slate-700">
+                          {p.sexoId}
+                        </td>
+
+                        {/* Buro Interno Esta */}
+                        <td className="px-3 py-2.5">
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               p.buroInternoEstatus === 'NORMAL'
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : 'bg-rose-50 text-rose-700 border-rose-200'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : 'bg-rose-50 text-rose-700 border border-rose-200'
                             }`}
                           >
                             {p.buroInternoEstatus}
                           </span>
                         </td>
 
-                        {/* Action CTA */}
-                        <td className="px-3.5 py-2.5 text-right">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedPersonaId(p.personaId);
-                            }}
-                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ml-auto ${
-                              isSelected
-                                ? 'bg-slate-900 text-white'
-                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                            }`}
-                          >
-                            <span>Opciones</span>
-                            <ChevronRight className="w-3 h-3" />
-                          </button>
+                        {/* Observaciones */}
+                        <td className="px-3.5 py-2.5 text-slate-600 max-w-[220px] truncate text-[11px]">
+                          {p.observaciones || ''}
+                        </td>
+
+                        {/* saldo Actual */}
+                        <td className="px-3.5 py-2.5 font-mono text-right font-bold text-slate-900">
+                          {p.saldoActual
+                            ? `$${p.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+                            : ''}
                         </td>
                       </tr>
                     );
