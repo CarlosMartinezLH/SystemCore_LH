@@ -37,7 +37,10 @@ import {
   ShieldAlert,
   Pencil,
   Receipt,
+  Filter,
+  RefreshCw,
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import {
   SolicitarBuroModal,
   DatosBancariosModal,
@@ -46,7 +49,6 @@ import {
 } from './modals/PersonaModals';
 import CapturaClienteModal from './modals/CapturaClienteModal';
 import EditarClienteModal from './modals/EditarClienteModal';
-import { buildSafeCsv } from '@/lib/utils/csv';
 
 interface PersonasViewProps {
   currentUser?: UserSession | null;
@@ -130,12 +132,53 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
     'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas'
   >('editar');
 
+  // Filtros avanzados en razón de las columnas de la tabla
+  const [pagareFilter, setPagareFilter] = useState<'TODOS' | 'FIRMADO EN BLANCO' | 'SIN PAGARE' | 'NO DEFINIDO'>('TODOS');
+  const [buroFilter, setBuroFilter] = useState<'TODOS' | 'NORMAL' | 'NO SUJETO DE CREDITO' | 'BLOQUEADO'>('TODOS');
+  const [saldoFilter, setSaldoFilter] = useState<'TODOS' | 'CON_SALDO' | 'SIN_SALDO'>('TODOS');
+  const [vencidoFilter, setVencidoFilter] = useState<'TODOS' | 'CON_MORA' | 'AL_CORRIENTE'>('TODOS');
+
+  // Filtros individuales por columna de la tabla
+  const [colFilterId, setColFilterId] = useState('');
+  const [colFilterNombre, setColFilterNombre] = useState('');
+  const [colFilterPaterno, setColFilterPaterno] = useState('');
+  const [colFilterMaterno, setColFilterMaterno] = useState('');
+  const [colFilterObservaciones, setColFilterObservaciones] = useState('');
+
   // Copy feedback state
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const selectedPersona = selectedPersonaId
     ? personas.find((p) => p.personaId === selectedPersonaId) || null
     : null;
+
+  // Bandera si hay filtros activos
+  const hasActiveFilters =
+    searchFilter.trim() !== '' ||
+    categoryFilter !== 'TODOS' ||
+    pagareFilter !== 'TODOS' ||
+    buroFilter !== 'TODOS' ||
+    saldoFilter !== 'TODOS' ||
+    vencidoFilter !== 'TODOS' ||
+    colFilterId.trim() !== '' ||
+    colFilterNombre.trim() !== '' ||
+    colFilterPaterno.trim() !== '' ||
+    colFilterMaterno.trim() !== '' ||
+    colFilterObservaciones.trim() !== '';
+
+  const handleResetFilters = () => {
+    setSearchFilter('');
+    setCategoryFilter('TODOS');
+    setPagareFilter('TODOS');
+    setBuroFilter('TODOS');
+    setSaldoFilter('TODOS');
+    setVencidoFilter('TODOS');
+    setColFilterId('');
+    setColFilterNombre('');
+    setColFilterPaterno('');
+    setColFilterMaterno('');
+    setColFilterObservaciones('');
+  };
 
   // Filtered persons
   const filtered = personas
@@ -146,7 +189,33 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
         if (cat !== categoryFilter) return false;
       }
 
-      // Search term
+      // Estatus de Pagaré
+      if (pagareFilter !== 'TODOS' && p.pagareEstatusId !== pagareFilter) {
+        return false;
+      }
+
+      // Buró Interno
+      if (buroFilter !== 'TODOS' && p.buroInternoEstatus !== buroFilter) {
+        return false;
+      }
+
+      // Saldo Actual
+      if (saldoFilter === 'CON_SALDO' && (!p.saldoActual || p.saldoActual <= 0)) {
+        return false;
+      }
+      if (saldoFilter === 'SIN_SALDO' && p.saldoActual && p.saldoActual > 0) {
+        return false;
+      }
+
+      // Capital Vencido (Mora)
+      if (vencidoFilter === 'CON_MORA' && (!p.capitalVencido || p.capitalVencido <= 0)) {
+        return false;
+      }
+      if (vencidoFilter === 'AL_CORRIENTE' && p.capitalVencido && p.capitalVencido > 0) {
+        return false;
+      }
+
+      // Búsqueda General
       if (searchFilter.trim()) {
         const q = searchFilter.toLowerCase().trim();
         const fullName = `${p.nombre} ${p.nombreAdicional || ''} ${p.apellidoPaterno} ${p.apellidoMaterno}`.toLowerCase();
@@ -154,8 +223,26 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
           fullName.includes(q) ||
           p.curp.toLowerCase().includes(q) ||
           p.personaId.toString().includes(q) ||
-          (p.telefono && p.telefono.includes(q));
+          (p.telefono && p.telefono.includes(q)) ||
+          (p.observaciones && p.observaciones.toLowerCase().includes(q));
         if (!matchText) return false;
+      }
+
+      // Filtros por Columna Específica
+      if (colFilterId.trim() && !p.personaId.toString().includes(colFilterId.trim())) {
+        return false;
+      }
+      if (colFilterNombre.trim() && !p.nombre.toLowerCase().includes(colFilterNombre.toLowerCase().trim())) {
+        return false;
+      }
+      if (colFilterPaterno.trim() && !p.apellidoPaterno.toLowerCase().includes(colFilterPaterno.toLowerCase().trim())) {
+        return false;
+      }
+      if (colFilterMaterno.trim() && !(p.apellidoMaterno || '').toLowerCase().includes(colFilterMaterno.toLowerCase().trim())) {
+        return false;
+      }
+      if (colFilterObservaciones.trim() && !(p.observaciones || '').toLowerCase().includes(colFilterObservaciones.toLowerCase().trim())) {
+        return false;
       }
 
       return true;
@@ -181,64 +268,69 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
     updatePersona({ ...persona, isDistribuidor: true, categoria: 'DV', distribuidorId: 1025 });
   };
 
-  const handleExportCSV = () => {
-    const headers = [
-      'Persona ID',
-      'Nombre',
-      'Nombre Adicional',
-      'Apellido Paterno',
-      'Apellido Materno',
-      'Fecha Nacimiento',
-      'pagare Estatus Id',
-      'pagare Cantidad',
-      'CURP',
-      'RFC',
-      'Sexo ID',
-      'Buro Interno Esta',
-      'Observaciones',
-      'saldo Actual',
-      'capital Vencido',
+  // Exportar padrón filtrado directamente a formato Microsoft Excel (.xlsx)
+  const handleExportExcel = () => {
+    const exportData = filtered.map((p) => {
+      const catInfo = getCategoriaInfo(getCategoriaPersona(p));
+      return {
+        'Persona ID': p.personaId,
+        'Categoría': `${catInfo.code} - ${catInfo.label}`,
+        'Nombre': p.nombre,
+        'Nombre Adicional': p.nombreAdicional || '',
+        'Apellido Paterno': p.apellidoPaterno,
+        'Apellido Materno': p.apellidoMaterno || '',
+        'Pagaré Estatus': p.pagareEstatusId,
+        'Pagaré Cantidad': p.pagareCantidad || 0,
+        'Buró Interno': p.buroInternoEstatus,
+        'Observaciones': p.observaciones || '',
+        'Saldo Actual': p.saldoActual || 0,
+        'Capital Vencido': p.capitalVencido || 0,
+        'Teléfono': p.telefono || '',
+        'Dirección': p.direccion || '',
+        'CURP': p.curp || '',
+        'RFC': p.rfc || '',
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    worksheet['!cols'] = [
+      { wch: 12 },
+      { wch: 20 },
+      { wch: 16 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 20 },
+      { wch: 16 },
+      { wch: 22 },
+      { wch: 32 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 14 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 16 },
     ];
-    const rows = personas.map((p) => [
-      p.personaId,
-      p.nombre,
-      p.nombreAdicional || '',
-      p.apellidoPaterno,
-      p.apellidoMaterno || '',
-      p.fechaNacimiento,
-      p.pagareEstatusId,
-      (p.pagareCantidad || 0).toFixed(4),
-      p.curp,
-      p.rfc || '',
-      p.sexoId,
-      p.buroInternoEstatus,
-      p.observaciones || '',
-      p.saldoActual || '',
-      p.capitalVencido || '',
-    ]);
-    const csvContent = buildSafeCsv(headers, rows);
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `padron_personas_lanahora_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Padrón de Personas');
+    XLSX.writeFile(
+      workbook,
+      `Padron_Personas_LanAhora_${new Date().toISOString().slice(0, 10)}.xlsx`
+    );
   };
 
   return (
     <div className="flex-1 bg-[#f8fafc] text-slate-800 flex flex-col min-h-0 overflow-hidden font-sans">
       {/* Top Controls Toolbar: Búsqueda, Filtros y Acciones Globales */}
       <div className="px-4 lg:px-6 pt-4 pb-3">
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col xl:flex-row xl:items-center justify-between gap-3">
           {/* Left: Search Box */}
-          <div className="flex-1 relative min-w-0">
+          <div className="flex-1 relative min-w-[240px]">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
-              placeholder="Buscar por Nombre, CURP, Teléfono o ID..."
+              placeholder="Buscar por Nombre, CURP, Teléfono, Observaciones o ID..."
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
               className="w-full pl-10 pr-9 py-2 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900 transition font-medium"
@@ -253,17 +345,89 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
             )}
           </div>
 
-          {/* Right: Primary CTAs */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Center/Right: Filtros rápidos en razón de columnas de la tabla */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Filtro Pagaré */}
+            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200 text-xs">
+              <span className="text-[10px] uppercase font-bold text-slate-400">Pagaré:</span>
+              <select
+                value={pagareFilter}
+                onChange={(e) => setPagareFilter(e.target.value as any)}
+                className="bg-transparent font-semibold text-slate-700 text-xs focus:outline-none cursor-pointer"
+              >
+                <option value="TODOS">Todos</option>
+                <option value="FIRMADO EN BLANCO">Firmado en Blanco</option>
+                <option value="SIN PAGARE">Sin Pagaré</option>
+                <option value="NO DEFINIDO">No Definido</option>
+              </select>
+            </div>
+
+            {/* Filtro Buró Interno */}
+            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200 text-xs">
+              <span className="text-[10px] uppercase font-bold text-slate-400">Buró:</span>
+              <select
+                value={buroFilter}
+                onChange={(e) => setBuroFilter(e.target.value as any)}
+                className="bg-transparent font-semibold text-slate-700 text-xs focus:outline-none cursor-pointer"
+              >
+                <option value="TODOS">Todos</option>
+                <option value="NORMAL">Normal</option>
+                <option value="NO SUJETO DE CREDITO">No Sujeto</option>
+                <option value="BLOQUEADO">Bloqueado</option>
+              </select>
+            </div>
+
+            {/* Filtro Saldo */}
+            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200 text-xs">
+              <span className="text-[10px] uppercase font-bold text-slate-400">Saldo:</span>
+              <select
+                value={saldoFilter}
+                onChange={(e) => setSaldoFilter(e.target.value as any)}
+                className="bg-transparent font-semibold text-slate-700 text-xs focus:outline-none cursor-pointer"
+              >
+                <option value="TODOS">Todos</option>
+                <option value="CON_SALDO">Con Saldo</option>
+                <option value="SIN_SALDO">Sin Saldo</option>
+              </select>
+            </div>
+
+            {/* Filtro Mora / Capital Vencido */}
+            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200 text-xs">
+              <span className="text-[10px] uppercase font-bold text-slate-400">Mora:</span>
+              <select
+                value={vencidoFilter}
+                onChange={(e) => setVencidoFilter(e.target.value as any)}
+                className="bg-transparent font-semibold text-slate-700 text-xs focus:outline-none cursor-pointer"
+              >
+                <option value="TODOS">Todos</option>
+                <option value="CON_MORA">Con Mora</option>
+                <option value="AL_CORRIENTE">Al Corriente</option>
+              </select>
+            </div>
+
+            {/* Reset Filters button */}
+            {hasActiveFilters && (
+              <button
+                onClick={handleResetFilters}
+                className="px-2.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs flex items-center gap-1 border border-red-200 transition active:scale-95"
+                title="Limpiar todos los filtros activos"
+              >
+                <RefreshCw className="w-3 h-3 text-red-600" />
+                <span>Limpiar</span>
+              </button>
+            )}
+
+            {/* Botón Exportar a Excel (.xlsx) */}
             <button
-              onClick={handleExportCSV}
-              className="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center gap-1.5 border border-slate-200 transition active:scale-95 shadow-2xs"
-              title="Descargar padrón en formato Excel / CSV"
+              onClick={handleExportExcel}
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 border border-emerald-600 transition active:scale-95 shadow-2xs"
+              title="Descargar padrón en formato Microsoft Excel (.xlsx)"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-slate-500" />
-              <span>Exportar</span>
+              <FileSpreadsheet className="w-3.5 h-3.5 text-white" />
+              <span>Exportar a Excel</span>
             </button>
 
+            {/* Botón Captura de Cliente */}
             <button
               onClick={() => setActiveModal('captura')}
               className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition active:scale-95"
@@ -347,6 +511,127 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                   <th className="px-2.5 py-2.5 text-right">capital Vencido</th>
                   <th className="px-2.5 py-2.5 text-center">Solicitud de Credito</th>
                   <th className="px-3 py-2.5 text-center sticky right-0 bg-slate-100 z-10 shadow-[-1px_0_0_0_#e2e8f0]">Acciones</th>
+                </tr>
+                {/* Fila de Filtros en razón de las columnas de la tabla (In-grid Filtering) */}
+                <tr className="bg-slate-50/95 border-t border-slate-200/80 font-normal lowercase">
+                  {/* Persona ID */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Filtrar..."
+                      value={colFilterId}
+                      onChange={(e) => setColFilterId(e.target.value)}
+                      className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    />
+                  </th>
+                  {/* Nombre */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Filtrar..."
+                      value={colFilterNombre}
+                      onChange={(e) => setColFilterNombre(e.target.value)}
+                      className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    />
+                  </th>
+                  {/* Nombre Adicional */}
+                  <th className="p-1"></th>
+                  {/* Apellido Paterno */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Filtrar..."
+                      value={colFilterPaterno}
+                      onChange={(e) => setColFilterPaterno(e.target.value)}
+                      className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    />
+                  </th>
+                  {/* Apellido Materno */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Filtrar..."
+                      value={colFilterMaterno}
+                      onChange={(e) => setColFilterMaterno(e.target.value)}
+                      className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    />
+                  </th>
+                  {/* Pagaré Estatus */}
+                  <th className="p-1">
+                    <select
+                      value={pagareFilter}
+                      onChange={(e) => setPagareFilter(e.target.value as any)}
+                      className="w-full px-1 py-1 text-[10px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="TODOS">(Todos)</option>
+                      <option value="FIRMADO EN BLANCO">FIRMADO EN BLANCO</option>
+                      <option value="SIN PAGARE">SIN PAGARE</option>
+                      <option value="NO DEFINIDO">NO DEFINIDO</option>
+                    </select>
+                  </th>
+                  {/* Pagaré Cantidad */}
+                  <th className="p-1"></th>
+                  {/* Buró Interno */}
+                  <th className="p-1">
+                    <select
+                      value={buroFilter}
+                      onChange={(e) => setBuroFilter(e.target.value as any)}
+                      className="w-full px-1 py-1 text-[10px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="TODOS">(Todos)</option>
+                      <option value="NORMAL">NORMAL</option>
+                      <option value="NO SUJETO DE CREDITO">NO SUJETO</option>
+                      <option value="BLOQUEADO">BLOQUEADO</option>
+                    </select>
+                  </th>
+                  {/* Observaciones */}
+                  <th className="p-1">
+                    <input
+                      type="text"
+                      placeholder="Filtrar..."
+                      value={colFilterObservaciones}
+                      onChange={(e) => setColFilterObservaciones(e.target.value)}
+                      className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    />
+                  </th>
+                  {/* Saldo Actual */}
+                  <th className="p-1">
+                    <select
+                      value={saldoFilter}
+                      onChange={(e) => setSaldoFilter(e.target.value as any)}
+                      className="w-full px-1 py-1 text-[10px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="TODOS">(Todos)</option>
+                      <option value="CON_SALDO">Con Saldo</option>
+                      <option value="SIN_SALDO">Sin Saldo</option>
+                    </select>
+                  </th>
+                  {/* Capital Vencido */}
+                  <th className="p-1">
+                    <select
+                      value={vencidoFilter}
+                      onChange={(e) => setVencidoFilter(e.target.value as any)}
+                      className="w-full px-1 py-1 text-[10px] bg-white border border-slate-200 rounded text-slate-800 font-normal focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="TODOS">(Todos)</option>
+                      <option value="CON_MORA">Con Mora</option>
+                      <option value="AL_CORRIENTE">Al Corriente</option>
+                    </select>
+                  </th>
+                  {/* Solicitud de Crédito */}
+                  <th className="p-1"></th>
+                  {/* Acciones */}
+                  <th className="p-1 text-center sticky right-0 bg-slate-50 z-10 shadow-[-1px_0_0_0_#e2e8f0]">
+                    {hasActiveFilters && (
+                      <button
+                        onClick={handleResetFilters}
+                        title="Limpiar filtros"
+                        className="px-2 py-0.5 text-[10px] text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded font-bold border border-red-200"
+                      >
+                        Limpiar
+                      </button>
+                    )}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
