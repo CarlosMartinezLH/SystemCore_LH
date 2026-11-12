@@ -104,18 +104,16 @@ export default function Sidebar({
           <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
             <div
               onClick={() => onModuleChange('core_dashboard')}
-              className="flex items-center gap-2.5 cursor-pointer group min-w-0"
-              title="Ir a Buscador Core"
+              className="flex items-center gap-2 cursor-pointer group min-w-0"
+              title="Ir a Dashboard"
             >
-              <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-xs font-black text-xs">
-                LH
-              </div>
-              {!isCollapsed && (
-                <div className="flex flex-col min-w-0 leading-none">
-                  <span className="text-sm font-extrabold text-slate-900 tracking-tight">LanAhora</span>
-                  <span className="text-[10px] text-slate-400 font-medium mt-0.5">Fintech Core v1.16</span>
-                </div>
-              )}
+              <img
+                src="/lanahora-logo.png"
+                alt="LanAhora"
+                className={`transition-all object-contain ${
+                  isCollapsed ? 'w-8 h-8 rounded-lg' : 'h-8 max-h-8 max-w-[140px]'
+                }`}
+              />
             </div>
 
             {/* Desktop Collapse Toggle Button */}
