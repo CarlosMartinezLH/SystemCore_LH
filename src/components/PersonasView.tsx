@@ -129,7 +129,7 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
 
   // Tab inicial para EditarClienteModal
   const [editingInitialTab, setEditingInitialTab] = useState<
-    'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas'
+    'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas' | 'prestanombres'
   >('editar');
 
   // Filtros avanzados en razón de las columnas de la tabla
@@ -509,7 +509,6 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                   <th className="px-2.5 py-2.5">Observaciones</th>
                   <th className="px-2.5 py-2.5 text-right">saldo Actual</th>
                   <th className="px-2.5 py-2.5 text-right">capital Vencido</th>
-                  <th className="px-2.5 py-2.5 text-center">Solicitud de Credito</th>
                   <th className="px-3 py-2.5 text-center sticky right-0 bg-slate-100 z-10 shadow-[-1px_0_0_0_#e2e8f0]">Acciones</th>
                 </tr>
                 {/* Fila de Filtros en razón de las columnas de la tabla (In-grid Filtering) */}
@@ -618,8 +617,6 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                       <option value="AL_CORRIENTE">Al Corriente</option>
                     </select>
                   </th>
-                  {/* Solicitud de Crédito */}
-                  <th className="p-1"></th>
                   {/* Acciones */}
                   <th className="p-1 text-center sticky right-0 bg-slate-50 z-10 shadow-[-1px_0_0_0_#e2e8f0]">
                     {hasActiveFilters && (
@@ -637,7 +634,7 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
               <tbody className="divide-y divide-slate-100 font-medium">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={13} className="py-12 text-center text-slate-400">
+                    <td colSpan={12} className="py-12 text-center text-slate-400">
                       No se encontraron personas con los filtros seleccionados.
                     </td>
                   </tr>
@@ -742,21 +739,6 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                             : ''}
                         </td>
 
-                        {/* Solicitud de Credito: Imprimir Carta Prestanombres */}
-                        <td className="px-2.5 py-2 text-center" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedPersonaId(p.personaId);
-                              setActiveModal('prestanombres');
-                            }}
-                            className="border border-black bg-[#f0f0f0] hover:bg-[#e2e8f0] px-2.5 py-0.5 text-xs text-[#005a9e] underline font-normal cursor-pointer transition active:scale-95 shadow-2xs whitespace-nowrap"
-                            title="Imprimir Carta Prestanombres oficial"
-                          >
-                            Imprimir Carta Prestanombres
-                          </button>
-                        </td>
-
                         {/* Acciones: Editar Cliente Modal */}
                         <td
                           className="px-2.5 py-2 text-center sticky right-0 bg-white group-hover:bg-slate-50 z-10 shadow-[-1px_0_0_0_#f1f5f9]"
@@ -851,7 +833,10 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
             onLaunchBuro={() => setActiveModal('buro')}
             onLaunchBancarios={() => setActiveModal('bancarios')}
             onLaunchExpediente={() => setActiveModal('expediente')}
-            onLaunchPrestanombres={() => setActiveModal('prestanombres')}
+            onLaunchPrestanombres={() => {
+              setEditingInitialTab('prestanombres');
+              setActiveModal('editar');
+            }}
             onPromoteToDv={(persona) => handlePromoteToDv(persona)}
             onSuccess={(up) => {
               updatePersona(up);

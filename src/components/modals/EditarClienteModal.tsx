@@ -61,7 +61,7 @@ interface EditarClienteModalProps {
   isOpen: boolean;
   onClose: () => void;
   persona: PersonaCore | null;
-  initialTab?: 'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas';
+  initialTab?: 'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas' | 'prestanombres';
   onSuccess?: (updated: PersonaCore) => void;
   onLaunchCanje?: () => void;
   onLaunchBuro?: () => void;
@@ -147,8 +147,8 @@ export default function EditarClienteModal({
 }: EditarClienteModalProps) {
   const { updatePersona } = useCoreSync();
 
-  // Tab activo: 'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas'
-  const [activeTab, setActiveTab] = useState<'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas'>(initialTab);
+  // Tab activo: 'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas' | 'prestanombres'
+  const [activeTab, setActiveTab] = useState<'editar' | 'opciones' | 'historial_creditos' | 'datos_bancarios' | 'expediente' | 'notas' | 'prestanombres'>(initialTab);
 
   // Categoría en Padrón (CF, DV, AV, CO)
   const [categoria, setCategoria] = useState<CategoriaPersona>(getCategoriaPersona(persona));
@@ -629,6 +629,18 @@ export default function EditarClienteModal({
               </button>
               <button
                 type="button"
+                onClick={() => setActiveTab('prestanombres')}
+                className={`px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 ${
+                  activeTab === 'prestanombres'
+                    ? 'bg-white text-blue-700 shadow-xs'
+                    : 'hover:text-slate-900'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Carta Prestanombres</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab('notas')}
                 className={`px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 ${
                   activeTab === 'notas'
@@ -641,14 +653,15 @@ export default function EditarClienteModal({
               </button>
             </div>
 
-            {/* Botón Imprimir Carta Prestanombres idéntico a la pantalla legacy */}
+            {/* Botón rápido para abrir visor de impresión oficial */}
             <button
               type="button"
               onClick={() => setShowPrestanombresModal(true)}
-              className="border border-black bg-[#f0f0f0] hover:bg-[#e2e8f0] px-2.5 py-1 text-xs text-[#005a9e] underline font-medium cursor-pointer transition active:scale-95 shadow-2xs whitespace-nowrap hidden md:inline-block"
-              title="Imprimir Carta Prestanombres oficial"
+              className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs flex items-center gap-1.5 border border-blue-200 transition active:scale-95 shadow-2xs whitespace-nowrap cursor-pointer"
+              title="Abrir visor de impresión oficial de Carta Prestanombres"
             >
-              Imprimir Carta Prestanombres
+              <Printer className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Imprimir Carta</span>
             </button>
 
             <button
@@ -1332,16 +1345,16 @@ export default function EditarClienteModal({
                 {/* Carta Prestanombres */}
                 <button
                   type="button"
-                  onClick={() => setShowPrestanombresModal(true)}
+                  onClick={() => setActiveTab('prestanombres')}
                   className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
                 >
                   <div className="flex items-center justify-between w-full mb-3">
-                    <Printer className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                    <FileText className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                       Oficial
                     </span>
                   </div>
-                  <p className="font-bold text-slate-900 text-xs">Imprimir Carta Prestanombres</p>
+                  <p className="font-bold text-slate-900 text-xs">Carta Prestanombres</p>
                 </button>
               </div>
 
@@ -2877,6 +2890,125 @@ export default function EditarClienteModal({
                     );
                   })
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* PESTAÑA 7: CARTA PRESTANOMBRES OFICIAL INTEGRADA           */}
+          {/* ========================================================= */}
+          {activeTab === 'prestanombres' && (
+            <div className="flex flex-col gap-4">
+              {/* Barra de Acciones de la Carta */}
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="p-2 bg-blue-100 text-blue-700 rounded-xl">
+                    <FileText className="w-4 h-4" />
+                  </span>
+                  <div>
+                    <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm">
+                      Carta Declaratoria de Prestanombres
+                    </h4>
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      Documento oficial LanAhora amparado en el expediente digital del cliente.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowPrestanombresModal(true)}
+                    className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs flex items-center gap-1.5 border border-slate-300 transition active:scale-95 shadow-2xs cursor-pointer"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Pantalla Completa</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPrestanombresModal(true)}
+                    className="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95 cursor-pointer"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>Imprimir Carta</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Hoja de Carta Prestanombres Renderizada Ahí Mismo */}
+              <div className="flex justify-center bg-slate-100/70 p-4 sm:p-8 rounded-2xl border border-slate-200 overflow-y-auto">
+                <div
+                  className="w-full max-w-[760px] bg-white rounded-2xl border border-slate-300/80 p-8 sm:p-14 shadow-xl font-sans text-black select-none text-left"
+                  style={{ minHeight: '800px' }}
+                >
+                  {/* Encabezado: Logotipo a la izquierda y Datos a la derecha */}
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-6 pb-6 border-b border-slate-100">
+                    <div className="shrink-0">
+                      <img
+                        src="/lanahora-logo.png"
+                        alt="LanAhora"
+                        className="h-16 w-auto object-contain"
+                      />
+                    </div>
+
+                    <div className="text-right text-xs font-sans text-black leading-relaxed space-y-1.5 min-w-[280px]">
+                      <div className="flex justify-end gap-3">
+                        <span className="font-bold shrink-0">NOMBRE:</span>
+                        <span className="font-semibold uppercase tracking-wide min-w-[240px] text-left">
+                          {persona.nombre} {persona.nombreAdicional ? persona.nombreAdicional + ' ' : ''}{persona.apellidoPaterno} {persona.apellidoMaterno}
+                        </span>
+                      </div>
+                      <div className="flex justify-end gap-3">
+                        <span className="font-bold shrink-0">DOMICILIO:</span>
+                        <span className="font-semibold uppercase min-w-[240px] text-left">
+                          {`${persona.direccion || 'C 30 DE ABRIL 1519'} #${persona.numeroExterior || '0'} ${persona.numeroInterior || '0'}  CP. ${persona.codigoPostal || '31414'}`.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="flex justify-end gap-3">
+                        <span className="font-bold shrink-0">TELÉFONO:</span>
+                        <span className="font-semibold min-w-[240px] text-left">
+                          {persona.telefono || persona.telefonoMovil || '6144640550'}
+                        </span>
+                      </div>
+                      <div className="flex justify-end gap-3">
+                        <span className="font-bold shrink-0">DISTRIBUIDOR:</span>
+                        <span className="font-semibold uppercase min-w-[240px] text-left">
+                          {persona.distribuidorNombre
+                            ? `${persona.distribuidorId || '9784'} - ${persona.distribuidorNombre}`.toUpperCase()
+                            : persona.personaId === 122778
+                            ? '17436 - ADRIANA IVONNE CHANG ANDRADE'
+                            : '9784 - RAQUEL SUGEHIDI CHAVIRA TOVAR'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cláusulas */}
+                  <div className="mt-10 space-y-7 text-[13px] leading-relaxed text-black text-left">
+                    <p className="font-normal uppercase tracking-normal">
+                      1. RECIBE UN CRÉDITO PERSONAL E INTRANSFERIBLE. EL CRÉDITO ES MIO, NO SOY PRESTANOMBRE DE NINGUN DISTRIBUIDOR, FAMILIAR O AMIGO.
+                    </p>
+
+                    <p className="font-normal uppercase leading-relaxed tracking-normal">
+                      2. ME HAGO RESPONSABLE DEL PAGO PUNTUAL LOS DIAS 15 Y ULTIMO DE CADA MES, DE LO CONTRARIO PAGARE A MI DISTRIBUIDOR (A) UN 20% DE INTERÉS MORATORIO SOBRE ABONO ATRASADO, SERÉ BLOQUEADO Y REPORTADO AL BURO DE CRÉDITO.
+                    </p>
+
+                    <p className="font-normal uppercase tracking-normal">
+                      3. PEDIRÉ A MI DISTRIBUIDOR (A) EL RECIBO DE ABONO AL MOMENTO DE PAGARLE.
+                    </p>
+                  </div>
+
+                  {/* Espacio de Firma */}
+                  <div className="mt-28 flex justify-end pr-2 sm:pr-6">
+                    <div className="w-72 text-center">
+                      <div className="border-b border-black w-full mb-2" />
+                      <span className="font-bold text-xs uppercase tracking-wider text-black block">
+                        NOMBRE Y FIRMA
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
