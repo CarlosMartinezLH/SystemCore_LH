@@ -18,7 +18,11 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ExternalLink,
+  Eye,
+  LayoutGrid,
+  TableProperties,
 } from 'lucide-react';
+import DetalleCreditoModal from './DetalleCreditoModal';
 import * as XLSX from 'xlsx';
 
 export interface CreditoHistorialItem {
@@ -744,10 +748,18 @@ export default function HistorialCreditosDistribuidorModal({
     plazos: '',
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number>(39);
+  const [pageSize, setPageSize] = useState<number>(10);
   const [sortField, setSortField] = useState<keyof CreditoHistorialItem>('creditoId');
   const [sortAsc, setSortAsc] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [viewMode, setViewMode] = useState<'compact' | 'complete'>('compact');
+  const [selectedCredito, setSelectedCredito] = useState<CreditoHistorialItem | null>(null);
+  const [isDetalleOpen, setIsDetalleOpen] = useState(false);
+
+  const handleOpenDetalle = (credito: CreditoHistorialItem) => {
+    setSelectedCredito(credito);
+    setIsDetalleOpen(true);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -886,7 +898,7 @@ export default function HistorialCreditosDistribuidorModal({
 
   const modalContent = (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-2 sm:p-3 md:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-[98vw] max-w-[99vw] h-[95vh] max-h-[95vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-150">
+      <div className="relative w-[96vw] max-w-7xl max-h-[92vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-150">
         
         {/* ======================================================== */}
         {/* HEADER SUPERIOR: TITULO, BOTONES ACTUALIZAR Y EXPORTAR   */}
@@ -986,16 +998,295 @@ export default function HistorialCreditosDistribuidorModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-slate-500 font-medium italic">
-            <Layers className="w-3.5 h-3.5 text-slate-400" />
-            <span>Arrastre una columna aquí para agrupar por dicha columna</span>
+          {/* Conmutador de Vista (Compacta vs Completa 19 cols) */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-white p-0.5 rounded-lg border border-slate-200 text-xs font-bold shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setViewMode('compact')}
+                className={`px-3 py-1 rounded-md inline-flex items-center gap-1.5 transition cursor-pointer ${
+                  viewMode === 'compact'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                title="Vista compacta de 10 columnas sin scroll horizontal"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Vista Compacta</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('complete')}
+                className={`px-3 py-1 rounded-md inline-flex items-center gap-1.5 transition cursor-pointer ${
+                  viewMode === 'complete'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                title="Vista contable con las 19 columnas"
+              >
+                <TableProperties className="w-3.5 h-3.5" />
+                <span>Vista 19 Columnas</span>
+              </button>
+            </div>
           </div>
         </div>
 
         {/* ======================================================== */}
         {/* TABLA DE 19 COLUMNAS CON SCROLL HORIZONTAL Y VERTICAL    */}
         {/* ======================================================== */}
+        {/* ======================================================== */}
+        {/* TABLA: VISTA COMPACTA (10 COLS) O VISTA COMPLETA (19 COLS) */}
+        {/* ======================================================== */}
         <div className="flex-1 overflow-x-auto overflow-y-auto">
+          {viewMode === 'compact' ? (
+            <table className="w-full text-left text-xs border-collapse whitespace-nowrap font-sans">
+              <thead className="sticky top-0 bg-slate-100/95 backdrop-blur-xs text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-200 z-10">
+                <tr>
+                  <th
+                    onClick={() => handleSort('creditoId')}
+                    className="px-3 py-2.5 cursor-pointer hover:bg-slate-200/80 transition"
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>Crédito ID</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('estatus')}
+                    className="px-3 py-2.5 cursor-pointer hover:bg-slate-200/80 transition text-center"
+                  >
+                    <div className="flex items-center justify-center gap-1">
+                      <span>Estatus</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('nombreCompleto')}
+                    className="px-3 py-2.5 cursor-pointer hover:bg-slate-200/80 transition min-w-[220px]"
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>Cliente / Persona</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('plazos')}
+                    className="px-3 py-2.5 cursor-pointer hover:bg-slate-200/80 transition text-center"
+                  >
+                    <div className="flex items-center justify-center gap-1">
+                      <span>Plazos</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('capital')}
+                    className="px-3 py-2.5 cursor-pointer hover:bg-slate-200/80 transition text-right"
+                  >
+                    <div className="flex items-center justify-end gap-1">
+                      <span>Capital</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('importeTotal')}
+                    className="px-3 py-2.5 cursor-pointer hover:bg-slate-200/80 transition text-right"
+                  >
+                    <div className="flex items-center justify-end gap-1">
+                      <span>Total Pagar</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('abonos')}
+                    className="px-3 py-2.5 cursor-pointer hover:bg-slate-200/80 transition text-right"
+                  >
+                    <div className="flex items-center justify-end gap-1">
+                      <span>Abonos</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('saldoActual')}
+                    className="px-3 py-2.5 cursor-pointer hover:bg-slate-200/80 transition text-right"
+                  >
+                    <div className="flex items-center justify-end gap-1">
+                      <span>Saldo Actual</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('diasAtraso')}
+                    className="px-3 py-2.5 cursor-pointer hover:bg-slate-200/80 transition text-center"
+                  >
+                    <div className="flex items-center justify-center gap-1">
+                      <span>Días Atr.</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('fechaDesembolso')}
+                    className="px-3 py-2.5 cursor-pointer hover:bg-slate-200/80 transition text-center"
+                  >
+                    <div className="flex items-center justify-center gap-1">
+                      <span>Desembolso</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </th>
+                  <th className="px-3 py-2.5 text-center">Acciones</th>
+                </tr>
+
+                {/* FILA DE FILTROS POR COLUMNA COMPACTA */}
+                <tr className="bg-slate-50/95 border-b border-slate-200">
+                  <th className="p-1 border-r border-slate-200">
+                    <input
+                      type="text"
+                      placeholder="Filtrar ID..."
+                      value={colFilters.creditoId}
+                      onChange={(e) => {
+                        setColFilters({ ...colFilters, creditoId: e.target.value });
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1.5 py-0.5 text-[11px] font-normal bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500 font-mono"
+                    />
+                  </th>
+                  <th className="p-1 border-r border-slate-200">
+                    <select
+                      value={colFilters.estatus}
+                      onChange={(e) => {
+                        setColFilters({ ...colFilters, estatus: e.target.value });
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1 py-0.5 text-[11px] font-normal bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="TODOS">(Todos)</option>
+                      <option value="ACTIVO">ACTIVO</option>
+                      <option value="LIQUIDADO">LIQUIDADO</option>
+                    </select>
+                  </th>
+                  <th className="p-1 border-r border-slate-200">
+                    <input
+                      type="text"
+                      placeholder="Filtrar cliente..."
+                      value={colFilters.nombreCompleto}
+                      onChange={(e) => {
+                        setColFilters({ ...colFilters, nombreCompleto: e.target.value });
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1.5 py-0.5 text-[11px] font-normal bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500"
+                    />
+                  </th>
+                  <th className="p-1 border-r border-slate-200">
+                    <input
+                      type="text"
+                      placeholder="Plazos..."
+                      value={colFilters.plazos}
+                      onChange={(e) => {
+                        setColFilters({ ...colFilters, plazos: e.target.value });
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-1.5 py-0.5 text-[11px] font-normal bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500 text-center font-mono"
+                    />
+                  </th>
+                  <th colSpan={7} className="p-1 bg-slate-100/50"></th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-slate-100 font-medium text-xs">
+                {paginatedItems.map((c) => (
+                  <tr
+                    key={c.creditoId}
+                    className="hover:bg-blue-50/60 even:bg-slate-50/50 transition duration-75 group border-b border-slate-100"
+                  >
+                    <td className="px-2.5 py-2 font-mono font-bold text-blue-600 border-r border-slate-200/50">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDetalle(c)}
+                        className="hover:underline cursor-pointer inline-flex items-center gap-1 font-bold"
+                        title="Ver detalle del crédito"
+                      >
+                        #{c.creditoId}
+                        <ExternalLink className="w-3 h-3 text-blue-400 opacity-60 group-hover:opacity-100" />
+                      </button>
+                    </td>
+                    <td className="px-2.5 py-2 text-center border-r border-slate-200/50">
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                          c.estatus === 'ACTIVO'
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        }`}
+                      >
+                        {c.estatus}
+                      </span>
+                    </td>
+                    <td className="px-2.5 py-2 border-r border-slate-200/50">
+                      <div className="font-bold text-slate-900 leading-tight">
+                        {c.nombreCompleto}
+                      </div>
+                      <div className="text-[10px] text-slate-500 font-mono mt-0.5">
+                        Persona ID: {c.personaId}
+                      </div>
+                    </td>
+                    <td className="px-2.5 py-2 text-center font-mono border-r border-slate-200/50">
+                      <span className="font-bold text-slate-800">{c.plazos}</span>
+                      <span className="text-[10px] text-slate-500 ml-0.5">qzas</span>
+                    </td>
+                    <td className="px-2.5 py-2 text-right font-mono text-slate-800 border-r border-slate-200/50">
+                      ${c.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-2.5 py-2 text-right font-mono font-bold text-slate-900 border-r border-slate-200/50">
+                      ${c.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-2.5 py-2 text-right font-mono text-emerald-600 font-semibold border-r border-slate-200/50">
+                      ${c.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-2.5 py-2 text-right font-mono font-black text-blue-900 border-r border-slate-200/50">
+                      ${c.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-2.5 py-2 text-center font-mono font-bold border-r border-slate-200/50">
+                      <span className={c.diasAtraso > 0 ? 'text-rose-600' : 'text-emerald-700'}>
+                        {c.diasAtraso}
+                      </span>
+                    </td>
+                    <td className="px-2.5 py-2 font-mono text-slate-600 text-[11px] text-center border-r border-slate-200/50">
+                      {c.fechaDesembolso}
+                    </td>
+                    <td className="px-2.5 py-2 text-center">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDetalle(c)}
+                        className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-[11px] font-bold inline-flex items-center gap-1 transition cursor-pointer shadow-2xs active:scale-95"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Detalle</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+
+              <tfoot className="sticky bottom-0 bg-slate-200/95 backdrop-blur-xs border-t-2 border-slate-300 font-bold text-slate-900 text-xs shadow-inner z-10">
+                <tr>
+                  <td colSpan={4} className="px-3 py-2 font-black text-slate-800 uppercase tracking-wide">
+                    Registros = {filteredData.length}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono font-black">
+                    ${totals.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono font-black text-slate-950">
+                    ${totals.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono font-black text-emerald-800">
+                    ${totals.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono font-black text-blue-900">
+                    ${totals.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td colSpan={3} className="px-3 py-2"></td>
+                </tr>
+              </tfoot>
+            </table>
+          ) : (
           <table className="w-full text-left text-xs border-collapse whitespace-nowrap font-sans">
             <thead className="sticky top-0 bg-slate-100/95 backdrop-blur-xs text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-200 z-10">
               <tr>
@@ -1291,6 +1582,8 @@ export default function HistorialCreditosDistribuidorModal({
               </tr>
             </tfoot>
           </table>
+
+          )}
         </div>
 
         {/* ======================================================== */}
@@ -1313,10 +1606,10 @@ export default function HistorialCreditosDistribuidorModal({
                 }}
                 className="bg-white border border-slate-200 rounded-md px-2 py-0.5 text-xs font-bold text-slate-800 focus:outline-none shadow-2xs"
               >
-                <option value={39}>Todos los registros (39)</option>
-                <option value={25}>25 registros por página</option>
+                <option value={10}>10 registros (Recomendado)</option>
                 <option value={15}>15 registros por página</option>
-                <option value={50}>50 registros por página</option>
+                <option value={25}>25 registros por página</option>
+                <option value={39}>Todos los registros (39)</option>
               </select>
             </div>
           </div>
@@ -1386,6 +1679,17 @@ export default function HistorialCreditosDistribuidorModal({
             </button>
           </div>
         </div>
+
+        {/* ======================================================== */}
+        {/* MODAL DETALLE DE CRÉDITO INDIVIDUAL                      */}
+        {/* ======================================================== */}
+        <DetalleCreditoModal
+          isOpen={isDetalleOpen}
+          onClose={() => setIsDetalleOpen(false)}
+          credito={selectedCredito}
+          distribuidorNombre={distribuidor.nombreDistribuidor}
+          distribuidorNo={distribuidor.noDist}
+        />
 
       </div>
     </div>
