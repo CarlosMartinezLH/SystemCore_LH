@@ -736,8 +736,15 @@ export default function HistorialCreditosDistribuidorModal({
   const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ACTIVO' | 'LIQUIDADO'>('TODOS');
+  const [colFilters, setColFilters] = useState({
+    creditoId: '',
+    estatus: 'TODOS',
+    personaId: '',
+    nombreCompleto: '',
+    plazos: '',
+  });
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, setPageSize] = useState<number>(39);
   const [sortField, setSortField] = useState<keyof CreditoHistorialItem>('creditoId');
   const [sortAsc, setSortAsc] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -758,10 +765,17 @@ export default function HistorialCreditosDistribuidorModal({
   // Filtrado y ordenamiento
   const filteredData = useMemo(() => {
     return DEFAULT_HISTORIAL_CREDITOS.filter((c) => {
-      // Filtro por estatus
+      // Filtro rápido de estatus
       if (statusFilter !== 'TODOS' && c.estatus !== statusFilter) return false;
 
-      // Filtro por texto
+      // Filtros por columna individuales
+      if (colFilters.estatus !== 'TODOS' && c.estatus !== colFilters.estatus) return false;
+      if (colFilters.creditoId && !c.creditoId.toString().includes(colFilters.creditoId.trim())) return false;
+      if (colFilters.personaId && !c.personaId.toString().includes(colFilters.personaId.trim())) return false;
+      if (colFilters.nombreCompleto && !c.nombreCompleto.toLowerCase().includes(colFilters.nombreCompleto.toLowerCase().trim())) return false;
+      if (colFilters.plazos && c.plazos.toString() !== colFilters.plazos.trim()) return false;
+
+      // Filtro general por texto
       if (!searchTerm.trim()) return true;
       const q = searchTerm.toLowerCase().trim();
       return (
@@ -1093,22 +1107,88 @@ export default function HistorialCreditosDistribuidorModal({
                 <th className="px-3 py-2.5">Fecha Hora Registro</th>
                 <th className="px-3 py-2.5">Fecha Hora Desembolso</th>
               </tr>
+              {/* FILA DE FILTROS POR COLUMNA (Idéntico a PersonasView y DistribuidoresView) */}
+              <tr className="bg-slate-50/95 border-b border-slate-200">
+                <th className="p-1 border-r border-slate-200">
+                  <input
+                    type="text"
+                    placeholder="Filtrar ID..."
+                    value={colFilters.creditoId}
+                    onChange={(e) => {
+                      setColFilters({ ...colFilters, creditoId: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1.5 py-0.5 text-[11px] font-normal bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500 font-mono"
+                  />
+                </th>
+                <th className="p-1 border-r border-slate-200">
+                  <select
+                    value={colFilters.estatus}
+                    onChange={(e) => {
+                      setColFilters({ ...colFilters, estatus: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[11px] font-normal bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="TODOS">(Todos)</option>
+                    <option value="ACTIVO">ACTIVO</option>
+                    <option value="LIQUIDADO">LIQUIDADO</option>
+                  </select>
+                </th>
+                <th className="p-1 border-r border-slate-200">
+                  <input
+                    type="text"
+                    placeholder="Filtrar..."
+                    value={colFilters.personaId}
+                    onChange={(e) => {
+                      setColFilters({ ...colFilters, personaId: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1.5 py-0.5 text-[11px] font-normal bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500 font-mono"
+                  />
+                </th>
+                <th className="p-1 border-r border-slate-200">
+                  <input
+                    type="text"
+                    placeholder="Filtrar por nombre cliente..."
+                    value={colFilters.nombreCompleto}
+                    onChange={(e) => {
+                      setColFilters({ ...colFilters, nombreCompleto: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1.5 py-0.5 text-[11px] font-normal bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500"
+                  />
+                </th>
+                <th className="p-1 border-r border-slate-200">
+                  <input
+                    type="text"
+                    placeholder="Plazos..."
+                    value={colFilters.plazos}
+                    onChange={(e) => {
+                      setColFilters({ ...colFilters, plazos: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1.5 py-0.5 text-[11px] font-normal bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500 text-center font-mono"
+                  />
+                </th>
+                <th colSpan={14} className="p-1 bg-slate-100/50"></th>
+              </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-100 font-medium">
+            <tbody className="divide-y divide-slate-100 font-medium text-xs">
               {paginatedItems.map((c) => (
                 <tr
                   key={c.creditoId}
-                  className="hover:bg-blue-50/40 transition duration-75 group"
+                  className="hover:bg-blue-50/60 even:bg-slate-50/50 transition duration-75 group border-b border-slate-100"
                 >
-                  <td className="px-3 py-2 font-mono font-bold text-blue-600">
+                  <td className="px-2.5 py-1.5 font-mono font-bold text-blue-600 border-r border-slate-200/50">
                     <span className="hover:underline cursor-pointer">
                       {c.creditoId}
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-center">
+                  <td className="px-2.5 py-1.5 text-center border-r border-slate-200/50">
                     <span
-                      className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                      className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${
                         c.estatus === 'ACTIVO'
                           ? 'bg-blue-50 text-blue-700 border border-blue-200'
                           : 'bg-slate-100 text-slate-600 border border-slate-200'
@@ -1117,55 +1197,55 @@ export default function HistorialCreditosDistribuidorModal({
                       {c.estatus}
                     </span>
                   </td>
-                  <td className="px-3 py-2 font-mono text-slate-600">
+                  <td className="px-2.5 py-1.5 font-mono text-slate-600 border-r border-slate-200/50">
                     {c.personaId}
                   </td>
-                  <td className="px-3 py-2 font-bold text-slate-900">
+                  <td className="px-2.5 py-1.5 font-bold text-slate-900 border-r border-slate-200/50 text-[11px] leading-tight">
                     {c.nombreCompleto}
                   </td>
-                  <td className="px-3 py-2 text-center font-mono">
+                  <td className="px-2.5 py-1.5 text-center font-mono border-r border-slate-200/50">
                     {c.plazos}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-slate-800">
+                  <td className="px-2.5 py-1.5 text-right font-mono text-slate-800 border-r border-slate-200/50">
                     ${c.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-slate-700">
+                  <td className="px-2.5 py-1.5 text-right font-mono text-slate-700 border-r border-slate-200/50">
                     ${c.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-slate-500">
+                  <td className="px-2.5 py-1.5 text-right font-mono text-slate-500 border-r border-slate-200/50">
                     ${c.comision.toFixed(2)}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-slate-700">
+                  <td className="px-2.5 py-1.5 text-right font-mono text-slate-700 border-r border-slate-200/50">
                     ${c.protSaldo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-slate-500">
+                  <td className="px-2.5 py-1.5 text-right font-mono text-slate-500 border-r border-slate-200/50">
                     ${c.cargo.toFixed(2)}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-slate-700">
+                  <td className="px-2.5 py-1.5 text-right font-mono text-slate-700 border-r border-slate-200/50">
                     ${c.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono font-bold text-slate-900">
+                  <td className="px-2.5 py-1.5 text-right font-mono font-bold text-slate-900 border-r border-slate-200/50">
                     ${c.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-emerald-600 font-semibold">
+                  <td className="px-2.5 py-1.5 text-right font-mono text-emerald-600 font-semibold border-r border-slate-200/50">
                     ${c.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono font-black text-blue-900">
+                  <td className="px-2.5 py-1.5 text-right font-mono font-black text-blue-900 border-r border-slate-200/50">
                     ${c.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="px-3 py-2 text-center font-mono font-bold text-emerald-700">
+                  <td className="px-2.5 py-1.5 text-center font-mono font-bold text-emerald-700 border-r border-slate-200/50">
                     {c.diasAtraso}
                   </td>
-                  <td className="px-3 py-2 text-center font-mono text-slate-500">
+                  <td className="px-2.5 py-1.5 text-center font-mono text-slate-500 border-r border-slate-200/50">
                     {c.diasAtrasoMax}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-slate-500">
+                  <td className="px-2.5 py-1.5 text-right font-mono text-slate-500 border-r border-slate-200/50">
                     ${c.saldoAtrasado.toFixed(2)}
                   </td>
-                  <td className="px-3 py-2 font-mono text-slate-600 text-[11px]">
+                  <td className="px-2.5 py-1.5 font-mono text-slate-600 text-[11px] border-r border-slate-200/50">
                     {c.fechaRegistro}
                   </td>
-                  <td className="px-3 py-2 font-mono text-slate-600 text-[11px]">
+                  <td className="px-2.5 py-1.5 font-mono text-slate-600 text-[11px]">
                     {c.fechaDesembolso}
                   </td>
                 </tr>
@@ -1231,11 +1311,12 @@ export default function HistorialCreditosDistribuidorModal({
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="bg-white border border-slate-200 rounded-md px-2 py-0.5 text-xs font-bold text-slate-800 focus:outline-none"
+                className="bg-white border border-slate-200 rounded-md px-2 py-0.5 text-xs font-bold text-slate-800 focus:outline-none shadow-2xs"
               >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={39}>39 (Todos)</option>
+                <option value={39}>Todos los registros (39)</option>
+                <option value={25}>25 registros por página</option>
+                <option value={15}>15 registros por página</option>
+                <option value={50}>50 registros por página</option>
               </select>
             </div>
           </div>
