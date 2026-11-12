@@ -459,35 +459,42 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 </span>
               </div>
 
-              {/* Primary Action Button */}
-              <button
-                type="submit"
-                disabled={isLoading || isLocked}
-                className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-semibold text-xs shadow-sm transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                    <span>Verificando...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Iniciar Sesión</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-white" />
-                  </>
-                )}
-              </button>
+              {/* Buttons: Credentials or Biometric */}
+              <div className="pt-1 space-y-2">
+                <button
+                  type="submit"
+                  disabled={isLoading || isLocked}
+                  className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-semibold text-xs shadow-sm transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                      <span>Verificando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Iniciar Sesión</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-white" />
+                    </>
+                  )}
+                </button>
 
-              {/* Minimalist Biometric Text Link (Level 2) */}
-              <div className="pt-2 text-center">
+                <div className="relative flex items-center justify-center py-0.5">
+                  <div className="w-full border-t border-slate-200" />
+                  <span className="bg-white px-2.5 text-[11px] text-slate-400 font-medium">
+                    o
+                  </span>
+                  <div className="w-full border-t border-slate-200" />
+                </div>
+
                 <button
                   type="button"
                   onClick={handleWindowsHelloLogin}
                   disabled={isLoading || isLocked}
-                  className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 transition font-medium cursor-pointer"
+                  className="w-full py-2.5 rounded-xl border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs transition flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer shadow-2xs"
                 >
-                  <Fingerprint className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Acceder con Windows Hello / Huella</span>
+                  <Fingerprint className="w-4 h-4 text-slate-700" />
+                  <span>Iniciar con Windows Hello / Huella</span>
                 </button>
               </div>
             </form>
@@ -614,11 +621,6 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
               </button>
             </div>
           )}
-
-          {/* Minimalist Discreet Footer */}
-          <div className="pt-2 text-center text-[10px] text-slate-400 font-medium">
-            SystemCore LanAhora · Acceso Seguro
-          </div>
         </div>
       </div>
 
