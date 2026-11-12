@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   Search,
@@ -174,9 +174,23 @@ export default function EditarClienteModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  // Inicializar valores al seleccionar persona o abrir modal
+  // Control de apertura y persona para no resetear activeTab ni inputs en cada polling de sincronización
+  const prevOpenRef = useRef<boolean>(false);
+  const prevPersonaIdRef = useRef<number | null>(null);
+
   useEffect(() => {
-    if (persona) {
+    if (!isOpen) {
+      prevOpenRef.current = false;
+      return;
+    }
+
+    const isNewOpen = !prevOpenRef.current;
+    const isNewPersona = prevPersonaIdRef.current !== persona?.personaId;
+
+    if (persona && (isNewOpen || isNewPersona)) {
+      prevOpenRef.current = true;
+      prevPersonaIdRef.current = persona.personaId;
+
       setActiveTab(initialTab || 'editar');
       setNombre(persona.nombre || '');
       setNombreAdicional(persona.nombreAdicional || '');
@@ -222,7 +236,7 @@ export default function EditarClienteModal({
       setFirmaElectronicaAvanzada(persona.firmaElectronicaAvanzada || '');
       setSavedSuccess(false);
     }
-  }, [persona, isOpen, initialTab]);
+  }, [persona?.personaId, isOpen, initialTab]);
 
   if (!isOpen || !persona) return null;
 
