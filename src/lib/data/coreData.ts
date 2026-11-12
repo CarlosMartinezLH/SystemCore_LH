@@ -186,7 +186,7 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
   {
     noDist: 1053,
     nombreDistribuidor: 'YOLANDA TORRES MARTINEZ',
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA A',
     zonaId: '0',
     zona: '0',
     subzonaId: '',
@@ -221,7 +221,7 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
   {
     noDist: 1001,
     nombreDistribuidor: 'ELDA JUANA MARTINEZ CEPEDA',
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA A',
     zona: 'ZONA 1',
     subzona: 'SUBZONA A',
     coordinador: 'ROSARIO CHARLES MARTINES',
@@ -240,7 +240,7 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
   {
     noDist: 1002,
     nombreDistribuidor: 'BERTHA ALICIA TELLO LARA',
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA A',
     zona: 'ZONA 1',
     subzona: 'SUBZONA B',
     coordinador: 'REYNA ELIZABETH GUTIERREZ ROSALES',
@@ -259,7 +259,7 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
   {
     noDist: 1003,
     nombreDistribuidor: 'LUCERO ESCAMILLA ORDOÑEZ',
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA B',
     zona: 'ZONA 2',
     subzona: 'SUBZONA A',
     coordinador: 'KARLA EDITH QUIROZ ESQUIVEL',
@@ -278,7 +278,7 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
   {
     noDist: 1004,
     nombreDistribuidor: 'MA CONCEPCION MONTELONGO DE LA ROSA',
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA B',
     zona: 'ZONA 1',
     subzona: 'SUBZONA C',
     coordinador: 'KAREN LUZ MARIA GARCIA FLORES',
@@ -297,7 +297,7 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
   {
     noDist: 1005,
     nombreDistribuidor: 'MARIA JOSEFINA TREVIÑO CONTRERAS',
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA B',
     zona: 'ZONA 3',
     subzona: 'SUBZONA A',
     coordinador: 'ROSARIO CHARLES MARTINES',
@@ -316,7 +316,7 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
   {
     noDist: 1011,
     nombreDistribuidor: 'LAURA RODRIGUEZ MENDEZ',
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA C',
     zona: 'ZONA 2',
     subzona: 'SUBZONA B',
     coordinador: 'SIN COORDINADOR SALTILLO',
@@ -335,7 +335,7 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
   {
     noDist: 1012,
     nombreDistribuidor: 'OLGA ALICIA HERRERA AREVALO',
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA C',
     zona: 'ZONA 4',
     subzona: 'SUBZONA A',
     coordinador: 'Zulaim Marbit Domínguez Roman',
@@ -354,7 +354,7 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
   {
     noDist: 1015,
     nombreDistribuidor: 'FLORENCIA ESPINOSA BETANCOURT',
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA C',
     zona: 'ZONA 1',
     subzona: 'SUBZONA D',
     coordinador: 'KARLA EDITH QUIROZ ESQUIVEL',
@@ -373,7 +373,7 @@ export const INITIAL_DISTRIBUIDORES: DistribuidorCore[] = [
   {
     noDist: 1016,
     nombreDistribuidor: 'ALMADELIA GAONA GIL',
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA A',
     zona: 'ZONA 3',
     subzona: 'SUBZONA C',
     coordinador: 'JOSE MIGUEL GONZALEZ VARGAS',
@@ -592,7 +592,7 @@ export const INITIAL_CREDITOS: CreditoCore[] = [
     estatus: 'VIGENTE',
     fechaOtorgamiento: '05/11/2026',
     quincenasPlazo: 16,
-    sucursal: 'TORREÓN',
+    sucursal: 'ZONA B',
   },
   {
     creditoId: 'CR-88901',
@@ -605,7 +605,7 @@ export const INITIAL_CREDITOS: CreditoCore[] = [
     estatus: 'VIGENTE',
     fechaOtorgamiento: '2026-09-10',
     quincenasPlazo: 8,
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA A',
   },
   {
     creditoId: 'CR-88902',
@@ -618,7 +618,7 @@ export const INITIAL_CREDITOS: CreditoCore[] = [
     estatus: 'VIGENTE',
     fechaOtorgamiento: '2026-09-25',
     quincenasPlazo: 10,
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA B',
   },
   {
     creditoId: 'CR-88740',
@@ -631,7 +631,7 @@ export const INITIAL_CREDITOS: CreditoCore[] = [
     estatus: 'LIQUIDADO',
     fechaOtorgamiento: '2026-05-14',
     quincenasPlazo: 12,
-    sucursal: 'SALTILLO',
+    sucursal: 'ZONA C',
   },
 ];
 

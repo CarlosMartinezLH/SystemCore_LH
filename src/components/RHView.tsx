@@ -461,10 +461,10 @@ export default function RHView({ currentUser }: RHViewProps = {}) {
                 onChange={(e) => setSelectedBranch(e.target.value)}
                 className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none"
               >
-                <option value="ALL">Todas las Plazas</option>
-                <option value="Saltillo">Saltillo</option>
-                <option value="Torreón">Torreón</option>
-                <option value="Monclova">Monclova</option>
+                <option value="ALL">Todas las Zonas</option>
+                <option value="Saltillo">Zona A</option>
+                <option value="Torreón">Zona B</option>
+                <option value="Monclova">Zona C</option>
               </select>
             </div>
 

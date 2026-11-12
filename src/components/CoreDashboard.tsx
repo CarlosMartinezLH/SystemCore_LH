@@ -31,6 +31,22 @@ interface CoreDashboardProps {
   currentUser?: UserSession | null;
 }
 
+const normalizeZona = (val: string | undefined): 'ZONA A' | 'ZONA B' | 'ZONA C' => {
+  if (!val) return 'ZONA A';
+  const u = val.toUpperCase();
+  if (u.includes('ZONA B') || u.includes('TORRE') || u === 'ZONA_B' || u === 'B') return 'ZONA B';
+  if (u.includes('ZONA C') || u.includes('MONCLOVA') || u === 'ZONA_C' || u === 'C') return 'ZONA C';
+  return 'ZONA A';
+};
+
+const formatZonaLabel = (val: string | undefined): string => {
+  const z = normalizeZona(val);
+  if (z === 'ZONA A') return 'Zona A';
+  if (z === 'ZONA B') return 'Zona B';
+  if (z === 'ZONA C') return 'Zona C';
+  return 'Zona A';
+};
+
 export default function CoreDashboard({
   onNavigateToPersonas,
   onNavigateToDistribuidores,
@@ -62,13 +78,14 @@ export default function CoreDashboard({
       const uB = currentUser.branch.toUpperCase();
       const dB = (d.sucursal || '').toUpperCase();
       const match =
-        (uB.includes('SALTILLO') && dB.includes('SALTILLO')) ||
-        (uB.includes('TORRE') && dB.includes('TORRE')) ||
-        (uB.includes('MONCLOVA') && dB.includes('MONCLOVA'));
+        ((uB.includes('ZONA A') || uB.includes('SALTILLO')) && (dB.includes('ZONA A') || dB.includes('SALTILLO'))) ||
+        ((uB.includes('ZONA B') || uB.includes('TORRE')) && (dB.includes('ZONA B') || dB.includes('TORRE'))) ||
+        ((uB.includes('ZONA C') || uB.includes('MONCLOVA')) && (dB.includes('ZONA C') || dB.includes('MONCLOVA')));
       if (!match) return false;
     }
 
-    const matchBranch = selectedBranch === 'ALL' || d.sucursal === selectedBranch;
+    const dvZona = normalizeZona(d.sucursal);
+    const matchBranch = selectedBranch === 'ALL' || dvZona === selectedBranch;
     if (!matchBranch) return false;
     if (!searchTerm.trim()) return true;
 
@@ -77,13 +94,16 @@ export default function CoreDashboard({
       d.nombreDistribuidor.toLowerCase().includes(q) ||
       d.noDist.toString().includes(q) ||
       d.coordinador.toLowerCase().includes(q) ||
-      d.sucursal.toLowerCase().includes(q)
+      d.sucursal.toLowerCase().includes(q) ||
+      dvZona.toLowerCase().includes(q) ||
+      formatZonaLabel(d.sucursal).toLowerCase().includes(q)
     );
   });
 
   // Filtrado de Créditos
   const filteredCreditos = creditos.filter((c) => {
-    const matchBranch = selectedBranch === 'ALL' || c.sucursal === selectedBranch;
+    const cZona = normalizeZona(c.sucursal);
+    const matchBranch = selectedBranch === 'ALL' || cZona === selectedBranch;
     if (!matchBranch) return false;
     if (!searchTerm.trim()) return true;
     const q = searchTerm.toLowerCase().trim();
@@ -93,7 +113,9 @@ export default function CoreDashboard({
       c.noVale.toLowerCase().includes(q) ||
       c.clienteNombre.toLowerCase().includes(q) ||
       c.distribuidorNombre.toLowerCase().includes(q) ||
-      c.noDist.toString().includes(q)
+      c.noDist.toString().includes(q) ||
+      cZona.toLowerCase().includes(q) ||
+      formatZonaLabel(c.sucursal).toLowerCase().includes(q)
     );
   });
 
@@ -163,16 +185,16 @@ export default function CoreDashboard({
             </button>
           </div>
 
-          {/* Selector de Plaza */}
+          {/* Selector de Zona */}
           <select
             value={selectedBranch}
             onChange={(e) => setSelectedBranch(e.target.value)}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:bg-white transition"
+            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:bg-white transition cursor-pointer"
           >
-            <option value="ALL">Todas las Plazas</option>
-            <option value="SALTILLO">Saltillo</option>
-            <option value="TORREON">Torreón</option>
-            <option value="MONCLOVA">Monclova</option>
+            <option value="ALL">Todas las Zonas</option>
+            <option value="ZONA A">Zona A</option>
+            <option value="ZONA B">Zona B</option>
+            <option value="ZONA C">Zona C</option>
           </select>
 
           {/* Botón Sincronizar */}
@@ -245,13 +267,13 @@ export default function CoreDashboard({
         <div className="bg-white/90 backdrop-blur-md p-5 rounded-2xl border border-slate-200/80 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-              Plazas en Operación
+              Zonas en Operación
             </span>
             <span className="text-xl lg:text-2xl font-black text-slate-900 mt-1 block">
-              3 Plazas
+              3 Zonas
             </span>
             <span className="text-[11px] text-slate-500 font-medium mt-1 block">
-              Saltillo · Torreón · Monclova
+              Zona A · Zona B · Zona C
             </span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
@@ -295,7 +317,7 @@ export default function CoreDashboard({
               <tr className="bg-slate-50/90 text-slate-700 font-bold border-b border-slate-200/80 uppercase text-[11px] tracking-wider">
                 <th className="py-3 px-4">Identificador</th>
                 <th className="py-3 px-4">Titular / Nombre</th>
-                <th className="py-3 px-4">Plaza / Sucursal</th>
+                <th className="py-3 px-4">Zona</th>
                 <th className="py-3 px-4 text-right">Línea / Monto</th>
                 <th className="py-3 px-4 text-right">Disponible / Saldo</th>
                 <th className="py-3 px-4 text-center">Estatus</th>
@@ -322,8 +344,8 @@ export default function CoreDashboard({
                         Coord: {dv.coordinador} · Nivel {dv.nivel}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-slate-600 font-medium">
-                      {dv.sucursal}
+                    <td className="py-3 px-4 text-slate-700 font-semibold">
+                      {formatZonaLabel(dv.sucursal)}
                     </td>
                     <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
                       ${dv.creditoLimite.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
@@ -372,8 +394,8 @@ export default function CoreDashboard({
                         Vale #{c.noVale} · DV #{c.noDist} ({c.distribuidorNombre})
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-slate-600 font-medium">
-                      {c.sucursal}
+                    <td className="py-3 px-4 text-slate-700 font-semibold">
+                      {formatZonaLabel(c.sucursal)}
                     </td>
                     <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
                       ${c.monto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
