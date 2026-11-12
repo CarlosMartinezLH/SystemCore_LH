@@ -36,6 +36,7 @@ import {
   CanjearValeModal,
   PrestanombresModal,
 } from './modals/PersonaModals';
+import CapturaClienteModal from './modals/CapturaClienteModal';
 import { buildSafeCsv } from '@/lib/utils/csv';
 
 export default function PersonasView() {
@@ -56,12 +57,6 @@ export default function PersonasView() {
   const [activeModal, setActiveModal] = useState<
     'buro' | 'bancarios' | 'expediente' | 'canjear' | 'prestanombres' | 'captura' | null
   >(null);
-
-  // New Client Form State
-  const [newNombre, setNewNombre] = useState('');
-  const [newApellidos, setNewApellidos] = useState('');
-  const [newCurp, setNewCurp] = useState('');
-  const [newTelefono, setNewTelefono] = useState('');
 
   // Internal Notes per persona
   const [internalNotes, setInternalNotes] = useState<Record<number, { text: string; date: string }[]>>({
@@ -133,31 +128,6 @@ export default function PersonasView() {
 
     updatePersona({ ...persona, isDistribuidor: true, distribuidorId: 1025 });
     alert(`✓ ¡Éxito! ${persona.nombre} ${persona.apellidoPaterno} ha sido registrada como Distribuidora oficial en el Core (DV #1025).`);
-  };
-
-  const handleCreateCustomer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newNombre.trim() || !newCurp.trim()) return;
-
-    try {
-      const res = await registrarCliente({
-        nombre: newNombre.trim(),
-        apellidoPaterno: newApellidos.trim(),
-        curp: newCurp.trim(),
-        telefono: newTelefono.trim(),
-      });
-      if (res?.result?.nuevaPersona) {
-        setSelectedPersonaId(res.result.nuevaPersona.personaId);
-      }
-      setActiveModal(null);
-      setNewNombre('');
-      setNewApellidos('');
-      setNewCurp('');
-      setNewTelefono('');
-      alert(`✓ Cliente registrado exitosamente en el Padrón Core.`);
-    } catch (err) {
-      alert('Error registrando cliente: ' + (err as Error).message);
-    }
   };
 
   const handleAddNote = () => {
@@ -948,94 +918,15 @@ export default function PersonasView() {
         </>
       )}
 
-      {/* Captura de Cliente Modal (Modern & Clean) */}
-      {activeModal === 'captura' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in">
-            <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 font-bold text-sm">
-                <UserPlus className="w-4 h-4 text-emerald-400" />
-                <span>Captura de Nueva Persona en Core</span>
-              </div>
-              <button
-                onClick={() => setActiveModal(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateCustomer} className="p-5 space-y-3.5 text-xs">
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">Nombre(s) *</label>
-                <input
-                  type="text"
-                  required
-                  value={newNombre}
-                  onChange={(e) => setNewNombre(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 uppercase font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-slate-900"
-                  placeholder="Ej. LAURA ELENA"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">Apellidos *</label>
-                <input
-                  type="text"
-                  required
-                  value={newApellidos}
-                  onChange={(e) => setNewApellidos(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 uppercase font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-slate-900"
-                  placeholder="Ej. RAMIREZ CASTILLO"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">
-                  CURP Oficial (18 caracteres) *
-                </label>
-                <input
-                  type="text"
-                  maxLength={18}
-                  required
-                  value={newCurp}
-                  onChange={(e) => setNewCurp(e.target.value.toUpperCase())}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 font-mono font-bold text-xs focus:outline-none focus:ring-1 focus:ring-slate-900"
-                  placeholder="RACL900101MCLRR02"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">Teléfono Móvil (10 dígitos)</label>
-                <input
-                  type="tel"
-                  maxLength={10}
-                  value={newTelefono}
-                  onChange={(e) => setNewTelefono(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-slate-900"
-                  placeholder="8441234567"
-                />
-              </div>
-
-              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setActiveModal(null)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition"
-                >
-                  Guardar en Core
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Captura de Cliente Modal (Fiel a la pantalla del sistema anterior con Cliente y Buro) */}
+      <CapturaClienteModal
+        isOpen={activeModal === 'captura'}
+        onClose={() => setActiveModal(null)}
+        onSuccess={(newPersonaId) => {
+          setSelectedPersonaId(newPersonaId);
+          setActiveModal(null);
+        }}
+      />
     </div>
   );
 }

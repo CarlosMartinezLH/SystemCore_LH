@@ -70,6 +70,17 @@ interface CoreSyncContextType {
     direccion?: string;
     sexoId?: 'FEMENINO' | 'MASCULINO';
     fechaNacimiento?: string;
+    numeroExterior?: string;
+    codigoPostal?: string;
+    localidad?: string;
+    tipoIdentificacion?: 'INE' | 'PASAPORTE' | 'CEDULA' | 'OTRA';
+    numeroIdentificacion?: string;
+    pagareEstatusId?: 'NO DEFINIDO' | 'FIRMADO EN BLANCO' | 'SIN PAGARE';
+    pagareCantidad?: number;
+    estadoNacimiento?: string;
+    localidadNacimiento?: string;
+    consultaBuroInicial?: boolean;
+    folioBuroPrevia?: string;
   }) => Promise<any>;
   registrarPago: (payload: {
     noDist: number;
@@ -188,6 +199,17 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
     direccion?: string;
     sexoId?: 'FEMENINO' | 'MASCULINO';
     fechaNacimiento?: string;
+    numeroExterior?: string;
+    codigoPostal?: string;
+    localidad?: string;
+    tipoIdentificacion?: 'INE' | 'PASAPORTE' | 'CEDULA' | 'OTRA';
+    numeroIdentificacion?: string;
+    pagareEstatusId?: 'NO DEFINIDO' | 'FIRMADO EN BLANCO' | 'SIN PAGARE';
+    pagareCantidad?: number;
+    estadoNacimiento?: string;
+    localidadNacimiento?: string;
+    consultaBuroInicial?: boolean;
+    folioBuroPrevia?: string;
   }) => {
     try {
       const res = await fetch('/api/sync', {

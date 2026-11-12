@@ -21,6 +21,15 @@ export interface PersonaCore {
   banco?: string;
   scoreBuro?: number;
   fotoUrl?: string;
+  numeroExterior?: string;
+  codigoPostal?: string;
+  localidad?: string;
+  tipoIdentificacion?: 'INE' | 'PASAPORTE' | 'CEDULA' | 'OTRA';
+  numeroIdentificacion?: string;
+  estadoNacimiento?: string;
+  localidadNacimiento?: string;
+  consultaBuroInicial?: boolean;
+  folioBuroPrevia?: string;
 }
 
 export type DistribuidorEstatus = 'ACTIVO' | 'CANCELADO' | 'REESTRUCTURA';

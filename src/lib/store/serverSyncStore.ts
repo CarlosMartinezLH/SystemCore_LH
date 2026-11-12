@@ -236,6 +236,17 @@ export function recordClienteSync(payload: {
   direccion?: string;
   sexoId?: 'FEMENINO' | 'MASCULINO';
   fechaNacimiento?: string;
+  numeroExterior?: string;
+  codigoPostal?: string;
+  localidad?: string;
+  tipoIdentificacion?: 'INE' | 'PASAPORTE' | 'CEDULA' | 'OTRA';
+  numeroIdentificacion?: string;
+  pagareEstatusId?: 'NO DEFINIDO' | 'FIRMADO EN BLANCO' | 'SIN PAGARE';
+  pagareCantidad?: number;
+  estadoNacimiento?: string;
+  localidadNacimiento?: string;
+  consultaBuroInicial?: boolean;
+  folioBuroPrevia?: string;
 }) {
   const data = getServerSyncData();
   const curpUpper = payload.curp.trim().toUpperCase();
@@ -259,16 +270,26 @@ export function recordClienteSync(payload: {
     apellidoPaterno: payload.apellidoPaterno.toUpperCase(),
     apellidoMaterno: payload.apellidoMaterno ? payload.apellidoMaterno.toUpperCase() : '',
     fechaNacimiento: payload.fechaNacimiento || '01/01/1995',
-    pagareEstatusId: 'NO DEFINIDO',
-    pagareCantidad: 0.0,
+    pagareEstatusId: payload.pagareEstatusId || 'NO DEFINIDO',
+    pagareCantidad: payload.pagareCantidad || (payload.pagareEstatusId === 'FIRMADO EN BLANCO' ? 25000 : 0.0),
     curp: curpUpper,
     rfc: payload.rfc ? payload.rfc.toUpperCase() : curpUpper.slice(0, 10),
     sexoId: payload.sexoId || 'FEMENINO',
     buroInternoEstatus: 'NORMAL',
-    observaciones: 'Cliente registrado vía LanApp / Core',
+    observaciones: 'Cliente registrado vía Padrón Core / Captura',
     isDistribuidor: false,
     telefono: payload.telefono || '8441002030',
-    direccion: payload.direccion || 'SALTILLO, COAHUILA',
+    direccion: payload.direccion || '',
+    numeroExterior: payload.numeroExterior,
+    codigoPostal: payload.codigoPostal,
+    localidad: payload.localidad,
+    tipoIdentificacion: payload.tipoIdentificacion || 'INE',
+    numeroIdentificacion: payload.numeroIdentificacion,
+    estadoNacimiento: payload.estadoNacimiento || 'Coahuila',
+    localidadNacimiento: payload.localidadNacimiento,
+    consultaBuroInicial: payload.consultaBuroInicial,
+    folioBuroPrevia: payload.folioBuroPrevia,
+    scoreBuro: payload.consultaBuroInicial ? 695 : undefined,
   };
 
   data.personas = [nuevaPersona, ...data.personas];
