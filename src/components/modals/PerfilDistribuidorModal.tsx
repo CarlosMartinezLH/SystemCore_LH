@@ -32,9 +32,11 @@ import {
   Receipt,
   ExternalLink,
   FileSpreadsheet,
+  Scissors,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import EstadoCuentaDistribuidorModal from './EstadoCuentaDistribuidorModal';
+import RecibosRelacionModal from './RecibosRelacionModal';
 
 interface PerfilDistribuidorModalProps {
   isOpen: boolean;
@@ -314,6 +316,7 @@ export default function PerfilDistribuidorModal({
   const [currentDv, setCurrentDv] = useState<DistribuidorCore>(distribuidor);
   const [isEditing, setIsEditing] = useState(false);
   const [isEstadoCuentaModalOpen, setIsEstadoCuentaModalOpen] = useState(false);
+  const [isRecibosModalOpen, setIsRecibosModalOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<DistribuidorCore>>({});
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
@@ -596,7 +599,7 @@ export default function PerfilDistribuidorModal({
                 </div>
               </div>
 
-              {/* Accesos Rápidos Principales: Cartera de Clientes y Estado de Cuenta */}
+              {/* Accesos Rápidos Principales: Cartera de Clientes, Estado de Cuenta y Talones de Pago */}
               <div className="flex flex-wrap items-center gap-2.5 p-2.5 bg-white rounded-xl border border-slate-200 shadow-2xs">
                 <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 px-1">
                   Módulos de Distribuidor:
@@ -616,6 +619,14 @@ export default function PerfilDistribuidorModal({
                 >
                   <Printer className="w-3.5 h-3.5 text-blue-700" />
                   <span>Generar Estado de Cuenta</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsRecibosModalOpen(true)}
+                  className="px-3.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-800 font-bold text-xs inline-flex items-center gap-1.5 border border-purple-200 transition active:scale-95 shadow-2xs cursor-pointer"
+                >
+                  <Receipt className="w-3.5 h-3.5 text-purple-700" />
+                  <span>Talones de Pago (Relación Recibos)</span>
                 </button>
                 <button
                   type="button"
@@ -942,12 +953,12 @@ export default function PerfilDistribuidorModal({
 
                   <button
                     type="button"
-                    onClick={() => showToast('Generando recibos de relación...')}
+                    onClick={() => setIsRecibosModalOpen(true)}
                     className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-800 hover:text-emerald-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
                     <Receipt className="w-4 h-4 text-emerald-600" />
                     <span className="font-bold text-xs">Recibos de Relación</span>
-                    <span className="text-[10px] text-slate-500">Talón de pago</span>
+                    <span className="text-[10px] text-slate-500">Talones de pago quincenales</span>
                   </button>
 
                   <button
@@ -1376,6 +1387,15 @@ export default function PerfilDistribuidorModal({
         <EstadoCuentaDistribuidorModal
           isOpen={isEstadoCuentaModalOpen}
           onClose={() => setIsEstadoCuentaModalOpen(false)}
+          distribuidor={currentDv}
+        />
+      )}
+
+      {/* Modal Oficial de Relación de Recibos / Talones de Pago */}
+      {isRecibosModalOpen && (
+        <RecibosRelacionModal
+          isOpen={isRecibosModalOpen}
+          onClose={() => setIsRecibosModalOpen(false)}
           distribuidor={currentDv}
         />
       )}

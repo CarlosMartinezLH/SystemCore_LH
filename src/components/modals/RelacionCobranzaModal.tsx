@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { DistribuidorCore } from '@/types/core';
-import { Printer, Download, X, FileSpreadsheet, CheckCircle2 } from 'lucide-react';
+import { Printer, Download, X, FileSpreadsheet, CheckCircle2, Scissors } from 'lucide-react';
+import RecibosRelacionModal from './RecibosRelacionModal';
 
 interface RelacionCobranzaModalProps {
   isOpen: boolean;
@@ -15,6 +16,8 @@ export default function RelacionCobranzaModal({
   onClose,
   distribuidor,
 }: RelacionCobranzaModalProps) {
+  const [isRecibosOpen, setIsRecibosOpen] = useState(false);
+
   if (!isOpen) return null;
 
   const dv = distribuidor || {
@@ -638,21 +641,37 @@ export default function RelacionCobranzaModal({
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setIsRecibosOpen(true)}
+              className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <Scissors className="w-3.5 h-3.5" />
+              <span>Ver Talones de Pago</span>
+            </button>
+            <button
               onClick={() => window.print()}
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-xs flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Imprimir / PDF</span>
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold transition"
+              className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold transition cursor-pointer"
             >
               Cerrar
             </button>
           </div>
         </div>
       </div>
+
+      {/* Modal de Talones de Pago / Recibos de Relación */}
+      {isRecibosOpen && (
+        <RecibosRelacionModal
+          isOpen={isRecibosOpen}
+          onClose={() => setIsRecibosOpen(false)}
+          distribuidor={dv as any}
+        />
+      )}
     </div>
   );
 }
