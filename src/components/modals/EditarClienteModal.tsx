@@ -25,6 +25,15 @@ import {
   ExternalLink,
   Pencil,
   UserCheck,
+  ZoomIn,
+  ZoomOut,
+  Download,
+  Upload,
+  FileCheck,
+  Eye,
+  RefreshCw,
+  FileSignature,
+  QrCode,
 } from 'lucide-react';
 import {
   PersonaCore,
@@ -127,6 +136,54 @@ export default function EditarClienteModal({
 
   // Categoría en Padrón (CF, DV, AV, CO)
   const [categoria, setCategoria] = useState<CategoriaPersona>(getCategoriaPersona(persona));
+
+  // Estados para Visor de Expediente Digital Integrado
+  const [selectedDocId, setSelectedDocId] = useState<'ine' | 'cfe' | 'pagare' | 'sat' | 'prestanombres'>('ine');
+  const [ineSide, setIneSide] = useState<'anverso' | 'reverso'>('anverso');
+  const [docZoom, setDocZoom] = useState<number>(100);
+  const [uploadedFiles, setUploadedFiles] = useState<Record<string, string>>({});
+  const [docToast, setDocToast] = useState<string | null>(null);
+  const fileUploadInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setUploadedFiles((prev) => ({
+          ...prev,
+          [selectedDocId]: reader.result as string,
+        }));
+        setDocToast(`Documento "${file.name}" cargado y cotejado.`);
+        setTimeout(() => setDocToast(null), 3000);
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleDownloadDoc = () => {
+    if (!persona) return;
+    const docNames: Record<string, string> = {
+      ine: 'IDENTIFICACION_OFICIAL_INE',
+      cfe: 'COMPROBANTE_DOMICILIO_CFE',
+      pagare: 'PAGARE_LEGAL_AMPARADO',
+      sat: 'CONSTANCIA_SITUACION_FISCAL_SAT',
+      prestanombres: 'DECLARATORIA_PRESTANOMBRES_CNBV',
+    };
+    const filename = `${docNames[selectedDocId] || selectedDocId.toUpperCase()}_${persona.personaId}.pdf`;
+    const dummyContent = `LANAHORA CORE - EXPEDIENTE DIGITAL COTEJADO\n===========================================\nDocumento: ${docNames[selectedDocId] || selectedDocId.toUpperCase()}\nTitular: ${persona.nombre} ${persona.apellidoPaterno} ${persona.apellidoMaterno}\nID Sistema: #${persona.personaId}\nCURP: ${persona.curp}\nRFC: ${persona.rfc || 'S/D'}\nDomicilio: ${persona.direccion || direccion || 'AV. HIDALGO'} #${persona.numeroExterior || numeroExterior || '104'}, Col. ${persona.colonia || colonia || 'CENTRO'}, ${persona.localidad || 'SALTILLO'}, ${persona.estadoNacimiento || 'COAHUILA'}\nFecha de Cotejo: ${new Date().toLocaleDateString('es-MX')}\nValidado por: Mesa de Control y Riesgos LanAhora S.A.P.I. de C.V. SOFOM E.N.R.`;
+    const blob = new Blob([dummyContent], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   // Estados del Formulario (los 40 campos del sistema anterior)
   // Col 1: Datos Personales e Identidad
@@ -1166,73 +1223,700 @@ export default function EditarClienteModal({
           )}
 
           {/* ========================================================= */}
-          {/* PESTAÑA 3: EXPEDIENTE DIGITAL                             */}
+          {/* PESTAÑA 3: EXPEDIENTE DIGITAL (VISOR INTEGRADO DIRECTO)   */}
           {/* ========================================================= */}
           {activeTab === 'expediente' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-extrabold text-slate-900">
-                    Expediente Digital Cotejado
-                  </h4>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose();
-                    if (onLaunchExpediente) onLaunchExpediente();
-                  }}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Abrir Visor Completo de Documentos</span>
-                </button>
-              </div>
+            <div className="space-y-3">
+              {/* Input oculto para carga/sustitución de documentos */}
+              <input
+                type="file"
+                ref={fileUploadInputRef}
+                onChange={handleFileUpload}
+                accept="image/*,application/pdf"
+                className="hidden"
+              />
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* INE */}
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-extrabold text-xs">
-                      INE
-                    </span>
-                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                      Vigente
+              {/* Toast de confirmación de subida */}
+              {docToast && (
+                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{docToast}</span>
+                </div>
+              )}
+
+              {/* Visor de Documentos Integrado */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-xs min-h-[560px]">
+                {/* Columna Izquierda: Padrón de Documentos (4 cols) */}
+                <div className="lg:col-span-4 border-r border-slate-200 flex flex-col bg-slate-50/70 p-3 space-y-3">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="font-extrabold text-slate-900 text-xs">Documentos del Expediente</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      5 Cotejados
                     </span>
                   </div>
-                  <p className="font-bold text-slate-900 text-xs">Identificación Oficial (INE/IFE)</p>
-                </div>
 
-                {/* Comprobante Domicilio */}
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-extrabold text-xs">
-                      CFE
-                    </span>
-                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                      Validado
-                    </span>
-                  </div>
-                  <p className="font-bold text-slate-900 text-xs">Comprobante de Domicilio</p>
-                </div>
-
-                {/* Pagaré */}
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="w-8 h-8 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center font-extrabold text-xs">
-                      DOC
-                    </span>
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        persona.pagareEstatusId === 'FIRMADO EN BLANCO'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-rose-100 text-rose-800'
+                  {/* Lista de Documentos */}
+                  <div className="space-y-1.5 flex-1 overflow-y-auto pr-0.5">
+                    {/* Doc 1: INE */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDocId('ine')}
+                      className={`w-full text-left p-2.5 rounded-xl border transition flex items-center justify-between gap-2 ${
+                        selectedDocId === 'ine'
+                          ? 'bg-blue-50/90 border-blue-400 text-blue-950 shadow-2xs'
+                          : 'bg-white hover:bg-slate-100 border-slate-200/80 text-slate-700'
                       }`}
                     >
-                      {persona.pagareEstatusId}
-                    </span>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            selectedDocId === 'ine' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          <CreditCard className="w-4 h-4" />
+                        </div>
+                        <div className="truncate">
+                          <p className="font-bold text-xs truncate">Identificación Oficial (INE)</p>
+                          <p className="text-[10px] text-slate-400 font-mono">Frente / Reverso · 2.4 MB</p>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 shrink-0">
+                        Vigente
+                      </span>
+                    </button>
+
+                    {/* Doc 2: CFE */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDocId('cfe')}
+                      className={`w-full text-left p-2.5 rounded-xl border transition flex items-center justify-between gap-2 ${
+                        selectedDocId === 'cfe'
+                          ? 'bg-blue-50/90 border-blue-400 text-blue-950 shadow-2xs'
+                          : 'bg-white hover:bg-slate-100 border-slate-200/80 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            selectedDocId === 'cfe' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          <Building className="w-4 h-4" />
+                        </div>
+                        <div className="truncate">
+                          <p className="font-bold text-xs truncate">Comprobante Domicilio (CFE)</p>
+                          <p className="text-[10px] text-slate-400 font-mono">Recibo Luz · 1.1 MB</p>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 shrink-0">
+                        Validado
+                      </span>
+                    </button>
+
+                    {/* Doc 3: Pagaré */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDocId('pagare')}
+                      className={`w-full text-left p-2.5 rounded-xl border transition flex items-center justify-between gap-2 ${
+                        selectedDocId === 'pagare'
+                          ? 'bg-blue-50/90 border-blue-400 text-blue-950 shadow-2xs'
+                          : 'bg-white hover:bg-slate-100 border-slate-200/80 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            selectedDocId === 'pagare' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          <FileCheck className="w-4 h-4" />
+                        </div>
+                        <div className="truncate">
+                          <p className="font-bold text-xs truncate">Pagaré Legal Amparado</p>
+                          <p className="text-[10px] text-slate-400 font-mono">Garantía · 850 KB</p>
+                        </div>
+                      </div>
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
+                          persona.pagareEstatusId === 'FIRMADO EN BLANCO'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-rose-100 text-rose-800'
+                        }`}
+                      >
+                        {persona.pagareEstatusId === 'FIRMADO EN BLANCO' ? 'Firmado' : 'Sin Pagaré'}
+                      </span>
+                    </button>
+
+                    {/* Doc 4: SAT */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDocId('sat')}
+                      className={`w-full text-left p-2.5 rounded-xl border transition flex items-center justify-between gap-2 ${
+                        selectedDocId === 'sat'
+                          ? 'bg-blue-50/90 border-blue-400 text-blue-950 shadow-2xs'
+                          : 'bg-white hover:bg-slate-100 border-slate-200/80 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            selectedDocId === 'sat' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          <ShieldCheck className="w-4 h-4" />
+                        </div>
+                        <div className="truncate">
+                          <p className="font-bold text-xs truncate">Constancia Fiscal (SAT)</p>
+                          <p className="text-[10px] text-slate-400 font-mono">CIF Oficial · 620 KB</p>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 shrink-0">
+                        Validado
+                      </span>
+                    </button>
+
+                    {/* Doc 5: Prestanombres */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDocId('prestanombres')}
+                      className={`w-full text-left p-2.5 rounded-xl border transition flex items-center justify-between gap-2 ${
+                        selectedDocId === 'prestanombres'
+                          ? 'bg-blue-50/90 border-blue-400 text-blue-950 shadow-2xs'
+                          : 'bg-white hover:bg-slate-100 border-slate-200/80 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            selectedDocId === 'prestanombres' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          <FileSignature className="w-4 h-4" />
+                        </div>
+                        <div className="truncate">
+                          <p className="font-bold text-xs truncate">Carta Prestanombres (CNBV)</p>
+                          <p className="text-[10px] text-slate-400 font-mono">PLD / Art 115 · 512 KB</p>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 shrink-0">
+                        Cotejado
+                      </span>
+                    </button>
                   </div>
-                  <p className="font-bold text-slate-900 text-xs">Pagaré Legal Amparado</p>
+
+                  {/* Botón de Cargar o Reemplazar */}
+                  <button
+                    type="button"
+                    onClick={() => fileUploadInputRef.current?.click()}
+                    className="w-full py-2.5 px-3 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition shadow-2xs"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Subir o Sustituir Documento</span>
+                  </button>
+                </div>
+
+                {/* Columna Derecha: Canvas del Visor de Documentos (8 cols) */}
+                <div className="lg:col-span-8 flex flex-col bg-slate-100 overflow-hidden">
+                  {/* Barra de herramientas superior del visor */}
+                  <div className="px-4 py-2.5 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-slate-900 text-xs">
+                        {selectedDocId === 'ine' && 'Identificación Oficial INE (IFE)'}
+                        {selectedDocId === 'cfe' && 'Comprobante de Domicilio (CFE Suministrador)'}
+                        {selectedDocId === 'pagare' && 'Pagaré Mercantil con Garantía'}
+                        {selectedDocId === 'sat' && 'Constancia de Situación Fiscal (SAT CIF)'}
+                        {selectedDocId === 'prestanombres' && 'Declaratoria Prestanombres (CNBV Art. 115)'}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        Cotejado
+                      </span>
+                    </div>
+
+                    {/* Toggle Anverso / Reverso para INE */}
+                    {selectedDocId === 'ine' && (
+                      <div className="inline-flex p-0.5 bg-slate-100 rounded-lg border border-slate-200 text-xs font-bold text-slate-600">
+                        <button
+                          type="button"
+                          onClick={() => setIneSide('anverso')}
+                          className={`px-2.5 py-1 rounded-md transition text-xs ${
+                            ineSide === 'anverso'
+                              ? 'bg-white text-blue-700 shadow-2xs'
+                              : 'hover:text-slate-900'
+                          }`}
+                        >
+                          Anverso
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIneSide('reverso')}
+                          className={`px-2.5 py-1 rounded-md transition text-xs ${
+                            ineSide === 'reverso'
+                              ? 'bg-white text-blue-700 shadow-2xs'
+                              : 'hover:text-slate-900'
+                          }`}
+                        >
+                          Reverso
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Acciones de zoom, impresión y descarga */}
+                    <div className="flex items-center gap-1.5">
+                      {/* Zoom Controls */}
+                      <div className="inline-flex items-center bg-slate-100 rounded-lg border border-slate-200 p-0.5 text-xs text-slate-700">
+                        <button
+                          type="button"
+                          onClick={() => setDocZoom((z) => Math.max(70, z - 15))}
+                          className="w-6 h-6 flex items-center justify-center hover:bg-white rounded transition"
+                          title="Reducir zoom"
+                        >
+                          <ZoomOut className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="px-1.5 font-mono text-[11px] font-bold">{docZoom}%</span>
+                        <button
+                          type="button"
+                          onClick={() => setDocZoom((z) => Math.min(160, z + 15))}
+                          className="w-6 h-6 flex items-center justify-center hover:bg-white rounded transition"
+                          title="Aumentar zoom"
+                        >
+                          <ZoomIn className="w-3.5 h-3.5" />
+                        </button>
+                        {docZoom !== 100 && (
+                          <button
+                            type="button"
+                            onClick={() => setDocZoom(100)}
+                            className="w-6 h-6 flex items-center justify-center hover:bg-white rounded transition text-slate-400 hover:text-slate-700"
+                            title="Restablecer tamaño normal"
+                          >
+                            <RefreshCw className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Imprimir */}
+                      <button
+                        type="button"
+                        onClick={() => window.print()}
+                        className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-slate-900 transition"
+                        title="Imprimir documento"
+                      >
+                        <Printer className="w-4 h-4" />
+                      </button>
+
+                      {/* Descargar */}
+                      <button
+                        type="button"
+                        onClick={handleDownloadDoc}
+                        className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-slate-900 transition"
+                        title="Descargar PDF cotejado"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+
+                      {/* Reemplazar */}
+                      <button
+                        type="button"
+                        onClick={() => fileUploadInputRef.current?.click()}
+                        className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 transition"
+                      >
+                        <Upload className="w-3 h-3" />
+                        <span>Sustituir</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Lienzo de visualización con soporte de scroll y zoom */}
+                  <div className="flex-1 overflow-auto p-6 flex items-center justify-center bg-slate-200/50">
+                    <div
+                      style={{
+                        transform: `scale(${docZoom / 100})`,
+                        transformOrigin: 'center center',
+                        transition: 'transform 0.15s ease',
+                      }}
+                    >
+                      {/* Si el usuario subió una imagen personalizada */}
+                      {uploadedFiles[selectedDocId] ? (
+                        <div className="relative bg-white p-3 rounded-2xl shadow-xl border border-slate-300 max-w-lg">
+                          <img
+                            src={uploadedFiles[selectedDocId]}
+                            alt="Documento cargado"
+                            className="max-h-[440px] w-auto object-contain rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = { ...uploadedFiles };
+                              delete next[selectedDocId];
+                              setUploadedFiles(next);
+                            }}
+                            className="mt-2 text-xs text-rose-600 hover:underline font-bold block text-center"
+                          >
+                            Restablecer a documento cotejado del sistema
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          {/* 1. INE (ANVERSO / REVERSO) */}
+                          {selectedDocId === 'ine' && (
+                            ineSide === 'anverso' ? (
+                              // INE ANVERSO
+                              <div className="w-[480px] h-[300px] bg-gradient-to-br from-emerald-50/90 via-slate-50 to-teal-50 border-2 border-emerald-600/40 rounded-2xl shadow-xl p-4 flex flex-col justify-between relative overflow-hidden select-none">
+                                <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#059669_1px,transparent_1px)] [background-size:8px_8px] pointer-events-none" />
+
+                                <div className="flex items-center justify-between border-b border-emerald-700/20 pb-2 relative z-10">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-7 h-7 rounded-full bg-emerald-700 text-white font-extrabold text-[10px] flex items-center justify-center">
+                                      MEX
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-black tracking-wider text-emerald-950 uppercase">
+                                        INSTITUTO NACIONAL ELECTORAL
+                                      </p>
+                                      <p className="text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">
+                                        CREDENCIAL PARA VOTAR
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="w-12 h-6 rounded bg-gradient-to-r from-amber-200 via-emerald-200 to-sky-200 border border-emerald-300/60 opacity-80 flex items-center justify-center text-[7px] font-mono font-bold text-slate-700">
+                                    HOLOGRAMA
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-12 gap-3 items-center relative z-10 my-auto">
+                                  <div className="col-span-4 flex flex-col items-center">
+                                    <div className="w-24 h-28 bg-slate-200 border-2 border-slate-300 rounded-lg flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
+                                      <span className="font-extrabold text-2xl text-slate-400">
+                                        {persona.nombre.charAt(0)}{persona.apellidoPaterno.charAt(0)}
+                                      </span>
+                                      <span className="text-[8px] font-bold text-slate-500 uppercase mt-1">FOTO INE</span>
+                                      <div className="absolute bottom-0 inset-x-0 bg-emerald-800/80 text-[7px] text-white text-center py-0.5 font-mono">
+                                        COTEJADO
+                                      </div>
+                                    </div>
+                                    <span className="text-[8px] font-mono text-slate-400 mt-1">HUELLA DIGITAL</span>
+                                  </div>
+
+                                  <div className="col-span-8 space-y-1.5 text-slate-900">
+                                    <div>
+                                      <span className="text-[8px] text-slate-400 uppercase font-bold block leading-none">NOMBRE</span>
+                                      <span className="font-extrabold text-xs tracking-tight block uppercase text-slate-950">
+                                        {persona.nombre} {persona.nombreAdicional ? persona.nombreAdicional + ' ' : ''}{persona.apellidoPaterno} {persona.apellidoMaterno}
+                                      </span>
+                                    </div>
+
+                                    <div>
+                                      <span className="text-[8px] text-slate-400 uppercase font-bold block leading-none">DOMICILIO</span>
+                                      <p className="text-[10px] font-bold text-slate-700 leading-tight uppercase">
+                                        {persona.direccion || direccion || 'AV. HIDALGO'} #{persona.numeroExterior || numeroExterior || '104'} {(persona.numeroInterior || numeroInterior) ? 'INT ' + (persona.numeroInterior || numeroInterior) : ''}
+                                        <br />
+                                        COL. {persona.colonia || colonia || 'CENTRO'}
+                                        <br />
+                                        C.P. {persona.codigoPostal || codigoPostal || '25000'}, {persona.localidad || 'SALTILLO'}, {persona.estadoNacimiento || estadoNacimiento || 'COAHUILA'}
+                                      </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-1 pt-1 border-t border-slate-200/80 text-[9px] font-mono">
+                                      <div>
+                                        <span className="text-[7px] text-slate-400 block font-bold">SEXO</span>
+                                        <span className="font-bold">{persona.sexoId === 'FEMENINO' ? 'M' : 'H'}</span>
+                                      </div>
+                                      <div>
+                                        <span className="text-[7px] text-slate-400 block font-bold">AÑO REG</span>
+                                        <span className="font-bold">2018 02</span>
+                                      </div>
+                                      <div>
+                                        <span className="text-[7px] text-slate-400 block font-bold">VIGENCIA</span>
+                                        <span className="font-bold text-emerald-700">2024-2034</span>
+                                      </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-1 text-[9px] font-mono">
+                                      <div>
+                                        <span className="text-[7px] text-slate-400 block font-bold">CLAVE DE ELECTOR</span>
+                                        <span className="font-bold text-[8px] truncate block">{persona.numeroIdentificacion || numeroIdentificacion || 'CHRMOS88082105H200'}</span>
+                                      </div>
+                                      <div>
+                                        <span className="text-[7px] text-slate-400 block font-bold">CURP</span>
+                                        <span className="font-bold text-[8px] truncate block">{persona.curp}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-between text-[8px] font-mono text-slate-400 pt-1 border-t border-emerald-700/20 relative z-10">
+                                  <span>SECCIÓN 0482</span>
+                                  <span className="text-emerald-700 font-bold">IDENTIFICACIÓN OFICIAL VÁLIDA</span>
+                                  <span>EMISIÓN 01</span>
+                                </div>
+                              </div>
+                            ) : (
+                              // INE REVERSO
+                              <div className="w-[480px] h-[300px] bg-slate-100 border-2 border-slate-300 rounded-2xl shadow-xl p-4 flex flex-col justify-between relative overflow-hidden select-none">
+                                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                                  <span className="text-[9px] font-mono text-slate-400">INSTITUTO NACIONAL ELECTORAL</span>
+                                  <span className="text-[9px] font-mono text-slate-400">REVERSO OFICIAL</span>
+                                </div>
+
+                                <div className="grid grid-cols-12 gap-3 items-center">
+                                  <div className="col-span-8 space-y-2">
+                                    <div className="h-14 bg-white border border-slate-300 rounded-lg p-2 flex flex-col justify-between">
+                                      <span className="text-[7px] font-mono text-slate-400 uppercase">FIRMA DEL TITULAR</span>
+                                      <span className="font-serif italic text-base text-blue-900 font-bold px-2">
+                                        {persona.nombre} {persona.apellidoPaterno}
+                                      </span>
+                                    </div>
+                                    <div className="h-10 bg-slate-900 rounded p-1 flex items-center justify-between overflow-hidden">
+                                      <div className="flex gap-0.5 h-full w-full">
+                                        {Array.from({ length: 60 }).map((_, i) => (
+                                          <div
+                                            key={i}
+                                            className={`h-full ${i % 3 === 0 ? 'w-1 bg-white' : i % 5 === 0 ? 'w-0.5 bg-white' : 'w-px bg-slate-800'}`}
+                                          />
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="col-span-4 flex flex-col items-center justify-center p-2 bg-white rounded-lg border border-slate-200">
+                                    <QrCode className="w-16 h-16 text-slate-900" />
+                                    <span className="text-[7px] font-mono text-slate-400 mt-1">QR BIOMÉTRICO</span>
+                                  </div>
+                                </div>
+
+                                <div className="bg-slate-200/80 p-2 rounded-lg font-mono text-[9px] text-slate-700 leading-tight tracking-widest">
+                                  <p>IDMEX{String(persona.personaId).padStart(9, '0')}0&lt;&lt;0248&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</p>
+                                  <p>8808218M3412316MEX&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;8</p>
+                                  <p className="truncate">
+                                    {persona.apellidoPaterno.toUpperCase()}&lt;{persona.apellidoMaterno?.toUpperCase() || 'X'}&lt;&lt;{persona.nombre.toUpperCase()}&lt;&lt;&lt;
+                                  </p>
+                                </div>
+                              </div>
+                            )
+                          )}
+
+                          {/* 2. CFE COMPROBANTE DE DOMICILIO */}
+                          {selectedDocId === 'cfe' && (
+                            <div className="w-[460px] bg-white border border-slate-300 rounded-xl shadow-xl p-5 select-none font-sans text-slate-900 space-y-4">
+                              <div className="flex items-center justify-between border-b-2 border-emerald-600 pb-3">
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-black text-xl text-emerald-700 tracking-tight">CFE</span>
+                                    <span className="text-[10px] font-bold text-slate-600">Suministrador de Servicios Básicos</span>
+                                  </div>
+                                  <p className="text-[9px] text-slate-400 uppercase font-mono">Comprobante Fiscal Digital por Internet</p>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                                    AVISO RECIBO
+                                  </span>
+                                  <p className="text-[10px] font-mono font-bold text-slate-600 mt-1">NO. SERVICIO: 9281 7482 9182</p>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-12 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                <div className="col-span-7 space-y-1">
+                                  <span className="text-[8px] font-bold text-slate-400 uppercase">TITULAR DEL SERVICIO</span>
+                                  <p className="font-extrabold text-xs text-slate-900 uppercase">
+                                    {persona.nombre} {persona.apellidoPaterno} {persona.apellidoMaterno}
+                                  </p>
+                                  <p className="text-[10px] text-slate-600 leading-tight uppercase">
+                                    {persona.direccion || direccion || 'AV. HIDALGO'} #{persona.numeroExterior || numeroExterior || '104'} {(persona.numeroInterior || numeroInterior) ? 'INT ' + (persona.numeroInterior || numeroInterior) : ''}
+                                    <br />
+                                    COL. {persona.colonia || colonia || 'CENTRO'}, C.P. {persona.codigoPostal || codigoPostal || '25000'}
+                                    <br />
+                                    {persona.localidad || 'SALTILLO'}, {persona.estadoNacimiento || estadoNacimiento || 'COAHUILA'}
+                                  </p>
+                                </div>
+                                <div className="col-span-5 bg-emerald-700 text-white p-3 rounded-lg flex flex-col justify-between text-right">
+                                  <span className="text-[9px] font-bold opacity-80 uppercase">TOTAL A PAGAR</span>
+                                  <span className="font-black text-lg font-mono">$845.00</span>
+                                  <span className="text-[8px] opacity-80">PESOS 00/100 M.N.</span>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-4 gap-2 text-center text-[10px] p-2 bg-slate-100 rounded-lg font-mono">
+                                <div>
+                                  <span className="text-[8px] text-slate-400 block font-sans">MEDIDOR</span>
+                                  <span className="font-bold">874M92</span>
+                                </div>
+                                <div>
+                                  <span className="text-[8px] text-slate-400 block font-sans">PERIODO</span>
+                                  <span className="font-bold">BIMESTRAL</span>
+                                </div>
+                                <div>
+                                  <span className="text-[8px] text-slate-400 block font-sans">CONSUMO</span>
+                                  <span className="font-bold">340 kWh</span>
+                                </div>
+                                <div>
+                                  <span className="text-[8px] text-slate-400 block font-sans">ESTADO</span>
+                                  <span className="font-bold text-emerald-700">PAGADO</span>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                                  <div>
+                                    <p className="text-[10px] font-bold text-slate-900">Domicilio Cotejado con Éxito</p>
+                                    <p className="text-[8px] text-slate-400">Coincidencia al 100% con Padrón LanAhora</p>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] font-mono font-bold text-slate-500">EMISIÓN: 28/OCT/2026</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 3. PAGARÉ LEGAL AMPARADO */}
+                          {selectedDocId === 'pagare' && (
+                            <div className="w-[460px] bg-amber-50/40 border-2 border-slate-800 rounded-xl shadow-xl p-5 select-none font-serif text-slate-900 space-y-3">
+                              <div className="text-center border-b border-slate-400 pb-2">
+                                <p className="font-bold text-xs uppercase tracking-widest font-sans text-slate-700">
+                                  TÍTULO DE CRÉDITO MERCANTIL
+                                </p>
+                                <h3 className="font-black text-sm uppercase tracking-wide text-slate-900">
+                                  PAGARÉ CON CARÁCTER EJECUTIVO
+                                </h3>
+                                <div className="flex items-center justify-between text-[10px] font-mono text-slate-600 mt-1 font-sans">
+                                  <span>PAGARÉ NÚM: PAG-{persona.personaId}-2026</span>
+                                  <span className="font-bold">BUENO POR: ${Number(persona.pagareCantidad || pagareCantidad || 15000).toLocaleString('es-MX', { minimumFractionDigits: 2 })} M.N.</span>
+                                </div>
+                              </div>
+
+                              <p className="text-[10px] leading-relaxed text-justify font-sans">
+                                Por el presente Pagaré, me obligo a pagar incondicionalmente en este acto o a su requerimiento a la orden de <span className="font-bold">LANAHORA S.A.P.I. DE C.V. SOFOM E.N.R.</span>, en la plaza de {persona.localidad || 'Saltillo'}, {persona.estadoNacimiento || estadoNacimiento || 'Coahuila'}, la cantidad de <span className="font-bold">${Number(persona.pagareCantidad || pagareCantidad || 15000).toLocaleString('es-MX')} (Pesos 00/100 M.N.)</span>, valor recibido a mi entera y total satisfacción.
+                              </p>
+
+                              <div className="p-2.5 bg-white border border-slate-300 rounded-lg font-sans space-y-1">
+                                <div className="flex items-center justify-between text-[10px]">
+                                  <span className="text-slate-500">Deudor Principal:</span>
+                                  <span className="font-bold">{persona.nombre} {persona.apellidoPaterno} {persona.apellidoMaterno}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-[10px]">
+                                  <span className="text-slate-500">CURP:</span>
+                                  <span className="font-mono font-bold">{persona.curp}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-[10px]">
+                                  <span className="text-slate-500">Estatus del Pagaré:</span>
+                                  <span
+                                    className={`font-bold px-2 py-0.5 rounded text-[9px] ${
+                                      persona.pagareEstatusId === 'FIRMADO EN BLANCO'
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : 'bg-rose-100 text-rose-800'
+                                    }`}
+                                  >
+                                    {persona.pagareEstatusId}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="pt-2 border-t border-slate-400 flex items-center justify-between font-sans">
+                                <div>
+                                  <p className="text-[9px] font-bold text-slate-900">FIRMA ELECTRÓNICA AVANZADA (NOM-151)</p>
+                                  <p className="text-[8px] font-mono text-slate-400">HASH: 8f9c2d1b...e4a7 | 29/10/2026</p>
+                                </div>
+                                <div className="w-20 h-8 border-b-2 border-slate-900 italic font-serif text-center text-xs flex items-end justify-center font-bold text-blue-900">
+                                  {persona.nombre.charAt(0)}. {persona.apellidoPaterno}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 4. CONSTANCIA SAT CIF */}
+                          {selectedDocId === 'sat' && (
+                            <div className="w-[460px] bg-white border border-slate-300 rounded-xl shadow-xl p-5 select-none font-sans text-slate-900 space-y-3">
+                              <div className="flex items-center justify-between border-b-2 border-slate-800 pb-2">
+                                <div>
+                                  <p className="text-[9px] font-bold text-slate-500 uppercase">SECRETARÍA DE HACIENDA Y CRÉDITO PÚBLICO</p>
+                                  <h3 className="font-black text-sm text-slate-900 tracking-tight">SERVICIO DE ADMINISTRACIÓN TRIBUTARIA</h3>
+                                  <p className="text-[9px] font-mono text-slate-600">CÉDULA DE IDENTIFICACIÓN FISCAL (CIF)</p>
+                                </div>
+                                <div className="w-12 h-12 bg-slate-900 text-white rounded-lg flex items-center justify-center font-black text-xs">
+                                  SAT
+                                </div>
+                              </div>
+
+                              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[10px] text-slate-500">Registro Federal de Contribuyentes:</span>
+                                  <span className="font-mono font-black text-sm text-blue-700">{persona.rfc || 'S/D'}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[10px] text-slate-500">Nombre o Razón Social:</span>
+                                  <span className="font-extrabold text-xs text-slate-900 uppercase">
+                                    {persona.nombre} {persona.apellidoPaterno} {persona.apellidoMaterno}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[10px] text-slate-500">Régimen Fiscal:</span>
+                                  <span className="font-bold text-[10px] text-slate-700">Sueldos y Salarios e Ingresos Asimilados</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[10px] text-slate-500">Estatus en el Padrón:</span>
+                                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                                    ACTIVO
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-3 pt-1">
+                                <QrCode className="w-12 h-12 text-slate-800 shrink-0" />
+                                <div className="text-[8px] font-mono text-slate-500 leading-tight">
+                                  <p>CADENA ORIGINAL SAT / SELLO DIGITAL DE VERIFICACIÓN:</p>
+                                  <p className="text-slate-400 truncate">||1.1|CIF-SAT-2026-880821|84920194829104829102||</p>
+                                  <p className="text-emerald-700 font-bold mt-0.5">VALIDACIÓN FISCAL VIGENTE Y POSITIVA</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 5. CARTA PRESTANOMBRES CNBV */}
+                          {selectedDocId === 'prestanombres' && (
+                            <div className="w-[460px] bg-white border border-slate-300 rounded-xl shadow-xl p-5 select-none font-sans text-slate-900 space-y-3">
+                              <div className="border-b border-slate-300 pb-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+                                    PREVENCIÓN DE LAVADO DE DINERO (PLD / FT)
+                                  </span>
+                                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                                    CNBV ART. 115
+                                  </span>
+                                </div>
+                                <h3 className="font-black text-xs text-slate-900 mt-1 uppercase">
+                                  DECLARATORIA DE BENEFICIARIO CONTROLADOR Y NO PRESTANOMBRES
+                                </h3>
+                              </div>
+
+                              <p className="text-[10px] text-justify leading-relaxed text-slate-700">
+                                Yo, <span className="font-extrabold text-slate-900">{persona.nombre} {persona.apellidoPaterno} {persona.apellidoMaterno}</span>, con CURP <span className="font-mono font-bold">{persona.curp}</span>, manifiesto bajo protesta de decir verdad que actúo a nombre propio y por cuenta propia en todas las operaciones financieras, vales y créditos celebrados con <span className="font-bold">LANAHORA</span>, y que los recursos no son destinados para terceras personas ni actúo como prestanombres de ningún tercero.
+                              </p>
+
+                              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0" />
+                                  <div>
+                                    <p className="text-[10px] font-extrabold text-emerald-950">Declaratoria Aprobada</p>
+                                    <p className="text-[8px] text-emerald-700">Cotejada con biometría dactilar y facial</p>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] font-mono font-bold text-emerald-900">FOLIO #CNBV-88219</span>
+                              </div>
+
+                              <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[9px]">
+                                <div>
+                                  <span className="text-slate-400 block text-[8px]">FECHA Y HORA DE COTEJO</span>
+                                  <span className="font-mono font-bold text-slate-700">29/10/2026 11:42:19 hrs</span>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-slate-400 block text-[8px]">VALIDADOR RESPONSABLE</span>
+                                  <span className="font-bold text-blue-700">OFICIAL DE CUMPLIMIENTO PLD</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

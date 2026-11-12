@@ -38,7 +38,6 @@ import {
 import {
   SolicitarBuroModal,
   DatosBancariosModal,
-  ExpedienteDigitalModal,
   CanjearValeModal,
   PrestanombresModal,
 } from './modals/PersonaModals';
@@ -502,12 +501,6 @@ export default function PersonasView() {
             }}
           />
 
-          <ExpedienteDigitalModal
-            isOpen={activeModal === 'expediente'}
-            onClose={() => setActiveModal(null)}
-            persona={selectedPersona}
-          />
-
           <CanjearValeModal
             isOpen={activeModal === 'canjear'}
             onClose={() => setActiveModal(null)}
@@ -521,10 +514,10 @@ export default function PersonasView() {
           />
 
           <EditarClienteModal
-            isOpen={activeModal === 'editar'}
+            isOpen={activeModal === 'editar' || activeModal === 'expediente'}
             onClose={() => setActiveModal(null)}
             persona={selectedPersona}
-            initialTab="editar"
+            initialTab={activeModal === 'expediente' ? 'expediente' : 'editar'}
             notes={internalNotes[selectedPersona.personaId] || []}
             onAddNote={(text) => {
               const nowStr = new Date().toLocaleString('es-MX', {
