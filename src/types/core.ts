@@ -235,6 +235,26 @@ export interface DistribuidorCore {
   disponiblePersonal?: number;
 }
 
+export interface CoordinadorCore {
+  id: string;
+  nombre: string;
+  sucursal: string;
+  zonaId?: string;
+  zona: string;
+  subzonaId?: string;
+  subzona?: string;
+  telefono: string;
+  email?: string;
+  estatus: 'ACTIVO' | 'INACTIVO';
+  fechaIngreso: string;
+  cobroEstimadoQuincena: number;
+  cobroRealizadoQuincena: number;
+  metaColocacion?: number;
+  totalDistribuidores?: number;
+  carteraActiva?: number;
+  porcentajeRecuperacion?: number;
+}
+
 export interface CreditoCore {
   creditoId: string;
   noVale: string;

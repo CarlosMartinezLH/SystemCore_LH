@@ -10,6 +10,7 @@ import LeadDetailView from '@/components/LeadDetailView';
 import NewLeadModal from '@/components/NewLeadModal';
 import CoreDashboard from '@/components/CoreDashboard';
 import PersonasView from '@/components/PersonasView';
+import CoordinadoresView from '@/components/CoordinadoresView';
 import DistribuidoresView from '@/components/DistribuidoresView';
 import RHView from '@/components/RHView';
 import DispersionView from '@/components/DispersionView';
@@ -268,6 +269,11 @@ export default function Home() {
               <BuzonPLDView />
             ) : activeModule === 'personas' ? (
               <PersonasView currentUser={currentUser} />
+            ) : activeModule === 'coordinadores' ? (
+              <CoordinadoresView
+                currentUser={currentUser}
+                onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
+              />
             ) : activeModule === 'distribuidores' ? (
               <DistribuidoresView currentUser={currentUser} />
             ) : activeModule === 'rh' ? (

@@ -11,6 +11,7 @@ import {
   X,
   LogOut,
   ShieldCheck,
+  FolderKanban,
 } from 'lucide-react';
 
 export type ActiveAppModule =
@@ -18,6 +19,7 @@ export type ActiveAppModule =
   | 'core_dashboard'
   | 'mesa_credito'
   | 'personas'
+  | 'coordinadores'
   | 'distribuidores'
   | 'gestoria'
   | 'reportes'
@@ -64,15 +66,20 @@ export default function Header({
   onToggleMobile,
 }: HeaderProps) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [catalogosOpen, setCatalogosOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const userDropdownRef = useRef<HTMLDivElement>(null);
+  const catalogosDropdownRef = useRef<HTMLDivElement>(null);
 
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
         setUserDropdownOpen(false);
+      }
+      if (catalogosDropdownRef.current && !catalogosDropdownRef.current.contains(event.target as Node)) {
+        setCatalogosOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -105,7 +112,7 @@ export default function Header({
           <div className="h-5 w-px bg-slate-200 hidden sm:block" />
         </div>
 
-        {/* Center: Main Horizontal Menu (Únicamente Dashboard y Personas) */}
+        {/* Center: Main Horizontal Menu (Dashboard, Personas, Catálogos) */}
         <nav className="flex items-center gap-1.5 py-0.5">
           {PRIMARY_MODULES.map((item) => {
             const Icon = item.icon;
@@ -127,6 +134,58 @@ export default function Header({
               </button>
             );
           })}
+
+          {/* Menú Desplegable: Catálogos */}
+          <div className="relative" ref={catalogosDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setCatalogosOpen(!catalogosOpen)}
+              className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+                activeModule === 'coordinadores'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : catalogosOpen
+                  ? 'bg-slate-100 text-slate-900'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <FolderKanban
+                className={`w-4 h-4 ${
+                  activeModule === 'coordinadores' ? 'text-white' : 'text-slate-500'
+                }`}
+              />
+              <span>Catálogos</span>
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                  catalogosOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+
+            {catalogosOpen && (
+              <div className="absolute left-0 mt-1.5 w-48 bg-white text-slate-800 border border-slate-200 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleSelectModule('coordinadores');
+                    setCatalogosOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
+                    activeModule === 'coordinadores'
+                      ? 'bg-blue-50 text-blue-700 font-extrabold'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-blue-600" />
+                    <span>Coordinadores</span>
+                  </div>
+                  {activeModule === 'coordinadores' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* Right Controls: User Profile & Mobile Toggle */}
@@ -207,11 +266,11 @@ export default function Header({
         </div>
       </div>
 
-      {/* Mobile Drawer (Solo Dashboard y Personas) */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="sm:hidden border-t border-slate-200 bg-slate-50 px-4 py-3 space-y-2 animate-in fade-in">
           <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Módulos Activos
+            Módulos Principales
           </p>
           <div className="flex flex-col gap-1.5">
             {PRIMARY_MODULES.map((item) => {
@@ -232,6 +291,23 @@ export default function Header({
                 </button>
               );
             })}
+
+            <div className="pt-2 border-t border-slate-200">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1 mb-1.5">
+                Catálogos
+              </span>
+              <button
+                onClick={() => handleSelectModule('coordinadores')}
+                className={`w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition text-left cursor-pointer ${
+                  activeModule === 'coordinadores'
+                    ? 'bg-blue-600 text-white font-bold'
+                    : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <Users className="w-4 h-4 shrink-0 text-blue-600" />
+                <span className="truncate">Coordinadores</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
