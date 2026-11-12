@@ -1,21 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DistribuidorCore } from '@/types/core';
 import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import {
   Search,
   FileSpreadsheet,
-  Smartphone,
   FileText,
   MessageSquare,
-  Unlock,
-  CheckCircle2,
-  Users,
-  Briefcase,
-  ExternalLink,
+  Smartphone,
+  RotateCcw,
+  SlidersHorizontal,
+  Printer,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
+
+import PerfilDistribuidorModal from './modals/PerfilDistribuidorModal';
+import CarteraDistribuidorModal from './modals/CarteraDistribuidorModal';
 import {
   EstadoCuentaModal,
   MensajesMasivosModal,
@@ -23,8 +29,6 @@ import {
   NotificacionAppModal,
 } from './modals/DistribuidorModals';
 import RelacionCobranzaModal from './modals/RelacionCobranzaModal';
-import PerfilDistribuidorView from './PerfilDistribuidorView';
-import { buildSafeCsv } from '@/lib/utils/csv';
 
 interface DistribuidoresViewProps {
   currentUser?: UserSession | null;
@@ -32,466 +36,811 @@ interface DistribuidoresViewProps {
 
 export default function DistribuidoresView({ currentUser }: DistribuidoresViewProps = {}) {
   const { distribuidores, updateDistribuidor } = useCoreSync();
-  const [selectedNoDist, setSelectedNoDist] = useState<number | null>(1053);
-  const [viewMode, setViewMode] = useState<'tabla' | 'perfil'>('tabla');
-  const [coordinatorFilter, setCoordinatorFilter] = useState('ALL');
+  const [selectedNoDist, setSelectedNoDist] = useState<number | null>(1001);
+
+  // Filtro superior único
   const [searchTerm, setSearchTerm] = useState('');
+  const [coordinatorTopFilter, setCoordinatorTopFilter] = useState('ALL');
 
-  // Modals state
-  const [activeModal, setActiveModal] = useState<'estadoCuenta' | 'mensajes' | 'castigo' | 'push' | 'relacion' | 'cartera' | null>(null);
+  // Filtros individuales in-grid por columna
+  const [colFilterSucursal, setColFilterSucursal] = useState('');
+  const [colFilterZonaId, setColFilterZonaId] = useState('');
+  const [colFilterZona, setColFilterZona] = useState('');
+  const [colFilterSubzonaId, setColFilterSubzonaId] = useState('');
+  const [colFilterSubzona, setColFilterSubzona] = useState('');
+  const [colFilterCoordinador, setColFilterCoordinador] = useState('');
+  const [colFilterNoDist, setColFilterNoDist] = useState('');
+  const [colFilterNombre, setColFilterNombre] = useState('');
+  const [colFilterGenero, setColFilterGenero] = useState('TODOS');
+  const [colFilterEstatus, setColFilterEstatus] = useState('TODOS');
+  const [colFilterNivel, setColFilterNivel] = useState('TODOS');
+  const [colFilterPerfil, setColFilterPerfil] = useState('TODOS');
+  const [colFilterSaldo, setColFilterSaldo] = useState('TODOS');
 
-  const selectedDist = distribuidores.find((d) => d.noDist === selectedNoDist) || distribuidores[0];
+  // Modales
+  const [isDetalleOpen, setIsDetalleOpen] = useState(false);
+  const [isCarteraOpen, setIsCarteraOpen] = useState(false);
+  const [isRelacionOpen, setIsRelacionOpen] = useState(false);
+  const [isEstadoCuentaOpen, setIsEstadoCuentaOpen] = useState(false);
+  const [isNotasOpen, setIsNotasOpen] = useState(false);
+  const [isMensajesOpen, setIsMensajesOpen] = useState(false);
+  const [isCastigoOpen, setIsCastigoOpen] = useState(false);
+  const [isPushOpen, setIsPushOpen] = useState(false);
+  const [activeNotice, setActiveNotice] = useState<string | null>(null);
 
-  const coordinators = Array.from(
-    new Set(distribuidores.map((d) => d.coordinador).filter(Boolean))
-  );
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
-  const filtered = distribuidores.filter((d) => {
-    // Permisos por sucursal: Si es usuario de sucursal, sólo ve distribuidores de su plaza
-    if (currentUser && currentUser.branchScope === 'BRANCH') {
-      const uB = currentUser.branch.toUpperCase();
-      const dB = (d.sucursal || '').toUpperCase();
-      const match =
-        (uB.includes('SALTILLO') && dB.includes('SALTILLO')) ||
-        (uB.includes('TORRE') && dB.includes('TORRE')) ||
-        (uB.includes('MONCLOVA') && dB.includes('MONCLOVA'));
-      if (!match) return false;
-    }
+  const selectedDist =
+    distribuidores.find((d) => d.noDist === selectedNoDist) || distribuidores[0];
 
-    const matchesCoord = coordinatorFilter === 'ALL' || d.coordinador === coordinatorFilter;
-    if (!matchesCoord) return false;
-    if (!searchTerm.trim()) return true;
-    const q = searchTerm.toLowerCase();
-    return (
-      d.nombreDistribuidor.toLowerCase().includes(q) ||
-      d.noDist.toString().includes(q) ||
-      d.coordinador.toLowerCase().includes(q) ||
-      d.sucursal.toLowerCase().includes(q)
-    );
-  });
+  // Lista única de coordinadores para el selector superior
+  const coordinatorsList = useMemo(() => {
+    return Array.from(new Set(distribuidores.map((d) => d.coordinador).filter(Boolean)));
+  }, [distribuidores]);
 
-  const handleActionClick = (actionName: string) => {
+  // Filtrado de la tabla
+  const filtered = useMemo(() => {
+    return distribuidores.filter((d) => {
+      // Alcance por sucursal de usuario institucional
+      if (currentUser && currentUser.branchScope === 'BRANCH') {
+        const uB = currentUser.branch.toUpperCase();
+        const dB = (d.sucursal || '').toUpperCase();
+        if (!dB.includes(uB) && !uB.includes(dB)) return false;
+      }
+
+      // Filtro superior por coordinador
+      if (coordinatorTopFilter !== 'ALL' && d.coordinador !== coordinatorTopFilter) {
+        return false;
+      }
+
+      // Buscador superior único
+      if (searchTerm.trim()) {
+        const q = searchTerm.toLowerCase();
+        const matchesGlobal =
+          d.nombreDistribuidor.toLowerCase().includes(q) ||
+          d.noDist.toString().includes(q) ||
+          (d.coordinador && d.coordinador.toLowerCase().includes(q)) ||
+          (d.sucursal && d.sucursal.toLowerCase().includes(q)) ||
+          (d.curp && d.curp.toLowerCase().includes(q));
+        if (!matchesGlobal) return false;
+      }
+
+      // Filtros in-grid por columna
+      if (colFilterSucursal.trim() && !d.sucursal.toLowerCase().includes(colFilterSucursal.toLowerCase())) {
+        return false;
+      }
+      if (colFilterZonaId.trim() && !(d.zonaId || '').toLowerCase().includes(colFilterZonaId.toLowerCase())) {
+        return false;
+      }
+      if (colFilterZona.trim() && !(d.zona || '').toLowerCase().includes(colFilterZona.toLowerCase())) {
+        return false;
+      }
+      if (colFilterSubzonaId.trim() && !(d.subzonaId || '').toLowerCase().includes(colFilterSubzonaId.toLowerCase())) {
+        return false;
+      }
+      if (colFilterSubzona.trim() && !(d.subzona || '').toLowerCase().includes(colFilterSubzona.toLowerCase())) {
+        return false;
+      }
+      if (colFilterCoordinador.trim() && !d.coordinador.toLowerCase().includes(colFilterCoordinador.toLowerCase())) {
+        return false;
+      }
+      if (colFilterNoDist.trim() && !d.noDist.toString().includes(colFilterNoDist.trim())) {
+        return false;
+      }
+      if (colFilterNombre.trim() && !d.nombreDistribuidor.toLowerCase().includes(colFilterNombre.toLowerCase())) {
+        return false;
+      }
+      if (colFilterGenero !== 'TODOS' && d.genero !== colFilterGenero) {
+        return false;
+      }
+      if (colFilterEstatus !== 'TODOS' && d.estatus !== colFilterEstatus) {
+        return false;
+      }
+      if (colFilterNivel !== 'TODOS' && d.nivel !== colFilterNivel) {
+        return false;
+      }
+      if (colFilterPerfil !== 'TODOS' && (d.perfil || 'Distribuidor AAA') !== colFilterPerfil) {
+        return false;
+      }
+      if (colFilterSaldo === 'CON_SALDO' && (d.saldoActual || 0) <= 0) {
+        return false;
+      }
+      if (colFilterSaldo === 'SIN_SALDO' && (d.saldoActual || 0) > 0) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [
+    distribuidores,
+    currentUser,
+    coordinatorTopFilter,
+    searchTerm,
+    colFilterSucursal,
+    colFilterZonaId,
+    colFilterZona,
+    colFilterSubzonaId,
+    colFilterSubzona,
+    colFilterCoordinador,
+    colFilterNoDist,
+    colFilterNombre,
+    colFilterGenero,
+    colFilterEstatus,
+    colFilterNivel,
+    colFilterPerfil,
+    colFilterSaldo,
+  ]);
+
+  // Paginación real
+  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+  const paginatedDistribuidores = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filtered.slice(start, start + itemsPerPage);
+  }, [filtered, currentPage]);
+
+  const showToast = (msg: string) => {
+    setActiveNotice(msg);
+    setTimeout(() => setActiveNotice(null), 3000);
+  };
+
+  // Manejador de botones superiores de acción
+  const handleTopActionClick = (actionName: string) => {
     if (!selectedDist) {
-      alert('Selecciona primero una distribuidora en la tabla.');
+      alert('Seleccione primero una distribuidora en la tabla.');
       return;
     }
 
-    if (actionName === 'Estado de Cuenta') {
-      setActiveModal('estadoCuenta');
-    } else if (actionName === 'Cartera de Clientes' || actionName === 'Cartera') {
-      setActiveModal('cartera');
-    } else if (actionName === 'Relación de Cobro' || actionName === 'Relación' || actionName === 'Relación Recibos') {
-      setActiveModal('relacion');
-    } else if (actionName === 'Recibos Emitidos') {
-      setActiveModal('relacion');
-    } else if (actionName === 'Mensajes Masivos WhatsApp' || actionName === 'Mensajes masivos') {
-      setActiveModal('mensajes');
-    } else if (actionName === 'Quitar Castigo / Reactivar' || actionName === 'Quitar fecha castigo') {
-      setActiveModal('castigo');
-    } else if (actionName === 'Notificación LanaApp' || actionName === 'Enviar notificación APP') {
-      setActiveModal('push');
-    } else {
-      alert(`Módulo: "${actionName}" ejecutado para DV #${selectedDist.noDist} (${selectedDist.nombreDistribuidor})`);
+    if (actionName === 'Relacion' || actionName === 'Relacion Recibos') {
+      setIsRelacionOpen(true);
+    } else if (actionName === 'Estado de Cuenta') {
+      setIsEstadoCuentaOpen(true);
+    } else if (actionName === 'Notas') {
+      setIsNotasOpen(true);
+    } else if (actionName === 'Mensajes masivos') {
+      setIsMensajesOpen(true);
+    } else if (actionName === 'Historial de relaciones') {
+      setIsRelacionOpen(true);
+    } else if (actionName === 'Quitar fecha castigo') {
+      setIsCastigoOpen(true);
+    } else if (actionName === 'Enviar notificación APP') {
+      setIsPushOpen(true);
     }
   };
 
+  // Exportar a Excel XLS
   const handleExportXLS = () => {
-    const headers = ['NoDist', 'Distribuidor', 'Sucursal', 'Zona', 'Coordinador', 'Nivel', 'Estatus', 'Línea Crédito', 'Saldo', 'Disponible', 'LanaApp'];
-    const rows = distribuidores.map((d) => [
-      d.noDist,
-      d.nombreDistribuidor,
-      d.sucursal,
-      d.zona,
-      d.coordinador,
-      d.nivel,
-      d.estatus,
-      d.creditoLimite,
-      d.saldoActual,
-      d.disponible,
-      d.tieneLanaApp ? 'ACTIVA' : 'NO',
-    ]);
-    const csvContent = buildSafeCsv(headers, rows);
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `distribuidores_lanahora_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const rows = filtered.map((d) => ({
+      Sucursal: d.sucursal,
+      zonaId: d.zonaId || '',
+      zona: d.zona || '',
+      subzonaId: d.subzonaId || '',
+      subzona: d.subzona || '',
+      Coordinador: d.coordinador,
+      'No Dist': d.noDist,
+      'Nombre de Distribuidor': d.nombreDistribuidor,
+      Genero: d.genero,
+      Estatus: d.estatus,
+      Nivel: d.nivel,
+      Perfil: d.perfil || 'Distribuidor AAA',
+      'Saldo Actual': d.saldoActual,
+      'Línea de Crédito': d.creditoLimite,
+      Disponible: d.disponible,
+      Teléfono: d.telefono,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Distribuidores');
+    XLSX.writeFile(
+      workbook,
+      `distribuidores_lanahora_${new Date().toISOString().slice(0, 10)}.xlsx`
+    );
   };
 
-  if (viewMode === 'perfil') {
-    return (
-      <PerfilDistribuidorView
-        distribuidor={selectedDist}
-        onBack={() => setViewMode('tabla')}
-      />
-    );
-  }
-
   return (
-    <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-8 space-y-6">
-      {/* Barra de Control Unificada */}
-      <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Búsqueda */}
-        <div className="relative flex-1 min-w-0">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Buscar por DV, nombre, sucursal o coordinador..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 font-medium transition"
-          />
-        </div>
-
-        {/* Filtros & Acciones Principales */}
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+    <div className="flex-1 bg-slate-100/70 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-2 sm:p-4 space-y-2">
+      {/* 1. Barra Superior de Botones de Acción (Idéntica a la Foto del ERP Anterior) */}
+      <div className="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-300 shadow-2xs flex flex-wrap items-center justify-between gap-2 text-xs">
+        {/* Selector de Coordinadores */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="font-bold text-slate-700">Coordinadores</span>
           <select
-            value={coordinatorFilter}
-            onChange={(e) => setCoordinatorFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:bg-white"
+            value={coordinatorTopFilter}
+            onChange={(e) => {
+              setCoordinatorTopFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500"
           >
-            <option value="ALL">Todos los Coordinadores</option>
-            {coordinators.map((c) => (
-              <option key={c} value={c}>{c}</option>
+            <option value="ALL">-- Todos --</option>
+            {coordinatorsList.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
+        </div>
 
+        {/* Botones de Acción Superiores */}
+        <div className="flex flex-wrap items-center gap-1">
           <button
-            onClick={() => setViewMode('perfil')}
-            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition active:scale-95"
+            type="button"
+            onClick={() => handleTopActionClick('Relacion')}
+            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
           >
-            <Users className="w-3.5 h-3.5 text-amber-400" />
-            <span>Ver Perfil DV</span>
+            Relacion
           </button>
 
           <button
-            onClick={() => handleActionClick('Relación de Cobro')}
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition active:scale-95"
+            type="button"
+            onClick={() => handleTopActionClick('Relacion Recibos')}
+            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5" />
-            <span>Relación de Cobro</span>
+            Relacion Recibos
           </button>
 
           <button
+            type="button"
+            onClick={() => handleTopActionClick('Estado de Cuenta')}
+            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
+          >
+            Estado de Cuenta
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTopActionClick('Notas')}
+            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
+          >
+            Notas
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTopActionClick('Mensajes masivos')}
+            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
+          >
+            Mensajes masivos
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTopActionClick('Historial de relaciones')}
+            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
+          >
+            Historial de relaciones
+          </button>
+
+          {/* Botón XLS Verde Oficial */}
+          <button
+            type="button"
             onClick={handleExportXLS}
-            className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition"
+            className="px-3 py-1 bg-[#4CAF50] hover:bg-[#43A047] text-white font-bold text-xs rounded transition active:scale-95 cursor-pointer shadow-2xs"
+            title="Exportar padrón a Excel"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-blue-600" />
-            <span>Exportar CSV</span>
+            XLS
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTopActionClick('Quitar fecha castigo')}
+            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
+          >
+            Quitar fecha castigo
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTopActionClick('Enviar notificación APP')}
+            className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded text-slate-800 text-xs font-semibold transition active:scale-95 cursor-pointer"
+          >
+            Enviar notificación APP
           </button>
         </div>
       </div>
 
-      {/* Selected Distribuidor Banner */}
-      {selectedDist && (
-        <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl flex items-center justify-between shadow-xs">
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="font-extrabold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">
-              DV #{selectedDist.noDist}
-            </span>
-            <span className="font-bold text-slate-900 text-sm">
-              {selectedDist.nombreDistribuidor}
-            </span>
-            <span className="text-slate-500">
-              Coord: {selectedDist.coordinador} • {selectedDist.sucursal}
-            </span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-              {selectedDist.nivel}
-            </span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              selectedDist.estatus === 'ACTIVO' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-            }`}>
-              {selectedDist.estatus}
-            </span>
-            <span className="text-emerald-700 font-bold">
-              Disp: ${selectedDist.disponible.toLocaleString('es-MX')}
-            </span>
-          </div>
-
+      {/* 2. Barra Única de Búsqueda Superior */}
+      <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-300 shadow-2xs flex items-center gap-2">
+        <Search className="w-4 h-4 text-slate-400 shrink-0" />
+        <input
+          type="text"
+          placeholder="Introduzca el texto a buscar..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-full text-xs bg-transparent focus:outline-none text-slate-800 font-medium placeholder-slate-400"
+        />
+        {searchTerm && (
           <button
-            onClick={() => setSelectedNoDist(null)}
-            className="text-slate-400 hover:text-slate-700 text-xs font-bold px-2 py-1 rounded-lg hover:bg-white transition"
+            onClick={() => setSearchTerm('')}
+            className="text-xs text-slate-400 hover:text-slate-600 font-bold"
           >
-            ✕ Cerrar selección
+            ✕
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col space-y-4 overflow-y-auto min-w-0">
-        {/* Filter Search Input Bar */}
-        <div className="bg-white p-3.5 rounded-2xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 shadow-sm">
-          <div className="flex items-center gap-3 flex-1 max-w-2xl">
-            <div className="flex items-center gap-2 flex-1">
-              <Search className="w-4 h-4 text-blue-500 shrink-0" />
-              <input
-                type="text"
-                placeholder="Buscar por nombre, No. de DV, Coordinador, Sucursal..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-[#2563eb] bg-white text-slate-900"
-              />
-            </div>
+      {/* 3. Indicador de Agrupación de Columnas */}
+      <div className="px-2 py-0.5 text-[11px] text-slate-500 italic">
+        Arrastre una columna aquí para agrupar por dicha columna
+      </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-slate-600 font-bold text-xs whitespace-nowrap">Coordinador:</span>
-              <select
-                value={coordinatorFilter}
-                onChange={(e) => setCoordinatorFilter(e.target.value)}
-                className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:border-[#2563eb] font-semibold"
-              >
-                <option value="ALL">-- Todos los Coordinadores --</option>
-                {coordinators.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="text-xs text-slate-500 whitespace-nowrap">
-            Mostrando <span className="font-black text-[#2563eb] font-mono">{filtered.length}</span> de 7,171 distribuidoras
-          </div>
-        </div>
-
-        {/* Table */}
-        <div className="bg-white rounded-2xl border border-blue-100 overflow-x-auto shadow-md flex-1">
-          <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-            <thead className="bg-[#2563eb] text-white uppercase text-[10px] tracking-wider font-extrabold select-none">
+      {/* 4. Tabla Principal de Distribuidores con Filtros In-Grid */}
+      <div className="bg-white rounded-xl border border-slate-300 shadow-sm overflow-hidden flex-1 flex flex-col min-h-0">
+        <div className="overflow-x-auto flex-1">
+          <table className="w-full text-left text-xs border-collapse whitespace-nowrap font-sans">
+            {/* Encabezados Principales */}
+            <thead className="sticky top-0 bg-slate-200 text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-300 z-10">
               <tr>
-              <th className="p-3">Detalle</th>
-              <th className="p-3">Cartera</th>
-              <th className="p-3">Sucursal</th>
-              <th className="p-3">Zona</th>
-              <th className="p-3">Subzona</th>
-              <th className="p-3">Coordinador</th>
-              <th className="p-3">No. Dist</th>
-              <th className="p-3">Nombre Distribuidor</th>
-              <th className="p-3">Género</th>
-              <th className="p-3">Estatus</th>
-              <th className="p-3">Nivel</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {filtered.map((d) => {
-              const isSelected = selectedNoDist === d.noDist;
-              return (
-                <tr
-                  key={d.noDist}
-                  onClick={() => setSelectedNoDist(d.noDist)}
-                  className={`cursor-pointer transition ${
-                    isSelected ? 'bg-blue-50/90 font-medium' : 'hover:bg-blue-50/40'
+                <th className="p-2 border-r border-slate-300 text-center">Detalle</th>
+                <th className="p-2 border-r border-slate-300 text-center">Cartera</th>
+                <th className="p-2 border-r border-slate-300">Sucursal</th>
+                <th className="p-2 border-r border-slate-300">zonaId</th>
+                <th className="p-2 border-r border-slate-300">zona</th>
+                <th className="p-2 border-r border-slate-300">subzonaId</th>
+                <th className="p-2 border-r border-slate-300">subzona</th>
+                <th className="p-2 border-r border-slate-300">Coordinador</th>
+                <th className="p-2 border-r border-slate-300">No Dist</th>
+                <th className="p-2 border-r border-slate-300">Nombre de Distribuidor</th>
+                <th className="p-2 border-r border-slate-300 text-center">Genero</th>
+                <th className="p-2 border-r border-slate-300 text-center">Estatus</th>
+                <th className="p-2 border-r border-slate-300 text-center">Nivel</th>
+                <th className="p-2 border-r border-slate-300">Perfil</th>
+                <th className="p-2 text-right">Saldo Actual</th>
+              </tr>
+
+              {/* Fila de Filtros In-Grid Abajo de Cada Columna */}
+              <tr className="bg-slate-100 font-normal lowercase border-t border-slate-300">
+                <th className="p-1 border-r border-slate-300"></th>
+                <th className="p-1 border-r border-slate-300"></th>
+                {/* Sucursal */}
+                <th className="p-1 border-r border-slate-300">
+                  <input
+                    type="text"
+                    value={colFilterSucursal}
+                    onChange={(e) => {
+                      setColFilterSucursal(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
+                  />
+                </th>
+                {/* zonaId */}
+                <th className="p-1 border-r border-slate-300">
+                  <input
+                    type="text"
+                    value={colFilterZonaId}
+                    onChange={(e) => {
+                      setColFilterZonaId(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
+                  />
+                </th>
+                {/* zona */}
+                <th className="p-1 border-r border-slate-300">
+                  <input
+                    type="text"
+                    value={colFilterZona}
+                    onChange={(e) => {
+                      setColFilterZona(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
+                  />
+                </th>
+                {/* subzonaId */}
+                <th className="p-1 border-r border-slate-300">
+                  <input
+                    type="text"
+                    value={colFilterSubzonaId}
+                    onChange={(e) => {
+                      setColFilterSubzonaId(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
+                  />
+                </th>
+                {/* subzona */}
+                <th className="p-1 border-r border-slate-300">
+                  <input
+                    type="text"
+                    value={colFilterSubzona}
+                    onChange={(e) => {
+                      setColFilterSubzona(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
+                  />
+                </th>
+                {/* Coordinador */}
+                <th className="p-1 border-r border-slate-300">
+                  <input
+                    type="text"
+                    value={colFilterCoordinador}
+                    onChange={(e) => {
+                      setColFilterCoordinador(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
+                  />
+                </th>
+                {/* No Dist */}
+                <th className="p-1 border-r border-slate-300">
+                  <input
+                    type="text"
+                    value={colFilterNoDist}
+                    onChange={(e) => {
+                      setColFilterNoDist(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-mono font-normal text-slate-800 focus:outline-none focus:border-blue-500"
+                  />
+                </th>
+                {/* Nombre de Distribuidor */}
+                <th className="p-1 border-r border-slate-300">
+                  <input
+                    type="text"
+                    value={colFilterNombre}
+                    onChange={(e) => {
+                      setColFilterNombre(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[11px] bg-white border border-slate-300 rounded font-normal text-slate-800 focus:outline-none focus:border-blue-500"
+                  />
+                </th>
+                {/* Genero */}
+                <th className="p-1 border-r border-slate-300">
+                  <select
+                    value={colFilterGenero}
+                    onChange={(e) => {
+                      setColFilterGenero(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[10px] bg-white border border-slate-300 rounded text-slate-800 font-normal focus:outline-none"
+                  >
+                    <option value="TODOS">(Todos)</option>
+                    <option value="FEMENINO">FEMENINO</option>
+                    <option value="MASCULINO">MASCULINO</option>
+                    <option value="NO DEFINIDO">NO DEFINIDO</option>
+                  </select>
+                </th>
+                {/* Estatus */}
+                <th className="p-1 border-r border-slate-300">
+                  <select
+                    value={colFilterEstatus}
+                    onChange={(e) => {
+                      setColFilterEstatus(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[10px] bg-white border border-slate-300 rounded text-slate-800 font-normal focus:outline-none"
+                  >
+                    <option value="TODOS">(Todos)</option>
+                    <option value="ACTIVO">ACTIVO</option>
+                    <option value="CANCELADO">CANCELADO</option>
+                    <option value="REESTRUCTURA">REESTRUCTURA</option>
+                  </select>
+                </th>
+                {/* Nivel */}
+                <th className="p-1 border-r border-slate-300">
+                  <select
+                    value={colFilterNivel}
+                    onChange={(e) => {
+                      setColFilterNivel(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[10px] bg-white border border-slate-300 rounded text-slate-800 font-normal focus:outline-none"
+                  >
+                    <option value="TODOS">(Todos)</option>
+                    <option value="BRONCE">BRONCE</option>
+                    <option value="PLATA">PLATA</option>
+                    <option value="ORO">ORO</option>
+                    <option value="DIAMANTE">DIAMANTE</option>
+                  </select>
+                </th>
+                {/* Perfil */}
+                <th className="p-1 border-r border-slate-300">
+                  <select
+                    value={colFilterPerfil}
+                    onChange={(e) => {
+                      setColFilterPerfil(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[10px] bg-white border border-slate-300 rounded text-slate-800 font-normal focus:outline-none"
+                  >
+                    <option value="TODOS">(Todos)</option>
+                    <option value="Distribuidor AAA">Distribuidor AAA</option>
+                    <option value="Distribuidor AA">Distribuidor AA</option>
+                    <option value="Distribuidor A">Distribuidor A</option>
+                  </select>
+                </th>
+                {/* Saldo Actual */}
+                <th className="p-1">
+                  <select
+                    value={colFilterSaldo}
+                    onChange={(e) => {
+                      setColFilterSaldo(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-1 py-0.5 text-[10px] bg-white border border-slate-300 rounded text-slate-800 font-normal focus:outline-none"
+                  >
+                    <option value="TODOS">(Todos)</option>
+                    <option value="CON_SALDO">Con Saldo</option>
+                    <option value="SIN_SALDO">$0.00</option>
+                  </select>
+                </th>
+              </tr>
+            </thead>
+
+            {/* Filas de Datos */}
+            <tbody className="divide-y divide-slate-200 text-[11px]">
+              {paginatedDistribuidores.map((d) => {
+                const isSelected = selectedNoDist === d.noDist;
+                return (
+                  <tr
+                    key={d.noDist}
+                    onClick={() => setSelectedNoDist(d.noDist)}
+                    className={`cursor-pointer transition ${
+                      isSelected ? 'bg-blue-100/70 font-semibold' : 'hover:bg-blue-50/40 bg-white'
+                    }`}
+                  >
+                    {/* Botón Detalle -> PerfilDistribuidorModal */}
+                    <td className="p-1.5 border-r border-slate-200 text-center">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedNoDist(d.noDist);
+                          setIsDetalleOpen(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 underline font-medium cursor-pointer"
+                      >
+                        Detalle
+                      </button>
+                    </td>
+
+                    {/* Botón Cartera -> CarteraDistribuidorModal */}
+                    <td className="p-1.5 border-r border-slate-200 text-center">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedNoDist(d.noDist);
+                          setIsCarteraOpen(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 underline font-medium cursor-pointer"
+                      >
+                        Cartera
+                      </button>
+                    </td>
+
+                    <td className="p-1.5 border-r border-slate-200 text-slate-800">{d.sucursal}</td>
+                    <td className="p-1.5 border-r border-slate-200 font-mono text-center text-slate-600">
+                      {d.zonaId || ''}
+                    </td>
+                    <td className="p-1.5 border-r border-slate-200 text-center text-slate-600">
+                      {d.zona || ''}
+                    </td>
+                    <td className="p-1.5 border-r border-slate-200 font-mono text-center text-slate-600">
+                      {d.subzonaId || ''}
+                    </td>
+                    <td className="p-1.5 border-r border-slate-200 text-center text-slate-600">
+                      {d.subzona || ''}
+                    </td>
+                    <td className="p-1.5 border-r border-slate-200 text-slate-800 font-medium">
+                      {d.coordinador}
+                    </td>
+                    <td className="p-1.5 border-r border-slate-200 font-mono font-bold text-slate-900">
+                      {d.noDist}
+                    </td>
+                    <td className="p-1.5 border-r border-slate-200 font-bold text-slate-900">
+                      {d.nombreDistribuidor}
+                    </td>
+                    <td className="p-1.5 border-r border-slate-200 text-center text-slate-600">
+                      {d.genero}
+                    </td>
+                    <td className="p-1.5 border-r border-slate-200 text-center">
+                      <span
+                        className={`font-bold ${
+                          d.estatus === 'ACTIVO'
+                            ? 'text-emerald-700'
+                            : d.estatus === 'REESTRUCTURA'
+                            ? 'text-amber-700'
+                            : 'text-slate-500'
+                        }`}
+                      >
+                        {d.estatus}
+                      </span>
+                    </td>
+                    <td className="p-1.5 border-r border-slate-200 text-center font-bold text-slate-700">
+                      {d.nivel}
+                    </td>
+                    <td className="p-1.5 border-r border-slate-200 text-slate-700">
+                      {d.perfil || 'Distribuidor AAA'}
+                    </td>
+                    <td className="p-1.5 text-right font-mono font-bold text-slate-900">
+                      ${(d.saldoActual || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 5. Barra Inferior de Paginación (Fiel al ERP Legacy: Página 1 de 145 (7204 elementos)) */}
+        <div className="bg-slate-100 px-4 py-2 border-t border-slate-300 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-700 shrink-0 select-none">
+          <div className="flex items-center gap-3">
+            <span>
+              Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({filtered.length} elementos)
+            </span>
+
+            {/* Controles de página */}
+            <div className="inline-flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="p-1 rounded hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                title="Primera página"
+              >
+                <ChevronsLeft className="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-1 rounded hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                title="Página anterior"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Botones numéricos de página */}
+              {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                const pageNum = i + 1;
+                return (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-2 py-0.5 rounded text-xs font-bold transition ${
+                      currentPage === pageNum
+                        ? 'bg-blue-600 text-white'
+                        : 'text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              {totalPages > 5 && <span className="px-1 text-slate-400">...</span>}
+
+              {totalPages > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(totalPages)}
+                  className={`px-2 py-0.5 rounded text-xs font-bold transition ${
+                    currentPage === totalPages
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-700 hover:bg-slate-200'
                   }`}
                 >
-                  <td className="p-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedNoDist(d.noDist);
-                        setActiveModal('estadoCuenta');
-                      }}
-                      className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white transition"
-                    >
-                      Detalle
-                    </button>
-                  </td>
-                  <td className="p-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedNoDist(d.noDist);
-                        setActiveModal('cartera');
-                      }}
-                      className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-600 hover:text-white transition"
-                    >
-                      Cartera
-                    </button>
-                  </td>
-                  <td className="p-3 text-slate-800 font-semibold">{d.sucursal}</td>
-                  <td className="p-3 text-slate-600">{d.zona}</td>
-                  <td className="p-3 text-slate-600">{d.subzona}</td>
-                  <td className="p-3 text-slate-800 font-medium">{d.coordinador}</td>
-                  <td className="p-3 font-mono font-bold text-[#2563eb]">#{d.noDist}</td>
-                  <td className="p-3 font-bold text-slate-900">{d.nombreDistribuidor}</td>
-                  <td className="p-3 text-slate-600">{d.genero}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                        d.estatus === 'ACTIVO'
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                          : d.estatus === 'REESTRUCTURA'
-                          ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                          : 'bg-rose-100 text-rose-800'
-                      }`}
-                    >
-                      {d.estatus}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-black bg-yellow-100 text-yellow-900 border border-yellow-300">
-                      {d.nivel}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      </div>
-
-      {/* MODALS */}
-      <EstadoCuentaModal
-        isOpen={activeModal === 'estadoCuenta'}
-        onClose={() => setActiveModal(null)}
-        distribuidor={selectedDist}
-      />
-
-      <MensajesMasivosModal
-        isOpen={activeModal === 'mensajes'}
-        onClose={() => setActiveModal(null)}
-        distribuidor={selectedDist}
-      />
-
-      <QuitarCastigoModal
-        isOpen={activeModal === 'castigo'}
-        onClose={() => setActiveModal(null)}
-        distribuidor={selectedDist}
-        onUpdateDistribuidor={(up) => {
-          updateDistribuidor(up);
-        }}
-      />
-
-      <NotificacionAppModal
-        isOpen={activeModal === 'push'}
-        onClose={() => setActiveModal(null)}
-        distribuidor={selectedDist}
-      />
-
-      {/* Relación de Cobro Modal */}
-      {activeModal === 'relacion' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 w-full max-w-xl overflow-hidden animate-in fade-in">
-            <div className="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 font-bold text-sm">
-                <FileText className="w-4 h-4 text-yellow-300" />
-                <span>Relación de Cobranza Quincenal — DV #{selectedDist.noDist}</span>
-              </div>
-              <button onClick={() => setActiveModal(null)} className="text-white/80 hover:text-white p-1">✕</button>
-            </div>
-
-            <div className="p-5 space-y-4 text-xs">
-              <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-200 flex justify-between items-center">
-                <div>
-                  <span className="font-bold text-slate-900 block">{selectedDist.nombreDistribuidor}</span>
-                  <span className="text-[11px] text-slate-500">Coordinador: {selectedDist.coordinador} • {selectedDist.sucursal}</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] text-slate-400 block uppercase">Cobro Estimado</span>
-                  <span className="font-mono font-black text-blue-700 text-base">${selectedDist.saldoActual.toLocaleString('es-MX')}</span>
-                </div>
-              </div>
-
-              <div className="space-y-2 border border-slate-200 rounded-xl p-3">
-                <div className="flex justify-between py-1 border-b">
-                  <span className="text-slate-600">Total Vales Colocados Activos:</span>
-                  <span className="font-bold font-mono">14 vales</span>
-                </div>
-                <div className="flex justify-between py-1 border-b">
-                  <span className="text-slate-600">Comisión Distribuidora (10%):</span>
-                  <span className="font-bold font-mono text-emerald-700">${(selectedDist.saldoActual * 0.10).toLocaleString('es-MX')}</span>
-                </div>
-                <div className="flex justify-between py-1 font-bold text-slate-900">
-                  <span>Neto a Entregar a Sucursal:</span>
-                  <span className="font-mono text-blue-700">${(selectedDist.saldoActual * 0.90).toLocaleString('es-MX')}</span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-slate-200 flex justify-end gap-2">
-                <button onClick={() => window.print()} className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow">
-                  <FileSpreadsheet className="w-3.5 h-3.5" />
-                  <span>Imprimir Relación de Cobro</span>
+                  {totalPages}
                 </button>
-                <button onClick={() => setActiveModal(null)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+              )}
 
-      {/* Cartera de Clientes Modal */}
-      {activeModal === 'cartera' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 w-full max-w-2xl overflow-hidden animate-in fade-in">
-            <div className="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 font-bold text-sm">
-                <Users className="w-4 h-4 text-yellow-300" />
-                <span>Cartera de Clientes & Vales — DV #{selectedDist.noDist} {selectedDist.nombreDistribuidor}</span>
-              </div>
-              <button onClick={() => setActiveModal(null)} className="text-white/80 hover:text-white p-1">✕</button>
-            </div>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-1 rounded hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                title="Página siguiente"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
 
-            <div className="p-5 space-y-4 text-xs max-h-[75vh] overflow-y-auto">
-              <table className="w-full text-left text-xs border rounded-xl overflow-hidden">
-                <thead className="bg-[#2563eb] text-white font-bold text-[10px] uppercase">
-                  <tr>
-                    <th className="p-2.5">Folio Vale</th>
-                    <th className="p-2.5">Cliente</th>
-                    <th className="p-2.5">Monto</th>
-                    <th className="p-2.5">Saldo</th>
-                    <th className="p-2.5">Plazo</th>
-                    <th className="p-2.5">Estatus</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  <tr className="hover:bg-slate-50">
-                    <td className="p-2.5 font-mono font-bold text-blue-700">V-50491</td>
-                    <td className="p-2.5 font-bold text-slate-900">MARIA GUADALUPE SANCHEZ</td>
-                    <td className="p-2.5 font-mono">$6,000.00</td>
-                    <td className="p-2.5 font-mono text-rose-600 font-bold">$2,400.00</td>
-                    <td className="p-2.5 font-mono">8 qnas</td>
-                    <td className="p-2.5"><span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800">Al Corriente</span></td>
-                  </tr>
-                  <tr className="hover:bg-slate-50">
-                    <td className="p-2.5 font-mono font-bold text-blue-700">V-50495</td>
-                    <td className="p-2.5 font-bold text-slate-900">JUAN CARLOS NAVARRO</td>
-                    <td className="p-2.5 font-mono">$8,000.00</td>
-                    <td className="p-2.5 font-mono text-rose-600 font-bold">$5,000.00</td>
-                    <td className="p-2.5 font-mono">10 qnas</td>
-                    <td className="p-2.5"><span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800">Al Corriente</span></td>
-                  </tr>
-                  <tr className="hover:bg-slate-50">
-                    <td className="p-2.5 font-mono font-bold text-blue-700">V-48102</td>
-                    <td className="p-2.5 font-bold text-slate-900">YAZMIN MENDOZA CHAVEZ</td>
-                    <td className="p-2.5 font-mono">$3,500.00</td>
-                    <td className="p-2.5 font-mono text-emerald-700 font-bold">$0.00</td>
-                    <td className="p-2.5 font-mono">6 qnas</td>
-                    <td className="p-2.5"><span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600">Liquidado</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div className="p-4 bg-white border-t border-slate-200 flex justify-end">
-              <button onClick={() => setActiveModal(null)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">
-                Cerrar
+              <button
+                type="button"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="p-1 rounded hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                title="Última página"
+              >
+                <ChevronsRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
+
+          <div className="text-[11px] text-slate-500 font-mono">
+            Sistema LanAhora · Cartera de Distribuidores
+          </div>
         </div>
+      </div>
+
+      {/* MODAL 1: PERFIL DEL DISTRIBUIDOR (DETALLE) */}
+      {isDetalleOpen && selectedDist && (
+        <PerfilDistribuidorModal
+          isOpen={isDetalleOpen}
+          onClose={() => setIsDetalleOpen(false)}
+          distribuidor={selectedDist}
+          onSelectDv={(noDist) => setSelectedNoDist(noDist)}
+          onOpenCartera={(d) => {
+            setIsDetalleOpen(false);
+            setSelectedNoDist(d.noDist);
+            setIsCarteraOpen(true);
+          }}
+          onOpenRelacion={(d) => {
+            setSelectedNoDist(d.noDist);
+            setIsRelacionOpen(true);
+          }}
+          onOpenEstadoCuenta={(d) => {
+            setSelectedNoDist(d.noDist);
+            setIsEstadoCuentaOpen(true);
+          }}
+          onOpenNotas={(d) => {
+            setSelectedNoDist(d.noDist);
+            setIsNotasOpen(true);
+          }}
+          onOpenCastigo={(d) => {
+            setSelectedNoDist(d.noDist);
+            setIsCastigoOpen(true);
+          }}
+        />
       )}
 
-      {/* Relación de Cobranza Oficial (Modal Imprimible Legacy) */}
+      {/* MODAL 2: CARTERA DEL DISTRIBUIDOR (DETALLE DE CLIENTES & CRÉDITOS) */}
+      {isCarteraOpen && selectedDist && (
+        <CarteraDistribuidorModal
+          isOpen={isCarteraOpen}
+          onClose={() => setIsCarteraOpen(false)}
+          distribuidor={selectedDist}
+          onOpenDetallePerfil={(d) => {
+            setSelectedNoDist(d.noDist);
+            setIsDetalleOpen(true);
+          }}
+        />
+      )}
+
+      {/* MODAL 3: RELACIÓN DE COBRANZA QUINCENAL */}
       <RelacionCobranzaModal
-        isOpen={activeModal === 'relacion'}
-        onClose={() => setActiveModal(null)}
+        isOpen={isRelacionOpen}
+        onClose={() => setIsRelacionOpen(false)}
+        distribuidor={selectedDist}
+      />
+
+      {/* MODAL 4: ESTADO DE CUENTA */}
+      <EstadoCuentaModal
+        isOpen={isEstadoCuentaOpen}
+        onClose={() => setIsEstadoCuentaOpen(false)}
+        distribuidor={selectedDist}
+      />
+
+      {/* MODAL 5: MENSAJES MASIVOS WHATSAPP */}
+      <MensajesMasivosModal
+        isOpen={isMensajesOpen}
+        onClose={() => setIsMensajesOpen(false)}
+        distribuidor={selectedDist}
+      />
+
+      {/* MODAL 6: QUITAR FECHA CASTIGO */}
+      <QuitarCastigoModal
+        isOpen={isCastigoOpen}
+        onClose={() => setIsCastigoOpen(false)}
+        distribuidor={selectedDist}
+        onUpdateDistribuidor={(up) => updateDistribuidor(up)}
+      />
+
+      {/* MODAL 7: NOTIFICACIÓN PUSH LANAAPP */}
+      <NotificacionAppModal
+        isOpen={isPushOpen}
+        onClose={() => setIsPushOpen(false)}
         distribuidor={selectedDist}
       />
     </div>

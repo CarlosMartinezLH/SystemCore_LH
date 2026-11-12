@@ -231,6 +231,7 @@ export interface DistribuidorCore {
   fechaConsolidacion?: string;
   lineaLanaTienda?: number;
   disponibleLanaTienda?: number;
+  perfil?: string; // ej. 'Distribuidor AAA'
   lineaPersonal?: number;
   disponiblePersonal?: number;
 }

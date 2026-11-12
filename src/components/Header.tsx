@@ -12,6 +12,7 @@ import {
   LogOut,
   ShieldCheck,
   FolderKanban,
+  Award,
 } from 'lucide-react';
 
 export type ActiveAppModule =
@@ -52,10 +53,11 @@ interface NavModuleItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-// Menú principal simplificado: de momento solo Dashboard y Personas
+// Menú principal: Dashboard, Personas, Distribuidores
 const PRIMARY_MODULES: NavModuleItem[] = [
   { id: 'core_dashboard', name: 'Dashboard', icon: LayoutDashboard },
   { id: 'personas', name: 'Personas', icon: Users },
+  { id: 'distribuidores', name: 'Distribuidores', icon: Award },
 ];
 
 export default function Header({
@@ -112,28 +114,39 @@ export default function Header({
           <div className="h-5 w-px bg-slate-200 hidden sm:block" />
         </div>
 
-        {/* Center: Main Horizontal Menu (Dashboard, Personas, Catálogos) */}
+        {/* Center: Main Horizontal Menu (Dashboard, Personas, Catálogos, Distribuidores) */}
         <nav className="flex items-center gap-1.5 py-0.5">
-          {PRIMARY_MODULES.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeModule === item.id;
+          {/* Dashboard */}
+          <button
+            type="button"
+            onClick={() => handleSelectModule('core_dashboard')}
+            className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+              activeModule === 'core_dashboard'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <LayoutDashboard
+              className={`w-4 h-4 ${activeModule === 'core_dashboard' ? 'text-white' : 'text-slate-500'}`}
+            />
+            <span>Dashboard</span>
+          </button>
 
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleSelectModule(item.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
+          {/* Personas */}
+          <button
+            type="button"
+            onClick={() => handleSelectModule('personas')}
+            className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+              activeModule === 'personas'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Users
+              className={`w-4 h-4 ${activeModule === 'personas' ? 'text-white' : 'text-slate-500'}`}
+            />
+            <span>Personas</span>
+          </button>
 
           {/* Menú Desplegable: Catálogos */}
           <div className="relative" ref={catalogosDropdownRef}>
@@ -186,6 +199,22 @@ export default function Header({
               </div>
             )}
           </div>
+
+          {/* Distribuidores */}
+          <button
+            type="button"
+            onClick={() => handleSelectModule('distribuidores')}
+            className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+              activeModule === 'distribuidores'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Award
+              className={`w-4 h-4 ${activeModule === 'distribuidores' ? 'text-white' : 'text-slate-500'}`}
+            />
+            <span>Distribuidores</span>
+          </button>
         </nav>
 
         {/* Right Controls: User Profile & Mobile Toggle */}
