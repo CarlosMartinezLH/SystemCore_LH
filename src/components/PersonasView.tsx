@@ -324,7 +324,7 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
     <div className="flex-1 bg-[#f8fafc] text-slate-800 flex flex-col min-h-0 overflow-hidden font-sans">
       {/* Top Controls Toolbar: Búsqueda, Filtros y Acciones Globales */}
       <div className="px-4 lg:px-6 pt-4 pb-3">
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Left: Search Box */}
           <div className="flex-1 relative min-w-[240px]">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -345,66 +345,8 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
             )}
           </div>
 
-          {/* Center/Right: Filtros rápidos en razón de columnas de la tabla */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Filtro Pagaré */}
-            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200 text-xs">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Pagaré:</span>
-              <select
-                value={pagareFilter}
-                onChange={(e) => setPagareFilter(e.target.value as any)}
-                className="bg-transparent font-semibold text-slate-700 text-xs focus:outline-none cursor-pointer"
-              >
-                <option value="TODOS">Todos</option>
-                <option value="FIRMADO EN BLANCO">Firmado en Blanco</option>
-                <option value="SIN PAGARE">Sin Pagaré</option>
-                <option value="NO DEFINIDO">No Definido</option>
-              </select>
-            </div>
-
-            {/* Filtro Buró Interno */}
-            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200 text-xs">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Buró:</span>
-              <select
-                value={buroFilter}
-                onChange={(e) => setBuroFilter(e.target.value as any)}
-                className="bg-transparent font-semibold text-slate-700 text-xs focus:outline-none cursor-pointer"
-              >
-                <option value="TODOS">Todos</option>
-                <option value="NORMAL">Normal</option>
-                <option value="NO SUJETO DE CREDITO">No Sujeto</option>
-                <option value="BLOQUEADO">Bloqueado</option>
-              </select>
-            </div>
-
-            {/* Filtro Saldo */}
-            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200 text-xs">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Saldo:</span>
-              <select
-                value={saldoFilter}
-                onChange={(e) => setSaldoFilter(e.target.value as any)}
-                className="bg-transparent font-semibold text-slate-700 text-xs focus:outline-none cursor-pointer"
-              >
-                <option value="TODOS">Todos</option>
-                <option value="CON_SALDO">Con Saldo</option>
-                <option value="SIN_SALDO">Sin Saldo</option>
-              </select>
-            </div>
-
-            {/* Filtro Mora / Capital Vencido */}
-            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200 text-xs">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Mora:</span>
-              <select
-                value={vencidoFilter}
-                onChange={(e) => setVencidoFilter(e.target.value as any)}
-                className="bg-transparent font-semibold text-slate-700 text-xs focus:outline-none cursor-pointer"
-              >
-                <option value="TODOS">Todos</option>
-                <option value="CON_MORA">Con Mora</option>
-                <option value="AL_CORRIENTE">Al Corriente</option>
-              </select>
-            </div>
-
+          {/* Right: Acciones y Exportación */}
+          <div className="flex items-center gap-2 shrink-0">
             {/* Reset Filters button */}
             {hasActiveFilters && (
               <button
