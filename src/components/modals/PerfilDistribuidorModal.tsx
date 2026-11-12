@@ -579,6 +579,37 @@ export default function PerfilDistribuidorModal({
                 </div>
               </div>
 
+              {/* Accesos Rápidos Principales: Cartera de Clientes y Estado de Cuenta */}
+              <div className="flex flex-wrap items-center gap-2.5 p-2.5 bg-white rounded-xl border border-slate-200 shadow-2xs">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 px-1">
+                  Módulos de Distribuidor:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('cartera')}
+                  className="px-3.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs inline-flex items-center gap-1.5 border border-emerald-200 transition active:scale-95 shadow-2xs cursor-pointer"
+                >
+                  <Briefcase className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Ver Cartera de Clientes ({currentDv.valesActivos || 32} vales)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('estado_cuenta')}
+                  className="px-3.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-xs inline-flex items-center gap-1.5 border border-blue-200 transition active:scale-95 shadow-2xs cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5 text-blue-700" />
+                  <span>Generar Estado de Cuenta</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('opciones')}
+                  className="px-3.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs inline-flex items-center gap-1.5 border border-slate-200 transition active:scale-95 shadow-2xs cursor-pointer"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Opciones & Operación</span>
+                </button>
+              </div>
+
               {/* Formulario Estructurado en 3 Tarjetas Modernas */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {/* Tarjeta 1: Información de Distribución */}

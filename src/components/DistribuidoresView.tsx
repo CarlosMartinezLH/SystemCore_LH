@@ -786,13 +786,12 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
                           ${d.disponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                         </td>
 
-                        {/* Columna Acciones (Sticky Right - IDÉNTICA a PersonasView) */}
+                        {/* Columna Acciones (Sticky Right - Un solo botón Detalle) */}
                         <td
                           className="px-2.5 py-2 text-center sticky right-0 bg-white group-hover:bg-slate-50 z-10 shadow-[-1px_0_0_0_#f1f5f9]"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <div className="inline-flex items-center gap-1.5">
-                            {/* Botón Detalle -> PerfilDistribuidorModal (Tab Detalle) */}
+                          <div className="flex items-center justify-center">
                             <button
                               type="button"
                               onClick={() => {
@@ -800,39 +799,11 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
                                 setDetalleInitialTab('detalle');
                                 setIsDetalleOpen(true);
                               }}
-                              className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs inline-flex items-center gap-1 border border-blue-200 transition active:scale-95 shadow-2xs cursor-pointer"
-                              title="Ver y editar detalle del distribuidor"
+                              className="px-3 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs inline-flex items-center gap-1.5 border border-blue-200 transition active:scale-95 shadow-2xs cursor-pointer"
+                              title="Ver detalle del distribuidor, cartera y estado de cuenta"
                             >
                               <Pencil className="w-3.5 h-3.5" />
                               <span>Detalle</span>
-                            </button>
-
-                            {/* Botón Cartera -> CarteraDistribuidorModal */}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedNoDist(d.noDist);
-                                setIsCarteraOpen(true);
-                              }}
-                              className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs inline-flex items-center gap-1 border border-emerald-200 transition active:scale-95 shadow-2xs cursor-pointer"
-                              title="Ver cartera de clientes y créditos"
-                            >
-                              <Briefcase className="w-3.5 h-3.5 text-emerald-700" />
-                              <span>Cartera</span>
-                            </button>
-
-                            {/* Botón Estado de Cuenta directo */}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedNoDist(d.noDist);
-                                setIsEstadoCuentaOpen(true);
-                              }}
-                              className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs inline-flex items-center gap-1 border border-slate-200 transition active:scale-95 shadow-2xs cursor-pointer"
-                              title="Generar Estado de Cuenta imprimible"
-                            >
-                              <Printer className="w-3.5 h-3.5 text-slate-600" />
-                              <span>Edo. Cta</span>
                             </button>
                           </div>
                         </td>
