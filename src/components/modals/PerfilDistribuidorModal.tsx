@@ -38,6 +38,7 @@ import RecibosRelacionModal from './RecibosRelacionModal';
 import ContratoAperturaModal from './ContratoAperturaModal';
 import CarteraDistribuidorModal from './CarteraDistribuidorModal';
 import HistorialCreditosDistribuidorModal from './HistorialCreditosDistribuidorModal';
+import CreditoPersonaDVModal from './CreditoPersonaDVModal';
 
 interface PerfilDistribuidorModalProps {
   isOpen: boolean;
@@ -72,6 +73,7 @@ export default function PerfilDistribuidorModal({
   const [isRecibosModalOpen, setIsRecibosModalOpen] = useState(false);
   const [isContratoModalOpen, setIsContratoModalOpen] = useState(false);
   const [isHistorialCreditosOpen, setIsHistorialCreditosOpen] = useState(false);
+  const [isCreditoPersonalModalOpen, setIsCreditoPersonalModalOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<DistribuidorCore>>({});
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
@@ -713,7 +715,7 @@ export default function PerfilDistribuidorModal({
 
                   <button
                     type="button"
-                    onClick={() => showToast('Abriendo módulo de Crédito Personal DV...')}
+                    onClick={() => setIsCreditoPersonalModalOpen(true)}
                     className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-slate-800 hover:text-blue-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
                     <DollarSign className="w-4 h-4 text-blue-600" />
@@ -957,6 +959,28 @@ export default function PerfilDistribuidorModal({
           isOpen={isHistorialCreditosOpen}
           onClose={() => setIsHistorialCreditosOpen(false)}
           distribuidor={currentDv}
+        />
+      )}
+
+      {/* Modal Oficial de Crédito Personal DV (Préstamo Directo 8 y 10 Quincenas) */}
+      {isCreditoPersonalModalOpen && (
+        <CreditoPersonaDVModal
+          isOpen={isCreditoPersonalModalOpen}
+          onClose={() => setIsCreditoPersonalModalOpen(false)}
+          distribuidor={currentDv}
+          onCreditoGenerado={(nuevoCredito) => {
+            const dispActual = currentDv.disponiblePersonal ?? (currentDv.lineaPersonal ? currentDv.lineaPersonal * 0.5 : 10000);
+            const nuevoDisponible = Math.max(0, dispActual - nuevoCredito.capital);
+            const updated: DistribuidorCore = {
+              ...currentDv,
+              disponiblePersonal: nuevoDisponible,
+            };
+            setCurrentDv(updated);
+            if (updateDistribuidor) {
+              updateDistribuidor(updated);
+            }
+            showToast(`Crédito Personal #${nuevoCredito.creditoId} generado exitosamente por $${nuevoCredito.capital.toLocaleString('es-MX')} a ${nuevoCredito.plazos} quincenas`);
+          }}
         />
       )}
     </div>
