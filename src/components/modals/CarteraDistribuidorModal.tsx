@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { DistribuidorCore, CreditoHistorialPersona } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import {
@@ -434,10 +435,24 @@ export default function CarteraDistribuidorModal({
   distribuidor,
   onOpenDetallePerfil,
 }: CarteraDistribuidorModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const toggleGroup = (groupName: string) => {
     setCollapsedGroups((prev) => ({
@@ -525,9 +540,9 @@ export default function CarteraDistribuidorModal({
     );
   };
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-1.5 sm:p-2.5 md:p-3 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-[98vw] max-w-[99vw] h-[96vh] max-h-[98vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-150">
+  const modalContent = (
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-2 sm:p-3 md:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-[98vw] max-w-[99vw] h-[95vh] max-h-[95vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-150">
         {/* Header Superior del Modal (IDÉNTICO a Personas/EditarClienteModal) */}
         <div className="px-5 py-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/80 shrink-0">
           <div className="flex items-center gap-3">
@@ -820,4 +835,6 @@ export default function CarteraDistribuidorModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
