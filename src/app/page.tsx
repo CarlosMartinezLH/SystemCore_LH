@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Header, { ActiveAppModule } from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
 import LoginView from '@/components/LoginView';
 import MobileAdvisorApp from '@/components/MobileAdvisorApp';
 import KanbanBoard from '@/components/KanbanBoard';
@@ -43,7 +42,6 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isNewLeadOpen, setIsNewLeadOpen] = useState(false);
   const [quickAddStage, setQuickAddStage] = useState<StageId>('contacto');
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   // Load from localStorage on client mount
@@ -226,42 +224,28 @@ export default function Home() {
 
   return (
     <CoreSyncProvider>
-      <div className="flex h-screen overflow-hidden bg-[#f8fafc] text-slate-800 font-sans relative">
+      <div className="flex flex-col h-screen overflow-hidden bg-[#f8fafc] text-slate-800 font-sans relative">
         {/* Difuminados Ambientales de Fondo (Luz Mesh Suave de Alta Fidelidad) */}
         <div className="fixed top-[-100px] left-[20%] w-[550px] h-[380px] bg-blue-100/30 rounded-full blur-3xl pointer-events-none animate-ambient-glow z-0" />
         <div className="fixed bottom-[-80px] right-[5%] w-[650px] h-[450px] bg-indigo-50/40 rounded-full blur-3xl pointer-events-none z-0" />
 
-        {/* Unified App Sidebar */}
-        <Sidebar
+        {/* Menú Principal Superior en Header (Más vista para tablas y dashboards) */}
+        <Header
+          currentUser={currentUser}
           activeModule={activeModule}
           onModuleChange={(mod) => {
             setSelectedProspectId(null);
             setActiveModule(mod);
           }}
-          currentUser={currentUser}
           onLogout={handleLogout}
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          isMobileOpen={isMobileNavOpen}
-          onCloseMobile={() => setIsMobileNavOpen(false)}
+          onOpenNewLead={() => setIsNewLeadOpen(true)}
+          onToggleMobile={() => setIsMobileNavOpen(!isMobileNavOpen)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
 
-        {/* Main Content Workspace */}
-        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-transparent relative z-10">
-          <Header
-            currentUser={currentUser}
-            activeModule={activeModule}
-            onModuleChange={(mod) => {
-              setSelectedProspectId(null);
-              setActiveModule(mod);
-            }}
-            onLogout={handleLogout}
-            onOpenNewLead={() => setIsNewLeadOpen(true)}
-            onToggleMobile={() => setIsMobileNavOpen(!isMobileNavOpen)}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-          />
-
+        {/* Main Content Workspace - 100% Ancho Completo para Tablas y Dashboards */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-transparent relative z-10">
           <main className="flex-1 flex flex-col min-w-0 bg-transparent">
             {activeModule === 'core_dashboard' ? (
               <CoreDashboard
