@@ -178,9 +178,6 @@ export default function Header({
           <h1 className="text-lg lg:text-xl font-extrabold text-slate-900 tracking-tight truncate leading-tight">
             {currentMeta.title}
           </h1>
-          <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
-            {currentMeta.subtitle}
-          </p>
         </div>
       </div>
 

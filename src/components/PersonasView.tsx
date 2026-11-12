@@ -235,11 +235,8 @@ export default function PersonasView() {
         <div className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
           {/* Table Header Stats */}
           <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60 shrink-0">
-            <span className="text-xs text-slate-500 font-medium">
+            <span className="text-xs text-slate-600 font-medium">
               Mostrando <strong className="text-slate-900 font-bold">{filtered.length}</strong> de {personas.length} personas registradas
-            </span>
-            <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
-              💡 Haz clic en <strong className="text-blue-600">Editar</strong> en cualquier cliente para abrir su modal con pestañas (40 campos, operaciones, expediente y notas)
             </span>
           </div>
 

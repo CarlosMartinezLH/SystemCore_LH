@@ -331,22 +331,14 @@ export default function EditarClienteModal({
               alt="LanAhora"
               className="h-7 w-auto object-contain"
             />
-            <div className="h-5 w-px bg-slate-300" />
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">
-                  Gestión de Cliente
-                </h3>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                  ID #{persona.personaId}
-                </span>
-                <span className="text-xs font-bold text-slate-700 hidden sm:inline">
-                  {persona.nombre} {persona.apellidoPaterno} {persona.apellidoMaterno}
-                </span>
-              </div>
-              <p className="text-[10px] text-slate-400 font-medium">
-                Edición integral de padrón · Pagaré, Domicilio, Laboral y Buró
-              </p>
+            <div className="h-6 w-px bg-slate-300" />
+            <div className="flex items-center gap-2.5">
+              <h2 className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight">
+                {persona.nombre} {persona.nombreAdicional ? persona.nombreAdicional + ' ' : ''}{persona.apellidoPaterno} {persona.apellidoMaterno}
+              </h2>
+              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                ID #{persona.personaId}
+              </span>
             </div>
           </div>
 
@@ -363,7 +355,7 @@ export default function EditarClienteModal({
                 }`}
               >
                 <Pencil className="w-3.5 h-3.5" />
-                <span>Editar Datos (40 campos)</span>
+                <span>Editar Datos</span>
               </button>
               <button
                 type="button"
@@ -941,29 +933,23 @@ export default function EditarClienteModal({
               </div>
 
               {/* Botones del Formulario */}
-              <div className="pt-3 border-t border-slate-200 flex items-center justify-between bg-white shrink-0">
-                <span className="text-[11px] text-slate-400 font-medium">
-                  Core LanAhora · Actualización sincrónica de datos del cliente
-                </span>
+              <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-2 bg-white shrink-0">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition active:scale-95"
+                >
+                  Cancelar
+                </button>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition active:scale-95"
-                  >
-                    Cancelar
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition active:scale-95 flex items-center gap-1.5 disabled:opacity-50"
-                  >
-                    <Save className="w-3.5 h-3.5" />
-                    <span>{isSubmitting ? 'Guardando...' : 'Actualizar'}</span>
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition active:scale-95 flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{isSubmitting ? 'Guardando...' : 'Actualizar'}</span>
+                </button>
               </div>
             </form>
           )}
@@ -976,16 +962,13 @@ export default function EditarClienteModal({
               {/* Primary Action Button: Canjear Vale */}
               <div className="bg-blue-50/70 p-4 rounded-2xl border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0">
-                    <Barcode className="w-6 h-6" />
+                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                    <Barcode className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="text-sm font-extrabold text-blue-950">
                       Canjear Vale a este Cliente
                     </h4>
-                    <p className="text-xs text-blue-700 font-medium">
-                      Validación biométrica instantánea, cálculo de comisiones y dispersión SPEI / STP
-                    </p>
                   </div>
                 </div>
 
@@ -1003,117 +986,92 @@ export default function EditarClienteModal({
               </div>
 
               {/* Quick Action Cards Grid */}
-              <div className="space-y-2">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                  Módulos de Gestión de Cartera
-                </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                {/* Solicitar Buró */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    if (onLaunchBuro) onLaunchBuro();
+                  }}
+                  className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
+                >
+                  <div className="flex items-center justify-between w-full mb-3">
+                    <ShieldCheck className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
+                    <span
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                        persona.scoreBuro
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      {persona.scoreBuro ? `${persona.scoreBuro} pts` : 'API en línea'}
+                    </span>
+                  </div>
+                  <p className="font-bold text-slate-900 text-xs">Solicitar Buró</p>
+                </button>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                  {/* Solicitar Buró */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onClose();
-                      if (onLaunchBuro) onLaunchBuro();
-                    }}
-                    className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
-                  >
-                    <div className="flex items-center justify-between w-full mb-3">
-                      <ShieldCheck className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
-                      <span
-                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                          persona.scoreBuro
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-slate-200 text-slate-600'
-                        }`}
-                      >
-                        {persona.scoreBuro ? `${persona.scoreBuro} pts` : 'API en línea'}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 text-xs">Solicitar Buró</p>
-                      <p className="text-[10px] text-slate-500">Consulta de Score FICO</p>
-                    </div>
-                  </button>
+                {/* Expediente Digital */}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('expediente')}
+                  className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
+                >
+                  <div className="flex items-center justify-between w-full mb-3">
+                    <FolderOpen className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                      Digital
+                    </span>
+                  </div>
+                  <p className="font-bold text-slate-900 text-xs">Expediente Digital</p>
+                </button>
 
-                  {/* Expediente Digital */}
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('expediente')}
-                    className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
-                  >
-                    <div className="flex items-center justify-between w-full mb-3">
-                      <FolderOpen className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                        Digital
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 text-xs">Expediente Digital</p>
-                      <p className="text-[10px] text-slate-500">INE, Domicilio y KYC</p>
-                    </div>
-                  </button>
+                {/* Datos Bancarios */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    if (onLaunchBancarios) onLaunchBancarios();
+                  }}
+                  className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
+                >
+                  <div className="flex items-center justify-between w-full mb-3">
+                    <CreditCard className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
+                      STP SPEI
+                    </span>
+                  </div>
+                  <p className="font-bold text-slate-900 text-xs">Datos Bancarios</p>
+                </button>
 
-                  {/* Datos Bancarios */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onClose();
-                      if (onLaunchBancarios) onLaunchBancarios();
-                    }}
-                    className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
-                  >
-                    <div className="flex items-center justify-between w-full mb-3">
-                      <CreditCard className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
-                        STP SPEI
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 text-xs">Datos Bancarios</p>
-                      <p className="text-[10px] text-slate-500">CLABE y Tarjetas de débito</p>
-                    </div>
-                  </button>
-
-                  {/* Carta Prestanombres */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onClose();
-                      if (onLaunchPrestanombres) onLaunchPrestanombres();
-                    }}
-                    className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
-                  >
-                    <div className="flex items-center justify-between w-full mb-3">
-                      <Printer className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                        CNBV
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 text-xs">Carta Prestanombres</p>
-                      <p className="text-[10px] text-slate-500">Declaratoria regulatoria</p>
-                    </div>
-                  </button>
-                </div>
+                {/* Carta Prestanombres */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    if (onLaunchPrestanombres) onLaunchPrestanombres();
+                  }}
+                  className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
+                >
+                  <div className="flex items-center justify-between w-full mb-3">
+                    <Printer className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                      CNBV
+                    </span>
+                  </div>
+                  <p className="font-bold text-slate-900 text-xs">Carta Prestanombres</p>
+                </button>
               </div>
 
               {/* Asignar como Distribuidora */}
               <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <ArrowRightLeft className="w-5 h-5 text-slate-600" />
-                  <div>
-                    <p className="font-bold text-xs text-slate-900">
-                      {persona.isDistribuidor
-                        ? `Distribuidora Activa (DV #${persona.distribuidorId || 1025})`
-                        : 'Promover a Distribuidora Oficial (DV)'}
-                    </p>
-                    <p className="text-[10px] text-slate-500">
-                      {persona.isDistribuidor
-                        ? 'Cuenta con línea de crédito de colocación habilitada'
-                        : 'Asigna cupo de crédito para expedir y colocar valeras'}
-                    </p>
-                  </div>
+                  <p className="font-bold text-xs text-slate-900">
+                    {persona.isDistribuidor
+                      ? `Distribuidora Activa (DV #${persona.distribuidorId || 1025})`
+                      : 'Promover a Distribuidora Oficial (DV)'}
+                  </p>
                 </div>
 
                 <button
@@ -1179,9 +1137,6 @@ export default function EditarClienteModal({
                   <h4 className="text-sm font-extrabold text-slate-900">
                     Expediente Digital Cotejado
                   </h4>
-                  <p className="text-xs text-slate-500">
-                    Documentación oficial requerida por normativa bancaria y PLD
-                  </p>
                 </div>
                 <button
                   type="button"
@@ -1208,7 +1163,6 @@ export default function EditarClienteModal({
                     </span>
                   </div>
                   <p className="font-bold text-slate-900 text-xs">Identificación Oficial (INE/IFE)</p>
-                  <p className="text-[10px] text-slate-500">Frente y Reverso cotejados digitalmente</p>
                 </div>
 
                 {/* Comprobante Domicilio */}
@@ -1222,7 +1176,6 @@ export default function EditarClienteModal({
                     </span>
                   </div>
                   <p className="font-bold text-slate-900 text-xs">Comprobante de Domicilio</p>
-                  <p className="text-[10px] text-slate-500">Recibo de CFE emitido hace menos de 90 días</p>
                 </div>
 
                 {/* Pagaré */}
@@ -1242,7 +1195,6 @@ export default function EditarClienteModal({
                     </span>
                   </div>
                   <p className="font-bold text-slate-900 text-xs">Pagaré Legal Amparado</p>
-                  <p className="text-[10px] text-slate-500">Monto: ${(persona.pagareCantidad || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
                 </div>
               </div>
             </div>
@@ -1258,9 +1210,6 @@ export default function EditarClienteModal({
                   <h4 className="text-sm font-extrabold text-slate-900">
                     Bitácora y Notas Internas
                   </h4>
-                  <p className="text-xs text-slate-500">
-                    Historial de observaciones registradas por coordinadores y analistas de crédito
-                  </p>
                 </div>
               </div>
 
