@@ -56,6 +56,72 @@ export interface NotaClienteCore {
   avatarInitials?: string;
 }
 
+export interface AmortizacionCuota {
+  numeroPago: number;
+  fechaVencimiento: string;
+  capital: number;
+  interes: number;
+  seguro: number;
+  iva: number;
+  cuotaTotal: number;
+  saldoRestante: number;
+  estatus: 'PENDIENTE' | 'PAGADO' | 'VENCIDO';
+  fechaPago?: string;
+}
+
+export interface CreditoHistorialPersona {
+  contratoId: number;
+  coordinador: string;
+  creditoId: number | string;
+  nombreDistribuidor: string;
+  distribuidorId: number;
+  personaId: number;
+  nombreCompleto: string;
+  plazos: number;
+  porcTasaMensual: number;
+  producto: string;
+  capital: number;
+  interes: number;
+  seguro: number;
+  iva: number;
+  importeTotal: number;
+  abonos: number;
+  pagoModa: number;
+  saldoActual: number;
+  diasAtraso: number;
+  saldoAtrasado: number;
+  fechaHoraRegistro: string;
+  fechaHoraDesembolso: string;
+  fechaHoraUltimoPago: string;
+  valeCanje: number;
+  capitalPagado: number;
+  capitalPendiente: number;
+  interesPendiente: number;
+  seguroPendiente: number;
+  ivaPendiente: number;
+  usuarioIdRegistro: number;
+  nomUsuarioRegistro: string;
+  pagosAtrasados: number;
+  tipoDesembolso: string;
+  estatus: 'ACTIVO' | 'LIQUIDADO' | 'EN MORA' | 'CANCELADO';
+  username?: string;
+  puntoDeVenta?: string;
+  pagareEstatusDesc: string;
+  fechaPrimerPlazo: string;
+  fechaUltimoPlazo: string;
+  capitalAtrasado: number;
+  interesAtrasado: number;
+  comisionAtrasado: number;
+  seguroAtrasado: number;
+  cargoAtrasado: number;
+  ivaAtrasado: number;
+  observacion: string;
+  sucursal: string;
+  tipo: string;
+  clasificacionDesc: string;
+  amortizaciones?: AmortizacionCuota[];
+}
+
 export interface PersonaCore {
   personaId: number;
   nombre: string;

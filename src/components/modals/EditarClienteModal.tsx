@@ -37,6 +37,10 @@ import {
   User,
   Tag,
   Layers,
+  Receipt,
+  Handshake,
+  Columns,
+  History,
 } from 'lucide-react';
 import {
   PersonaCore,
@@ -44,7 +48,10 @@ import {
   getCategoriaPersona,
   getCategoriaInfo,
   NotaClienteCore,
+  CreditoHistorialPersona,
+  AmortizacionCuota,
 } from '@/types/core';
+import { getHistorialCreditosPersona } from '@/lib/data/historialCreditosData';
 import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
 
@@ -52,7 +59,7 @@ interface EditarClienteModalProps {
   isOpen: boolean;
   onClose: () => void;
   persona: PersonaCore | null;
-  initialTab?: 'editar' | 'opciones' | 'expediente' | 'notas';
+  initialTab?: 'editar' | 'opciones' | 'historial_creditos' | 'expediente' | 'notas';
   onSuccess?: (updated: PersonaCore) => void;
   onLaunchCanje?: () => void;
   onLaunchBuro?: () => void;
@@ -138,11 +145,19 @@ export default function EditarClienteModal({
 }: EditarClienteModalProps) {
   const { updatePersona } = useCoreSync();
 
-  // Tab activo: 'editar' | 'opciones' | 'expediente' | 'notas'
-  const [activeTab, setActiveTab] = useState<'editar' | 'opciones' | 'expediente' | 'notas'>(initialTab);
+  // Tab activo: 'editar' | 'opciones' | 'historial_creditos' | 'expediente' | 'notas'
+  const [activeTab, setActiveTab] = useState<'editar' | 'opciones' | 'historial_creditos' | 'expediente' | 'notas'>(initialTab);
 
   // Categoría en Padrón (CF, DV, AV, CO)
   const [categoria, setCategoria] = useState<CategoriaPersona>(getCategoriaPersona(persona));
+
+  // Estados para Historial de Créditos
+  const [creditoSearchFilter, setCreditoSearchFilter] = useState('');
+  const [selectedCreditoRowId, setSelectedCreditoRowId] = useState<number | string | null>(null);
+  const [selectedAmortizacionCredito, setSelectedAmortizacionCredito] = useState<CreditoHistorialPersona | null>(null);
+  const [convenioModalCredito, setConvenioModalCredito] = useState<CreditoHistorialPersona | null>(null);
+  const [convenioPlazos, setConvenioPlazos] = useState<number>(8);
+  const [convenioToast, setConvenioToast] = useState<string | null>(null);
 
   // Estados para Visor de Expediente Digital Integrado
   const [selectedDocId, setSelectedDocId] = useState<'ine' | 'cfe' | 'pagare' | 'sat' | 'prestanombres'>('ine');
@@ -469,6 +484,47 @@ export default function EditarClienteModal({
     setNoteInput('');
   };
 
+  const handleExportCreditosExcel = (list: CreditoHistorialPersona[]) => {
+    if (!persona || list.length === 0) return;
+    const headers = [
+      'Contrato ID', 'Coordinador', 'Credito ID', 'Nombre Distribuidor', 'Distribuidor ID', 'Persona ID', 'Nombre Completo',
+      'Plazos', 'Porc Tasa Mensual', 'Producto', 'Capital', 'Interes', 'Seguro', 'IVA', 'Importe Total', 'Abonos', 'Pago Moda',
+      'Saldo Actual', 'Dias Atraso', 'Saldo Atrasado', 'Fecha Hora Registro', 'Fecha Hora Desembolso', 'Fecha Hora Ultimo Pago',
+      'Vale Canje', 'Capital Pagado', 'Capital Pendiente', 'Interes Pendiente', 'Seguro Pendiente', 'IVA Pendiente',
+      'Usuario ID Registro', 'Nom Usuario Registro', 'Pagos Atrasados', 'Tipo Desembolso', 'Estatus', 'Pagaré Estatus',
+      'Fecha Primer Plazo', 'Fecha Ultimo Plazo', 'Capital Atrasado', 'Interes Atrasado', 'Comision Atrasado', 'Seguro Atrasado',
+      'Cargo Atrasado', 'IVA Atrasado', 'Observacion', 'Sucursal', 'Tipo'
+    ];
+
+    const rows = list.map((c) => [
+      c.contratoId, `"${c.coordinador}"`, c.creditoId, `"${c.nombreDistribuidor}"`, c.distribuidorId, c.personaId, `"${c.nombreCompleto}"`,
+      c.plazos, c.porcTasaMensual, `"${c.producto}"`, c.capital, c.interes, c.seguro, c.iva, c.importeTotal, c.abonos, c.pagoModa,
+      c.saldoActual, c.diasAtraso, c.saldoAtrasado, c.fechaHoraRegistro, c.fechaHoraDesembolso, c.fechaHoraUltimoPago,
+      c.valeCanje, c.capitalPagado, c.capitalPendiente, c.interesPendiente, c.seguroPendiente, c.ivaPendiente,
+      c.usuarioIdRegistro, `"${c.nomUsuarioRegistro}"`, c.pagosAtrasados, `"${c.tipoDesembolso}"`, c.estatus, `"${c.pagareEstatusDesc}"`,
+      c.fechaPrimerPlazo, c.fechaUltimoPlazo, c.capitalAtrasado, c.interesAtrasado, c.comisionAtrasado, c.seguroAtrasado,
+      c.cargoAtrasado, c.ivaAtrasado, `"${c.observacion}"`, `"${c.sucursal}"`, `"${c.tipo}"`
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `HISTORIAL_CREDITOS_${persona.personaId}_${persona.apellidoPaterno || 'CLIENTE'}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleApplyConvenio = () => {
+    if (!convenioModalCredito) return;
+    setConvenioToast(`Convenio generado exitosamente para Crédito #${convenioModalCredito.creditoId} a ${convenioPlazos} quincenas.`);
+    setConvenioModalCredito(null);
+    setTimeout(() => setConvenioToast(null), 3500);
+  };
+
   const currentCat = getCategoriaPersona(persona);
   const catInfo = getCategoriaInfo(currentCat);
   const isDv = currentCat === 'DV';
@@ -531,6 +587,18 @@ export default function EditarClienteModal({
               >
                 <Barcode className="w-3.5 h-3.5" />
                 <span>Opciones & Operación</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('historial_creditos')}
+                className={`px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 ${
+                  activeTab === 'historial_creditos'
+                    ? 'bg-white text-blue-700 shadow-xs'
+                    : 'hover:text-slate-900'
+                }`}
+              >
+                <Receipt className="w-3.5 h-3.5" />
+                <span>Historial Créditos</span>
               </button>
               <button
                 type="button"
@@ -1164,7 +1232,22 @@ export default function EditarClienteModal({
               </div>
 
               {/* Quick Action Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                {/* Historial de Créditos */}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('historial_creditos')}
+                  className="p-3.5 rounded-xl bg-blue-50/70 hover:bg-blue-100/70 border border-blue-200 text-left transition flex flex-col justify-between group active:scale-98 shadow-2xs"
+                >
+                  <div className="flex items-center justify-between w-full mb-3">
+                    <Receipt className="w-5 h-5 text-blue-700 transition" />
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
+                      Historial
+                    </span>
+                  </div>
+                  <p className="font-bold text-blue-950 text-xs">Historial de Créditos</p>
+                </button>
+
                 {/* Solicitar Buró */}
                 <button
                   type="button"
@@ -1300,6 +1383,582 @@ export default function EditarClienteModal({
               </div>
             </div>
           )}
+
+          {/* ========================================================= */}
+          {/* PESTAÑA: HISTORIAL DE CRÉDITOS (PANTALLA FIEL AL LEGACY)  */}
+          {/* ========================================================= */}
+          {activeTab === 'historial_creditos' && (() => {
+            const allCreditos = getHistorialCreditosPersona(persona);
+            const filteredCreditos = allCreditos.filter((c) => {
+              if (!creditoSearchFilter.trim()) return true;
+              const q = creditoSearchFilter.toLowerCase().trim();
+              return (
+                c.creditoId.toString().toLowerCase().includes(q) ||
+                c.contratoId.toString().toLowerCase().includes(q) ||
+                c.coordinador.toLowerCase().includes(q) ||
+                c.nombreDistribuidor.toLowerCase().includes(q) ||
+                c.producto.toLowerCase().includes(q) ||
+                c.tipoDesembolso.toLowerCase().includes(q) ||
+                c.sucursal.toLowerCase().includes(q) ||
+                c.estatus.toLowerCase().includes(q)
+              );
+            });
+
+            const activeSelectedCredito =
+              filteredCreditos.find((c) => c.creditoId === selectedCreditoRowId) ||
+              filteredCreditos[0] ||
+              null;
+
+            // Totales de resumen
+            const totalCapital = filteredCreditos.reduce((sum, c) => sum + c.capital, 0);
+            const totalInteres = filteredCreditos.reduce((sum, c) => sum + c.interes, 0);
+            const totalSeguro = filteredCreditos.reduce((sum, c) => sum + c.seguro, 0);
+            const totalIva = filteredCreditos.reduce((sum, c) => sum + c.iva, 0);
+            const totalImporte = filteredCreditos.reduce((sum, c) => sum + c.importeTotal, 0);
+            const totalAbonos = filteredCreditos.reduce((sum, c) => sum + c.abonos, 0);
+            const totalPagoModa = filteredCreditos.reduce((sum, c) => sum + c.pagoModa, 0);
+            const totalSaldoActual = filteredCreditos.reduce((sum, c) => sum + c.saldoActual, 0);
+            const totalCapitalPendiente = filteredCreditos.reduce((sum, c) => sum + c.capitalPendiente, 0);
+
+            return (
+              <div className="space-y-3 font-sans text-xs">
+                {/* Toast de Convenio / Actualización */}
+                {convenioToast && (
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{convenioToast}</span>
+                  </div>
+                )}
+
+                {/* Barra Superior Legacy: Cliente y Botonera */}
+                <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                  {/* Info Cliente & Botón Ver Detalles */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-500 font-bold text-xs">Cliente:</span>
+                      <span className="font-extrabold text-slate-900 text-sm tracking-wide">
+                        {persona.nombre} {persona.nombreAdicional ? persona.nombreAdicional + ' ' : ''}{persona.apellidoPaterno} {persona.apellidoMaterno}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={!activeSelectedCredito}
+                      onClick={() => {
+                        if (activeSelectedCredito) {
+                          setSelectedAmortizacionCredito(activeSelectedCredito);
+                        }
+                      }}
+                      className="px-4 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-40 text-slate-800 font-bold text-xs shadow-2xs transition active:scale-95 flex items-center gap-1.5"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Ver Detalles</span>
+                    </button>
+                  </div>
+
+                  {/* Botones de Operación (Generar convenio, Actualizar, Exportar a excel, Personalizar Columnas) */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeSelectedCredito) {
+                          setConvenioModalCredito(activeSelectedCredito);
+                        } else {
+                          alert('Seleccione un crédito para generar convenio.');
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs shadow-2xs transition flex items-center gap-1.5 active:scale-95"
+                    >
+                      <Handshake className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Generar convenio</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConvenioToast('Historial de créditos actualizado en tiempo real.');
+                        setTimeout(() => setConvenioToast(null), 2500);
+                      }}
+                      className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs shadow-2xs transition flex items-center gap-1.5 active:scale-95"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 text-slate-600" />
+                      <span>Actualizar</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleExportCreditosExcel(filteredCreditos)}
+                      className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs shadow-2xs transition flex items-center gap-1.5 active:scale-95"
+                    >
+                      <Download className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Exportar a excel</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        alert('Todas las 48 columnas se encuentran activas y desplegadas en el lienzo.');
+                      }}
+                      className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs shadow-2xs transition flex items-center gap-1.5 active:scale-95"
+                    >
+                      <Columns className="w-3.5 h-3.5 text-purple-600" />
+                      <span>Personalizar Columnas</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Barra de Búsqueda Rápida Legacy */}
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Introduzca el texto a buscar..."
+                    value={creditoSearchFilter}
+                    onChange={(e) => setCreditoSearchFilter(e.target.value)}
+                    className="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600 shadow-2xs"
+                  />
+                  {creditoSearchFilter && (
+                    <button
+                      type="button"
+                      onClick={() => setCreditoSearchFilter('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Banner de Clasificación Legacy */}
+                <div className="bg-slate-600 text-white px-3 py-1.5 rounded-t-lg font-bold text-xs flex items-center gap-2">
+                  <span className="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded border border-slate-500">
+                    ▲
+                  </span>
+                  <span>credito Clasificacion Desc: VALE DE DINERO</span>
+                  <span className="text-[10px] text-slate-300 font-mono font-normal">
+                    ({filteredCreditos.length} {filteredCreditos.length === 1 ? 'registro' : 'registros'})
+                  </span>
+                </div>
+
+                {/* Grid de 48 Columnas con Scroll Horizontal */}
+                <div className="overflow-x-auto border-x border-b border-slate-300 rounded-b-lg bg-white shadow-xs max-h-[460px]">
+                  <table className="w-full text-left border-collapse whitespace-nowrap text-[11px]">
+                    <thead className="bg-slate-100 text-slate-700 sticky top-0 z-20 shadow-2xs">
+                      {/* Fila 1: Títulos de Columna */}
+                      <tr className="border-b border-slate-300">
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Contrato ID</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Coordinador</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-blue-700">Credito ID</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Nombre Distribuidor</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">Distribuidor ID</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">Persona ID</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Nombre Completo</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-center">Plazos</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">Porc Tasa Mensua</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Producto</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">Capital</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">Interes</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">Seguro</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">IVA</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right text-slate-900">Importe Total</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">Abonos</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">pago Moda</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right text-blue-800">Saldo Actual</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-center">Dias Atraso</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">Saldo Atrasado</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Fecha Hora Regis</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Fecha Hora Dese</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Fecha Hora Ultime</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-center">Vale Canje</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">Capital Pagado</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">Capital Pendiente</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">InteresPendiente</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">SeguroPendiente</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">IVAPendiente</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-center">Usuario ID Regist</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Nom Usuario Reg</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-center">Pagos Atrasados</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Tipo Desembolso</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Estatus</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">username</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">PuntoDeVenta</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">pagareEstatusDes</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">fechaPrimerPlazo</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">fechaUltimoPlazo</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">capitalAtrasado</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">interesAtrasado</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">comisionAtrasado</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">seguroAtrasado</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">cargoAtrasado</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold text-right">ivaAtrasado</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Observacion</th>
+                        <th className="px-2 py-1.5 border-r border-slate-300 font-bold">Sucursal</th>
+                        <th className="px-2 py-1.5 font-bold">Tipo</th>
+                      </tr>
+
+                      {/* Fila 2: Inputs de Filtro por Columna (Fiel al ERP) */}
+                      <tr className="bg-slate-200/60 border-b border-slate-300">
+                        {Array.from({ length: 48 }).map((_, fIdx) => (
+                          <th key={fIdx} className="p-1 border-r border-slate-300">
+                            <input
+                              type="text"
+                              disabled
+                              className="w-full h-5 px-1 bg-white border border-slate-300 rounded text-[9px] cursor-not-allowed opacity-80"
+                            />
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-slate-200">
+                      {filteredCreditos.length === 0 ? (
+                        <tr>
+                          <td colSpan={48} className="text-center py-10 text-slate-400 font-medium text-xs">
+                            No se encontraron registros de crédito para este cliente.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredCreditos.map((c) => {
+                          const isSelected = activeSelectedCredito?.creditoId === c.creditoId;
+                          return (
+                            <tr
+                              key={c.creditoId}
+                              onClick={() => setSelectedCreditoRowId(c.creditoId)}
+                              onDoubleClick={() => setSelectedAmortizacionCredito(c)}
+                              className={`cursor-pointer transition select-none ${
+                                isSelected
+                                  ? 'bg-blue-50/80 font-semibold text-slate-900 border-l-4 border-l-blue-600'
+                                  : 'hover:bg-slate-50 text-slate-700'
+                              }`}
+                            >
+                              <td className="px-2 py-2 border-r border-slate-200 font-mono">{c.contratoId}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-bold uppercase">{c.coordinador}</td>
+                              <td
+                                className="px-2 py-2 border-r border-slate-200 font-mono font-bold text-blue-600 hover:underline cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedAmortizacionCredito(c);
+                                }}
+                                title="Ver desglose de pagos y amortizaciones"
+                              >
+                                {c.creditoId}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 uppercase">{c.nombreDistribuidor}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-mono text-right">{c.distribuidorId}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-mono text-right">{c.personaId}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 uppercase font-semibold">{c.nombreCompleto}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-center font-bold">{c.plazos}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">{c.porcTasaMensual.toFixed(2)} %</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-bold text-slate-800">{c.producto}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono font-bold">
+                                {c.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
+                                {c.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
+                                {c.seguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
+                                {c.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono font-extrabold text-slate-900">
+                                {c.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
+                                {c.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono font-bold text-emerald-700">
+                                {c.pagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono font-black text-blue-900">
+                                {c.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-center font-mono font-bold">
+                                {c.diasAtraso}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
+                                {c.saldoAtrasado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-mono">{c.fechaHoraRegistro}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-mono">{c.fechaHoraDesembolso}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-mono">{c.fechaHoraUltimoPago}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-center font-mono">{c.valeCanje}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
+                                {c.capitalPagado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono font-bold">
+                                {c.capitalPendiente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
+                                {c.interesPendiente.toFixed(4)}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
+                                {c.seguroPendiente.toFixed(4)}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
+                                {c.ivaPendiente.toFixed(4)}
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-center font-mono">{c.usuarioIdRegistro}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-bold">{c.nomUsuarioRegistro}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-center font-mono font-bold">{c.pagosAtrasados}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-bold text-blue-700">{c.tipoDesembolso}</td>
+                              <td className="px-2 py-2 border-r border-slate-200">
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                  {c.estatus}
+                                </span>
+                              </td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-mono">{c.username || '-'}</td>
+                              <td className="px-2 py-2 border-r border-slate-200">{c.puntoDeVenta || '-'}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-bold text-slate-600">{c.pagareEstatusDesc}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-mono">{c.fechaPrimerPlazo}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-mono">{c.fechaUltimoPlazo}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">{c.capitalAtrasado.toFixed(4)}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">{c.interesAtrasado.toFixed(4)}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">{c.comisionAtrasado.toFixed(4)}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">{c.seguroAtrasado.toFixed(4)}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">{c.cargoAtrasado.toFixed(4)}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">{c.ivaAtrasado.toFixed(4)}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-semibold text-slate-800">{c.observacion}</td>
+                              <td className="px-2 py-2 border-r border-slate-200 font-bold uppercase">{c.sucursal}</td>
+                              <td className="px-2 py-2 font-semibold text-slate-800">{c.tipo}</td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+
+                    {/* Fila Inferior de Totales (Fiel al ERP) */}
+                    {filteredCreditos.length > 0 && (
+                      <tfoot className="bg-slate-100 font-bold border-t-2 border-slate-400 sticky bottom-0 z-20 text-slate-900 shadow-inner">
+                        <tr>
+                          <td colSpan={10} className="px-3 py-2 text-right border-r border-slate-300 uppercase tracking-wider text-[10px]">
+                            Totales:
+                          </td>
+                          <td className="px-2 py-2 text-right font-mono border-r border-slate-300">
+                            {totalCapital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="px-2 py-2 text-right font-mono border-r border-slate-300">
+                            {totalInteres.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="px-2 py-2 text-right font-mono border-r border-slate-300">
+                            {totalSeguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="px-2 py-2 text-right font-mono border-r border-slate-300">
+                            {totalIva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="px-2 py-2 text-right font-mono font-black text-slate-950 border-r border-slate-300">
+                            {totalImporte.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="px-2 py-2 text-right font-mono border-r border-slate-300">
+                            {totalAbonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="px-2 py-2 text-right font-mono text-emerald-800 border-r border-slate-300">
+                            {totalPagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="px-2 py-2 text-right font-mono font-black text-blue-900 border-r border-slate-300">
+                            {totalSaldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td colSpan={7} className="px-2 py-2 text-right font-mono border-r border-slate-300">
+                            {totalCapitalPendiente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td colSpan={22} className="px-2 py-2 text-slate-400 text-[10px]">
+                            Fin de totales
+                          </td>
+                        </tr>
+                      </tfoot>
+                    )}
+                  </table>
+                </div>
+
+                {/* MODAL DE AMORTIZACIÓN Y DETALLE (VER DETALLES) */}
+                {selectedAmortizacionCredito && (
+                  <div className="fixed inset-0 z-60 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 font-sans">
+                      <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <Receipt className="w-5 h-5 text-blue-400" />
+                          <div>
+                            <h3 className="font-extrabold text-sm tracking-tight">
+                              Tabla de Amortizaciones · Crédito #{selectedAmortizacionCredito.creditoId}
+                            </h3>
+                            <p className="text-[10px] text-slate-300 font-mono">
+                              Contrato #{selectedAmortizacionCredito.contratoId} · {selectedAmortizacionCredito.producto} · {selectedAmortizacionCredito.sucursal}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedAmortizacionCredito(null)}
+                          className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      <div className="p-4 overflow-y-auto space-y-4 text-xs">
+                        {/* Resumen de Montos */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Capital Inicial</span>
+                            <span className="font-mono font-bold text-sm text-slate-900">
+                              ${selectedAmortizacionCredito.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Interés + Seguro + IVA</span>
+                            <span className="font-mono font-bold text-sm text-slate-700">
+                              ${(selectedAmortizacionCredito.interes + selectedAmortizacionCredito.seguro + selectedAmortizacionCredito.iva).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Total Amparado</span>
+                            <span className="font-mono font-black text-sm text-blue-900">
+                              ${selectedAmortizacionCredito.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Cuota Quincenal</span>
+                            <span className="font-mono font-black text-sm text-emerald-700">
+                              ${selectedAmortizacionCredito.pagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Tabla de Desglose Quincenal */}
+                        <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+                          <table className="w-full text-left text-xs">
+                            <thead className="bg-slate-100 text-slate-700 border-b border-slate-200 text-[11px] font-bold">
+                              <tr>
+                                <th className="px-3 py-2 text-center"># Pago</th>
+                                <th className="px-3 py-2">Fecha Vencimiento</th>
+                                <th className="px-3 py-2 text-right">Capital</th>
+                                <th className="px-3 py-2 text-right">Interés</th>
+                                <th className="px-3 py-2 text-right">Seguro</th>
+                                <th className="px-3 py-2 text-right">IVA</th>
+                                <th className="px-3 py-2 text-right text-slate-900">Cuota Quincenal</th>
+                                <th className="px-3 py-2 text-right">Saldo Restante</th>
+                                <th className="px-3 py-2 text-center">Estatus</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 font-mono">
+                              {(selectedAmortizacionCredito.amortizaciones || []).map((cuota) => (
+                                <tr key={cuota.numeroPago} className="hover:bg-slate-50 transition">
+                                  <td className="px-3 py-2 text-center font-bold">{cuota.numeroPago} / {selectedAmortizacionCredito.plazos}</td>
+                                  <td className="px-3 py-2 text-slate-700 font-sans">{cuota.fechaVencimiento}</td>
+                                  <td className="px-3 py-2 text-right">${cuota.capital.toFixed(2)}</td>
+                                  <td className="px-3 py-2 text-right text-slate-600">${cuota.interes.toFixed(2)}</td>
+                                  <td className="px-3 py-2 text-right text-slate-600">${cuota.seguro.toFixed(2)}</td>
+                                  <td className="px-3 py-2 text-right text-slate-600">${cuota.iva.toFixed(2)}</td>
+                                  <td className="px-3 py-2 text-right font-extrabold text-slate-900">${cuota.cuotaTotal.toFixed(2)}</td>
+                                  <td className="px-3 py-2 text-right font-bold text-blue-900">${cuota.saldoRestante.toFixed(2)}</td>
+                                  <td className="px-3 py-2 text-center font-sans">
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                      {cuota.estatus}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          Mesa de Control y Cobranza LanAhora · Sistema Oficial de Cartera
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedAmortizacionCredito(null)}
+                          className="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs shadow-xs transition"
+                        >
+                          Cerrar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* MODAL DE GENERAR CONVENIO */}
+                {convenioModalCredito && (
+                  <div className="fixed inset-0 z-60 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-lg p-5 space-y-4 font-sans animate-in zoom-in-95">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <div className="flex items-center gap-2">
+                          <Handshake className="w-5 h-5 text-emerald-600" />
+                          <h3 className="font-extrabold text-sm text-slate-900">
+                            Generar Convenio de Reestructuración
+                          </h3>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setConvenioModalCredito(null)}
+                          className="text-slate-400 hover:text-slate-700"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                          <p className="font-bold text-slate-900">
+                            {persona.nombre} {persona.apellidoPaterno} {persona.apellidoMaterno}
+                          </p>
+                          <p className="text-[11px] font-mono text-slate-500">
+                            Crédito #{convenioModalCredito.creditoId} · Saldo Actual: ${convenioModalCredito.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                            Plazos del Convenio (Quincenas):
+                          </label>
+                          <select
+                            value={convenioPlazos}
+                            onChange={(e) => setConvenioPlazos(Number(e.target.value))}
+                            className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-bold text-xs text-slate-900 focus:ring-1 focus:ring-blue-600"
+                          >
+                            <option value={4}>4 Quincenas (${(convenioModalCredito.saldoActual / 4).toFixed(2)} c/u)</option>
+                            <option value={8}>8 Quincenas (${(convenioModalCredito.saldoActual / 8).toFixed(2)} c/u)</option>
+                            <option value={12}>12 Quincenas (${(convenioModalCredito.saldoActual / 12).toFixed(2)} c/u)</option>
+                            <option value={16}>16 Quincenas (${(convenioModalCredito.saldoActual / 16).toFixed(2)} c/u)</option>
+                          </select>
+                        </div>
+
+                        <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-900 text-xs">
+                          <p className="font-bold">Nueva Cuota Quincenal Calculada:</p>
+                          <p className="font-black text-base font-mono mt-0.5">
+                            ${(convenioModalCredito.saldoActual / convenioPlazos).toLocaleString('es-MX', { minimumFractionDigits: 2 })} M.N.
+                          </p>
+                          <p className="text-[10px] text-emerald-700 mt-1">
+                            Al autorizar, se emitirá el convenio formal y se actualizará el calendario de cobranza.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+                        <button
+                          type="button"
+                          onClick={() => setConvenioModalCredito(null)}
+                          className="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleApplyConvenio}
+                          className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition active:scale-95 flex items-center gap-1.5"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Aplicar Convenio</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* ========================================================= */}
           {/* PESTAÑA 3: EXPEDIENTE DIGITAL (VISOR INTEGRADO DIRECTO)   */}

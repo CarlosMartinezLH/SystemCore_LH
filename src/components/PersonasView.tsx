@@ -36,6 +36,7 @@ import {
   ExternalLink,
   ShieldAlert,
   Pencil,
+  Receipt,
 } from 'lucide-react';
 import {
   SolicitarBuroModal,
@@ -123,6 +124,9 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
     }
     return DEFAULT_INTERNAL_NOTES;
   });
+
+  // Tab inicial para EditarClienteModal
+  const [editingInitialTab, setEditingInitialTab] = useState<'editar' | 'opciones' | 'historial_creditos' | 'expediente' | 'notas'>('editar');
 
   // Copy feedback state
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -474,23 +478,39 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
                             : ''}
                         </td>
 
-                        {/* Acciones: Editar Cliente Modal */}
+                        {/* Acciones: Editar Cliente Modal & Historial de Créditos */}
                         <td
-                          className="px-3 py-2 text-center sticky right-0 bg-white group-hover:bg-slate-50 z-10 shadow-[-1px_0_0_0_#f1f5f9]"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedPersonaId(p.personaId);
-                            setActiveModal('editar');
-                          }}
+                          className="px-2.5 py-2 text-center sticky right-0 bg-white group-hover:bg-slate-50 z-10 shadow-[-1px_0_0_0_#f1f5f9]"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          <button
-                            type="button"
-                            className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs inline-flex items-center gap-1 border border-blue-200 transition active:scale-95 shadow-2xs"
-                            title="Editar datos y gestionar cliente"
-                          >
-                            <Pencil className="w-3 h-3" />
-                            <span>Editar</span>
-                          </button>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedPersonaId(p.personaId);
+                                setEditingInitialTab('historial_creditos');
+                                setActiveModal('editar');
+                              }}
+                              className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-blue-700 font-bold text-xs inline-flex items-center gap-1 border border-slate-200 transition active:scale-95 shadow-2xs"
+                              title="Ver Historial de Créditos"
+                            >
+                              <Receipt className="w-3 h-3 text-blue-600" />
+                              <span>Créditos</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedPersonaId(p.personaId);
+                                setEditingInitialTab('editar');
+                                setActiveModal('editar');
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs inline-flex items-center gap-1 border border-blue-200 transition active:scale-95 shadow-2xs"
+                              title="Editar datos y gestionar cliente"
+                            >
+                              <Pencil className="w-3 h-3" />
+                              <span>Editar</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -539,7 +559,7 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
             isOpen={activeModal === 'editar' || activeModal === 'expediente'}
             onClose={() => setActiveModal(null)}
             persona={selectedPersona}
-            initialTab={activeModal === 'expediente' ? 'expediente' : 'editar'}
+            initialTab={activeModal === 'expediente' ? 'expediente' : editingInitialTab}
             currentUser={currentUser}
             notes={internalNotes[selectedPersona.personaId] || []}
             onAddNote={(newNote) => {
