@@ -32,6 +32,28 @@ export interface PersonaCore {
   folioBuroPrevia?: string;
   saldoActual?: number;
   capitalVencido?: number;
+  // Campos complementarios del sistema legacy (Editar Persona)
+  ocupacionId?: string;
+  puesto?: string;
+  otrosIngresos?: number;
+  telefonoDomicilio?: string;
+  telefonoTrabajo?: string;
+  telefonoMovil?: string;
+  numeroInterior?: string;
+  colonia?: string;
+  entreCalle1?: string;
+  entreCalle2?: string;
+  referenciaNombre01?: string;
+  referenciaTelefono01?: string;
+  referenciaNombre02?: string;
+  referenciaTelefono02?: string;
+  referenciasGeograficas?: string;
+  estadoCivilId?: string;
+  nombreEmpresa?: string;
+  ingresosMensuales?: number;
+  dependientesEconomicos?: number;
+  lugarNacimiento?: string;
+  firmaElectronicaAvanzada?: string;
 }
 
 export type DistribuidorEstatus = 'ACTIVO' | 'CANCELADO' | 'REESTRUCTURA';

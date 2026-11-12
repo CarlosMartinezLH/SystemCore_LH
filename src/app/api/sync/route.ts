@@ -3,6 +3,7 @@ import {
   getServerSyncData,
   recordCanjeSync,
   recordClienteSync,
+  updateClienteSync,
   recordPagoSync,
   recordSpeiInboundSync,
   recordCreditoSync,
@@ -76,6 +77,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Cliente registrado con éxito en Personas y CRM',
+        result,
+      });
+    }
+
+    if (action === 'UPDATE_CLIENTE') {
+      const result = updateClienteSync(payload);
+      return NextResponse.json({
+        success: true,
+        message: 'Cliente actualizado con éxito en Personas y Core',
         result,
       });
     }

@@ -232,6 +232,20 @@ export function recordCanjeSync(payload: {
   return { nuevaDispersion, nuevoCredito, notifCobro };
 }
 
+export function updateClienteSync(payload: Partial<PersonaCore> & { personaId: number }) {
+  const data = getServerSyncData();
+  const index = data.personas.findIndex((p) => p.personaId === payload.personaId);
+  if (index >= 0) {
+    data.personas[index] = {
+      ...data.personas[index],
+      ...payload,
+    };
+    data.lastUpdate = Date.now();
+    return data.personas[index];
+  }
+  return null;
+}
+
 export function recordClienteSync(payload: {
   nombre: string;
   nombreAdicional?: string;
