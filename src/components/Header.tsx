@@ -268,8 +268,16 @@ export default function Header({
 
               <div className="py-1 text-xs text-slate-600">
                 <div className="px-3 py-1.5 text-[11px] flex items-center gap-2">
-                  <Building className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Sucursal: {currentUser.branch || 'Matriz'}</span>
+                  <Building className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  <span className="truncate">Sucursal: {currentUser.branch || 'Matriz'}</span>
+                </div>
+                <div className="px-3 py-1.5 text-[11px] flex items-center gap-2 text-emerald-700 bg-emerald-50/60 mx-1.5 rounded-lg border border-emerald-100">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="font-semibold truncate">
+                    {currentUser.mfaMethod === 'WEBAUTHN_PASSKEY'
+                      ? '2FA: Windows Hello'
+                      : '2FA: Google Authenticator'}
+                  </span>
                 </div>
               </div>
 

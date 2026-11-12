@@ -25,6 +25,7 @@ import GestoriaView from '@/components/GestoriaView';
 import ReportesView from '@/components/ReportesView';
 import ContabilidadView from '@/components/ContabilidadView';
 import BuzonPLDView from '@/components/BuzonPLDView';
+import InactivityTimeoutModal from '@/components/InactivityTimeoutModal';
 import { UserSession } from '@/types/auth';
 import { Prospect, StageId, OriginType } from '@/types/crm';
 import { INITIAL_PROSPECTS, STAGES, createDefaultDocuments } from '@/lib/data/initialData';
@@ -346,6 +347,9 @@ export default function Home() {
             defaultStage={quickAddStage}
             onCreate={handleCreateLead}
           />
+
+          {/* Level 3 Security: 15-Minute Banking Inactivity Auto-Logout Watcher */}
+          <InactivityTimeoutModal onLogout={handleLogout} />
         </div>
       </div>
     </CoreSyncProvider>

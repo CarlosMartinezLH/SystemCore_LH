@@ -19,6 +19,7 @@ export interface UserSession {
   id: string;
   name: string;
   email: string;
+  username?: string;
   password?: string;
   role: UserRole;
   roleLabel: string;
@@ -27,6 +28,27 @@ export interface UserSession {
   avatarInitials: string;
   allowedModules?: string[];
   permissions?: ActionPermissions;
+  // Security & MFA Metadata
+  mfaEnabled?: boolean;
+  mfaMethod?: 'TOTP' | 'WEBAUTHN_PASSKEY' | 'TRUSTED_DEVICE';
+  totpSecret?: string;
+  lastLoginAt?: string;
+  lastLoginIp?: string;
+  lastLoginDevice?: string;
+  isNewDevice?: boolean;
+}
+
+export interface SecurityAuditRecord {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  timestamp: string;
+  ip: string;
+  device: string;
+  method: 'CREDENTIALS_TOTP' | 'WEBAUTHN_PASSKEY' | 'TRUSTED_DEVICE' | 'BACKUP_CODE';
+  status: 'SUCCESS' | 'FAILED_PASSWORD' | 'FAILED_2FA' | 'BLOCKED_BRUTEFORCE';
+  details?: string;
 }
 
 export const ALL_SYSTEM_MODULES: { id: string; name: string; category: string; description: string }[] = [
@@ -152,12 +174,15 @@ export const INSTITUTIONAL_USERS: UserSession[] = [
     id: 'usr-admin',
     name: 'JOSE CARLOS MARTINEZ MAYORGA',
     email: 'carlos_martinez@lanahora.com',
+    username: 'cmartinez_mayorga',
     password: 'lanahora2026',
     role: 'ADMINISTRADOR',
     roleLabel: 'Dirección General / Administrador',
     branch: 'Corporativo (Todas las Sucursales)',
     branchScope: 'ALL',
     avatarInitials: 'JC',
+    mfaEnabled: true,
+    totpSecret: 'JBSWY3DPEHPK3PXP',
     allowedModules: DEFAULT_ROLE_PERMISSIONS.ADMINISTRADOR.allowedModules,
     permissions: DEFAULT_ROLE_PERMISSIONS.ADMINISTRADOR.permissions,
   },
@@ -165,12 +190,15 @@ export const INSTITUTIONAL_USERS: UserSession[] = [
     id: 'usr-admin-gen',
     name: 'ADMINISTRADOR GENERAL CORE',
     email: 'admin@lanahora.com',
+    username: 'admin',
     password: 'lanahora2026',
     role: 'ADMINISTRADOR',
     roleLabel: 'Administración Corporativa',
     branch: 'Corporativo (Todas las Sucursales)',
     branchScope: 'ALL',
     avatarInitials: 'AD',
+    mfaEnabled: true,
+    totpSecret: 'JBSWY3DPEHPK3PXP',
     allowedModules: DEFAULT_ROLE_PERMISSIONS.ADMINISTRADOR.allowedModules,
     permissions: DEFAULT_ROLE_PERMISSIONS.ADMINISTRADOR.permissions,
   },
@@ -178,12 +206,15 @@ export const INSTITUTIONAL_USERS: UserSession[] = [
     id: 'usr-mesa',
     name: 'LORENA DE LA TORRE',
     email: 'mesa_credito@lanahora.com',
+    username: 'lorena_mesa',
     password: 'credito2026',
     role: 'MESA_CREDITO',
     roleLabel: 'Mesa de Crédito & Riesgos (Nacional)',
     branch: 'Corporativo (Todas las Sucursales)',
     branchScope: 'ALL',
     avatarInitials: 'LT',
+    mfaEnabled: true,
+    totpSecret: 'JBSWY3DPEHPK3PXP',
     allowedModules: DEFAULT_ROLE_PERMISSIONS.MESA_CREDITO.allowedModules,
     permissions: DEFAULT_ROLE_PERMISSIONS.MESA_CREDITO.permissions,
   },
