@@ -36,7 +36,7 @@ const AUTH_KEY = 'lanahora_user_session_v2';
 
 export default function Home() {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
-  const [activeModule, setActiveModule] = useState<ActiveAppModule>('personas');
+  const [activeModule, setActiveModule] = useState<ActiveAppModule>('core_dashboard');
   const [prospects, setProspects] = useState<Prospect[]>(INITIAL_PROSPECTS);
   const [selectedProspectId, setSelectedProspectId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'kanban' | 'list'>('kanban');
@@ -82,7 +82,7 @@ export default function Home() {
     } catch (e) {
       console.error('Error saving session:', e);
     }
-    setActiveModule('crm');
+    setActiveModule('core_dashboard');
   };
 
   // Logout handler
@@ -159,7 +159,7 @@ export default function Home() {
     const updated = [newLead, ...prospects];
     saveProspects(updated);
     setSelectedProspectId(newLead.id);
-    setActiveModule('crm');
+    setActiveModule('core_dashboard');
   };
 
   // Add new lead directly from Mobile App

@@ -65,6 +65,11 @@ export default function Sidebar({
       label: 'Módulos Activos',
       items: [
         {
+          id: 'core_dashboard',
+          name: 'Dashboard',
+          icon: LayoutDashboard,
+        },
+        {
           id: 'personas',
           name: 'Personas',
           icon: Users,

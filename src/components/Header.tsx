@@ -65,9 +65,9 @@ export default function Header({
     { category: string; title: string; subtitle: string }
   > = {
     core_dashboard: {
-      category: 'Operaciones & Cartera',
-      title: 'Buscador Core & Monitor de Cartera',
-      subtitle: 'Hoy en 3 plazas · 10 créditos activos · $124,500.00 MXN en colocación',
+      category: 'Panel Principal',
+      title: 'Dashboard General',
+      subtitle: 'Métricas operativas, colocación y búsqueda rápida de cartera',
     },
     crm: {
       category: 'Operaciones & Cartera',
