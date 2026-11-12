@@ -95,6 +95,9 @@ export default function CapturaClienteModal({
   const [estadoNacimiento, setEstadoNacimiento] = useState('Coahuila');
   const [localidadNacimiento, setLocalidadNacimiento] = useState('Saltillo');
 
+  // Categoría en Padrón (CF, DV, AV, CO)
+  const [categoria, setCategoria] = useState<'CF' | 'DV' | 'AV' | 'CO'>('CF');
+
   // Loading & error
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -186,6 +189,7 @@ export default function CapturaClienteModal({
         pagareCantidad: estadoPagare === 'FIRMADO EN BLANCO' ? pagareCantidad : 0,
         estadoNacimiento,
         localidadNacimiento: localidadNacimiento.trim() || undefined,
+        categoria,
       });
 
       const newId = res?.result?.nuevaPersona?.personaId || 122155;
@@ -242,6 +246,22 @@ export default function CapturaClienteModal({
                   Datos Personales
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono">* Requerido</span>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-0.5">
+                  Categoría en Padrón:
+                </label>
+                <select
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value as any)}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+                >
+                  <option value="CF">CF - Cliente Final</option>
+                  <option value="DV">DV - Distribuidora</option>
+                  <option value="AV">AV - Aval</option>
+                  <option value="CO">CO - Cónyuge de DV</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-2">

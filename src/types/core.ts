@@ -1,3 +1,51 @@
+export type CategoriaPersona = 'CF' | 'DV' | 'AV' | 'CO';
+
+export function getCategoriaPersona(p?: { isDistribuidor?: boolean; categoria?: CategoriaPersona | string } | null): CategoriaPersona {
+  if (!p) return 'CF';
+  if (p.categoria === 'DV' || p.isDistribuidor) return 'DV';
+  if (p.categoria === 'AV') return 'AV';
+  if (p.categoria === 'CO') return 'CO';
+  return 'CF';
+}
+
+export function getCategoriaInfo(cat: CategoriaPersona) {
+  switch (cat) {
+    case 'DV':
+      return {
+        code: 'DV',
+        label: 'Distribuidora',
+        badgeClass: 'bg-blue-100 text-blue-800 border-blue-300',
+        pillClass: 'bg-blue-600 text-white',
+        canPromoteToDv: false,
+      };
+    case 'AV':
+      return {
+        code: 'AV',
+        label: 'Aval',
+        badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
+        pillClass: 'bg-amber-600 text-white',
+        canPromoteToDv: true,
+      };
+    case 'CO':
+      return {
+        code: 'CO',
+        label: 'Cónyuge de DV',
+        badgeClass: 'bg-purple-100 text-purple-900 border-purple-300',
+        pillClass: 'bg-purple-600 text-white',
+        canPromoteToDv: true,
+      };
+    case 'CF':
+    default:
+      return {
+        code: 'CF',
+        label: 'Cliente Final',
+        badgeClass: 'bg-slate-100 text-slate-700 border-slate-300',
+        pillClass: 'bg-slate-600 text-white',
+        canPromoteToDv: true,
+      };
+  }
+}
+
 export interface PersonaCore {
   personaId: number;
   nombre: string;
@@ -5,6 +53,7 @@ export interface PersonaCore {
   apellidoPaterno: string;
   apellidoMaterno: string;
   fechaNacimiento: string;
+  categoria?: CategoriaPersona;
   pagareEstatusId: 'NO DEFINIDO' | 'FIRMADO EN BLANCO' | 'SIN PAGARE';
   pagareCantidad: number;
   curp: string;

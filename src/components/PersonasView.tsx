@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PersonaCore } from '@/types/core';
+import {
+  PersonaCore,
+  CategoriaPersona,
+  getCategoriaPersona,
+  getCategoriaInfo,
+} from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import {
   UserPlus,
@@ -50,6 +55,15 @@ export default function PersonasView() {
   // Search
   const [searchFilter, setSearchFilter] = useState('');
 
+  // Category Filter ('TODOS' | 'CF' | 'DV' | 'AV' | 'CO')
+  const [categoryFilter, setCategoryFilter] = useState<'TODOS' | CategoriaPersona>('TODOS');
+
+  // Counts by category
+  const countCF = personas.filter((p) => getCategoriaPersona(p) === 'CF').length;
+  const countDV = personas.filter((p) => getCategoriaPersona(p) === 'DV').length;
+  const countAV = personas.filter((p) => getCategoriaPersona(p) === 'AV').length;
+  const countCO = personas.filter((p) => getCategoriaPersona(p) === 'CO').length;
+
   // Inspector Panel Tab ('opciones' | 'expediente' | 'bitacora')
   const [inspectorTab, setInspectorTab] = useState<'opciones' | 'expediente' | 'bitacora'>('opciones');
 
@@ -80,6 +94,12 @@ export default function PersonasView() {
   // Filtered persons
   const filtered = personas
     .filter((p) => {
+      // Category filter
+      if (categoryFilter !== 'TODOS') {
+        const cat = getCategoriaPersona(p);
+        if (cat !== categoryFilter) return false;
+      }
+
       // Search term
       if (searchFilter.trim()) {
         const q = searchFilter.toLowerCase().trim();
@@ -103,7 +123,7 @@ export default function PersonasView() {
   };
 
   const handlePromoteToDv = (persona: PersonaCore) => {
-    if (persona.isDistribuidor) {
+    if (persona.isDistribuidor || getCategoriaPersona(persona) === 'DV') {
       alert(`La persona ${persona.nombre} ya cuenta con estatus de Distribuidora activa (DV #${persona.distribuidorId || 1025}).`);
       return;
     }
@@ -112,8 +132,7 @@ export default function PersonasView() {
     );
     if (!confirmPromote) return;
 
-    updatePersona({ ...persona, isDistribuidor: true, distribuidorId: 1025 });
-    alert(`✓ ¡Éxito! ${persona.nombre} ${persona.apellidoPaterno} ha sido registrada como Distribuidora oficial en el Core (DV #1025).`);
+    updatePersona({ ...persona, isDistribuidor: true, categoria: 'DV', distribuidorId: 1025 });
   };
 
   const handleAddNote = () => {
@@ -233,11 +252,54 @@ export default function PersonasView() {
       <div className="flex-1 flex flex-col min-h-0 px-4 lg:px-6 pb-4 overflow-hidden">
         {/* Table Canvas: Takes 100% full width and height */}
         <div className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
-          {/* Table Header Stats */}
-          <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60 shrink-0">
+          {/* Table Header Stats & Category Filter */}
+          <div className="px-4 py-2 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 bg-slate-50/60 shrink-0">
             <span className="text-xs text-slate-600 font-medium">
               Mostrando <strong className="text-slate-900 font-bold">{filtered.length}</strong> de {personas.length} personas registradas
             </span>
+
+            {/* Category Segmented Filter */}
+            <div className="inline-flex p-0.5 bg-slate-200/70 rounded-lg border border-slate-300/60 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => setCategoryFilter('TODOS')}
+                className={`px-2.5 py-1 rounded-md transition ${categoryFilter === 'TODOS' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Todos ({personas.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setCategoryFilter('CF')}
+                className={`px-2 py-1 rounded-md transition flex items-center gap-1.5 ${categoryFilter === 'CF' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                <span>CF · Cliente Final ({countCF})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCategoryFilter('DV')}
+                className={`px-2 py-1 rounded-md transition flex items-center gap-1.5 ${categoryFilter === 'DV' ? 'bg-white text-blue-700 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                <span>DV · Distribuidora ({countDV})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCategoryFilter('AV')}
+                className={`px-2 py-1 rounded-md transition flex items-center gap-1.5 ${categoryFilter === 'AV' ? 'bg-white text-amber-700 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                <span>AV · Aval ({countAV})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCategoryFilter('CO')}
+                className={`px-2 py-1 rounded-md transition flex items-center gap-1.5 ${categoryFilter === 'CO' ? 'bg-white text-purple-700 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                <span>CO · Cónyuge ({countCO})</span>
+              </button>
+            </div>
           </div>
 
           {/* Scrollable Data Table */}
@@ -273,6 +335,8 @@ export default function PersonasView() {
                 ) : (
                   filtered.map((p) => {
                     const isSelected = selectedPersonaId === p.personaId;
+                    const catPersona = getCategoriaPersona(p);
+                    const catInfo = getCategoriaInfo(catPersona);
 
                     return (
                       <tr
@@ -289,9 +353,17 @@ export default function PersonasView() {
                           {p.personaId}
                         </td>
 
-                        {/* Nombre */}
+                        {/* Nombre con Categoría Visual */}
                         <td className="px-2.5 py-2 font-bold text-slate-900">
-                          {p.nombre}
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[10px] font-black tracking-wider border font-mono shrink-0 shadow-2xs ${catInfo.badgeClass}`}
+                              title={`${catInfo.code} - ${catInfo.label}`}
+                            >
+                              {catInfo.code}
+                            </span>
+                            <span>{p.nombre}</span>
+                          </div>
                         </td>
 
                         {/* Nombre Adicional */}

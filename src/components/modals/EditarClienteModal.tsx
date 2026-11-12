@@ -26,7 +26,12 @@ import {
   Pencil,
   UserCheck,
 } from 'lucide-react';
-import { PersonaCore } from '@/types/core';
+import {
+  PersonaCore,
+  CategoriaPersona,
+  getCategoriaPersona,
+  getCategoriaInfo,
+} from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
 
 interface EditarClienteModalProps {
@@ -120,6 +125,9 @@ export default function EditarClienteModal({
   // Tab activo: 'editar' | 'opciones' | 'expediente' | 'notas'
   const [activeTab, setActiveTab] = useState<'editar' | 'opciones' | 'expediente' | 'notas'>(initialTab);
 
+  // Categoría en Padrón (CF, DV, AV, CO)
+  const [categoria, setCategoria] = useState<CategoriaPersona>(getCategoriaPersona(persona));
+
   // Estados del Formulario (los 40 campos del sistema anterior)
   // Col 1: Datos Personales e Identidad
   const [nombre, setNombre] = useState('');
@@ -192,6 +200,7 @@ export default function EditarClienteModal({
       prevPersonaIdRef.current = persona.personaId;
 
       setActiveTab(initialTab || 'editar');
+      setCategoria(getCategoriaPersona(persona));
       setNombre(persona.nombre || '');
       setNombreAdicional(persona.nombreAdicional || '');
       setApellidoPaterno(persona.apellidoPaterno || '');
@@ -250,8 +259,12 @@ export default function EditarClienteModal({
     e.preventDefault();
     setIsSubmitting(true);
 
+    const isDvRole = categoria === 'DV';
     const updated: PersonaCore = {
       ...persona,
+      categoria,
+      isDistribuidor: isDvRole,
+      distribuidorId: isDvRole ? (persona.distribuidorId || 1025) : undefined,
       nombre: nombre.trim().toUpperCase(),
       nombreAdicional: nombreAdicional.trim().toUpperCase() || undefined,
       apellidoPaterno: apellidoPaterno.trim().toUpperCase(),
@@ -320,6 +333,10 @@ export default function EditarClienteModal({
     setNoteInput('');
   };
 
+  const currentCat = getCategoriaPersona(persona);
+  const catInfo = getCategoriaInfo(currentCat);
+  const isDv = currentCat === 'DV';
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
       <div className="relative w-full max-w-6xl xl:max-w-7xl max-h-[92vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-150">
@@ -332,12 +349,22 @@ export default function EditarClienteModal({
               className="h-7 w-auto object-contain"
             />
             <div className="h-6 w-px bg-slate-300" />
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2 flex-wrap">
               <h2 className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight">
                 {persona.nombre} {persona.nombreAdicional ? persona.nombreAdicional + ' ' : ''}{persona.apellidoPaterno} {persona.apellidoMaterno}
               </h2>
-              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
                 ID #{persona.personaId}
+              </span>
+              <span
+                className={`text-xs font-bold px-2.5 py-0.5 rounded-md border flex items-center gap-1.5 shadow-2xs ${catInfo.badgeClass}`}
+                title={`${catInfo.code} - ${catInfo.label}`}
+              >
+                <span className="font-mono font-black">{catInfo.code}</span>
+                <span className="font-semibold">· {catInfo.label}</span>
+                {isDv && persona.distribuidorId && (
+                  <span className="font-mono font-bold">(#{persona.distribuidorId})</span>
+                )}
               </span>
             </div>
           </div>
@@ -427,7 +454,22 @@ export default function EditarClienteModal({
                     <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
                       1. Identidad y Demográficos
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono">13 campos</span>
+                    <span className="text-[10px] text-slate-400 font-mono">14 campos</span>
+                  </div>
+
+                  {/* Categoría / Rol en Padrón */}
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-700 mb-0.5">Categoría en Padrón:</label>
+                    <select
+                      value={categoria}
+                      onChange={(e) => setCategoria(e.target.value as CategoriaPersona)}
+                      className="w-full px-2 py-1 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-900 focus:ring-1 focus:ring-blue-600"
+                    >
+                      <option value="CF">CF - Cliente Final</option>
+                      <option value="DV">DV - Distribuidora Oficial</option>
+                      <option value="AV">AV - Aval</option>
+                      <option value="CO">CO - Cónyuge de DV</option>
+                    </select>
                   </div>
 
                   {/* Nombre y Nombre Adicional */}
@@ -1063,31 +1105,27 @@ export default function EditarClienteModal({
                 </button>
               </div>
 
-              {/* Asignar como Distribuidora */}
-              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <ArrowRightLeft className="w-5 h-5 text-slate-600" />
-                  <p className="font-bold text-xs text-slate-900">
-                    {persona.isDistribuidor
-                      ? `Distribuidora Activa (DV #${persona.distribuidorId || 1025})`
-                      : 'Promover a Distribuidora Oficial (DV)'}
-                  </p>
-                </div>
+              {/* Asignar como Distribuidora: SOLO para quien no lo sea ya (CF, AV, CO) */}
+              {!isDv && (
+                <div className="p-3.5 bg-blue-50/70 rounded-xl border border-blue-200 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <ArrowRightLeft className="w-5 h-5 text-blue-600" />
+                    <p className="font-bold text-xs text-slate-900">
+                      Promover a Distribuidora Oficial (DV)
+                    </p>
+                  </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (onPromoteToDv) onPromoteToDv(persona);
-                  }}
-                  className={`px-4 py-2 rounded-xl font-bold text-xs transition active:scale-95 ${
-                    persona.isDistribuidor
-                      ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                      : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-                  }`}
-                >
-                  {persona.isDistribuidor ? 'Ver Estatus DV' : 'Promover a DV'}
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onPromoteToDv) onPromoteToDv(persona);
+                    }}
+                    className="px-4 py-2 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white transition active:scale-95 shadow-xs"
+                  >
+                    Promover a DV
+                  </button>
+                </div>
+              )}
 
               {/* Ficha Resumen */}
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-2">

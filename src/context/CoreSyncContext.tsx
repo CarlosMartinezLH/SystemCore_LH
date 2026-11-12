@@ -79,6 +79,7 @@ interface CoreSyncContextType {
     pagareCantidad?: number;
     estadoNacimiento?: string;
     localidadNacimiento?: string;
+    categoria?: import('@/types/core').CategoriaPersona;
     consultaBuroInicial?: boolean;
     folioBuroPrevia?: string;
   }) => Promise<any>;
@@ -218,6 +219,7 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
     pagareCantidad?: number;
     estadoNacimiento?: string;
     localidadNacimiento?: string;
+    categoria?: import('@/types/core').CategoriaPersona;
     consultaBuroInicial?: boolean;
     folioBuroPrevia?: string;
   }) => {

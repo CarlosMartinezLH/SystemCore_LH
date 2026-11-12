@@ -266,6 +266,7 @@ export function recordClienteSync(payload: {
   pagareCantidad?: number;
   estadoNacimiento?: string;
   localidadNacimiento?: string;
+  categoria?: import('@/types/core').CategoriaPersona;
   consultaBuroInicial?: boolean;
   folioBuroPrevia?: string;
 }) {
@@ -283,6 +284,7 @@ export function recordClienteSync(payload: {
   }
 
   const personaId = 122150 + Math.floor(Math.random() * 800);
+  const isDv = payload.categoria === 'DV';
 
   const nuevaPersona: PersonaCore = {
     personaId,
@@ -291,6 +293,7 @@ export function recordClienteSync(payload: {
     apellidoPaterno: payload.apellidoPaterno.toUpperCase(),
     apellidoMaterno: payload.apellidoMaterno ? payload.apellidoMaterno.toUpperCase() : '',
     fechaNacimiento: payload.fechaNacimiento || '01/01/1995',
+    categoria: payload.categoria || 'CF',
     pagareEstatusId: payload.pagareEstatusId || 'NO DEFINIDO',
     pagareCantidad: payload.pagareCantidad || (payload.pagareEstatusId === 'FIRMADO EN BLANCO' ? 25000 : 0.0),
     curp: curpUpper,
@@ -298,7 +301,8 @@ export function recordClienteSync(payload: {
     sexoId: payload.sexoId || 'FEMENINO',
     buroInternoEstatus: 'NORMAL',
     observaciones: 'Cliente registrado vía Padrón Core / Captura',
-    isDistribuidor: false,
+    isDistribuidor: isDv,
+    distribuidorId: isDv ? 1025 : undefined,
     telefono: payload.telefono || '8441002030',
     direccion: payload.direccion || '',
     numeroExterior: payload.numeroExterior,
