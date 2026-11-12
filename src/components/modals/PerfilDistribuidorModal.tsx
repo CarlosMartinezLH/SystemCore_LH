@@ -42,7 +42,7 @@ interface PerfilDistribuidorModalProps {
   isOpen: boolean;
   onClose: () => void;
   distribuidor: DistribuidorCore;
-  initialTab?: 'detalle' | 'opciones' | 'cartera' | 'estado_cuenta' | 'notas';
+  initialTab?: 'detalle' | 'opciones' | 'cartera' | 'notas';
   onSelectDv?: (noDist: number) => void;
   onOpenCartera?: (distribuidor: DistribuidorCore) => void;
   onOpenRelacion?: (distribuidor: DistribuidorCore) => void;
@@ -312,7 +312,7 @@ export default function PerfilDistribuidorModal({
 }: PerfilDistribuidorModalProps) {
   const { distribuidores, updateDistribuidor } = useCoreSync();
 
-  const [activeTab, setActiveTab] = useState<'detalle' | 'opciones' | 'cartera' | 'estado_cuenta' | 'notas'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'detalle' | 'opciones' | 'cartera' | 'notas'>(initialTab || 'detalle');
   const [currentDv, setCurrentDv] = useState<DistribuidorCore>(distribuidor);
   const [isEditing, setIsEditing] = useState(false);
   const [isEstadoCuentaModalOpen, setIsEstadoCuentaModalOpen] = useState(false);
@@ -521,19 +521,6 @@ export default function PerfilDistribuidorModal({
 
               <button
                 type="button"
-                onClick={() => setActiveTab('estado_cuenta')}
-                className={`px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 ${
-                  activeTab === 'estado_cuenta'
-                    ? 'bg-white text-blue-700 shadow-xs font-black'
-                    : 'hover:text-slate-900'
-                }`}
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Estado de Cuenta</span>
-              </button>
-
-              <button
-                type="button"
                 onClick={() => setActiveTab('notas')}
                 className={`px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 ${
                   activeTab === 'notas'
@@ -614,7 +601,7 @@ export default function PerfilDistribuidorModal({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab('estado_cuenta')}
+                  onClick={() => setIsEstadoCuentaModalOpen(true)}
                   className="px-3.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-xs inline-flex items-center gap-1.5 border border-blue-200 transition active:scale-95 shadow-2xs cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5 text-blue-700" />
@@ -943,7 +930,7 @@ export default function PerfilDistribuidorModal({
 
                   <button
                     type="button"
-                    onClick={() => setActiveTab('estado_cuenta')}
+                    onClick={() => setIsEstadoCuentaModalOpen(true)}
                     className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-800 hover:text-emerald-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
                     <FileText className="w-4 h-4 text-emerald-600" />
@@ -1238,91 +1225,7 @@ export default function PerfilDistribuidorModal({
             </div>
           )}
 
-          {/* TAB 4: ESTADO DE CUENTA INTEGRADO */}
-          {activeTab === 'estado_cuenta' && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <div>
-                  <h3 className="font-extrabold text-slate-900 text-sm">
-                    Estado de Cuenta Oficial
-                  </h3>
-                  <p className="text-slate-500 text-xs">
-                    Reporte de amortizaciones, próximos pagos y bonificaciones por pronto pago.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsEstadoCuentaModalOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition active:scale-95 cursor-pointer"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span>Imprimir Formato Oficial</span>
-                </button>
-              </div>
-
-              {/* Vista preliminar del Estado de Cuenta */}
-              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 space-y-4">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="bg-white p-3 rounded-lg border border-slate-200">
-                    <span className="text-[10px] font-bold text-slate-500 block">Línea de Crédito</span>
-                    <span className="font-mono font-bold text-slate-900 text-sm">
-                      ${currentDv.creditoLimite.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg border border-slate-200">
-                    <span className="text-[10px] font-bold text-slate-500 block">Saldo Actual</span>
-                    <span className="font-mono font-bold text-slate-900 text-sm">
-                      ${(currentDv.saldoActual || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg border border-slate-200">
-                    <span className="text-[10px] font-bold text-slate-500 block">Disponible</span>
-                    <span className="font-mono font-bold text-emerald-600 text-sm">
-                      ${currentDv.disponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg border border-slate-200">
-                    <span className="text-[10px] font-bold text-slate-500 block">Días Atraso</span>
-                    <span className="font-mono font-bold text-emerald-600 text-sm">
-                      0 Días (Al corriente)
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">
-                    Próximo Vencimiento Quincenal
-                  </h4>
-                  <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-100 text-slate-700 uppercase text-[10px] tracking-wider font-extrabold">
-                        <tr>
-                          <th className="px-3 py-2">Vencimiento</th>
-                          <th className="px-3 py-2 text-right">Importe</th>
-                          <th className="px-3 py-2 text-right">Saldo</th>
-                          <th className="px-3 py-2 text-right">Pago Ant. 3 Días</th>
-                          <th className="px-3 py-2 text-right">Pago Ant. 1 Día</th>
-                          <th className="px-3 py-2 text-right">Pago Vencimiento</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 font-mono">
-                        <tr>
-                          <td className="px-3 py-2 font-bold text-slate-900">20/Nov/2026</td>
-                          <td className="px-3 py-2 text-right">$40,409.00</td>
-                          <td className="px-3 py-2 text-right text-blue-700 font-bold">$40,409.00</td>
-                          <td className="px-3 py-2 text-right text-emerald-600 font-bold">$33,135.38</td>
-                          <td className="px-3 py-2 text-right text-emerald-600 font-bold">$33,539.47</td>
-                          <td className="px-3 py-2 text-right text-slate-900 font-bold">$33,943.56</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 5: BITÁCORA & NOTAS (IDÉNTICO a EditarClienteModal) */}
+          {/* TAB: BITÁCORA & NOTAS (IDÉNTICO a EditarClienteModal) */}
           {activeTab === 'notas' && (
             <div className="space-y-4">
               {/* Formulario de Agregar Nota */}

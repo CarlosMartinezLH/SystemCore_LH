@@ -67,7 +67,7 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
 
   // Modales
   const [isDetalleOpen, setIsDetalleOpen] = useState(false);
-  const [detalleInitialTab, setDetalleInitialTab] = useState<'detalle' | 'opciones' | 'cartera' | 'estado_cuenta' | 'notas'>('detalle');
+  const [detalleInitialTab, setDetalleInitialTab] = useState<'detalle' | 'opciones' | 'cartera' | 'notas'>('detalle');
   const [isCarteraOpen, setIsCarteraOpen] = useState(false);
   const [isEstadoCuentaOpen, setIsEstadoCuentaOpen] = useState(false);
   const [isRelacionOpen, setIsRelacionOpen] = useState(false);
