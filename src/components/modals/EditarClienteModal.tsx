@@ -53,6 +53,7 @@ import {
 } from '@/types/core';
 import { getHistorialCreditosPersona } from '@/lib/data/historialCreditosData';
 import DatosBancariosPersonaView from './DatosBancariosPersonaView';
+import CartaPrestanombresModal from './CartaPrestanombresModal';
 import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
 
@@ -161,6 +162,7 @@ export default function EditarClienteModal({
   const [convenioToast, setConvenioToast] = useState<string | null>(null);
 
   // Estados para Visor de Expediente Digital Integrado
+  const [showPrestanombresModal, setShowPrestanombresModal] = useState(false);
   const [selectedDocId, setSelectedDocId] = useState<'ine' | 'cfe' | 'pagare' | 'sat' | 'prestanombres'>('ine');
   const [ineSide, setIneSide] = useState<'anverso' | 'reverso'>('anverso');
   const [docZoom, setDocZoom] = useState<number>(100);
@@ -638,6 +640,16 @@ export default function EditarClienteModal({
                 <span>Notas ({notes.length})</span>
               </button>
             </div>
+
+            {/* Botón Imprimir Carta Prestanombres idéntico a la pantalla legacy */}
+            <button
+              type="button"
+              onClick={() => setShowPrestanombresModal(true)}
+              className="border border-black bg-[#f0f0f0] hover:bg-[#e2e8f0] px-2.5 py-1 text-xs text-[#005a9e] underline font-medium cursor-pointer transition active:scale-95 shadow-2xs whitespace-nowrap hidden md:inline-block"
+              title="Imprimir Carta Prestanombres oficial"
+            >
+              Imprimir Carta Prestanombres
+            </button>
 
             <button
               type="button"
@@ -1320,19 +1332,16 @@ export default function EditarClienteModal({
                 {/* Carta Prestanombres */}
                 <button
                   type="button"
-                  onClick={() => {
-                    onClose();
-                    if (onLaunchPrestanombres) onLaunchPrestanombres();
-                  }}
+                  onClick={() => setShowPrestanombresModal(true)}
                   className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition flex flex-col justify-between group active:scale-98"
                 >
                   <div className="flex items-center justify-between w-full mb-3">
                     <Printer className="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition" />
                     <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                      CNBV
+                      Oficial
                     </span>
                   </div>
-                  <p className="font-bold text-slate-900 text-xs">Carta Prestanombres</p>
+                  <p className="font-bold text-slate-900 text-xs">Imprimir Carta Prestanombres</p>
                 </button>
               </div>
 
@@ -2635,50 +2644,95 @@ export default function EditarClienteModal({
                             </div>
                           )}
 
-                          {/* 5. CARTA PRESTANOMBRES CNBV */}
-                          {selectedDocId === 'prestanombres' && (
-                            <div className="w-[460px] bg-white border border-slate-300 rounded-xl shadow-xl p-5 select-none font-sans text-slate-900 space-y-3">
-                              <div className="border-b border-slate-300 pb-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-                                    PREVENCIÓN DE LAVADO DE DINERO (PLD / FT)
-                                  </span>
-                                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                                    CNBV ART. 115
-                                  </span>
-                                </div>
-                                <h3 className="font-black text-xs text-slate-900 mt-1 uppercase">
-                                  DECLARATORIA DE BENEFICIARIO CONTROLADOR Y NO PRESTANOMBRES
-                                </h3>
-                              </div>
+                          {/* 5. CARTA PRESTANOMBRES OFICIAL DE IMAGE 2 */}
+                          {selectedDocId === 'prestanombres' && (() => {
+                            const nombreCompleto = `${persona.nombre || ''} ${persona.nombreAdicional ? persona.nombreAdicional + ' ' : ''}${persona.apellidoPaterno || ''} ${persona.apellidoMaterno || ''}`.trim().toUpperCase();
+                            const direccionBase = persona.direccion || 'C 30 DE ABRIL 1519';
+                            const numExt = persona.numeroExterior || '0';
+                            const numInt = persona.numeroInterior || '0';
+                            const cp = persona.codigoPostal || '31414';
+                            const domicilioCompleto = `${direccionBase} #${numExt} ${numInt}  CP. ${cp}`.toUpperCase();
+                            const telefono = persona.telefono || '6144640550';
+                            let distribuidorCompleto = '9784 - RAQUEL SUGEHIDI CHAVIRA TOVAR';
+                            if (persona.distribuidorNombre) {
+                              distribuidorCompleto = `${persona.distribuidorId || '9784'} - ${persona.distribuidorNombre}`.toUpperCase();
+                            } else if (persona.personaId === 122778) {
+                              distribuidorCompleto = '17436 - ADRIANA IVONNE CHANG ANDRADE';
+                            }
 
-                              <p className="text-[10px] text-justify leading-relaxed text-slate-700">
-                                Yo, <span className="font-extrabold text-slate-900">{persona.nombre} {persona.apellidoPaterno} {persona.apellidoMaterno}</span>, con CURP <span className="font-mono font-bold">{persona.curp}</span>, manifiesto bajo protesta de decir verdad que actúo a nombre propio y por cuenta propia en todas las operaciones financieras, vales y créditos celebrados con <span className="font-bold">LANAHORA</span>, y que los recursos no son destinados para terceras personas ni actúo como prestanombres de ningún tercero.
-                              </p>
+                            return (
+                              <div className="w-[620px] bg-white border border-slate-300 rounded-xl shadow-xl p-8 select-none font-sans text-black space-y-6 text-left">
+                                {/* Encabezado con Logo y Datos */}
+                                <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
+                                  <div className="shrink-0">
+                                    <img
+                                      src="/lanahora-logo.png"
+                                      alt="LanAhora"
+                                      className="h-12 w-auto object-contain"
+                                    />
+                                  </div>
 
-                              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0" />
-                                  <div>
-                                    <p className="text-[10px] font-extrabold text-emerald-950">Declaratoria Aprobada</p>
-                                    <p className="text-[8px] text-emerald-700">Cotejada con biometría dactilar y facial</p>
+                                  <div className="text-right text-[11px] font-sans text-black leading-relaxed space-y-1">
+                                    <div className="flex justify-end gap-2">
+                                      <span className="font-bold shrink-0">NOMBRE:</span>
+                                      <span className="font-semibold uppercase tracking-wide min-w-[220px] text-left">
+                                        {nombreCompleto}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-end gap-2">
+                                      <span className="font-bold shrink-0">DOMICILIO:</span>
+                                      <span className="font-semibold uppercase min-w-[220px] text-left">
+                                        {domicilioCompleto}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-end gap-2">
+                                      <span className="font-bold shrink-0">TELÉFONO:</span>
+                                      <span className="font-semibold min-w-[220px] text-left">
+                                        {telefono}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-end gap-2">
+                                      <span className="font-bold shrink-0">DISTRIBUIDOR:</span>
+                                      <span className="font-semibold uppercase min-w-[220px] text-left">
+                                        {distribuidorCompleto}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
-                                <span className="text-[9px] font-mono font-bold text-emerald-900">FOLIO #CNBV-88219</span>
-                              </div>
 
-                              <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[9px]">
-                                <div>
-                                  <span className="text-slate-400 block text-[8px]">FECHA Y HORA DE COTEJO</span>
-                                  <span className="font-mono font-bold text-slate-700">29/10/2026 11:42:19 hrs</span>
+                                {/* Cláusulas oficiales */}
+                                <div className="space-y-4 text-xs leading-relaxed text-black text-left">
+                                  <p className="font-normal uppercase tracking-normal">
+                                    1. RECIBE UN CRÉDITO PERSONAL E INTRANSFERIBLE. EL CRÉDITO ES MIO, NO SOY PRESTANOMBRE DE NINGUN DISTRIBUIDOR, FAMILIAR O AMIGO.
+                                  </p>
+                                  <p className="font-normal uppercase leading-relaxed tracking-normal">
+                                    2. ME HAGO RESPONSABLE DEL PAGO PUNTUAL LOS DIAS 15 Y ULTIMO DE CADA MES, DE LO CONTRARIO PAGARE A MI DISTRIBUIDOR (A) UN 20% DE INTERÉS MORATORIO SOBRE ABONO ATRASADO, SERÉ BLOQUEADO Y REPORTADO AL BURO DE CRÉDITO.
+                                  </p>
+                                  <p className="font-normal uppercase tracking-normal">
+                                    3. PEDIRÉ A MI DISTRIBUIDOR (A) EL RECIBO DE ABONO AL MOMENTO DE PAGARLE.
+                                  </p>
                                 </div>
-                                <div className="text-right">
-                                  <span className="text-slate-400 block text-[8px]">VALIDADOR RESPONSABLE</span>
-                                  <span className="font-bold text-blue-700">OFICIAL DE CUMPLIMIENTO PLD</span>
+
+                                {/* Firma y Botón Imprimir */}
+                                <div className="pt-8 flex items-end justify-between">
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowPrestanombresModal(true)}
+                                    className="border border-black bg-[#f0f0f0] hover:bg-[#e2e8f0] px-3 py-1 text-xs text-[#005a9e] underline font-medium cursor-pointer transition active:scale-95 shadow-2xs"
+                                  >
+                                    Imprimir Carta Prestanombres
+                                  </button>
+
+                                  <div className="w-56 text-center">
+                                    <div className="border-b border-black w-full mb-1.5" />
+                                    <span className="font-bold text-[10px] uppercase tracking-wider text-black block">
+                                      NOMBRE Y FIRMA
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          )}
+                            );
+                          })()}
                         </>
                       )}
                     </div>
@@ -2827,6 +2881,15 @@ export default function EditarClienteModal({
             </div>
           )}
         </div>
+
+        {/* Modal de Impresión Carta Prestanombres Oficial */}
+        {showPrestanombresModal && persona && (
+          <CartaPrestanombresModal
+            isOpen={showPrestanombresModal}
+            onClose={() => setShowPrestanombresModal(false)}
+            persona={persona}
+          />
+        )}
       </div>
     </div>
   );

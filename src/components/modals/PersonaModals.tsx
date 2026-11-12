@@ -283,60 +283,17 @@ export function CanjearValeModal({ isOpen, onClose, persona }: ModalProps) {
   );
 }
 
+import CartaPrestanombresModal from './CartaPrestanombresModal';
+export { CartaPrestanombresModal };
+
 // 5. CARTA DECLARATORIA PRESTANOMBRES (OFICIAL & IMPRIMIBLE)
 export function PrestanombresModal({ isOpen, onClose, persona }: ModalProps) {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 w-full max-w-2xl overflow-hidden animate-in fade-in">
-        <div className="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-sm">
-            <Printer className="w-4 h-4 text-yellow-300" />
-            <span>Carta Declaratoria de No-Prestanombres (Regulación CNBV / PLD)</span>
-          </div>
-          <button onClick={onClose} className="text-white/80 hover:text-white p-1">✕</button>
-        </div>
-
-        <div className="p-6 space-y-4 text-xs max-h-[75vh] overflow-y-auto font-serif text-slate-800 leading-relaxed bg-slate-50/50">
-          <div className="text-center space-y-1 border-b pb-4">
-            <h3 className="font-sans font-black text-base text-blue-900 tracking-tight">LANAHORA SOFOM E.N.R.</h3>
-            <p className="font-sans text-[11px] text-slate-500">FORMATO LNH-PLD-FOR-002 • DECLARACIÓN DEL PROPIETARIO REAL</p>
-          </div>
-
-          <p>
-            Por medio de la presente, el suscrito <strong>{persona.nombre} {persona.apellidoPaterno} {persona.apellidoMaterno}</strong>, identificado(a) con la Clave Única de Registro de Población (CURP) <strong>{persona.curp}</strong> y RFC <strong>{persona.rfc}</strong>, con domicilio en {persona.direccion || 'Saltillo, Coahuila'}:
-          </p>
-
-          <p className="font-bold">DECLARO BAJO PROTESTA DE DECIR VERDAD:</p>
-
-          <ol className="list-decimal list-inside space-y-2 pl-2">
-            <li>Que actúo por cuenta propia y no por cuenta de un tercero ("prestanombres"), siendo el único y legítimo beneficiario de los créditos, vales y financiamientos solicitados ante LanAhora.</li>
-            <li>Que los recursos obtenidos serán destinados a actividades lícitas y de consumo personal o comercial legítimo.</li>
-            <li>Que reconozco las penas legales aplicables en términos de la Ley Federal para la Prevención e Identificación de Operaciones con Recursos de Procedencia Ilícita (LFPIORPI).</li>
-          </ol>
-
-          <div className="pt-8 flex flex-col items-center justify-center text-center">
-            <div className="w-64 border-b-2 border-slate-900 mb-1" />
-            <span className="font-bold text-slate-900">{persona.nombre} {persona.apellidoPaterno}</span>
-            <span className="text-[10px] text-slate-500 font-mono">Firma Digital Verificada • INE {persona.curp.slice(0, 10)}</span>
-          </div>
-        </div>
-
-        <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-between">
-          <span className="text-[11px] text-slate-400">Documento listo para impresión oficial</span>
-          <div className="flex gap-2">
-            <button onClick={() => window.print()} className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow">
-              <Printer className="w-3.5 h-3.5" />
-              <span>Imprimir / Exportar PDF</span>
-            </button>
-            <button onClick={onClose} className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <CartaPrestanombresModal
+      isOpen={isOpen}
+      onClose={onClose}
+      persona={persona}
+    />
   );
 }
 

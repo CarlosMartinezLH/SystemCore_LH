@@ -150,6 +150,7 @@ export interface PersonaCore {
   observaciones?: string;
   isDistribuidor: boolean;
   distribuidorId?: number;
+  distribuidorNombre?: string;
   telefono?: string;
   direccion?: string;
   email?: string;
