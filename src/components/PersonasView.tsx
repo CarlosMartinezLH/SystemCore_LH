@@ -420,7 +420,7 @@ export default function PersonasView() {
         <>
           <SolicitarBuroModal
             isOpen={activeModal === 'buro'}
-            onClose={() => setActiveModal(null)}
+            onClose={() => setActiveModal('editar')}
             persona={selectedPersona}
             onUpdatePersona={(up) => {
               updatePersona(up);
