@@ -37,6 +37,7 @@ import EstadoCuentaDistribuidorModal from './EstadoCuentaDistribuidorModal';
 import RecibosRelacionModal from './RecibosRelacionModal';
 import ContratoAperturaModal from './ContratoAperturaModal';
 import CarteraDistribuidorModal from './CarteraDistribuidorModal';
+import HistorialCreditosDistribuidorModal from './HistorialCreditosDistribuidorModal';
 
 interface PerfilDistribuidorModalProps {
   isOpen: boolean;
@@ -70,6 +71,7 @@ export default function PerfilDistribuidorModal({
   const [isEstadoCuentaModalOpen, setIsEstadoCuentaModalOpen] = useState(false);
   const [isRecibosModalOpen, setIsRecibosModalOpen] = useState(false);
   const [isContratoModalOpen, setIsContratoModalOpen] = useState(false);
+  const [isHistorialCreditosOpen, setIsHistorialCreditosOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<DistribuidorCore>>({});
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
@@ -701,7 +703,7 @@ export default function PerfilDistribuidorModal({
 
                   <button
                     type="button"
-                    onClick={() => showToast('Cargando historial completo de créditos...')}
+                    onClick={() => setIsHistorialCreditosOpen(true)}
                     className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-slate-800 hover:text-blue-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
                     <Clock className="w-4 h-4 text-blue-600" />
@@ -945,6 +947,15 @@ export default function PerfilDistribuidorModal({
         <CarteraDistribuidorModal
           isOpen={isCarteraModalOpen}
           onClose={() => setIsCarteraModalOpen(false)}
+          distribuidor={currentDv}
+        />
+      )}
+
+      {/* Modal Oficial de Historial de Créditos */}
+      {isHistorialCreditosOpen && (
+        <HistorialCreditosDistribuidorModal
+          isOpen={isHistorialCreditosOpen}
+          onClose={() => setIsHistorialCreditosOpen(false)}
           distribuidor={currentDv}
         />
       )}
