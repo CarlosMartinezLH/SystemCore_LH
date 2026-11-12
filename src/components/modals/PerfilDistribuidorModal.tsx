@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DistribuidorCore, CreditoHistorialPersona, NotaClienteCore } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import {
@@ -343,11 +343,28 @@ export default function PerfilDistribuidorModal({
   ]);
   const [noteInput, setNoteInput] = useState('');
 
+  // Control de apertura y distribuidor para evitar resetear activeTab en cada actualización o polling
+  const prevOpenRef = useRef<boolean>(false);
+  const prevDistNoRef = useRef<number | null>(null);
+
   useEffect(() => {
-    setCurrentDv(distribuidor);
-    setFormData(distribuidor);
-    setActiveTab(initialTab);
-  }, [distribuidor, initialTab]);
+    if (!isOpen) {
+      prevOpenRef.current = false;
+      return;
+    }
+
+    const isNewOpen = !prevOpenRef.current;
+    const isNewDist = prevDistNoRef.current !== distribuidor?.noDist;
+
+    if (distribuidor && (isNewOpen || isNewDist)) {
+      prevOpenRef.current = true;
+      prevDistNoRef.current = distribuidor.noDist;
+
+      setActiveTab(initialTab || 'detalle');
+      setCurrentDv(distribuidor);
+      setFormData(distribuidor);
+    }
+  }, [isOpen, distribuidor, initialTab]);
 
   if (!isOpen) return null;
 
