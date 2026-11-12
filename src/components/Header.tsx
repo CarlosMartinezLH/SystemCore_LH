@@ -53,9 +53,9 @@ interface NavModuleItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-// Menú principal: Dashboard, Personas, Distribuidores
+// Menú principal: Inicio, Personas, Distribuidores
 const PRIMARY_MODULES: NavModuleItem[] = [
-  { id: 'core_dashboard', name: 'Dashboard', icon: LayoutDashboard },
+  { id: 'core_dashboard', name: 'Inicio', icon: LayoutDashboard },
   { id: 'personas', name: 'Personas', icon: Users },
   { id: 'distribuidores', name: 'Distribuidores', icon: Award },
 ];
@@ -103,7 +103,7 @@ export default function Header({
           <div
             onClick={() => handleSelectModule('core_dashboard')}
             className="flex items-center cursor-pointer transition hover:opacity-90"
-            title="Ir a Dashboard Principal"
+            title="Ir a Inicio"
           >
             <img
               src="/lanahora-logo.png"
@@ -114,9 +114,9 @@ export default function Header({
           <div className="h-5 w-px bg-slate-200 hidden sm:block" />
         </div>
 
-        {/* Center: Main Horizontal Menu (Dashboard, Personas, Catálogos, Distribuidores) */}
+        {/* Center: Main Horizontal Menu (Inicio, Personas, Distribuidores, Catálogos) */}
         <nav className="flex items-center gap-1.5 py-0.5">
-          {/* Dashboard */}
+          {/* Inicio (Dashboard) */}
           <button
             type="button"
             onClick={() => handleSelectModule('core_dashboard')}
@@ -129,7 +129,7 @@ export default function Header({
             <LayoutDashboard
               className={`w-4 h-4 ${activeModule === 'core_dashboard' ? 'text-white' : 'text-slate-500'}`}
             />
-            <span>Dashboard</span>
+            <span>Inicio</span>
           </button>
 
           {/* Personas */}
@@ -146,6 +146,22 @@ export default function Header({
               className={`w-4 h-4 ${activeModule === 'personas' ? 'text-white' : 'text-slate-500'}`}
             />
             <span>Personas</span>
+          </button>
+
+          {/* Distribuidores */}
+          <button
+            type="button"
+            onClick={() => handleSelectModule('distribuidores')}
+            className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+              activeModule === 'distribuidores'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Award
+              className={`w-4 h-4 ${activeModule === 'distribuidores' ? 'text-white' : 'text-slate-500'}`}
+            />
+            <span>Distribuidores</span>
           </button>
 
           {/* Menú Desplegable: Catálogos */}
@@ -199,22 +215,6 @@ export default function Header({
               </div>
             )}
           </div>
-
-          {/* Distribuidores */}
-          <button
-            type="button"
-            onClick={() => handleSelectModule('distribuidores')}
-            className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
-              activeModule === 'distribuidores'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <Award
-              className={`w-4 h-4 ${activeModule === 'distribuidores' ? 'text-white' : 'text-slate-500'}`}
-            />
-            <span>Distribuidores</span>
-          </button>
         </nav>
 
         {/* Right Controls: User Profile & Mobile Toggle */}
