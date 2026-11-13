@@ -367,13 +367,9 @@ function SystemCoreApp() {
               <CoordinadoresView
                 currentUser={currentUser}
                 onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
-                onNavigateToSucursales={() => setActiveModule('sucursales')}
               />
             ) : activeModule === 'sucursales' ? (
-              <SucursalesView
-                currentUser={currentUser}
-                onNavigateToCoordinadores={() => setActiveModule('coordinadores')}
-              />
+              <SucursalesView currentUser={currentUser} />
             ) : activeModule === 'distribuidores' ? (
               <DistribuidoresView currentUser={currentUser} />
             ) : activeModule === 'rh' ? (
