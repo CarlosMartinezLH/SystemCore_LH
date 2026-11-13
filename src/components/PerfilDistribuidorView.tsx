@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { DistribuidorCore } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney, formatMoneyNumber } from '@/lib/utils/formatters';
 import {
   Search,
   Edit,
@@ -190,7 +191,7 @@ export default function PerfilDistribuidorView({
               Línea de Crédito
             </span>
             <span className="text-base font-black text-slate-900 font-mono mt-0.5 block">
-              ${currentDv.creditoLimite.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(currentDv.creditoLimite)}
             </span>
           </div>
 
@@ -199,7 +200,7 @@ export default function PerfilDistribuidorView({
               Disponible Vales
             </span>
             <span className="text-base font-black text-emerald-700 font-mono mt-0.5 block">
-              ${currentDv.disponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(currentDv.disponible)}
             </span>
           </div>
 
@@ -208,7 +209,7 @@ export default function PerfilDistribuidorView({
               LanaPuntos
             </span>
             <span className="text-base font-black text-blue-800 font-mono mt-0.5 block">
-              {(currentDv.lanapuntos || 41125).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoneyNumber(currentDv.lanapuntos || 41125)}
             </span>
           </div>
 
@@ -305,7 +306,7 @@ export default function PerfilDistribuidorView({
                   value={
                     isEditing
                       ? editedDv.creditoLimite
-                      : `$${currentDv.creditoLimite.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+                      : formatMoney(currentDv.creditoLimite)
                   }
                   onChange={(e) => setEditedDv({ ...editedDv, creditoLimite: parseFloat(e.target.value) || 0 })}
                   className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-slate-900 text-xs"
@@ -320,7 +321,7 @@ export default function PerfilDistribuidorView({
                   value={
                     isEditing
                       ? (editedDv.lineaAdicional || 15000)
-                      : `$${(currentDv.lineaAdicional || 15000).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+                      : formatMoney(currentDv.lineaAdicional || 15000)
                   }
                   onChange={(e) => setEditedDv({ ...editedDv, lineaAdicional: parseFloat(e.target.value) || 0 })}
                   className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-slate-900 text-xs"

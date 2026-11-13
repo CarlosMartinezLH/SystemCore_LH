@@ -21,6 +21,7 @@ import {
   validarCreditoGeneraCanje,
 } from '@/lib/rules/businessRulesEngine';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   FileText,
   Percent,
@@ -272,14 +273,14 @@ export default function BusinessRulesView() {
               <div>
                 <span className="text-[11px] font-bold text-slate-500 uppercase">Bonificación Estimada</span>
                 <p className="text-2xl font-black text-emerald-600 mt-0.5">
-                  ${comisionPesos.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {formatMoney(comisionPesos)}
                 </p>
                 <span className="text-[10px] text-slate-500">Ganancia Distribuidora</span>
               </div>
               <div>
                 <span className="text-[11px] font-bold text-slate-500 uppercase">Neto a Pagar por DV</span>
                 <p className="text-2xl font-black text-slate-900 mt-0.5">
-                  ${(simSaldoRelacion - comisionPesos).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {formatMoney(simSaldoRelacion - comisionPesos)}
                 </p>
                 <span className="text-[10px] text-slate-500">Monto final liquidado</span>
               </div>
@@ -376,10 +377,10 @@ export default function BusinessRulesView() {
                       </td>
                       <td className="p-3.5 text-slate-600">{cat.descripcion}</td>
                       <td className="p-3.5 font-bold text-indigo-700">
-                        ${cat.lineaCreditoPersonal.toLocaleString('es-MX')} MXN
+                        {formatMoney(cat.lineaCreditoPersonal)} MXN
                       </td>
                       <td className="p-3.5 font-bold text-emerald-700">
-                        ${cat.prestamoMaxClienteFinal.toLocaleString('es-MX')} MXN
+                        {formatMoney(cat.prestamoMaxClienteFinal)} MXN
                       </td>
                       <td className="p-3.5 text-slate-500">22 y 7 de cada mes</td>
                     </tr>
@@ -483,22 +484,22 @@ export default function BusinessRulesView() {
               </div>
               <div>
                 <span className="text-[11px] font-bold text-slate-500 uppercase">Interés Total</span>
-                <p className="text-xl font-black text-slate-900 mt-0.5">${amortResult.interesTotal.toLocaleString('es-MX')} MXN</p>
+                <p className="text-xl font-black text-slate-900 mt-0.5">{formatMoney(amortResult.interesTotal)} MXN</p>
                 <span className="text-[10px] text-slate-500">(Capital × Tasa × Plazo) / 2</span>
               </div>
               <div>
                 <span className="text-[11px] font-bold text-slate-500 uppercase">Seguro de Vida</span>
-                <p className="text-xl font-black text-slate-900 mt-0.5">${amortResult.seguroCliente.toFixed(2)} MXN</p>
+                <p className="text-xl font-black text-slate-900 mt-0.5">{formatMoney(amortResult.seguroCliente)} MXN</p>
                 <span className="text-[10px] text-slate-500">Adicional al pago</span>
               </div>
               <div>
                 <span className="text-[11px] font-bold text-slate-500 uppercase">Total a Pagar</span>
-                <p className="text-xl font-black text-slate-900 mt-0.5">${amortResult.totalPagar.toLocaleString('es-MX')} MXN</p>
+                <p className="text-xl font-black text-slate-900 mt-0.5">{formatMoney(amortResult.totalPagar)} MXN</p>
                 <span className="text-[10px] text-slate-500">Capital + Interés + Seguro</span>
               </div>
               <div className="col-span-2 md:col-span-1 bg-amber-400 p-2.5 rounded-xl text-slate-950 flex flex-col justify-center">
                 <span className="text-[10px] font-black uppercase tracking-wider">Pago Quincenal</span>
-                <p className="text-2xl font-black">${amortResult.pagoQuincenalSinSeguro.toFixed(2)}</p>
+                <p className="text-2xl font-black">{formatMoney(amortResult.pagoQuincenalSinSeguro)}</p>
                 <span className="text-[9px] font-bold">Por {simPlazo} quincenas</span>
               </div>
             </div>
@@ -526,12 +527,12 @@ export default function BusinessRulesView() {
                 <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
                   {[1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000].map((monto) => (
                     <tr key={monto} className="hover:bg-slate-50">
-                      <td className="p-2.5 text-left font-black text-slate-900">${monto.toLocaleString('es-MX')}</td>
+                      <td className="p-2.5 text-left font-black text-slate-900">{formatMoney(monto)}</td>
                       {[4, 6, 8, 10, 12, 14, 16].map((plz) => {
                         const am = calcularAmortizacionVale(monto, plz);
                         return (
                           <td key={plz} className="p-2.5">
-                            ${am.pagoQuincenalSinSeguro}
+                            {formatMoney(am.pagoQuincenalSinSeguro)}
                           </td>
                         );
                       })}
@@ -633,7 +634,7 @@ export default function BusinessRulesView() {
                   </h4>
                   <p className="text-xs font-medium mt-1">
                     {validationResult.valido
-                      ? `Línea disponible de DV: $${currentDist.disponible.toLocaleString('es-MX')} MXN. El crédito de $${valMonto.toLocaleString('es-MX')} se puede dispersar por STP SPEI.`
+                      ? `Línea disponible de DV: ${formatMoney(currentDist.disponible)} MXN. El crédito de ${formatMoney(valMonto)} se puede dispersar por STP SPEI.`
                       : validationResult.mensajeError}
                   </p>
 
@@ -677,7 +678,7 @@ export default function BusinessRulesView() {
                 <div className="mt-4 p-4 rounded-2xl bg-indigo-50 border border-indigo-100">
                   <span className="text-[11px] font-bold text-indigo-700 block uppercase">Precio de Venta Sugerido</span>
                   <p className="text-3xl font-black text-indigo-950 mt-1">
-                    ${tiendaResult.precioVentaFinal.toLocaleString('es-MX')} MXN
+                    {formatMoney(tiendaResult.precioVentaFinal)} MXN
                   </p>
                   <p className="text-xs text-indigo-700 mt-1">
                     Factor aplicado: <strong>{tiendaResult.factor}x</strong>
@@ -697,7 +698,7 @@ export default function BusinessRulesView() {
                     {FACTORES_LANATIENDA.map((f, i) => (
                       <tr key={i} className="hover:bg-slate-50">
                         <td className="p-2.5 text-slate-700">
-                          ${f.min.toLocaleString('es-MX')} - ${f.max.toLocaleString('es-MX')}
+                          {formatMoney(f.min)} - {formatMoney(f.max)}
                         </td>
                         <td className="p-2.5 font-bold text-indigo-700">{f.factor}x</td>
                       </tr>
@@ -727,12 +728,12 @@ export default function BusinessRulesView() {
                 <div>
                   <h4 className="font-black text-sm text-slate-900">{seg.perfil}</h4>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Seguro Distribuidora: <strong>${seg.seguroDistribuidora}.00</strong>
+                    Seguro Distribuidora: <strong>{formatMoney(seg.seguroDistribuidora)}</strong>
                   </p>
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] font-bold text-slate-500 uppercase">Seguro Cliente Final</span>
-                  <p className="text-lg font-black text-emerald-600">${seg.seguroClienteFinal}.00</p>
+                  <p className="text-lg font-black text-emerald-600">{formatMoney(seg.seguroClienteFinal)}</p>
                 </div>
               </div>
             ))}
@@ -782,7 +783,7 @@ export default function BusinessRulesView() {
                     <span className="text-[10px] text-slate-500 block">Hasta {inc.maxEtapas} incrementos de etapa</span>
                   </div>
                   <span className="font-black text-emerald-600 text-sm">
-                    +${inc.incrementoPorEtapa.toLocaleString('es-MX')} / etapa
+                    +{formatMoney(inc.incrementoPorEtapa)} / etapa
                   </span>
                 </div>
               ))}

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { DistribuidorCore } from '@/types/core';
 import { Printer, Download, X, FileSpreadsheet, CheckCircle2, Scissors } from 'lucide-react';
 import RecibosRelacionModal from './RecibosRelacionModal';
+import { formatMoney } from '@/lib/utils/formatters';
 
 interface RelacionCobranzaModalProps {
   isOpen: boolean;
@@ -332,28 +333,28 @@ export default function RelacionCobranzaModal({
                   <tr>
                     <td className="py-1 px-1.5 text-left font-sans font-bold">VALE LANA</td>
                     <td className="py-1 px-1.5 text-right">
-                      {(dv.creditoLimite || 240000).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(dv.creditoLimite || 240000)}
                     </td>
                     <td className="py-1 px-1.5 text-right font-bold text-emerald-700">
-                      {(dv.disponible || 204633.2).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(dv.disponible || 204633.2)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1 px-1.5 text-left font-sans font-bold">LANATIENDA</td>
                     <td className="py-1 px-1.5 text-right">
-                      {(dv.lineaLanaTienda || 15000).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(dv.lineaLanaTienda || 15000)}
                     </td>
                     <td className="py-1 px-1.5 text-right font-bold text-emerald-700">
-                      {(dv.disponibleLanaTienda || 15000).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(dv.disponibleLanaTienda || 15000)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1 px-1.5 text-left font-sans font-bold">CREDITO PERSONALES</td>
                     <td className="py-1 px-1.5 text-right">
-                      {(dv.lineaPersonal || 10000).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(dv.lineaPersonal || 10000)}
                     </td>
                     <td className="py-1 px-1.5 text-right font-bold text-emerald-700">
-                      {(dv.disponiblePersonal || 5000).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(dv.disponiblePersonal || 5000)}
                     </td>
                   </tr>
                 </tbody>
@@ -399,25 +400,25 @@ export default function RelacionCobranzaModal({
                         </td>
                         <td className="p-1 text-center border-r border-slate-200">{v.plazo}</td>
                         <td className="p-1 text-right border-r border-slate-200">
-                          {v.dcto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(v.dcto)}
                         </td>
                         <td className="p-1 text-right border-r border-slate-200">
-                          {v.valorVale.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(v.valorVale)}
                         </td>
                         <td className="p-1 text-right border-r border-slate-200 font-bold">
-                          {v.saldoCorriente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(v.saldoCorriente)}
                         </td>
                         <td className="p-1 text-right border-r border-slate-200">
-                          {v.saldoVencido.toFixed(2)}
+                          {formatMoney(v.saldoVencido)}
                         </td>
                         <td className="p-1 text-right border-r border-slate-200 font-bold">
-                          {v.valorCorte.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(v.valorCorte)}
                         </td>
                         <td className="p-1 text-right border-r border-slate-200 font-bold text-blue-900">
-                          {v.pagoCliente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(v.pagoCliente)}
                         </td>
                         <td className="p-1 text-right font-bold text-slate-700">
-                          {v.saldoDespuesPago.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(v.saldoDespuesPago)}
                         </td>
                       </tr>
                     ))}
@@ -428,17 +429,17 @@ export default function RelacionCobranzaModal({
                         Registros: 7 &nbsp;&nbsp;&nbsp;&nbsp; Total VALE DE DINERO
                       </td>
                       <td className="p-1 text-right border-r border-slate-300">
-                        {totalValesSaldoCorriente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(totalValesSaldoCorriente)}
                       </td>
-                      <td className="p-1 text-right border-r border-slate-300">0.00</td>
+                      <td className="p-1 text-right border-r border-slate-300">$0.00</td>
                       <td className="p-1 text-right border-r border-slate-300">
-                        {totalValesSaldoCorriente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(totalValesSaldoCorriente)}
                       </td>
                       <td className="p-1 text-right border-r border-slate-300 text-blue-900">
-                        {totalValesPagoCliente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(totalValesPagoCliente)}
                       </td>
                       <td className="p-1 text-right">
-                        {totalValesSaldoDespues.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(totalValesSaldoDespues)}
                       </td>
                     </tr>
                   </tfoot>
@@ -467,22 +468,22 @@ export default function RelacionCobranzaModal({
                       <td className="p-1 text-center border-r border-slate-200 w-[45px]">
                         {prestamoPersonal.plazo}
                       </td>
-                      <td className="p-1 text-right border-r border-slate-200 w-[65px]">0.00</td>
+                      <td className="p-1 text-right border-r border-slate-200 w-[65px]">$0.00</td>
                       <td className="p-1 text-right border-r border-slate-200 w-[80px]">
-                        {prestamoPersonal.valorVale.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(prestamoPersonal.valorVale)}
                       </td>
                       <td className="p-1 text-right border-r border-slate-200 font-bold w-[90px]">
-                        {prestamoPersonal.saldoCorriente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(prestamoPersonal.saldoCorriente)}
                       </td>
-                      <td className="p-1 text-right border-r border-slate-200 w-[70px]">0.00</td>
+                      <td className="p-1 text-right border-r border-slate-200 w-[70px]">$0.00</td>
                       <td className="p-1 text-right border-r border-slate-200 font-bold w-[90px]">
-                        {prestamoPersonal.valorCorte.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(prestamoPersonal.valorCorte)}
                       </td>
                       <td className="p-1 text-right border-r border-slate-200 font-bold text-blue-900 w-[80px]">
-                        {prestamoPersonal.pagoCliente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(prestamoPersonal.pagoCliente)}
                       </td>
                       <td className="p-1 text-right font-bold text-slate-700 w-[100px]">
-                        {prestamoPersonal.saldoDespuesPago.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(prestamoPersonal.saldoDespuesPago)}
                       </td>
                     </tr>
                   </tbody>
@@ -492,17 +493,17 @@ export default function RelacionCobranzaModal({
                         Registros: 1 &nbsp;&nbsp;&nbsp;&nbsp; Total PRESTAMO PERSONAL DV
                       </td>
                       <td className="p-1 text-right border-r border-slate-300">
-                        {prestamoPersonal.saldoCorriente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(prestamoPersonal.saldoCorriente)}
                       </td>
-                      <td className="p-1 text-right border-r border-slate-300">0.00</td>
+                      <td className="p-1 text-right border-r border-slate-300">$0.00</td>
                       <td className="p-1 text-right border-r border-slate-300">
-                        {prestamoPersonal.valorCorte.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(prestamoPersonal.valorCorte)}
                       </td>
                       <td className="p-1 text-right border-r border-slate-300 text-blue-900">
-                        {prestamoPersonal.pagoCliente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(prestamoPersonal.pagoCliente)}
                       </td>
                       <td className="p-1 text-right">
-                        {prestamoPersonal.saldoDespuesPago.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(prestamoPersonal.saldoDespuesPago)}
                       </td>
                     </tr>
                   </tfoot>
@@ -558,25 +559,25 @@ export default function RelacionCobranzaModal({
               <div className="flex items-center gap-6 text-right">
                 <div>
                   <span className="text-[9px] text-slate-600 block uppercase font-sans">Saldo Corriente</span>
-                  <span>{totalGeneralSaldoCorriente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                  <span>{formatMoney(totalGeneralSaldoCorriente)}</span>
                 </div>
                 <div>
                   <span className="text-[9px] text-slate-600 block uppercase font-sans">Saldo Vencido</span>
-                  <span>0.00</span>
+                  <span>$0.00</span>
                 </div>
                 <div>
                   <span className="text-[9px] text-slate-600 block uppercase font-sans">Valor Corte</span>
-                  <span>{totalGeneralValorCorte.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                  <span>{formatMoney(totalGeneralValorCorte)}</span>
                 </div>
                 <div className="bg-blue-100 px-2 py-0.5 rounded border border-blue-300">
                   <span className="text-[9px] text-blue-800 block uppercase font-sans">Base a Liquidar</span>
                   <span className="text-blue-900 text-xs">
-                    ${totalGeneralPagoCliente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(totalGeneralPagoCliente)}
                   </span>
                 </div>
                 <div>
                   <span className="text-[9px] text-slate-600 block uppercase font-sans">Saldo después de pago</span>
-                  <span>{totalGeneralSaldoDespues.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                  <span>{formatMoney(totalGeneralSaldoDespues)}</span>
                 </div>
               </div>
             </div>
@@ -605,20 +606,20 @@ export default function RelacionCobranzaModal({
                     <tr key={i} className="hover:bg-slate-50">
                       <td className="p-1 font-bold border-r border-slate-200">{b.fecha}</td>
                       <td className="p-1 border-r border-slate-200">
-                        {b.valorTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(b.valorTotal)}
                       </td>
                       <td className="p-1 font-bold text-blue-700 border-r border-slate-200">{b.pctDcto}</td>
                       <td className="p-1 font-bold text-emerald-700 border-r border-slate-200">
-                        {b.descuento.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(b.descuento)}
                       </td>
                       <td className="p-1 font-black text-slate-900 border-r border-slate-200">
-                        {b.neto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(b.neto)}
                       </td>
                       <td className="p-1 font-black text-blue-900 border-r border-slate-200">
-                        ${b.banorteStp.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(b.banorteStp)}
                       </td>
                       <td className="p-1 font-black text-slate-900">
-                        ${b.paynet.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(b.paynet)}
                       </td>
                     </tr>
                   ))}

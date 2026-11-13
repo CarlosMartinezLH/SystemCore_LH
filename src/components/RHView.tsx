@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   EmployeeRH,
   AttendanceRecord,
@@ -337,7 +338,7 @@ export default function RHView({ currentUser }: RHViewProps = {}) {
           <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/80">
             <span className="text-[11px] text-slate-500 font-bold block uppercase tracking-wider">Nómina Quincenal Neta</span>
             <span className="text-xl font-black text-slate-900 font-mono mt-0.5 block">
-              ${totalPayrollAmount.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(totalPayrollAmount)}
             </span>
             <span className="text-[10px] text-emerald-600 font-bold mt-0.5 flex items-center gap-1">
               <CreditCard className="w-3 h-3 text-emerald-500" /> 6 Recibos Timbrados CFDI
@@ -545,7 +546,7 @@ export default function RHView({ currentUser }: RHViewProps = {}) {
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
                 <span className="text-[10px] text-slate-400 font-bold uppercase block">Salario Mensual Bruto</span>
                 <span className="font-mono font-black text-emerald-600 text-sm mt-0.5 block">
-                  ${(selectedEmployee.salarioBaseMensual || 13000).toLocaleString('es-MX')} MXN
+                  {formatMoney(selectedEmployee.salarioBaseMensual || 13000)} MXN
                 </span>
               </div>
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
@@ -803,12 +804,12 @@ export default function RHView({ currentUser }: RHViewProps = {}) {
                       <span className="font-black text-slate-900 block">{pay.employeeName}</span>
                       <span className="text-[11px] text-slate-500">{pay.role}</span>
                     </td>
-                    <td className="p-3 font-mono font-bold text-slate-800">${pay.sueldoBaseQuincenal.toLocaleString('es-MX')}</td>
-                    <td className="p-3 font-mono font-bold text-emerald-600">+${pay.bonoColocacionVales.toLocaleString('es-MX')}</td>
-                    <td className="p-3 font-mono font-bold text-indigo-600">+${pay.comisionCobranza.toLocaleString('es-MX')}</td>
-                    <td className="p-3 font-mono font-bold text-rose-600">-${pay.deduccionesTotales.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-3 font-mono font-bold text-slate-800">{formatMoney(pay.sueldoBaseQuincenal)}</td>
+                    <td className="p-3 font-mono font-bold text-emerald-600">+{formatMoney(pay.bonoColocacionVales)}</td>
+                    <td className="p-3 font-mono font-bold text-indigo-600">+{formatMoney(pay.comisionCobranza)}</td>
+                    <td className="p-3 font-mono font-bold text-rose-600">-{formatMoney(pay.deduccionesTotales)}</td>
                     <td className="p-3 font-mono font-black text-slate-900 text-sm">
-                      ${pay.netoPagar.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(pay.netoPagar)}
                     </td>
                     <td className="p-3">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
@@ -1100,23 +1101,23 @@ export default function RHView({ currentUser }: RHViewProps = {}) {
               </div>
               <div className="flex justify-between p-2 bg-slate-50 rounded-lg">
                 <span className="text-slate-500">Sueldo Base:</span>
-                <strong className="text-slate-900 font-mono">${selectedPayslip.sueldoBaseQuincenal.toFixed(2)}</strong>
+                <strong className="text-slate-900 font-mono">{formatMoney(selectedPayslip.sueldoBaseQuincenal)}</strong>
               </div>
               <div className="flex justify-between p-2 bg-slate-50 rounded-lg">
                 <span className="text-slate-500">Bono por Colocación:</span>
-                <strong className="text-emerald-600 font-mono">+${selectedPayslip.bonoColocacionVales.toFixed(2)}</strong>
+                <strong className="text-emerald-600 font-mono">+{formatMoney(selectedPayslip.bonoColocacionVales)}</strong>
               </div>
               <div className="flex justify-between p-2 bg-slate-50 rounded-lg">
                 <span className="text-slate-500">Comisión por Cobranza:</span>
-                <strong className="text-indigo-600 font-mono">+${selectedPayslip.comisionCobranza.toFixed(2)}</strong>
+                <strong className="text-indigo-600 font-mono">+{formatMoney(selectedPayslip.comisionCobranza)}</strong>
               </div>
               <div className="flex justify-between p-2 bg-slate-50 rounded-lg">
                 <span className="text-slate-500">Retención IMSS + ISR:</span>
-                <strong className="text-rose-600 font-mono">-${selectedPayslip.deduccionesTotales.toFixed(2)}</strong>
+                <strong className="text-rose-600 font-mono">-{formatMoney(selectedPayslip.deduccionesTotales)}</strong>
               </div>
               <div className="flex justify-between p-3 bg-blue-50 text-blue-900 rounded-xl font-black text-sm">
                 <span>Neto Dispersado:</span>
-                <span className="font-mono">${selectedPayslip.netoPagar.toFixed(2)} MXN</span>
+                <span className="font-mono">{formatMoney(selectedPayslip.netoPagar)} MXN</span>
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">

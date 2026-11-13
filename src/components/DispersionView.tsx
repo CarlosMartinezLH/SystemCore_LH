@@ -33,6 +33,7 @@ import {
 import { DispersionSTP, PagoCore, SpeiInboundPago, ClabeVirtualSTP } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import { buildSafeCsv } from '@/lib/utils/csv';
+import { formatMoney } from '@/lib/utils/formatters';
 
 const BANCOS_EMISORES = [
   { id: '40012', nombre: 'BBVA México' },
@@ -401,7 +402,7 @@ export default function DispersionView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Recaudación SPEI STP</div>
             <div className="text-xl font-black text-slate-900 mt-1">
-              ${totalRecaudadoSpei.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(totalRecaudadoSpei)}
             </div>
             <div className="text-[10px] text-emerald-600 font-bold mt-0.5 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -417,7 +418,7 @@ export default function DispersionView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Bonificación Otorgada (30-15)</div>
             <div className="text-xl font-black text-emerald-700 mt-1">
-              ${totalBonificacionesOtorgadas.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(totalBonificacionesOtorgadas)}
             </div>
             <div className="text-[10px] text-slate-500 font-medium mt-0.5">
               Escala de pronto pago a DVs
@@ -432,7 +433,7 @@ export default function DispersionView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cartera Amortizada</div>
             <div className="text-xl font-black text-slate-900 mt-1">
-              ${totalCreditoAmortizado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(totalCreditoAmortizado)}
             </div>
             <div className="text-[10px] text-blue-600 font-bold mt-0.5">
               Líneas de crédito liberadas al instante
@@ -663,18 +664,18 @@ export default function DispersionView() {
                         {p.clabeVirtual}
                       </td>
                       <td className="py-2.5 px-3.5 font-mono font-bold text-slate-900 text-right text-xs">
-                        ${p.montoDepositado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(p.montoDepositado)}
                       </td>
                       <td className="py-2.5 px-3.5 text-center">
                         <div className="inline-flex flex-col items-center">
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                            +{p.porcentajeBonificacion}% (${p.montoBonificacion.toLocaleString('es-MX', { minimumFractionDigits: 2 })})
+                            +{p.porcentajeBonificacion}% ({formatMoney(p.montoBonificacion)})
                           </span>
                           <span className="text-[9px] text-slate-400 font-medium">{p.diaCorte}</span>
                         </div>
                       </td>
                       <td className="py-2.5 px-3.5 font-mono font-extrabold text-emerald-700 text-right text-xs">
-                        ${p.montoAplicadoCredito.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(p.montoAplicadoCredito)}
                       </td>
                       <td className="py-2.5 px-3.5 font-mono text-slate-500 text-[11px]">{p.fechaHora}</td>
                       <td className="py-2.5 px-3.5 text-center">
@@ -735,7 +736,7 @@ export default function DispersionView() {
                     <td className="py-2.5 px-3.5 text-slate-700">{d.banco}</td>
                     <td className="py-2.5 px-3.5 font-mono text-[11px] text-slate-600">{d.clabe}</td>
                     <td className="py-2.5 px-3.5 font-mono font-bold text-slate-900 text-right text-xs">
-                      ${d.monto.toLocaleString('es-MX')}
+                      {formatMoney(d.monto)}
                     </td>
                     <td className="py-2.5 px-3.5 font-mono text-slate-500 text-[11px]">{d.fechaHora}</td>
                     <td className="py-2.5 px-3.5 text-center">
@@ -805,7 +806,7 @@ export default function DispersionView() {
                       </span>
                     </td>
                     <td className="py-3 px-3.5 font-mono font-bold text-slate-900 text-right text-xs">
-                      ${c.saldoPendienteQuincena.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(c.saldoPendienteQuincena)}
                     </td>
                     <td className="py-3 px-3.5 text-slate-600">{c.sucursal}</td>
                     <td className="py-3 px-3.5 text-center">
@@ -863,7 +864,7 @@ export default function DispersionView() {
                     <td className="py-2.5 px-3.5 text-slate-800 font-semibold">{p.distribuidorNombre || '—'}</td>
                     <td className="py-2.5 px-3.5 font-bold text-slate-900">{p.clienteNombre || '—'}</td>
                     <td className="py-2.5 px-3.5 font-mono font-bold text-emerald-700 text-right text-xs">
-                      ${p.monto.toLocaleString('es-MX')}
+                      {formatMoney(p.monto)}
                     </td>
                     <td className="py-2.5 px-3.5 text-slate-600">{p.establecimiento}</td>
                     <td className="py-2.5 px-3.5 font-mono text-slate-500 text-[11px]">{p.fechaPago}</td>
@@ -921,7 +922,7 @@ export default function DispersionView() {
                 >
                   {clabesVirtuales.map((c) => (
                     <option key={c.noDist} value={c.noDist}>
-                      DV #{c.noDist} - {c.distribuidorNombre} [{c.perfil}] — Saldo: ${c.saldoPendienteQuincena.toLocaleString('es-MX')}
+                      DV #{c.noDist} - {c.distribuidorNombre} [{c.perfil}] — Saldo: {formatMoney(c.saldoPendienteQuincena)}
                     </option>
                   ))}
                 </select>
@@ -975,7 +976,7 @@ export default function DispersionView() {
                   <div className="bg-white p-2 rounded-lg border border-slate-200">
                     <div className="text-[10px] text-slate-500 font-semibold">Saldo Exigible</div>
                     <div className="text-xs font-black text-slate-900 mt-0.5">
-                      ${saldoExigibleSim.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(saldoExigibleSim)}
                     </div>
                   </div>
 
@@ -984,14 +985,14 @@ export default function DispersionView() {
                       Bonificación ({Math.round(tasaSim * 100)}%)
                     </div>
                     <div className="text-xs font-black text-emerald-700 mt-0.5">
-                      +${bonificacionSim.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      +{formatMoney(bonificacionSim)}
                     </div>
                   </div>
 
                   <div className="bg-blue-50 p-2 rounded-lg border border-blue-200">
                     <div className="text-[10px] text-blue-900 font-black">Neto a Depositar</div>
                     <div className="text-xs font-black text-blue-900 mt-0.5">
-                      ${montoNetoDefault.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(montoNetoDefault)}
                     </div>
                   </div>
                 </div>
@@ -1096,7 +1097,7 @@ export default function DispersionView() {
                 <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                   <div className="text-[10px] font-bold text-slate-500 uppercase">1. Recibido por SPEI</div>
                   <div className="text-base font-black text-slate-900 mt-1">
-                    ${selectedPagoDetalle.montoDepositado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(selectedPagoDetalle.montoDepositado)}
                   </div>
                   <div className="text-[10px] text-slate-500 mt-0.5">
                     Desde {selectedPagoDetalle.bancoEmisorNombre}
@@ -1108,7 +1109,7 @@ export default function DispersionView() {
                     2. Bonificación ({selectedPagoDetalle.porcentajeBonificacion}%)
                   </div>
                   <div className="text-base font-black text-emerald-700 mt-1">
-                    +${selectedPagoDetalle.montoBonificacion.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    +{formatMoney(selectedPagoDetalle.montoBonificacion)}
                   </div>
                   <div className="text-[10px] text-emerald-700 mt-0.5">
                     Regla de Corte ({selectedPagoDetalle.diaCorte})
@@ -1118,7 +1119,7 @@ export default function DispersionView() {
                 <div className="bg-blue-50 p-3.5 rounded-xl border border-blue-200">
                   <div className="text-[10px] font-bold text-blue-900 uppercase">3. Total Aplicado a Deuda</div>
                   <div className="text-base font-black text-blue-900 mt-1">
-                    ${selectedPagoDetalle.montoAplicadoCredito.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(selectedPagoDetalle.montoAplicadoCredito)}
                   </div>
                   <div className="text-[10px] text-blue-800 font-semibold mt-0.5">
                     100% de la Cuota Cubierta
@@ -1132,13 +1133,13 @@ export default function DispersionView() {
                   <div className="text-[10px] uppercase font-bold text-slate-400">Liberación Inmediata de Línea de Crédito</div>
                   <div className="text-sm font-black mt-0.5 flex items-center gap-2">
                     <span className="text-slate-400 font-mono line-through">
-                      ${selectedPagoDetalle.lineaPrevia.toLocaleString('es-MX')}
+                      {formatMoney(selectedPagoDetalle.lineaPrevia)}
                     </span>
                     <span className="text-emerald-400 font-mono">
-                      ➔ ${selectedPagoDetalle.lineaNuevaDisponible.toLocaleString('es-MX')}
+                      ➔ {formatMoney(selectedPagoDetalle.lineaNuevaDisponible)}
                     </span>
                     <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-black">
-                      +${selectedPagoDetalle.montoAplicadoCredito.toLocaleString('es-MX')} Disponible
+                      +{formatMoney(selectedPagoDetalle.montoAplicadoCredito)} Disponible
                     </span>
                   </div>
                 </div>
@@ -1160,19 +1161,19 @@ export default function DispersionView() {
                   <div className="flex justify-between py-1 border-b border-slate-200/60">
                     <span className="text-slate-700">102-01 Bancos STP Concentradora (Cargo)</span>
                     <span className="font-bold text-slate-900">
-                      ${selectedPagoDetalle.montoDepositado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(selectedPagoDetalle.montoDepositado)}
                     </span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-200/60">
                     <span className="text-emerald-700">501-04 Bonificaciones y Descuentos Otorgados (Cargo)</span>
                     <span className="font-bold text-emerald-700">
-                      ${selectedPagoDetalle.montoBonificacion.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(selectedPagoDetalle.montoBonificacion)}
                     </span>
                   </div>
                   <div className="flex justify-between py-1">
                     <span className="text-slate-700">105-02 Cartera de Crédito por Cobrar DV #{selectedPagoDetalle.noDist} (Abono)</span>
                     <span className="font-bold text-slate-900">
-                      ${selectedPagoDetalle.montoAplicadoCredito.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(selectedPagoDetalle.montoAplicadoCredito)}
                     </span>
                   </div>
                 </div>

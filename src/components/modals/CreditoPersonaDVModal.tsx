@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { DistribuidorCore } from '@/types/core';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   X,
   DollarSign,
@@ -142,7 +143,7 @@ export default function CreditoPersonaDVModal({
       setErrorMonto('El importe a financiar debe ser mayor a $0.00');
     } else if (val > disponiblePersonal) {
       setErrorMonto(
-        `El importe excede el saldo disponible de crédito personal ($${disponiblePersonal.toLocaleString('es-MX', { minimumFractionDigits: 2 })})`
+        `El importe excede el saldo disponible de crédito personal (${formatMoney(disponiblePersonal)})`
       );
     } else {
       setErrorMonto(null);
@@ -157,7 +158,7 @@ export default function CreditoPersonaDVModal({
     }
     if (importe > disponiblePersonal) {
       setErrorMonto(
-        `El importe excede el saldo disponible de crédito personal ($${disponiblePersonal.toLocaleString('es-MX', { minimumFractionDigits: 2 })})`
+        `El importe excede el saldo disponible de crédito personal (${formatMoney(disponiblePersonal)})`
       );
       return;
     }
@@ -262,7 +263,7 @@ export default function CreditoPersonaDVModal({
                 <div className="flex justify-between py-1 border-b border-slate-200/60">
                   <span className="text-slate-500">Capital Financiado:</span>
                   <span className="font-mono font-bold text-slate-900">
-                    ${creditoGenerado.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(creditoGenerado.capital)}
                   </span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-200/60">
@@ -272,13 +273,13 @@ export default function CreditoPersonaDVModal({
                 <div className="flex justify-between py-1 border-b border-slate-200/60">
                   <span className="text-slate-500">Pago Quincenal:</span>
                   <span className="font-mono font-bold text-emerald-700">
-                    ${creditoGenerado.pagoQuincenal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(creditoGenerado.pagoQuincenal)}
                   </span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-200/60">
                   <span className="text-slate-500">Importe Total a Pagar:</span>
                   <span className="font-mono font-black text-slate-900">
-                    ${creditoGenerado.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(creditoGenerado.importeTotal)}
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
@@ -308,13 +309,13 @@ export default function CreditoPersonaDVModal({
                     Disponible Crédito Personal DV
                   </span>
                   <p className="text-base font-black font-mono text-blue-950 mt-0.5">
-                    ${disponiblePersonal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(disponiblePersonal)}
                   </p>
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] text-slate-500 font-medium block">Línea Personal</span>
                   <span className="text-xs font-mono font-bold text-slate-700">
-                    ${lineaPersonal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(lineaPersonal)}
                   </span>
                 </div>
               </div>
@@ -444,7 +445,7 @@ export default function CreditoPersonaDVModal({
                             : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
                         }`}
                       >
-                        ${montoQuick.toLocaleString('es-MX')}
+                        {formatMoney(montoQuick)}
                       </button>
                     ))}
                     <button
@@ -457,7 +458,7 @@ export default function CreditoPersonaDVModal({
                       }`}
                       title="Seleccionar todo el crédito disponible"
                     >
-                      Disponible (${disponiblePersonal.toLocaleString('es-MX')})
+                      Disponible ({formatMoney(disponiblePersonal)})
                     </button>
                   </div>
 
@@ -475,19 +476,19 @@ export default function CreditoPersonaDVModal({
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-600 font-medium">Pago Quincenal Estimado:</span>
                   <span className="font-mono font-bold text-emerald-700 text-sm">
-                    ${calculoFinanciero.pagoQuincenal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(calculoFinanciero.pagoQuincenal)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-[11px] text-slate-500">
                   <span>Importe Total a Pagar ({plazos} qzas):</span>
                   <span className="font-mono font-bold text-slate-800">
-                    ${calculoFinanciero.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(calculoFinanciero.importeTotal)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-[11px] text-slate-500 border-t border-slate-200/60 pt-1">
                   <span>Interés Ordinario + IVA:</span>
                   <span className="font-mono text-slate-700">
-                    ${(calculoFinanciero.interes + calculoFinanciero.iva).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(calculoFinanciero.interes + calculoFinanciero.iva)}
                   </span>
                 </div>
               </div>

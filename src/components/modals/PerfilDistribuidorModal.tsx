@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DistribuidorCore, NotaClienteCore } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   X,
   Search,
@@ -281,19 +282,19 @@ export default function PerfilDistribuidorModal({
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
                   <span className="text-[11px] font-bold text-slate-500 block mb-1">Línea de Crédito</span>
                   <span className="text-base font-extrabold text-slate-900 font-mono">
-                    ${currentDv.creditoLimite.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(currentDv.creditoLimite)}
                   </span>
                 </div>
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
                   <span className="text-[11px] font-bold text-slate-500 block mb-1">Saldo Actual</span>
                   <span className="text-base font-extrabold text-slate-900 font-mono">
-                    ${(currentDv.saldoActual || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(currentDv.saldoActual || 0)}
                   </span>
                 </div>
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
                   <span className="text-[11px] font-bold text-slate-500 block mb-1">Disponible</span>
                   <span className="text-base font-extrabold text-emerald-600 font-mono">
-                    ${currentDv.disponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(currentDv.disponible)}
                   </span>
                 </div>
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
@@ -981,7 +982,7 @@ export default function PerfilDistribuidorModal({
             if (updateDistribuidor) {
               updateDistribuidor(updated);
             }
-            showToast(`Crédito Personal #${nuevoCredito.creditoId} generado exitosamente por $${nuevoCredito.capital.toLocaleString('es-MX')} a ${nuevoCredito.plazos} quincenas`);
+            showToast(`Crédito Personal #${nuevoCredito.creditoId} generado exitosamente por ${formatMoney(nuevoCredito.capital)} a ${nuevoCredito.plazos} quincenas`);
           }}
         />
       )}

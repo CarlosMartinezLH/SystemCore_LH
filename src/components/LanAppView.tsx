@@ -37,6 +37,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 import { MobileNotification } from '@/types/notifications';
 import {
   calcularAmortizacionVale,
@@ -790,7 +791,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                             {notif.category === 'COBRO_VALE' && (
                               <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-[9px]">
                                 <span className="text-emerald-300 font-bold">
-                                  Monto: ${notif.amount?.toLocaleString('es-MX', { minimumFractionDigits: 2 }) || '2,500.00'} MXN
+                                  Monto: {formatMoney(notif.amount || 2500)} MXN
                                 </span>
                                 <span className="text-[8.5px] text-slate-400">
                                   Saldo actualizado
@@ -1195,7 +1196,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                             <Minus className="w-4 h-4" />
                           </button>
                           <span className="text-base font-black text-slate-950">
-                            ${importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(importe)}
                           </span>
                           <button
                             onClick={() => setImporte((prev) => Math.min(9000, prev + 500))}
@@ -1213,7 +1214,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                         </p>
                         <div className="bg-[#facc15] rounded-full h-11 flex items-center justify-center shadow-md">
                           <span className="text-lg font-black text-slate-950">
-                            ${pagoPorPlazo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(pagoPorPlazo)}
                           </span>
                         </div>
                       </div>
@@ -1255,7 +1256,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                         <div>
                           <p className="text-[8px] font-black text-white/60 uppercase">POR LA CANTIDAD DE:</p>
                           <p className="font-black text-[#facc15] text-xs">
-                            ${importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })} ({plazos} pagos de ${pagoPorPlazo.toFixed(2)})
+                            {formatMoney(importe)} ({plazos} pagos de {formatMoney(pagoPorPlazo)})
                           </p>
                         </div>
                         <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/10">
@@ -1328,7 +1329,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                               Vale Digital #{folioGenerado} Autorizado
                             </p>
                             <p className="text-[9px] text-white/80">
-                              Monto: ${importe.toLocaleString('es-MX')} a {plazos} quincenas de ${pagoPorPlazo.toFixed(2)}
+                              Monto: {formatMoney(importe)} a {plazos} quincenas de {formatMoney(pagoPorPlazo)}
                             </p>
                           </div>
 
@@ -1445,7 +1446,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                             <div className="flex justify-between">
                               <span className="text-slate-500 font-bold">Monto:</span>
                               <span className="font-black text-blue-700">
-                                ${importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(importe)}
                               </span>
                             </div>
                             <div className="flex justify-between">
@@ -1459,7 +1460,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                             <div className="flex justify-between">
                               <span className="text-slate-500 font-bold">Pago:</span>
                               <span className="font-black text-emerald-600">
-                                ${pagoPorPlazo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(pagoPorPlazo)}
                               </span>
                             </div>
                             <div className="flex justify-between">
@@ -2075,7 +2076,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                             <div className="flex justify-between">
                               <span className="text-emerald-800 font-bold">Monto dispersado:</span>
                               <span className="font-black text-emerald-900">
-                                ${importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
+                                {formatMoney(importe)} MXN
                               </span>
                             </div>
                             <div className="flex justify-between">
@@ -2131,10 +2132,10 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                                 <strong>Acreditado:</strong> {selectedClient.nombre} (CURP: SITM890918MCLLRR02).
                               </p>
                               <p>
-                                <strong>Monto Dispuesto:</strong> ${importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN.
+                                <strong>Monto Dispuesto:</strong> {formatMoney(importe)} MXN.
                               </p>
                               <p>
-                                <strong>Condiciones:</strong> {plazos} pagos quincenales de ${(Math.round((importe * (1 + plazos * 0.071)) / plazos)).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN.
+                                <strong>Condiciones:</strong> {plazos} pagos quincenales de {formatMoney(Math.round((importe * (1 + plazos * 0.071)) / plazos))} MXN.
                               </p>
                               <p>
                                 <strong>Costo Anual Total (CAT):</strong> 43.8% sin IVA • Tasa Ordinaria Fija: 34.00% anual.
@@ -2169,10 +2170,10 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                                     <div key={num} className="grid grid-cols-6 gap-1 p-0.5 text-center items-center font-mono">
                                       <span className="font-bold text-slate-900">{num}</span>
                                       <span className="text-slate-600 text-[7.5px]">{`${(num * 15) % 28 + 1}/12/26`}</span>
-                                      <span className="text-slate-700">${cap}</span>
-                                      <span className="text-slate-700">${cuota - cap}</span>
-                                      <span className="font-bold text-blue-700">${cuota}</span>
-                                      <span className="font-bold text-emerald-700">${saldo}</span>
+                                      <span className="text-slate-700">{formatMoney(cap)}</span>
+                                      <span className="text-slate-700">{formatMoney(cuota - cap)}</span>
+                                      <span className="font-bold text-blue-700">{formatMoney(cuota)}</span>
+                                      <span className="font-bold text-emerald-700">{formatMoney(saldo)}</span>
                                     </div>
                                   );
                                 })}
@@ -2184,7 +2185,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                                 PAGARÉ ELECTRÓNICO MERCANTIL
                               </div>
                               <p className="text-[9.5px]">
-                                DEBO Y PAGARÉ incondicionalmente a la orden de LANAHORA, S.A.P.I. DE C.V., SOFOM, E.N.R., la cantidad total de ${(Math.round((importe * (1 + plazos * 0.071)) / plazos) * plazos).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN en {plazos} pagos quincenales consecutivos.
+                                DEBO Y PAGARÉ incondicionalmente a la orden de LANAHORA, S.A.P.I. DE C.V., SOFOM, E.N.R., la cantidad total de {formatMoney(Math.round((importe * (1 + plazos * 0.071)) / plazos) * plazos)} MXN en {plazos} pagos quincenales consecutivos.
                               </p>
                               <div className="pt-1">
                                 <span className="text-[9px] font-bold text-slate-500 block">Firma Táctil del Suscriptor:</span>

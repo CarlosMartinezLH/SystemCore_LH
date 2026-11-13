@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { PersonaCore } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   X,
   ShieldCheck,
@@ -255,7 +256,7 @@ export function CanjearValeModal({ isOpen, onClose, persona }: ModalProps) {
                 <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto mb-1" />
                 <h4 className="font-black text-slate-900 text-sm">¡Vale Canjeado Exitosamente!</h4>
                 <p className="text-slate-600 text-xs mt-1">
-                  Folio {folioVale} por <strong>${Number(monto).toLocaleString('es-MX')} MXN</strong> asignado a #{noDist}.
+                  Folio {folioVale} por <strong>{formatMoney(monto)} MXN</strong> asignado a #{noDist}.
                 </p>
                 <div className="mt-3 p-3 bg-white rounded-xl border border-dashed border-emerald-300 font-mono">
                   <span className="text-[10px] text-slate-400 block">Referencia Paynet / SPEI:</span>

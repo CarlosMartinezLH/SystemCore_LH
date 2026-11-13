@@ -27,6 +27,7 @@ import {
   INITIAL_SPEI_INBOUND,
 } from '@/lib/data/coreData';
 import { INITIAL_PROSPECTS } from '@/lib/data/initialData';
+import { formatMoney } from '@/lib/utils/formatters';
 
 interface CoreSyncContextType {
   personas: PersonaCore[];
@@ -302,7 +303,7 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
           author: 'Sistema Core Central',
           authorEmail: 'sistema@core.lanahora.com.mx',
           type: 'sistema',
-          content: `✓ Prospecto transferido a Core Central con éxito. Se dio de alta como Distribuidora Oficial No. ${nuevoNoDist} y Persona No. ${nuevaPersonaId} con línea autorizada de $${lineaAprobada.toLocaleString('es-MX')} MXN.`,
+          content: `✓ Prospecto transferido a Core Central con éxito. Se dio de alta como Distribuidora Oficial No. ${nuevoNoDist} y Persona No. ${nuevaPersonaId} con línea autorizada de ${formatMoney(lineaAprobada)} MXN.`,
           createdAt: new Date().toLocaleString('es-MX'),
         },
         ...prospect.messages,

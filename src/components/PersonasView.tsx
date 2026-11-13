@@ -10,6 +10,7 @@ import {
 } from '@/types/core';
 import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   UserPlus,
   Search,
@@ -646,7 +647,7 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
 
                         {/* pagare Cantidad */}
                         <td className="px-2.5 py-2 font-mono text-right text-slate-700">
-                          {(p.pagareCantidad || 0).toFixed(4)}
+                          {formatMoney(p.pagareCantidad || 0)}
                         </td>
 
                         {/* Buro Interno Esta */}
@@ -669,16 +670,12 @@ export default function PersonasView({ currentUser }: PersonasViewProps = {}) {
 
                         {/* saldo Actual */}
                         <td className="px-2.5 py-2 font-mono text-right font-bold text-slate-900">
-                          {p.saldoActual
-                            ? `$${p.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
-                            : ''}
+                          {p.saldoActual ? formatMoney(p.saldoActual) : '$0.00'}
                         </td>
 
                         {/* capital Vencido */}
                         <td className="px-2.5 py-2 font-mono text-right font-bold text-rose-600">
-                          {p.capitalVencido
-                            ? `$${p.capitalVencido.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
-                            : ''}
+                          {p.capitalVencido ? formatMoney(p.capitalVencido) : '$0.00'}
                         </td>
 
                         {/* Acciones: Editar Cliente Modal */}

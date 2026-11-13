@@ -6,6 +6,7 @@ import { DistribuidorCore } from '@/types/core';
 import { UserSession } from '@/types/auth';
 import { Printer, X, Search, FileSpreadsheet, Scissors, RefreshCw } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { formatMoney } from '@/lib/utils/formatters';
 
 export interface ReciboTalonPago {
   id: string | number;
@@ -435,35 +436,35 @@ export default function RecibosRelacionModal({
                     <div className="flex justify-between items-center">
                       <span className="text-slate-500 font-sans font-medium text-[10px]">Importe Total:</span>
                       <span className="font-bold text-slate-900">
-                        ${recibo.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(recibo.importeTotal)}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-center">
                       <span className="text-slate-500 font-sans font-medium text-[10px]">Saldo Nuevo:</span>
                       <span className="font-bold text-slate-900">
-                        ${recibo.saldoNuevo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(recibo.saldoNuevo)}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-center">
                       <span className="text-slate-500 font-sans font-medium text-[10px]">Saldo Anterior:</span>
                       <span className="font-bold text-slate-800">
-                        ${recibo.saldoAnterior.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(recibo.saldoAnterior)}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-center">
                       <span className="text-slate-500 font-sans font-medium text-[10px]">Pago:</span>
                       <span className="font-black text-blue-700">
-                        ${recibo.pago.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(recibo.pago)}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-center col-span-2 pt-0.5 border-t border-slate-200">
                       <span className="text-slate-500 font-sans font-medium text-[10px]">Saldo Vencido:</span>
                       <span className="font-bold text-slate-700">
-                        ${recibo.saldoVencido.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(recibo.saldoVencido)}
                       </span>
                     </div>
                   </div>

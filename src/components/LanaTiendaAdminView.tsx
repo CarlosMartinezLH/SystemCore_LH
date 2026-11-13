@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { LanaTiendaPedido, LanaTiendaEstatusPedido } from '@/types/tienda';
 import { buildSafeCsv } from '@/lib/utils/csv';
+import { formatMoney } from '@/lib/utils/formatters';
 
 function getAuthHeaders(): HeadersInit {
   try {
@@ -289,7 +290,7 @@ export default function LanaTiendaAdminView() {
             Ventas Totales Tienda
           </span>
           <div className="text-lg sm:text-xl font-black text-slate-900 mt-1">
-            ${totalVentas.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+            {formatMoney(totalVentas)}
           </div>
           <span className="text-[10px] text-emerald-600 font-bold">100% financiadas a 16 quincenas</span>
         </div>
@@ -383,10 +384,10 @@ export default function LanaTiendaAdminView() {
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="font-black text-emerald-700">
-                        ${pedido.producto.pagoQuincenal.toFixed(2)}/qna
+                        {formatMoney(pedido.producto.pagoQuincenal)}/qna
                       </div>
                       <div className="text-[10px] text-slate-500">
-                        Total: ${pedido.producto.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        Total: {formatMoney(pedido.producto.precio)}
                       </div>
                     </td>
                     <td className="py-3.5 px-4">{getStatusBadge(pedido.estatus)}</td>
@@ -456,10 +457,10 @@ export default function LanaTiendaAdminView() {
                 <h4 className="font-bold text-slate-900">{selectedPedido.producto.nombre}</h4>
                 <div className="flex items-center gap-3 mt-1">
                   <span className="text-emerald-700 font-black">
-                    16 Quincenas de ${selectedPedido.producto.pagoQuincenal.toFixed(2)}
+                    16 Quincenas de {formatMoney(selectedPedido.producto.pagoQuincenal)}
                   </span>
                   <span className="text-slate-500">
-                    Total: ${selectedPedido.producto.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    Total: {formatMoney(selectedPedido.producto.precio)}
                   </span>
                 </div>
               </div>

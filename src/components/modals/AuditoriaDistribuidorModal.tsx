@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { DistribuidorCore } from '@/types/core';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   X,
   ShieldCheck,
@@ -63,24 +64,24 @@ export default function AuditoriaDistribuidorModal({
     {
       id: 'cartera',
       titulo: '1. Verificación de Vales y Cartera Activa',
-      subtotalEsperado: `$${saldoCartera.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
-      subtotalCalculado: `$${saldoCartera.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
+      subtotalEsperado: formatMoney(saldoCartera),
+      subtotalCalculado: formatMoney(saldoCartera),
       diferencia: '$0.00 M.N.',
       estado: 'conciliado',
     },
     {
       id: 'linea',
       titulo: '2. Conciliación de Línea y Disponible',
-      subtotalEsperado: `$${disponibleCalculado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
-      subtotalCalculado: `$${disponibleCalculado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
+      subtotalEsperado: formatMoney(disponibleCalculado),
+      subtotalCalculado: formatMoney(disponibleCalculado),
       diferencia: '$0.00 M.N.',
       estado: 'conciliado',
     },
     {
       id: 'personal',
       titulo: '3. Auditoría de Crédito Personal DV',
-      subtotalEsperado: `$${disponiblePersonal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
-      subtotalCalculado: `$${disponiblePersonal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
+      subtotalEsperado: formatMoney(disponiblePersonal),
+      subtotalCalculado: formatMoney(disponiblePersonal),
       diferencia: '$0.00 M.N.',
       estado: 'conciliado',
     },
@@ -308,15 +309,15 @@ export default function AuditoriaDistribuidorModal({
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-emerald-200/60 text-[11px]">
               <div>
                 <span className="text-emerald-700 block">Línea de Crédito:</span>
-                <strong className="text-emerald-950 font-mono">${limiteCredito.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</strong>
+                <strong className="text-emerald-950 font-mono">{formatMoney(limiteCredito)}</strong>
               </div>
               <div>
                 <span className="text-emerald-700 block">Saldo en Cartera:</span>
-                <strong className="text-emerald-950 font-mono">${saldoCartera.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</strong>
+                <strong className="text-emerald-950 font-mono">{formatMoney(saldoCartera)}</strong>
               </div>
               <div>
                 <span className="text-emerald-700 block">Disponible Validado:</span>
-                <strong className="text-emerald-950 font-mono text-xs">${disponibleCalculado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</strong>
+                <strong className="text-emerald-950 font-mono text-xs">{formatMoney(disponibleCalculado)}</strong>
               </div>
             </div>
           </div>

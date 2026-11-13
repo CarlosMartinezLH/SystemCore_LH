@@ -45,6 +45,7 @@ import {
   MOCK_DISTRIBUIDORA_DEFAULT,
   MOCK_CLIENTES_DEFAULT,
 } from '@/lib/data/tiendaData';
+import { formatMoney } from '@/lib/utils/formatters';
 
 function TiendaCoreContent() {
   const searchParams = useSearchParams();
@@ -264,9 +265,7 @@ function TiendaCoreContent() {
   const generateWhatsAppLink = (product: LanaTiendaProduct) => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://tienda.lanahora.com';
     const refUrl = `${origin}/tienda?sku=${encodeURIComponent(product.sku)}`;
-    const text = `¡Hola! Me interesó este producto en LanaTienda a 16 quincenas de $${product.pagoQuincenal.toFixed(
-      2
-    )}: ${product.nombre}. ¿Me ayudas a solicitarlo con tu crédito LanAhora? Aquí está el link oficial: ${refUrl} (Aviso de Seguridad: La compra solo se autoriza vía Vale digital, nunca entregues anticipos en efectivo).`;
+    const text = `¡Hola! Me interesó este producto en LanaTienda a 16 quincenas de ${formatMoney(product.pagoQuincenal)}: ${product.nombre}. ¿Me ayudas a solicitarlo con tu crédito LanAhora? Aquí está el link oficial: ${refUrl} (Aviso de Seguridad: La compra solo se autoriza vía Vale digital, nunca entregues anticipos en efectivo).`;
     return `https://wa.me/?text=${encodeURIComponent(text)}`;
   };
 
@@ -459,8 +458,8 @@ function TiendaCoreContent() {
                   {selectedProduct.nombre}
                 </h3>
                 <p className="text-xs text-slate-600 font-medium mt-0.5">
-                  Financiamiento institucional: <strong>16 quincenas de ${selectedProduct.pagoQuincenal.toFixed(2)}</strong>{' '}
-                  (Total: ${selectedProduct.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })})
+                  Financiamiento institucional: <strong>16 quincenas de {formatMoney(selectedProduct.pagoQuincenal)}</strong>{' '}
+                  (Total: {formatMoney(selectedProduct.precio)})
                 </p>
               </div>
             </div>
@@ -724,7 +723,7 @@ function TiendaCoreContent() {
                       </span>
                       <div className="flex items-baseline gap-1 mt-0.5">
                         <span className="text-xl font-black text-blue-700 leading-none">
-                          ${product.pagoQuincenal.toFixed(2)}
+                          {formatMoney(product.pagoQuincenal)}
                         </span>
                         <span className="text-xs font-bold text-blue-900">/ quincena</span>
                       </div>
@@ -733,7 +732,7 @@ function TiendaCoreContent() {
                           16 Quincenas
                         </span>
                         <span className="text-slate-500">
-                          Total: ${product.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          Total: {formatMoney(product.precio)}
                         </span>
                       </div>
                     </div>
@@ -829,14 +828,14 @@ function TiendaCoreContent() {
                     <div className="pt-2 border-t border-blue-200 flex items-baseline justify-between">
                       <span className="text-xs font-bold text-slate-700">Pago por Quincena:</span>
                       <span className="text-2xl font-black text-blue-700">
-                        ${selectedProduct.pagoQuincenal.toFixed(2)}
+                        {formatMoney(selectedProduct.pagoQuincenal)}
                       </span>
                     </div>
 
                     <div className="flex items-baseline justify-between text-xs text-slate-600 pt-1">
                       <span>Precio Total de Contado:</span>
                       <span className="font-bold">
-                        ${selectedProduct.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(selectedProduct.precio)}
                       </span>
                     </div>
 
@@ -931,7 +930,7 @@ function TiendaCoreContent() {
             <p className="text-xs text-slate-600 leading-relaxed">
               Selecciona a tu distribuidora en WhatsApp para enviarle la solicitud de:{' '}
               <strong>{shareModalProduct.nombre}</strong> a 16 quincenas de{' '}
-              <strong>${shareModalProduct.pagoQuincenal.toFixed(2)}</strong>.
+              <strong>{formatMoney(shareModalProduct.pagoQuincenal)}</strong>.
             </p>
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs flex items-center justify-between gap-2">
@@ -1090,17 +1089,17 @@ function TiendaCoreContent() {
                   <h4 className="text-xs font-bold text-slate-900 truncate">{cartProduct.nombre}</h4>
                   <div className="flex items-center gap-3 mt-1 text-xs">
                     <span className="text-blue-700 font-bold">
-                      ${cartProduct.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(cartProduct.precio)}
                     </span>
                     <span className="text-slate-500 font-semibold">
-                      16 quincenas de ${cartProduct.pagoQuincenal.toFixed(2)}
+                      16 quincenas de {formatMoney(cartProduct.pagoQuincenal)}
                     </span>
                   </div>
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] text-slate-400 block uppercase font-bold">Total</span>
                   <span className="text-base font-black text-slate-900">
-                    ${(cartProduct.precio * cartQuantity).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(cartProduct.precio * cartQuantity)}
                   </span>
                 </div>
               </div>
@@ -1129,22 +1128,20 @@ function TiendaCoreContent() {
                       Línea LanaTienda
                     </span>
                     <div className="text-xs text-slate-300">
-                      Total: ${distribuidora.lineaLanaTiendaTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      Total: {formatMoney(distribuidora.lineaLanaTiendaTotal)}
                     </div>
                     <div className="text-sm font-black text-emerald-400 mt-0.5">
-                      Disponible: $
-                      {distribuidora.disponibleLanaTienda.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      Disponible: {formatMoney(distribuidora.disponibleLanaTienda)}
                     </div>
                   </div>
 
                   <div className="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
                     <span className="text-[10px] text-blue-400 font-bold uppercase block">Línea Personal</span>
                     <div className="text-xs text-slate-300">
-                      Total: ${distribuidora.lineaPersonalTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      Total: {formatMoney(distribuidora.lineaPersonalTotal)}
                     </div>
                     <div className="text-sm font-black text-blue-300 mt-0.5">
-                      Disponible: $
-                      {distribuidora.disponiblePersonal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      Disponible: {formatMoney(distribuidora.disponiblePersonal)}
                     </div>
                   </div>
                 </div>
@@ -1154,17 +1151,17 @@ function TiendaCoreContent() {
                   <div className="flex justify-between font-bold text-amber-300">
                     <span>Límite Crédito Cliente Final ({distribuidora.nivel}):</span>
                     <span>
-                      ${distribuidora.limiteClienteFinal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(distribuidora.limiteClienteFinal)}
                     </span>
                   </div>
                   <div className="flex justify-between text-slate-400 text-[10px]">
                     <span>(-) ValeLana con canje activo:</span>
-                    <span>-${distribuidora.valelanaActivo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                    <span>-{formatMoney(distribuidora.valelanaActivo)}</span>
                   </div>
                   <div className="flex justify-between text-slate-400 text-[10px]">
                     <span>(-) Kits de Belleza comprometidos:</span>
                     <span>
-                      -${distribuidora.kitBellezaActivo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      -{formatMoney(distribuidora.kitBellezaActivo)}
                     </span>
                   </div>
                 </div>
@@ -1271,7 +1268,7 @@ function TiendaCoreContent() {
                 </div>
                 <div className="text-right">
                   <span className="text-base font-black text-blue-700">
-                    ${(cartProduct.pagoQuincenal * cartQuantity).toFixed(2)}
+                    {formatMoney(cartProduct.pagoQuincenal * cartQuantity)}
                   </span>
                   <span className="text-[10px] text-slate-500 block">/ por quincena</span>
                 </div>
@@ -1325,7 +1322,7 @@ function TiendaCoreContent() {
               <div className="flex justify-between border-t border-slate-200 pt-2">
                 <span className="text-slate-700 font-bold">Plazo:</span>
                 <span className="font-black text-blue-700">
-                  16 quincenas de ${(cartProduct.pagoQuincenal * cartQuantity).toFixed(2)}
+                  16 quincenas de {formatMoney(cartProduct.pagoQuincenal * cartQuantity)}
                 </span>
               </div>
             </div>
@@ -1391,7 +1388,7 @@ function TiendaCoreContent() {
               </div>
               <div className="flex justify-between border-t border-slate-200 pt-2 font-bold text-blue-700">
                 <span>16 Pagos Quincenales:</span>
-                <span>${completedOrder.producto.pagoQuincenal.toFixed(2)}</span>
+                <span>{formatMoney(completedOrder.producto.pagoQuincenal)}</span>
               </div>
             </div>
 
@@ -1437,7 +1434,7 @@ function TiendaCoreContent() {
                     <div className="flex justify-between text-slate-600">
                       <span>Cliente: {order.clienteNombre}</span>
                       <span className="font-bold text-blue-700">
-                        16 quincenas de ${order.producto.pagoQuincenal.toFixed(2)}
+                        16 quincenas de {formatMoney(order.producto.pagoQuincenal)}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500">Entrega: {order.direccionEntrega}</p>

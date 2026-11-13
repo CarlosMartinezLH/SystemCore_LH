@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { DistribuidorCore } from '@/types/core';
 import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   Search,
   FileSpreadsheet,
@@ -773,17 +774,17 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
 
                         {/* Línea de Crédito */}
                         <td className="px-2.5 py-2 text-right font-mono text-slate-700">
-                          ${d.creditoLimite.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(d.creditoLimite)}
                         </td>
 
                         {/* Saldo Actual */}
                         <td className="px-2.5 py-2 text-right font-mono font-bold text-slate-900">
-                          ${(d.saldoActual || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(d.saldoActual || 0)}
                         </td>
 
                         {/* Disponible */}
                         <td className="px-2.5 py-2 text-right font-mono font-bold text-emerald-600">
-                          ${d.disponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(d.disponible)}
                         </td>
 
                         {/* Columna Acciones (Sticky Right - Un solo botón Detalle) */}

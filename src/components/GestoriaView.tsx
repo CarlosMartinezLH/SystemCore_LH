@@ -23,6 +23,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { buildSafeCsv } from '@/lib/utils/csv';
+import { formatMoney } from '@/lib/utils/formatters';
 
 export interface NotaGestoria {
   id: string;
@@ -296,7 +297,7 @@ export default function GestoriaView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cartera en Gestión</div>
             <div className="text-xl font-black text-rose-600 mt-1">
-              ${carteraVencidaTotal.toLocaleString('es-MX')}
+              {formatMoney(carteraVencidaTotal)}
             </div>
             <div className="text-[10px] text-slate-500 font-medium mt-0.5">{casos.length} Cuentas con atraso</div>
           </div>
@@ -309,7 +310,7 @@ export default function GestoriaView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Promesas de Pago</div>
             <div className="text-xl font-black text-emerald-700 mt-1">
-              ${promesasVigentesMonto.toLocaleString('es-MX')}
+              {formatMoney(promesasVigentesMonto)}
             </div>
             <div className="text-[10px] text-emerald-600 font-bold mt-0.5">Compromisos semana corriente</div>
           </div>
@@ -440,7 +441,7 @@ export default function GestoriaView() {
                       </div>
                     </td>
                     <td className="py-2.5 px-3.5 font-mono font-black text-rose-600 text-right text-xs">
-                      ${c.saldoVencido.toLocaleString('es-MX')}
+                      {formatMoney(c.saldoVencido)}
                     </td>
                     <td className="py-2.5 px-3.5 text-center">
                       <span
@@ -515,7 +516,7 @@ export default function GestoriaView() {
                 <div className="font-bold text-slate-900">{selectedCasoForNote.distribuidorNombre}</div>
                 <div className="text-[11px] text-slate-500">{selectedCasoForNote.direccion}</div>
                 <div className="text-[11px] font-mono text-rose-600 font-bold mt-1">
-                  Saldo Vencido Exigible: ${selectedCasoForNote.saldoVencido.toLocaleString('es-MX')} ({selectedCasoForNote.diasAtraso} días mora)
+                  Saldo Vencido Exigible: {formatMoney(selectedCasoForNote.saldoVencido)} ({selectedCasoForNote.diasAtraso} días mora)
                 </div>
               </div>
 
@@ -639,7 +640,7 @@ export default function GestoriaView() {
                     </span>
                     {nota.montoPrometido && (
                       <span className="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800">
-                        Promesa: ${nota.montoPrometido.toLocaleString('es-MX')} ({nota.fechaCompromiso})
+                        Promesa: {formatMoney(nota.montoPrometido)} ({nota.fechaCompromiso})
                       </span>
                     )}
                   </div>

@@ -11,6 +11,7 @@ import {
   MOCK_CLIENTES_DEFAULT,
   INITIAL_PEDIDOS,
 } from '@/lib/data/tiendaData';
+import { formatMoney } from '@/lib/utils/formatters';
 
 // Singleton in-memory store for LanaTienda
 class TiendaStore {
@@ -65,7 +66,7 @@ class TiendaStore {
     if (this.distribuidora.disponibleLanaTienda < total) {
       return {
         success: false,
-        error: `Línea LanaTienda insuficiente. Disponible: $${this.distribuidora.disponibleLanaTienda.toLocaleString('es-MX', { minimumFractionDigits: 2 })}, Total requerido: $${total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
+        error: `Línea LanaTienda insuficiente. Disponible: ${formatMoney(this.distribuidora.disponibleLanaTienda)}, Total requerido: ${formatMoney(total)}`,
       };
     }
 

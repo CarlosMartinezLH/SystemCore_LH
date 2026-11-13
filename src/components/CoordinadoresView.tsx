@@ -24,6 +24,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { formatMoney } from '@/lib/utils/formatters';
 
 interface CoordinadoresViewProps {
   currentUser?: UserSession | null;
@@ -176,7 +177,7 @@ export default function CoordinadoresView({
               Cartera Total Supervisada
             </span>
             <span className="text-xl font-black text-slate-900 font-mono">
-              ${metrics.carteraTotal.toLocaleString('es-MX')}
+              {formatMoney(metrics.carteraTotal)}
             </span>
           </div>
           <div className="p-2.5 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-200/80">
@@ -324,12 +325,12 @@ export default function CoordinadoresView({
                       </button>
                     </td>
                     <td className="p-3 text-right font-mono font-bold text-slate-900">
-                      ${(c.carteraActiva || 0).toLocaleString('es-MX')}
+                      {formatMoney(c.carteraActiva || 0)}
                     </td>
                     <td className="p-3 text-right font-mono text-slate-700">
-                      <span className="font-bold">${c.cobroRealizadoQuincena.toLocaleString('es-MX')}</span>
+                      <span className="font-bold">{formatMoney(c.cobroRealizadoQuincena)}</span>
                       <span className="text-[10px] text-slate-400 block">
-                        de ${c.cobroEstimadoQuincena.toLocaleString('es-MX')}
+                        de {formatMoney(c.cobroEstimadoQuincena)}
                       </span>
                     </td>
                     <td className="p-3 text-center">
@@ -464,13 +465,13 @@ export default function CoordinadoresView({
                             </span>
                           </td>
                           <td className="p-2.5 text-right font-mono">
-                            ${d.creditoLimite.toLocaleString('es-MX')}
+                            {formatMoney(d.creditoLimite)}
                           </td>
                           <td className="p-2.5 text-right font-mono font-bold text-slate-900">
-                            ${d.saldoActual.toLocaleString('es-MX')}
+                            {formatMoney(d.saldoActual)}
                           </td>
                           <td className="p-2.5 text-right font-mono text-emerald-600 font-bold">
-                            ${d.disponible.toLocaleString('es-MX')}
+                            {formatMoney(d.disponible)}
                           </td>
                           <td className="p-2.5 text-center">
                             {d.tieneLanaApp ? (
@@ -785,7 +786,7 @@ function ReasignarCarteraModal({
               <div className="flex justify-between">
                 <span className="text-slate-500">Saldo Cartera:</span>
                 <span className="font-mono font-bold text-blue-600">
-                  ${currentDv.saldoActual.toLocaleString('es-MX')}
+                  {formatMoney(currentDv.saldoActual)}
                 </span>
               </div>
             </div>

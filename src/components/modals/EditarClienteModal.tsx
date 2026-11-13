@@ -53,6 +53,7 @@ import {
 } from '@/types/core';
 import { getHistorialCreditosPersona } from '@/lib/data/historialCreditosData';
 import DatosBancariosPersonaView from './DatosBancariosPersonaView';
+import { formatMoney } from '@/lib/utils/formatters';
 import CartaPrestanombresModal from './CartaPrestanombresModal';
 import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
@@ -1410,7 +1411,7 @@ export default function EditarClienteModal({
                   <div>
                     <span className="text-slate-400 block text-[10px]">Saldo Actual:</span>
                     <span className="font-mono font-bold text-slate-900">
-                      ${(persona.saldoActual || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(persona.saldoActual || 0)}
                     </span>
                   </div>
                 </div>
@@ -1684,34 +1685,34 @@ export default function EditarClienteModal({
                               <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">{c.porcTasaMensual.toFixed(2)} %</td>
                               <td className="px-2 py-2 border-r border-slate-200 font-bold text-slate-800">{c.producto}</td>
                               <td className="px-2 py-2 border-r border-slate-200 text-right font-mono font-bold">
-                                {c.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(c.capital)}
                               </td>
                               <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
-                                {c.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(c.interes)}
                               </td>
                               <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
-                                {c.seguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(c.seguro)}
                               </td>
                               <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
-                                {c.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(c.iva)}
                               </td>
                               <td className="px-2 py-2 border-r border-slate-200 text-right font-mono font-extrabold text-slate-900">
-                                {c.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(c.importeTotal)}
                               </td>
                               <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
-                                {c.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(c.abonos)}
                               </td>
                               <td className="px-2 py-2 border-r border-slate-200 text-right font-mono font-bold text-emerald-700">
-                                {c.pagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(c.pagoModa)}
                               </td>
                               <td className="px-2 py-2 border-r border-slate-200 text-right font-mono font-black text-blue-900">
-                                {c.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(c.saldoActual)}
                               </td>
                               <td className="px-2 py-2 border-r border-slate-200 text-center font-mono font-bold">
                                 {c.diasAtraso}
                               </td>
                               <td className="px-2 py-2 border-r border-slate-200 text-right font-mono">
-                                {c.saldoAtrasado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                {formatMoney(c.saldoAtrasado)}
                               </td>
                               <td className="px-2 py-2 border-r border-slate-200 font-mono">{c.fechaHoraRegistro}</td>
                               <td className="px-2 py-2 border-r border-slate-200 font-mono">{c.fechaHoraDesembolso}</td>
@@ -1769,31 +1770,31 @@ export default function EditarClienteModal({
                             Totales:
                           </td>
                           <td className="px-2 py-2 text-right font-mono border-r border-slate-300">
-                            {totalCapital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(totalCapital)}
                           </td>
                           <td className="px-2 py-2 text-right font-mono border-r border-slate-300">
-                            {totalInteres.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(totalInteres)}
                           </td>
                           <td className="px-2 py-2 text-right font-mono border-r border-slate-300">
-                            {totalSeguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(totalSeguro)}
                           </td>
                           <td className="px-2 py-2 text-right font-mono border-r border-slate-300">
-                            {totalIva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(totalIva)}
                           </td>
                           <td className="px-2 py-2 text-right font-mono font-black text-slate-950 border-r border-slate-300">
-                            {totalImporte.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(totalImporte)}
                           </td>
                           <td className="px-2 py-2 text-right font-mono border-r border-slate-300">
-                            {totalAbonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(totalAbonos)}
                           </td>
                           <td className="px-2 py-2 text-right font-mono text-emerald-800 border-r border-slate-300">
-                            {totalPagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(totalPagoModa)}
                           </td>
                           <td className="px-2 py-2 text-right font-mono font-black text-blue-900 border-r border-slate-300">
-                            {totalSaldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(totalSaldoActual)}
                           </td>
                           <td colSpan={7} className="px-2 py-2 text-right font-mono border-r border-slate-300">
-                            {totalCapitalPendiente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(totalCapitalPendiente)}
                           </td>
                           <td colSpan={22} className="px-2 py-2 text-slate-400 text-[10px]">
                             Fin de totales
@@ -1939,7 +1940,7 @@ export default function EditarClienteModal({
                             {persona.nombre} {persona.apellidoPaterno} {persona.apellidoMaterno}
                           </p>
                           <p className="text-[11px] font-mono text-slate-500">
-                            Crédito #{convenioModalCredito.creditoId} · Saldo Actual: ${convenioModalCredito.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            Crédito #{convenioModalCredito.creditoId} · Saldo Actual: {formatMoney(convenioModalCredito.saldoActual)}
                           </p>
                         </div>
 
@@ -1952,17 +1953,17 @@ export default function EditarClienteModal({
                             onChange={(e) => setConvenioPlazos(Number(e.target.value))}
                             className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-bold text-xs text-slate-900 focus:ring-1 focus:ring-blue-600"
                           >
-                            <option value={4}>4 Quincenas (${(convenioModalCredito.saldoActual / 4).toFixed(2)} c/u)</option>
-                            <option value={8}>8 Quincenas (${(convenioModalCredito.saldoActual / 8).toFixed(2)} c/u)</option>
-                            <option value={12}>12 Quincenas (${(convenioModalCredito.saldoActual / 12).toFixed(2)} c/u)</option>
-                            <option value={16}>16 Quincenas (${(convenioModalCredito.saldoActual / 16).toFixed(2)} c/u)</option>
+                            <option value={4}>4 Quincenas ({formatMoney(convenioModalCredito.saldoActual / 4)} c/u)</option>
+                            <option value={8}>8 Quincenas ({formatMoney(convenioModalCredito.saldoActual / 8)} c/u)</option>
+                            <option value={12}>12 Quincenas ({formatMoney(convenioModalCredito.saldoActual / 12)} c/u)</option>
+                            <option value={16}>16 Quincenas ({formatMoney(convenioModalCredito.saldoActual / 16)} c/u)</option>
                           </select>
                         </div>
 
                         <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-900 text-xs">
                           <p className="font-bold">Nueva Cuota Quincenal Calculada:</p>
                           <p className="font-black text-base font-mono mt-0.5">
-                            ${(convenioModalCredito.saldoActual / convenioPlazos).toLocaleString('es-MX', { minimumFractionDigits: 2 })} M.N.
+                            {formatMoney(convenioModalCredito.saldoActual / convenioPlazos)} M.N.
                           </p>
                           <p className="text-[10px] text-emerald-700 mt-1">
                             Al autorizar, se emitirá el convenio formal y se actualizará el calendario de cobranza.
@@ -2566,12 +2567,12 @@ export default function EditarClienteModal({
                                 </h3>
                                 <div className="flex items-center justify-between text-[10px] font-mono text-slate-600 mt-1 font-sans">
                                   <span>PAGARÉ NÚM: PAG-{persona.personaId}-2026</span>
-                                  <span className="font-bold">BUENO POR: ${Number(persona.pagareCantidad || pagareCantidad || 15000).toLocaleString('es-MX', { minimumFractionDigits: 2 })} M.N.</span>
+                                  <span className="font-bold">BUENO POR: {formatMoney(Number(persona.pagareCantidad || pagareCantidad || 15000))} M.N.</span>
                                 </div>
                               </div>
 
                               <p className="text-[10px] leading-relaxed text-justify font-sans">
-                                Por el presente Pagaré, me obligo a pagar incondicionalmente en este acto o a su requerimiento a la orden de <span className="font-bold">LANAHORA S.A.P.I. DE C.V. SOFOM E.N.R.</span>, en la plaza de {persona.localidad || 'Saltillo'}, {persona.estadoNacimiento || estadoNacimiento || 'Coahuila'}, la cantidad de <span className="font-bold">${Number(persona.pagareCantidad || pagareCantidad || 15000).toLocaleString('es-MX')} (Pesos 00/100 M.N.)</span>, valor recibido a mi entera y total satisfacción.
+                                Por el presente Pagaré, me obligo a pagar incondicionalmente en este acto o a su requerimiento a la orden de <span className="font-bold">LANAHORA S.A.P.I. DE C.V. SOFOM E.N.R.</span>, en la plaza de {persona.localidad || 'Saltillo'}, {persona.estadoNacimiento || estadoNacimiento || 'Coahuila'}, la cantidad de <span className="font-bold">{formatMoney(Number(persona.pagareCantidad || pagareCantidad || 15000))} (Pesos 00/100 M.N.)</span>, valor recibido a mi entera y total satisfacción.
                               </p>
 
                               <div className="p-2.5 bg-white border border-slate-300 rounded-lg font-sans space-y-1">

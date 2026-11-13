@@ -25,6 +25,7 @@ import {
 } from '@/lib/data/coreData';
 import { validarCreditoGeneraCanje } from '@/lib/rules/businessRulesEngine';
 import { INITIAL_PROSPECTS } from '@/lib/data/initialData';
+import { formatMoney } from '@/lib/utils/formatters';
 
 export interface WebPushSubscriptionRecord {
   endpoint: string;
@@ -211,7 +212,7 @@ export function recordCanjeSync(payload: {
   const notifCobro: MobileNotification = {
     id: `notif-${Date.now()}`,
     title: `¡Vale #${folioFinal} Cobrado con Éxito!`,
-    body: `Tu cliente ${clienteFinal} canjeó un vale digital por $${montoNum.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN. Se autorizó la dispersión STP y tu saldo disponible actual es de $${saldoDispFinal.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN.`,
+    body: `Tu cliente ${clienteFinal} canjeó un vale digital por ${formatMoney(montoNum)} MXN. Se autorizó la dispersión STP y tu saldo disponible actual es de ${formatMoney(saldoDispFinal)} MXN.`,
     category: 'COBRO_VALE',
     target: 'TODAS_DISTRIBUIDORAS',
     targetId: distId,
@@ -899,7 +900,7 @@ export function recordPasarACoreSync(prospectId: string) {
         author: 'Sistema Core Central',
         authorEmail: 'sistema@core.lanahora.com.mx',
         type: 'sistema',
-        content: `✓ Prospecto transferido a Core Central con éxito. Se dio de alta como Distribuidora Oficial No. ${nuevoNoDist} y Persona No. ${nuevaPersonaId} (Categoría DV) con línea autorizada de $${lineaAprobada.toLocaleString('es-MX')} MXN.`,
+        content: `✓ Prospecto transferido a Core Central con éxito. Se dio de alta como Distribuidora Oficial No. ${nuevoNoDist} y Persona No. ${nuevaPersonaId} (Categoría DV) con línea autorizada de ${formatMoney(lineaAprobada)} MXN.`,
         createdAt: new Date().toLocaleString('es-MX'),
       },
       ...prospect.messages,

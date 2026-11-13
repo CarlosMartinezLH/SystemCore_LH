@@ -17,6 +17,7 @@ import {
   CreditoValidationResult,
 } from '@/types/businessRules';
 import { PersonaCore, DistribuidorCore, CreditoCore } from '@/types/core';
+import { formatMoney } from '@/lib/utils/formatters';
 
 export interface ParametrosValidacionCanje {
   // Datos del crédito
@@ -218,7 +219,7 @@ export function validarCreditoGeneraCanje(
     if (importe > catConfig.prestamoMaxClienteFinal) {
       errores.push({
         codigo: 'C28',
-        mensaje: `EL IMPORTE DEL CANJE DEL CLIENTE ES MAYOR QUE EL AUTORIZADO A SU NIVEL ($${catConfig.prestamoMaxClienteFinal.toLocaleString('es-MX')} MXN).`,
+        mensaje: `EL IMPORTE DEL CANJE DEL CLIENTE ES MAYOR QUE EL AUTORIZADO A SU NIVEL (${formatMoney(catConfig.prestamoMaxClienteFinal)} MXN).`,
       });
     }
 
@@ -259,7 +260,7 @@ export function validarCreditoGeneraCanje(
       if (importe > distribuidor.disponible + 900) {
         errores.push({
           codigo: 'V14',
-          mensaje: `EL DISTRIBUIDOR NO TIENE CREDITO DISPONIBLE. DISPONIBLE: $${distribuidor.disponible.toLocaleString('es-MX')} MXN.`,
+          mensaje: `EL DISTRIBUIDOR NO TIENE CREDITO DISPONIBLE. DISPONIBLE: ${formatMoney(distribuidor.disponible)} MXN.`,
         });
       }
 
@@ -287,7 +288,7 @@ export function validarCreditoGeneraCanje(
       if (importe > lcPersonal) {
         errores.push({
           codigo: 'D2',
-          mensaje: `NO CUENTA CON DISPONIBLE PARA REALIZAR ESTE CANJE. LÍNEA PERSONAL MÁXIMA: $${lcPersonal.toLocaleString('es-MX')} MXN.`,
+          mensaje: `NO CUENTA CON DISPONIBLE PARA REALIZAR ESTE CANJE. LÍNEA PERSONAL MÁXIMA: ${formatMoney(lcPersonal)} MXN.`,
         });
       }
     }
@@ -459,7 +460,7 @@ export function evaluarIncrementoLineaValeLana(params: {
   if (distribuidor.creditoLimite >= topeMaximo) {
     return {
       elegible: false,
-      motivo: `Línea de crédito en el tope máximo autorizado de $${topeMaximo.toLocaleString('es-MX')} MXN.`,
+      motivo: `Línea de crédito en el tope máximo autorizado de ${formatMoney(topeMaximo)} MXN.`,
       incrementoSugerido: 0,
       nuevaLineaEstimada: topeMaximo,
     };

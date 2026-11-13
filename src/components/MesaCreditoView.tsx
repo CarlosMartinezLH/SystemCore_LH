@@ -24,6 +24,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 import { buildSafeCsv } from '@/lib/utils/csv';
 
 interface SolicitudCredito {
@@ -278,7 +279,7 @@ export default function MesaCreditoView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Por Dictaminar</div>
             <div className="text-xl font-black text-amber-600 mt-1">{pendientesCount} Solicitudes</div>
-            <div className="text-[10px] text-slate-500 font-medium mt-0.5">${montoPendiente.toLocaleString('es-MX')} en revisión</div>
+            <div className="text-[10px] text-slate-500 font-medium mt-0.5">{formatMoney(montoPendiente)} en revisión</div>
           </div>
           <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-600">
             <Clock className="w-5 h-5" />
@@ -414,11 +415,11 @@ export default function MesaCreditoView() {
                   <td className="py-2.5 px-3.5">
                     <div className="font-bold text-slate-800">{s.distribuidorNombre}</div>
                     <div className="text-[10px] text-slate-400">
-                      DV #{s.noDist} • Disponible: ${s.lineaDisponibleDV.toLocaleString('es-MX')}
+                      DV #{s.noDist} • Disponible: {formatMoney(s.lineaDisponibleDV)}
                     </div>
                   </td>
                   <td className="py-2.5 px-3.5 font-mono font-black text-slate-900 text-right text-xs">
-                    ${s.montoSolicitado.toLocaleString('es-MX')}
+                    {formatMoney(s.montoSolicitado)}
                   </td>
                   <td className="py-2.5 px-3.5 text-center font-bold text-slate-700">{s.plazos} Qnas</td>
                   <td className="py-2.5 px-3.5 text-center">
@@ -504,7 +505,7 @@ export default function MesaCreditoView() {
 
                 <div className="pt-2 border-t border-slate-200/60 flex justify-between text-[11px]">
                   <span>Distribuidora Aval: <strong>{selectedSolicitud.distribuidorNombre}</strong></span>
-                  <span>Disponible DV: <strong className="text-blue-700">${selectedSolicitud.lineaDisponibleDV.toLocaleString('es-MX')}</strong></span>
+                  <span>Disponible DV: <strong className="text-blue-700">{formatMoney(selectedSolicitud.lineaDisponibleDV)}</strong></span>
                 </div>
               </div>
 
@@ -513,7 +514,7 @@ export default function MesaCreditoView() {
                 <div className="bg-white p-2.5 rounded-xl border border-slate-200">
                   <div className="text-[10px] text-slate-500 font-bold uppercase">Monto Solicitado</div>
                   <div className="text-sm font-black text-slate-900 mt-0.5">
-                    ${selectedSolicitud.montoSolicitado.toLocaleString('es-MX')}
+                    {formatMoney(selectedSolicitud.montoSolicitado)}
                   </div>
                 </div>
                 <div className="bg-white p-2.5 rounded-xl border border-slate-200">

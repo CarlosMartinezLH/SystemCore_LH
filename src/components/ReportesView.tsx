@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import { buildSafeCsv } from '@/lib/utils/csv';
+import { formatMoney } from '@/lib/utils/formatters';
 
 interface DistribuidorColocacion {
   noDist: number;
@@ -195,7 +196,7 @@ export default function ReportesView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Colocación Quincenal</div>
             <div className="text-xl font-black text-slate-900 mt-1">
-              ${totalColocacion.toLocaleString('es-MX')}
+              {formatMoney(totalColocacion)}
             </div>
             <div className="text-[10px] text-emerald-600 font-bold mt-0.5 flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
@@ -211,7 +212,7 @@ export default function ReportesView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cumplimiento de Meta</div>
             <div className="text-xl font-black text-emerald-700 mt-1">{porcentajeCumplimiento}%</div>
-            <div className="text-[10px] text-slate-500 font-medium mt-0.5">Meta: ${totalMeta.toLocaleString('es-MX')}</div>
+            <div className="text-[10px] text-slate-500 font-medium mt-0.5">Meta: {formatMoney(totalMeta)}</div>
           </div>
           <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-600">
             <Award className="w-5 h-5" />
@@ -222,7 +223,7 @@ export default function ReportesView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Vales Colocados</div>
             <div className="text-xl font-black text-slate-900 mt-1">{totalVales} Vales</div>
-            <div className="text-[10px] text-slate-500 font-medium mt-0.5">Ticket Promedio: $4,077 MXN</div>
+            <div className="text-[10px] text-slate-500 font-medium mt-0.5">Ticket Promedio: $4,077.00 MXN</div>
           </div>
           <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200/80 flex items-center justify-center text-indigo-600">
             <Sparkles className="w-5 h-5" />
@@ -233,7 +234,7 @@ export default function ReportesView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Bonificaciones Pagadas</div>
             <div className="text-xl font-black text-slate-900 mt-1">
-              ${totalBonificaciones.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(totalBonificaciones)}
             </div>
             <div className="text-[10px] text-blue-600 font-bold mt-0.5">Escala Oficial 30-15</div>
           </div>
@@ -350,10 +351,10 @@ export default function ReportesView() {
                         </span>
                       </td>
                       <td className="py-3 px-3.5 font-mono text-slate-500 text-right">
-                        ${c.metaQuincenal.toLocaleString('es-MX')}
+                        {formatMoney(c.metaQuincenal)}
                       </td>
                       <td className="py-3 px-3.5 font-mono font-black text-slate-900 text-right text-xs">
-                        ${c.colocacionActual.toLocaleString('es-MX')}
+                        {formatMoney(c.colocacionActual)}
                       </td>
                       <td className="py-3 px-3.5 text-center font-bold text-slate-700">{c.valesColocados}</td>
                       <td className="py-3 px-3.5 text-center">
@@ -376,10 +377,10 @@ export default function ReportesView() {
                         </div>
                       </td>
                       <td className="py-3 px-3.5 font-mono font-bold text-emerald-700 text-right">
-                        ${c.cobranzaRecuperada.toLocaleString('es-MX')}
+                        {formatMoney(c.cobranzaRecuperada)}
                       </td>
                       <td className="py-3 px-3.5 font-mono font-bold text-blue-700 text-right">
-                        ${c.bonificacionGanada.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(c.bonificacionGanada)}
                       </td>
                     </tr>
                   );
@@ -399,10 +400,10 @@ export default function ReportesView() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {[
-              { sucursal: 'Saltillo Poniente', cartera: '$850,000', vencida: '$35,000', imor: '4.1%', estatus: 'EXCELENTE' },
-              { sucursal: 'Saltillo Oriente', cartera: '$620,000', vencida: '$28,000', imor: '4.5%', estatus: 'BUENO' },
-              { sucursal: 'Torreón Centro', cartera: '$490,000', vencida: '$32,000', imor: '6.5%', estatus: 'REGULAR' },
-              { sucursal: 'Monclova', cartera: '$310,000', vencida: '$18,000', imor: '5.8%', estatus: 'BUENO' },
+              { sucursal: 'Saltillo Poniente', cartera: '$850,000.00', vencida: '$35,000.00', imor: '4.1%', estatus: 'EXCELENTE' },
+              { sucursal: 'Saltillo Oriente', cartera: '$620,000.00', vencida: '$28,000.00', imor: '4.5%', estatus: 'BUENO' },
+              { sucursal: 'Torreón Centro', cartera: '$490,000.00', vencida: '$32,000.00', imor: '6.5%', estatus: 'REGULAR' },
+              { sucursal: 'Monclova', cartera: '$310,000.00', vencida: '$18,000.00', imor: '5.8%', estatus: 'BUENO' },
             ].map((s) => (
               <div key={s.sucursal} className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
                 <div className="font-black text-slate-900 text-sm">{s.sucursal}</div>

@@ -21,6 +21,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { formatMoneyNumber } from '@/lib/utils/formatters';
 
 export interface MovimientoMonederoItem {
   id: number;
@@ -290,7 +291,7 @@ export default function LanaPuntosModal({
                 Saldo LanaPuntos Actual
               </span>
               <p className="text-lg font-black font-mono text-amber-950 mt-0.5">
-                {(distribuidor.lanapuntos || totals.total).toLocaleString('es-MX', { minimumFractionDigits: 2 })} pts
+                {formatMoneyNumber(distribuidor.lanapuntos || totals.total)} pts
               </p>
               <span className="text-[10px] text-amber-700 font-medium">Monedero acumulado</span>
             </div>
@@ -301,7 +302,7 @@ export default function LanaPuntosModal({
                 Puntos Ganados (+)
               </span>
               <p className="text-lg font-black font-mono text-emerald-700 mt-0.5">
-                +${totals.ganados.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                +{formatMoneyNumber(totals.ganados)} pts
               </p>
               <span className="text-[10px] text-emerald-600">Por pagos y retos</span>
             </div>
@@ -312,7 +313,7 @@ export default function LanaPuntosModal({
                 Canjes / Reseteos (-)
               </span>
               <p className="text-lg font-black font-mono text-rose-700 mt-0.5">
-                ${totals.reseteados.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                {formatMoneyNumber(totals.reseteados)} pts
               </p>
               <span className="text-[10px] text-rose-600">Ajustes y cortes</span>
             </div>
@@ -501,7 +502,7 @@ export default function LanaPuntosModal({
                       }
                     >
                       {m.importe > 0 ? '+' : ''}
-                      {m.importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoneyNumber(m.importe)}
                     </span>
                   </td>
                   <td className="px-3 py-2 font-bold text-slate-900 leading-tight">
@@ -523,7 +524,7 @@ export default function LanaPuntosModal({
                   Total Acumulado:
                 </td>
                 <td className="px-3 py-2 text-right font-mono font-black text-amber-950 text-sm">
-                  ${totals.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  {formatMoneyNumber(totals.total)} pts
                 </td>
                 <td className="px-3 py-2 font-medium text-slate-600 text-[11px]">
                   Puntos canjeables en Tiendita LanAhora

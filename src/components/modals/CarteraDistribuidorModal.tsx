@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { DistribuidorCore, CreditoHistorialPersona } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   X,
   Search,
@@ -590,19 +591,19 @@ export default function CarteraDistribuidorModal({
           <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
             <span className="text-[10px] font-bold text-slate-500 block mb-0.5">Línea de Crédito</span>
             <span className="text-sm font-extrabold text-slate-900 font-mono">
-              ${distribuidor.creditoLimite.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(distribuidor.creditoLimite)}
             </span>
           </div>
           <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
             <span className="text-[10px] font-bold text-slate-500 block mb-0.5">Saldo Cartera Vigente</span>
             <span className="text-sm font-extrabold text-slate-900 font-mono">
-              ${grandTotals.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(grandTotals.saldoActual)}
             </span>
           </div>
           <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
             <span className="text-[10px] font-bold text-slate-500 block mb-0.5">Saldo Disponible</span>
             <span className="text-sm font-extrabold text-emerald-600 font-mono">
-              ${distribuidor.disponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(distribuidor.disponible)}
             </span>
           </div>
           <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
@@ -717,28 +718,28 @@ export default function CarteraDistribuidorModal({
                             {c.producto}
                           </td>
                           <td className="px-3 py-2 text-right font-mono text-slate-700">
-                            ${c.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(c.capital)}
                           </td>
                           <td className="px-3 py-2 text-right font-mono text-slate-700">
-                            ${c.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(c.interes)}
                           </td>
                           <td className="px-3 py-2 text-right font-mono text-slate-700">
-                            ${c.seguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(c.seguro)}
                           </td>
                           <td className="px-3 py-2 text-right font-mono text-slate-700">
-                            ${c.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(c.iva)}
                           </td>
                           <td className="px-3 py-2 text-right font-mono font-bold text-slate-900">
-                            ${c.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(c.importeTotal)}
                           </td>
                           <td className="px-3 py-2 text-right font-mono text-emerald-600 font-semibold">
-                            ${c.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(c.abonos)}
                           </td>
                           <td className="px-3 py-2 text-right font-mono text-slate-700">
-                            ${c.pagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(c.pagoModa)}
                           </td>
                           <td className="px-3 py-2 text-right font-mono font-bold text-slate-900">
-                            ${c.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            {formatMoney(c.saldoActual)}
                           </td>
                           <td className="px-3 py-2 text-center font-mono font-bold text-emerald-600">
                             {c.diasAtraso}
@@ -753,28 +754,28 @@ export default function CarteraDistribuidorModal({
                           Subtotal {groupName}:
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-slate-700">
-                          ${subCapital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(subCapital)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-slate-700">
-                          ${subInteres.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(subInteres)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-slate-700">
-                          ${subSeguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(subSeguro)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-slate-700">
-                          ${subIva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(subIva)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono font-bold text-slate-900">
-                          ${subImporte.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(subImporte)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-emerald-700">
-                          ${subAbonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(subAbonos)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-slate-700">
-                          ${subPagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(subPagoModa)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono font-bold text-blue-700">
-                          ${subSaldo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(subSaldo)}
                         </td>
                         <td className="px-3 py-2"></td>
                       </tr>
@@ -791,28 +792,28 @@ export default function CarteraDistribuidorModal({
                   TOTAL GENERAL CARTERA:
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono">
-                  ${grandTotals.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  {formatMoney(grandTotals.capital)}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono">
-                  ${grandTotals.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  {formatMoney(grandTotals.interes)}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono">
-                  ${grandTotals.seguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  {formatMoney(grandTotals.seguro)}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono">
-                  ${grandTotals.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  {formatMoney(grandTotals.iva)}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-slate-950 font-black">
-                  ${grandTotals.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  {formatMoney(grandTotals.importeTotal)}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-emerald-800 font-bold">
-                  ${grandTotals.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  {formatMoney(grandTotals.abonos)}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono">
-                  ${grandTotals.pagoModa.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  {formatMoney(grandTotals.pagoModa)}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-blue-900 font-black">
-                  ${grandTotals.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  {formatMoney(grandTotals.saldoActual)}
                 </td>
                 <td className="px-3 py-2.5"></td>
               </tr>

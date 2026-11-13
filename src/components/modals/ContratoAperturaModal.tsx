@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { DistribuidorCore } from '@/types/core';
 import { Printer, X, FileText, Download, CheckCircle2 } from 'lucide-react';
+import { formatMoney } from '@/lib/utils/formatters';
 
 interface ContratoAperturaModalProps {
   isOpen: boolean;
@@ -143,7 +144,7 @@ export default function ContratoAperturaModal({
   const contratoId = distribuidor.contratoId || distribuidor.noDist || 1009;
   const lineaCredito = distribuidor.creditoLimite || 0;
   const lineaCreditoTexto = numeroALetrasMX(lineaCredito);
-  const lineaCreditoFormato = `$ ${lineaCredito.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${lineaCreditoTexto})`;
+  const lineaCreditoFormato = `${formatMoney(lineaCredito)} (${lineaCreditoTexto})`;
 
   const direccionDistribuidor = (
     distribuidor.direccion ||
@@ -328,7 +329,7 @@ export default function ContratoAperturaModal({
                       MONTO<br />LINEA DE CRÉDITO
                     </span>
                     <span className="font-extrabold text-[11px] text-slate-900">
-                      $ {lineaCredito.toLocaleString('es-MX', { minimumFractionDigits: 2 })}<br />
+                      {formatMoney(lineaCredito)}<br />
                       ({lineaCreditoTexto})
                     </span>
                   </div>
@@ -337,7 +338,7 @@ export default function ContratoAperturaModal({
                       MONTO TOTAL A<br />PAGAR
                     </span>
                     <span className="font-extrabold text-[11px] text-slate-900">
-                      $ 0.00<br />(CERO PESOS 00/100 M.N.)
+                      $0.00<br />(CERO PESOS 00/100 M.N.)
                     </span>
                   </div>
                 </div>

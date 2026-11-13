@@ -16,6 +16,7 @@ import {
 } from '@/lib/store/serverSyncStore';
 import { sendAdbSystemNotification } from '@/lib/adbNotifications';
 import { sendWebPushNotification } from '@/lib/webPushService';
+import { formatMoney } from '@/lib/utils/formatters';
 
 // GET: Retorna todo el estado sincronizado del Core
 export async function GET() {
@@ -97,7 +98,7 @@ export async function POST(req: NextRequest) {
 
       // Despachar recibo instantáneo a móvil
       const pagoTitle = '¡Abono Registrado!';
-      const pagoBody = `Se registró tu pago por $${Number(payload.monto || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN. Tu nuevo saldo ha sido actualizado.`;
+      const pagoBody = `Se registró tu pago por ${formatMoney(payload.monto || 0)} MXN. Tu nuevo saldo ha sido actualizado.`;
 
       sendAdbSystemNotification(
         pagoTitle,
@@ -125,7 +126,7 @@ export async function POST(req: NextRequest) {
 
       // Despachar recibo instantáneo a móvil
       const pagoTitle = '¡SPEI Recibido y Aplicado!';
-      const pagoBody = `Recibimos tu transferencia SPEI por $${Number(result.pagoSpei.montoDepositado).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN (+ $${result.pagoSpei.montoBonificacion.toLocaleString('es-MX', { minimumFractionDigits: 2 })} de Bonificación). Tu línea disponible subió a $${result.pagoSpei.lineaNuevaDisponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}.`;
+      const pagoBody = `Recibimos tu transferencia SPEI por ${formatMoney(result.pagoSpei.montoDepositado)} MXN (+ ${formatMoney(result.pagoSpei.montoBonificacion)} de Bonificación). Tu línea disponible subió a ${formatMoney(result.pagoSpei.lineaNuevaDisponible)}.`;
 
       sendAdbSystemNotification(
         pagoTitle,

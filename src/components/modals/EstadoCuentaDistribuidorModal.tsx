@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { DistribuidorCore } from '@/types/core';
 import { UserSession } from '@/types/auth';
 import { Printer, X, FileText } from 'lucide-react';
+import { formatMoney } from '@/lib/utils/formatters';
 
 interface EstadoCuentaDistribuidorModalProps {
   isOpen: boolean;
@@ -230,27 +231,27 @@ export default function EstadoCuentaDistribuidorModal({
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-2 pb-2 border-t border-b border-slate-200 text-center font-mono">
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">LINEA DE CREDITO</span>
-              <span className="text-xs font-bold text-slate-900">{lineaCredito.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+              <span className="text-xs font-bold text-slate-900">{formatMoney(lineaCredito)}</span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">DISPONIBLE</span>
-              <span className="text-xs font-bold text-slate-900">{disponible.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+              <span className="text-xs font-bold text-slate-900">{formatMoney(disponible)}</span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">VALES ACTIVOS</span>
-              <span className="text-xs font-bold text-slate-900">{valesActivos.toFixed(2)}</span>
+              <span className="text-xs font-bold text-slate-900">{formatMoney(valesActivos)}</span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">SALDO ACTUAL</span>
-              <span className="text-xs font-bold text-slate-900">{saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+              <span className="text-xs font-bold text-slate-900">{formatMoney(saldoActual)}</span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">SALDO ATRASO</span>
-              <span className="text-xs font-bold text-slate-900">0.00</span>
+              <span className="text-xs font-bold text-slate-900">$0.00</span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">DIAS ATRASO</span>
-              <span className="text-xs font-bold text-slate-900">0.00</span>
+              <span className="text-xs font-bold text-slate-900">0</span>
             </div>
           </div>
 
@@ -277,14 +278,14 @@ export default function EstadoCuentaDistribuidorModal({
                 <tbody className="divide-y divide-slate-200 font-mono text-[10px]">
                   <tr>
                     <td className="p-1 font-sans">{proximoPago.vencimiento}</td>
-                    <td className="p-1 text-right">{proximoPago.importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-1 text-right">{proximoPago.saldo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-1 text-right">{proximoPago.abonos.toFixed(2)}</td>
-                    <td className="p-1 text-right font-bold text-emerald-700">{proximoPago.pagoAnt3Dias.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-1 text-right">{proximoPago.pagoAnt2Dias.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-1 text-right">{proximoPago.pagoAnt1Dia.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-1 text-right">{proximoPago.pagoVencimiento.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-1 text-right">{proximoPago.pagoAtrasado.toFixed(2)}</td>
+                    <td className="p-1 text-right">{formatMoney(proximoPago.importe)}</td>
+                    <td className="p-1 text-right">{formatMoney(proximoPago.saldo)}</td>
+                    <td className="p-1 text-right">{formatMoney(proximoPago.abonos)}</td>
+                    <td className="p-1 text-right font-bold text-emerald-700">{formatMoney(proximoPago.pagoAnt3Dias)}</td>
+                    <td className="p-1 text-right">{formatMoney(proximoPago.pagoAnt2Dias)}</td>
+                    <td className="p-1 text-right">{formatMoney(proximoPago.pagoAnt1Dia)}</td>
+                    <td className="p-1 text-right">{formatMoney(proximoPago.pagoVencimiento)}</td>
+                    <td className="p-1 text-right">{formatMoney(proximoPago.pagoAtrasado)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -315,9 +316,9 @@ export default function EstadoCuentaDistribuidorModal({
                     <tr key={idx} className="hover:bg-slate-50">
                       <td className="p-1 font-sans">{p.fecha}</td>
                       <td className="p-1 font-sans">{p.aplicadoFecha}</td>
-                      <td className="p-1 text-right">{p.aplicado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                      <td className="p-1 text-right">{p.efectivo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                      <td className="p-1 text-right">{p.bonif.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                      <td className="p-1 text-right">{formatMoney(p.aplicado)}</td>
+                      <td className="p-1 text-right">{formatMoney(p.efectivo)}</td>
+                      <td className="p-1 text-right">{formatMoney(p.bonif)}</td>
                       <td className="p-1 text-center">{p.movId}</td>
                       <td className="p-1 text-center">{p.movBonif || ''}</td>
                       <td className="p-1 text-right">{p.porcBonif}</td>

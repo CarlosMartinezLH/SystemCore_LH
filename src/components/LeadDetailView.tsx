@@ -11,6 +11,7 @@ import {
 } from '@/types/crm';
 import { STAGES } from '@/lib/data/initialData';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 import SignaturePad from './SignaturePad';
 import {
   ArrowLeft,
@@ -321,7 +322,7 @@ export default function LeadDetailView({
                 <button
                   type="button"
                   onClick={() => onVerPerfilCore(data.coreDistribuidorId!)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white transition flex items-center gap-1 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-1 cursor-pointer shadow-2xs"
                 >
                   <span>Ver Perfil DV</span>
                   <ExternalLink className="w-3 h-3" />
@@ -800,19 +801,19 @@ export default function LeadDetailView({
                       <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
                         <span className="text-[10px] text-slate-500 uppercase font-medium block">Línea Valelana</span>
                         <strong className="text-base text-blue-700 font-mono font-medium">
-                          ${(data.creditLines?.valelana || 150000).toLocaleString('es-MX')}
+                          {formatMoney(data.creditLines?.valelana || 150000)}
                         </strong>
                       </div>
                       <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
                         <span className="text-[10px] text-slate-500 uppercase font-medium block">Crédito Personal</span>
                         <strong className="text-base text-blue-700 font-mono font-medium">
-                          ${(data.creditLines?.personal || 15000).toLocaleString('es-MX')}
+                          {formatMoney(data.creditLines?.personal || 15000)}
                         </strong>
                       </div>
                       <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
                         <span className="text-[10px] text-slate-500 uppercase font-medium block">LanaTienda</span>
                         <strong className="text-base text-amber-600 font-mono font-medium">
-                          ${(data.creditLines?.lanatienda || 20000).toLocaleString('es-MX')}
+                          {formatMoney(data.creditLines?.lanatienda || 20000)}
                         </strong>
                       </div>
                     </div>

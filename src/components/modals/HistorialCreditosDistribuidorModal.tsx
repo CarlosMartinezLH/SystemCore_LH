@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import DetalleCreditoModal from './DetalleCreditoModal';
 import * as XLSX from 'xlsx';
+import { formatMoney } from '@/lib/utils/formatters';
 
 export interface CreditoHistorialItem {
   creditoId: number;
@@ -1195,16 +1196,16 @@ export default function HistorialCreditosDistribuidorModal({
                       <span className="text-[10px] text-slate-500 ml-0.5">qzas</span>
                     </td>
                     <td className="px-2.5 py-2 text-right font-mono text-slate-800 border-r border-slate-200/50">
-                      ${c.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(c.capital)}
                     </td>
                     <td className="px-2.5 py-2 text-right font-mono font-bold text-slate-900 border-r border-slate-200/50">
-                      ${c.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(c.importeTotal)}
                     </td>
                     <td className="px-2.5 py-2 text-right font-mono text-emerald-600 font-semibold border-r border-slate-200/50">
-                      ${c.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(c.abonos)}
                     </td>
                     <td className="px-2.5 py-2 text-right font-mono font-black text-blue-900 border-r border-slate-200/50">
-                      ${c.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(c.saldoActual)}
                     </td>
                     <td className="px-2.5 py-2 text-center font-mono font-bold border-r border-slate-200/50">
                       <span className={c.diasAtraso > 0 ? 'text-rose-600' : 'text-emerald-700'}>
@@ -1234,16 +1235,16 @@ export default function HistorialCreditosDistribuidorModal({
                     Registros = {filteredData.length}
                   </td>
                   <td className="px-3 py-2 text-right font-mono font-black">
-                    ${totals.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(totals.capital)}
                   </td>
                   <td className="px-3 py-2 text-right font-mono font-black text-slate-950">
-                    ${totals.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(totals.importeTotal)}
                   </td>
                   <td className="px-3 py-2 text-right font-mono font-black text-emerald-800">
-                    ${totals.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(totals.abonos)}
                   </td>
                   <td className="px-3 py-2 text-right font-mono font-black text-blue-900">
-                    ${totals.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    {formatMoney(totals.saldoActual)}
                   </td>
                   <td colSpan={3} className="px-3 py-2"></td>
                 </tr>

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   Bell,
   Send,
@@ -169,7 +170,7 @@ export default function NotificationManagerView({ onOpenLanApp }: NotificationMa
       const montoSim = 2500;
       await sendNotification({
         title: `¡Vale #${folioSim} Cobrado con Éxito!`,
-        body: `Tu cliente MARÍA DEL CARMEN LÓPEZ concluyó el canje digital por $${montoSim.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN. Tu saldo disponible actual es $${(dist.disponible || 25000).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN.`,
+        body: `Tu cliente MARÍA DEL CARMEN LÓPEZ concluyó el canje digital por ${formatMoney(montoSim)} MXN. Tu saldo disponible actual es ${formatMoney(dist.disponible || 25000)} MXN.`,
         category: 'COBRO_VALE',
         target: 'TODAS_DISTRIBUIDORAS',
         targetId: dist.noDist,
@@ -196,7 +197,7 @@ export default function NotificationManagerView({ onOpenLanApp }: NotificationMa
       const montoAbono = 1800;
       await sendNotification({
         title: '¡Abono Registrado con Éxito!',
-        body: `Se confirmó la recepción de tu pago por $${montoAbono.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN vía Paynet / SPEI. Tu saldo para colocación ha sido liberado.`,
+        body: `Se confirmó la recepción de tu pago por ${formatMoney(montoAbono)} MXN vía Paynet / SPEI. Tu saldo para colocación ha sido liberado.`,
         category: 'RECORDATORIO_PAGO',
         target: 'TODAS_DISTRIBUIDORAS',
         targetId: dist.noDist,
@@ -265,7 +266,7 @@ export default function NotificationManagerView({ onOpenLanApp }: NotificationMa
               className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition flex items-center gap-1.5 shadow-xs active:scale-95"
             >
               <DollarSign className="w-4 h-4" />
-              Simular Vale Cobrado ($2,500)
+              Simular Vale Cobrado ($2,500.00)
             </button>
             <button
               onClick={handleSimulatePaymentAlert}
@@ -273,7 +274,7 @@ export default function NotificationManagerView({ onOpenLanApp }: NotificationMa
               className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs transition flex items-center gap-1.5 shadow-xs active:scale-95"
             >
               <CreditCard className="w-4 h-4" />
-              Simular Abono ($1,800)
+              Simular Abono ($1,800.00)
             </button>
           </div>
         </div>
@@ -748,7 +749,7 @@ export default function NotificationManagerView({ onOpenLanApp }: NotificationMa
                 >
                   {distribuidores.map((d) => (
                     <option key={d.noDist} value={d.noDist}>
-                      #{d.noDist} - {d.nombreDistribuidor} (Saldo: ${d.saldoActual.toLocaleString('es-MX')})
+                      #{d.noDist} - {d.nombreDistribuidor} (Saldo: {formatMoney(d.saldoActual)})
                     </option>
                   ))}
                 </select>

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { DistribuidorCore } from '@/types/core';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   X,
   FileSpreadsheet,
@@ -57,15 +58,15 @@ export function EstadoCuentaModal({ isOpen, onClose, distribuidor }: DVModalProp
           <div className="grid grid-cols-3 gap-3">
             <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-200">
               <span className="text-[10px] text-blue-700 font-bold block uppercase">Línea de Crédito</span>
-              <span className="font-black font-mono text-base text-slate-900">${distribuidor.creditoLimite.toLocaleString('es-MX')}</span>
+              <span className="font-black font-mono text-base text-slate-900">{formatMoney(distribuidor.creditoLimite)}</span>
             </div>
             <div className="p-3 bg-rose-50/70 rounded-xl border border-rose-200">
               <span className="text-[10px] text-rose-700 font-bold block uppercase">Saldo por Cobrar</span>
-              <span className="font-black font-mono text-base text-rose-700">${distribuidor.saldoActual.toLocaleString('es-MX')}</span>
+              <span className="font-black font-mono text-base text-rose-700">{formatMoney(distribuidor.saldoActual)}</span>
             </div>
             <div className="p-3 bg-emerald-50/70 rounded-xl border border-emerald-200">
               <span className="text-[10px] text-emerald-700 font-bold block uppercase">Disponible Vales</span>
-              <span className="font-black font-mono text-base text-emerald-700">${distribuidor.disponible.toLocaleString('es-MX')}</span>
+              <span className="font-black font-mono text-base text-emerald-700">{formatMoney(distribuidor.disponible)}</span>
             </div>
           </div>
 
@@ -122,7 +123,7 @@ export function EstadoCuentaModal({ isOpen, onClose, distribuidor }: DVModalProp
 export function MensajesMasivosModal({ isOpen, onClose, distribuidor }: DVModalProps) {
   const [template, setTemplate] = useState('CORTE_QUINCENAL');
   const [mensaje, setMensaje] = useState(
-    `Hola ${distribuidor.nombreDistribuidor}, te recordamos que el próximo corte de cobranza es este viernes. Tu saldo asignado es de $${distribuidor.saldoActual.toLocaleString('es-MX')}. Agradecemos tu puntualidad en LanAhora.`
+    `Hola ${distribuidor.nombreDistribuidor}, te recordamos que el próximo corte de cobranza es este viernes. Tu saldo asignado es de ${formatMoney(distribuidor.saldoActual)}. Agradecemos tu puntualidad en LanAhora.`
   );
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
@@ -169,11 +170,11 @@ export function MensajesMasivosModal({ isOpen, onClose, distribuidor }: DVModalP
                   onChange={(e) => {
                     setTemplate(e.target.value);
                     if (e.target.value === 'CORTE_QUINCENAL') {
-                      setMensaje(`Hola ${distribuidor.nombreDistribuidor}, te recordamos que el corte de cobranza es este viernes. Tu saldo asignado es de $${distribuidor.saldoActual.toLocaleString('es-MX')}.`);
+                      setMensaje(`Hola ${distribuidor.nombreDistribuidor}, te recordamos que el corte de cobranza es este viernes. Tu saldo asignado es de ${formatMoney(distribuidor.saldoActual)}.`);
                     } else if (e.target.value === 'AUMENTO_LINEA') {
-                      setMensaje(`¡Felicidades ${distribuidor.nombreDistribuidor}! Por tu excelente historial en LanAhora tu línea ha sido incrementada a $${(distribuidor.creditoLimite + 10000).toLocaleString('es-MX')}.`);
+                      setMensaje(`¡Felicidades ${distribuidor.nombreDistribuidor}! Por tu excelente historial en LanAhora tu línea ha sido incrementada a ${formatMoney(distribuidor.creditoLimite + 10000)}.`);
                     } else {
-                      setMensaje(`Estimada ${distribuidor.nombreDistribuidor}, cuentas con un pago pendiente por $${distribuidor.saldoActual.toLocaleString('es-MX')}. Por favor comunícate a tu sucursal.`);
+                      setMensaje(`Estimada ${distribuidor.nombreDistribuidor}, cuentas con un pago pendiente por ${formatMoney(distribuidor.saldoActual)}. Por favor comunícate a tu sucursal.`);
                     }
                   }}
                   className="w-full p-2.5 rounded-xl border border-slate-300 bg-white font-medium text-xs"

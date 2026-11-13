@@ -18,6 +18,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { buildSafeCsv } from '@/lib/utils/csv';
+import { formatMoney } from '@/lib/utils/formatters';
 
 interface AsientoRenglon {
   cuenta: string;
@@ -203,7 +204,7 @@ export default function ContabilidadView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cobranza Contabilizada</div>
             <div className="text-xl font-black text-emerald-700 mt-1">
-              ${totalIngresos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(totalIngresos)}
             </div>
             <div className="text-[10px] text-emerald-600 font-bold mt-0.5">Pólizas de Ingreso SPEI</div>
           </div>
@@ -216,7 +217,7 @@ export default function ContabilidadView() {
           <div>
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Dispersiones Colocación</div>
             <div className="text-xl font-black text-slate-900 mt-1">
-              ${totalEgresos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(totalEgresos)}
             </div>
             <div className="text-[10px] text-blue-600 font-bold mt-0.5">Pólizas de Egreso STP</div>
           </div>
@@ -372,10 +373,10 @@ export default function ContabilidadView() {
                     <td className="py-2.5 px-3.5 font-semibold text-slate-900 max-w-sm truncate">{p.concepto}</td>
                     <td className="py-2.5 px-3.5 font-mono text-[11px] text-slate-500">{p.referenciaOperacion}</td>
                     <td className="py-2.5 px-3.5 font-mono font-bold text-slate-900 text-right">
-                      ${p.debeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(p.debeTotal)}
                     </td>
                     <td className="py-2.5 px-3.5 font-mono font-bold text-slate-900 text-right">
-                      ${p.haberTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(p.haberTotal)}
                     </td>
                     <td className="py-2.5 px-3.5 text-center">
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
@@ -495,10 +496,10 @@ export default function ContabilidadView() {
                         <td className="py-2.5 px-3 font-bold text-blue-700">{a.cuenta}</td>
                         <td className="py-2.5 px-3 font-sans font-medium text-slate-900">{a.nombreCuenta}</td>
                         <td className="py-2.5 px-3 text-right font-bold text-slate-900">
-                          {a.debe > 0 ? `$${a.debe.toLocaleString('es-MX', { minimumFractionDigits: 2 })}` : '—'}
+                          {a.debe > 0 ? formatMoney(a.debe) : '—'}
                         </td>
                         <td className="py-2.5 px-3 text-right font-bold text-slate-900">
-                          {a.haber > 0 ? `$${a.haber.toLocaleString('es-MX', { minimumFractionDigits: 2 })}` : '—'}
+                          {a.haber > 0 ? formatMoney(a.haber) : '—'}
                         </td>
                       </tr>
                     ))}
@@ -507,10 +508,10 @@ export default function ContabilidadView() {
                     <tr>
                       <td colSpan={2} className="py-2 px-3 font-sans uppercase text-right">Sumas Iguales:</td>
                       <td className="py-2 px-3 text-right text-emerald-700">
-                        ${selectedPoliza.debeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(selectedPoliza.debeTotal)}
                       </td>
                       <td className="py-2 px-3 text-right text-emerald-700">
-                        ${selectedPoliza.haberTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        {formatMoney(selectedPoliza.haberTotal)}
                       </td>
                     </tr>
                   </tfoot>

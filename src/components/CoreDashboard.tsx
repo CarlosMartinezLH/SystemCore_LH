@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
+import { formatMoney } from '@/lib/utils/formatters';
 
 interface CoreDashboardProps {
   onNavigateToPersonas?: () => void;
@@ -211,7 +212,7 @@ export default function CoreDashboard({
           </div>
           <div className="mt-2">
             <span className="text-2xl font-black text-slate-900 font-mono tracking-tight block">
-              ${totalColocacion.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(totalColocacion)}
             </span>
             <div className="flex items-center gap-1.5 mt-1 text-emerald-600 text-xs font-bold">
               <TrendingUp className="w-3.5 h-3.5" />
@@ -241,7 +242,7 @@ export default function CoreDashboard({
             <div className="flex items-center gap-1.5 mt-1 text-slate-500 text-xs font-semibold">
               <span>Recuperado: </span>
               <strong className="text-slate-800 font-mono font-bold">
-                ${totalSaldoVigente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                {formatMoney(totalSaldoVigente)}
               </strong>
             </div>
           </div>
@@ -265,7 +266,7 @@ export default function CoreDashboard({
           </div>
           <div className="mt-2">
             <span className="text-2xl font-black text-rose-600 font-mono tracking-tight block">
-              ${capitalVencidoMora.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(capitalVencidoMora)}
             </span>
             <div className="flex items-center gap-1.5 mt-1 text-slate-500 text-xs font-semibold">
               <span>Morosidad controlada: </span>
@@ -290,12 +291,12 @@ export default function CoreDashboard({
           </div>
           <div className="mt-2">
             <span className="text-2xl font-black text-slate-900 font-mono tracking-tight block">
-              ${totalLineasAutorizadas.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              {formatMoney(totalLineasAutorizadas)}
             </span>
             <div className="flex items-center gap-1.5 mt-1 text-slate-500 text-xs font-semibold">
               <span>Disponible en red: </span>
               <strong className="text-slate-800 font-mono font-bold">
-                ${totalDisponibleLineas.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                {formatMoney(totalDisponibleLineas)}
               </strong>
             </div>
           </div>
@@ -552,7 +553,7 @@ export default function CoreDashboard({
                 <span className="font-bold text-slate-700">Al Corriente</span>
               </div>
               <div className="text-right">
-                <span className="font-mono font-black text-slate-900">$1,360,213</span>
+                <span className="font-mono font-black text-slate-900">$1,360,213.00</span>
                 <span className="text-slate-400 ml-1.5 text-[11px]">95.4%</span>
               </div>
             </div>
@@ -563,7 +564,7 @@ export default function CoreDashboard({
                 <span className="font-bold text-slate-700">Mora 1 a 15 días</span>
               </div>
               <div className="text-right">
-                <span className="font-mono font-black text-amber-700">$39,922</span>
+                <span className="font-mono font-black text-amber-700">$39,922.00</span>
                 <span className="text-slate-400 ml-1.5 text-[11px]">2.8%</span>
               </div>
             </div>
@@ -574,7 +575,7 @@ export default function CoreDashboard({
                 <span className="font-bold text-slate-700">Mora &gt; 15 días</span>
               </div>
               <div className="text-right">
-                <span className="font-mono font-black text-rose-600">$25,665</span>
+                <span className="font-mono font-black text-rose-600">$25,665.00</span>
                 <span className="text-slate-400 ml-1.5 text-[11px]">1.8%</span>
               </div>
             </div>
@@ -617,7 +618,7 @@ export default function CoreDashboard({
                     className="bg-blue-600 h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-2 text-[10px] text-white font-bold"
                     style={{ width: '88%' }}
                   >
-                    $640,000
+                    $640,000.00
                   </div>
                 </div>
                 <div className="h-4 w-full bg-slate-100 rounded-lg overflow-hidden flex">
@@ -625,7 +626,7 @@ export default function CoreDashboard({
                     className="bg-emerald-500 h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-2 text-[10px] text-white font-bold"
                     style={{ width: '84.5%' }}
                   >
-                    $615,040
+                    $615,040.00
                   </div>
                 </div>
               </div>
@@ -643,7 +644,7 @@ export default function CoreDashboard({
                     className="bg-blue-600 h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-2 text-[10px] text-white font-bold"
                     style={{ width: '72%' }}
                   >
-                    $520,000
+                    $520,000.00
                   </div>
                 </div>
                 <div className="h-4 w-full bg-slate-100 rounded-lg overflow-hidden flex">
@@ -651,7 +652,7 @@ export default function CoreDashboard({
                     className="bg-emerald-500 h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-2 text-[10px] text-white font-bold"
                     style={{ width: '68%' }}
                   >
-                    $492,000
+                    $492,000.00
                   </div>
                 </div>
               </div>
@@ -669,7 +670,7 @@ export default function CoreDashboard({
                     className="bg-blue-600 h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-2 text-[10px] text-white font-bold"
                     style={{ width: '38%' }}
                   >
-                    $265,800
+                    $265,800.00
                   </div>
                 </div>
                 <div className="h-4 w-full bg-slate-100 rounded-lg overflow-hidden flex">
@@ -677,7 +678,7 @@ export default function CoreDashboard({
                     className="bg-emerald-500 h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-2 text-[10px] text-white font-bold"
                     style={{ width: '36.2%' }}
                   >
-                    $253,173
+                    $253,173.00
                   </div>
                 </div>
               </div>
@@ -756,7 +757,7 @@ export default function CoreDashboard({
               <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
                 <div>
                   <span className="text-[11px] font-bold text-slate-700 block">STP SPEI Inmediato</span>
-                  <span className="text-xs font-mono font-black text-blue-700">$1,026,576</span>
+                  <span className="text-xs font-mono font-black text-blue-700">$1,026,576.00</span>
                 </div>
                 <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
                   72%
@@ -765,7 +766,7 @@ export default function CoreDashboard({
               <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
                 <div>
                   <span className="text-[11px] font-bold text-slate-700 block">Retiro Paynet Tiendas</span>
-                  <span className="text-xs font-mono font-black text-slate-800">$399,224</span>
+                  <span className="text-xs font-mono font-black text-slate-800">$399,224.00</span>
                 </div>
                 <span className="text-xs font-bold text-slate-600 bg-slate-200 px-2 py-0.5 rounded-md">
                   28%
@@ -856,9 +857,9 @@ export default function CoreDashboard({
               <tr className="bg-slate-100/90 font-extrabold text-slate-900 border-t-2 border-slate-300">
                 <td className="py-3 px-4">TOTAL CONSOLIDADO</td>
                 <td className="py-3 px-4 text-center font-mono">{creditos.length || 48}</td>
-                <td className="py-3 px-4 text-right font-mono">${totalColocacion.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                <td className="py-3 px-4 text-right font-mono text-emerald-700">${totalSaldoVigente.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                <td className="py-3 px-4 text-right font-mono text-rose-700">${capitalVencidoMora.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                <td className="py-3 px-4 text-right font-mono">{formatMoney(totalColocacion)}</td>
+                <td className="py-3 px-4 text-right font-mono text-emerald-700">{formatMoney(totalSaldoVigente)}</td>
+                <td className="py-3 px-4 text-right font-mono text-rose-700">{formatMoney(capitalVencidoMora)}</td>
                 <td className="py-3 px-4 text-center">
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-300">
                     4.6%

@@ -23,6 +23,7 @@ import * as XLSX from 'xlsx';
 import { CreditoHistorialItem } from './HistorialCreditosDistribuidorModal';
 import { generarAmortizaciones } from '@/lib/data/historialCreditosData';
 import { AmortizacionCuota } from '@/types/core';
+import { formatMoney } from '@/lib/utils/formatters';
 
 interface DetalleCreditoModalProps {
   isOpen: boolean;
@@ -206,7 +207,7 @@ export default function DetalleCreditoModal({
                 Capital Otorgado
               </span>
               <p className="text-lg font-black font-mono text-slate-900 mt-0.5">
-                ${credito.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                {formatMoney(credito.capital)}
               </p>
               <span className="text-[10px] text-slate-500">Monto financiado</span>
             </div>
@@ -217,7 +218,7 @@ export default function DetalleCreditoModal({
                 Importe Total
               </span>
               <p className="text-lg font-black font-mono text-blue-900 mt-0.5">
-                ${credito.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                {formatMoney(credito.importeTotal)}
               </p>
               <span className="text-[10px] text-blue-600 font-medium">Con interés e IVA</span>
             </div>
@@ -228,7 +229,7 @@ export default function DetalleCreditoModal({
                 Total Abonos
               </span>
               <p className="text-lg font-black font-mono text-emerald-700 mt-0.5">
-                ${credito.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                {formatMoney(credito.abonos)}
               </p>
               <span className="text-[10px] text-emerald-700 font-medium">
                 {porcentajePagado}% cubierto
@@ -245,7 +246,7 @@ export default function DetalleCreditoModal({
                 Saldo Actual
               </span>
               <p className="text-lg font-black font-mono text-amber-900 mt-0.5">
-                ${credito.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                {formatMoney(credito.saldoActual)}
               </p>
               <span className="text-[10px] text-amber-700 font-medium">
                 {credito.saldoActual === 0 ? 'Liquidado al 100%' : 'Por amortizar'}
@@ -257,7 +258,7 @@ export default function DetalleCreditoModal({
           <div className="mt-3">
             <div className="flex justify-between text-[11px] font-bold text-slate-600 mb-1">
               <span>Progreso de Pago</span>
-              <span>{porcentajePagado}% (${credito.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })} de ${credito.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })})</span>
+              <span>{porcentajePagado}% ({formatMoney(credito.abonos)} de {formatMoney(credito.importeTotal)})</span>
             </div>
             <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
@@ -349,7 +350,7 @@ export default function DetalleCreditoModal({
                   </div>
                   <div className="flex justify-between py-1">
                     <dt className="text-slate-500 font-medium">Saldo Atrasado:</dt>
-                    <dd className="font-mono font-bold text-slate-800">${credito.saldoAtrasado.toFixed(2)}</dd>
+                    <dd className="font-mono font-bold text-slate-800">{formatMoney(credito.saldoAtrasado)}</dd>
                   </div>
                 </dl>
               </div>
@@ -365,58 +366,58 @@ export default function DetalleCreditoModal({
                   <div className="flex justify-between py-1 border-b border-slate-50">
                     <dt className="text-slate-600 font-medium">Capital Solicitado:</dt>
                     <dd className="font-mono font-bold text-slate-900">
-                      ${credito.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(credito.capital)}
                     </dd>
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-50">
                     <dt className="text-slate-600 font-medium">Interés Ordinario:</dt>
                     <dd className="font-mono font-bold text-slate-800">
-                      ${credito.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(credito.interes)}
                     </dd>
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-50">
                     <dt className="text-slate-600 font-medium">Protección de Saldo (Seguro):</dt>
                     <dd className="font-mono font-bold text-slate-800">
-                      ${credito.protSaldo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(credito.protSaldo)}
                     </dd>
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-50">
                     <dt className="text-slate-600 font-medium">Comisión por Apertura:</dt>
                     <dd className="font-mono text-slate-600">
-                      ${credito.comision.toFixed(2)}
+                      {formatMoney(credito.comision)}
                     </dd>
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-50">
                     <dt className="text-slate-600 font-medium">Cargos Administrativos:</dt>
                     <dd className="font-mono text-slate-600">
-                      ${credito.cargo.toFixed(2)}
+                      {formatMoney(credito.cargo)}
                     </dd>
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-50">
                     <dt className="text-slate-600 font-medium">IVA (16%):</dt>
                     <dd className="font-mono font-bold text-slate-800">
-                      ${credito.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(credito.iva)}
                     </dd>
                   </div>
 
                   <div className="flex justify-between py-2 border-t-2 border-slate-200 mt-2 font-black text-slate-950 bg-slate-50/80 px-2 rounded-lg">
                     <dt className="uppercase tracking-wide">Importe Total:</dt>
                     <dd className="font-mono text-blue-950 text-sm">
-                      ${credito.importeTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(credito.importeTotal)}
                     </dd>
                   </div>
 
                   <div className="flex justify-between py-1.5 px-2 text-emerald-800 font-bold">
                     <dt>Menos: Total Abonos:</dt>
                     <dd className="font-mono">
-                      -${credito.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      -{formatMoney(credito.abonos)}
                     </dd>
                   </div>
 
                   <div className="flex justify-between py-2 border-t border-slate-200 font-black text-amber-900 bg-amber-50/80 px-2 rounded-lg text-sm">
                     <dt className="uppercase tracking-wide">Saldo Actual por Liquidar:</dt>
                     <dd className="font-mono">
-                      ${credito.saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      {formatMoney(credito.saldoActual)}
                     </dd>
                   </div>
                 </dl>
@@ -431,7 +432,7 @@ export default function DetalleCreditoModal({
                   Plan de {credito.plazos} Pagos Quincenales
                 </span>
                 <span className="text-xs text-slate-500 font-medium">
-                  Cuota promedio: <strong className="text-slate-900 font-mono">${(credito.importeTotal / credito.plazos).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</strong>
+                  Cuota promedio: <strong className="text-slate-900 font-mono">{formatMoney(credito.importeTotal / credito.plazos)}</strong>
                 </span>
               </div>
 
@@ -460,22 +461,22 @@ export default function DetalleCreditoModal({
                           {a.fechaVencimiento}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-slate-600">
-                          ${a.capital.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(a.capital)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-slate-600">
-                          ${a.interes.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(a.interes)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-slate-600">
-                          ${a.seguro.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(a.seguro)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-slate-600">
-                          ${a.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(a.iva)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono font-bold text-slate-950 bg-slate-50/50">
-                          ${a.cuotaTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(a.cuotaTotal)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-slate-800">
-                          ${a.saldoRestante.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {formatMoney(a.saldoRestante)}
                         </td>
                         <td className="px-3 py-2 text-center">
                           <span
