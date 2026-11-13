@@ -32,6 +32,7 @@ import {
   Receipt,
   ExternalLink,
   Scissors,
+  Coins,
 } from 'lucide-react';
 import EstadoCuentaDistribuidorModal from './EstadoCuentaDistribuidorModal';
 import RecibosRelacionModal from './RecibosRelacionModal';
@@ -39,6 +40,7 @@ import ContratoAperturaModal from './ContratoAperturaModal';
 import CarteraDistribuidorModal from './CarteraDistribuidorModal';
 import HistorialCreditosDistribuidorModal from './HistorialCreditosDistribuidorModal';
 import CreditoPersonaDVModal from './CreditoPersonaDVModal';
+import LanaPuntosModal from './LanaPuntosModal';
 
 interface PerfilDistribuidorModalProps {
   isOpen: boolean;
@@ -74,6 +76,7 @@ export default function PerfilDistribuidorModal({
   const [isContratoModalOpen, setIsContratoModalOpen] = useState(false);
   const [isHistorialCreditosOpen, setIsHistorialCreditosOpen] = useState(false);
   const [isCreditoPersonalModalOpen, setIsCreditoPersonalModalOpen] = useState(false);
+  const [isLanaPuntosModalOpen, setIsLanaPuntosModalOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<DistribuidorCore>>({});
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
@@ -725,12 +728,12 @@ export default function PerfilDistribuidorModal({
 
                   <button
                     type="button"
-                    onClick={() => showToast('Abriendo Tiendita LanAhora para DV...')}
-                    className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-slate-800 hover:text-blue-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
+                    onClick={() => setIsLanaPuntosModalOpen(true)}
+                    className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-800 hover:text-amber-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
-                    <ShoppingBag className="w-4 h-4 text-blue-600" />
-                    <span className="font-bold text-xs">Tiendita LanAhora</span>
-                    <span className="text-[10px] text-slate-500">Catálogo de canje</span>
+                    <Coins className="w-4 h-4 text-amber-500" />
+                    <span className="font-bold text-xs">LanaPuntos</span>
+                    <span className="text-[10px] text-slate-500">Monedero y bonificaciones</span>
                   </button>
                 </div>
               </div>
@@ -981,6 +984,15 @@ export default function PerfilDistribuidorModal({
             }
             showToast(`Crédito Personal #${nuevoCredito.creditoId} generado exitosamente por $${nuevoCredito.capital.toLocaleString('es-MX')} a ${nuevoCredito.plazos} quincenas`);
           }}
+        />
+      )}
+
+      {/* Modal Oficial de Monedero / LanaPuntos */}
+      {isLanaPuntosModalOpen && (
+        <LanaPuntosModal
+          isOpen={isLanaPuntosModalOpen}
+          onClose={() => setIsLanaPuntosModalOpen(false)}
+          distribuidor={currentDv}
         />
       )}
     </div>
