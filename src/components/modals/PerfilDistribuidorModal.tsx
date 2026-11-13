@@ -41,6 +41,7 @@ import CarteraDistribuidorModal from './CarteraDistribuidorModal';
 import HistorialCreditosDistribuidorModal from './HistorialCreditosDistribuidorModal';
 import CreditoPersonaDVModal from './CreditoPersonaDVModal';
 import LanaPuntosModal from './LanaPuntosModal';
+import AuditoriaDistribuidorModal from './AuditoriaDistribuidorModal';
 
 interface PerfilDistribuidorModalProps {
   isOpen: boolean;
@@ -77,6 +78,7 @@ export default function PerfilDistribuidorModal({
   const [isHistorialCreditosOpen, setIsHistorialCreditosOpen] = useState(false);
   const [isCreditoPersonalModalOpen, setIsCreditoPersonalModalOpen] = useState(false);
   const [isLanaPuntosModalOpen, setIsLanaPuntosModalOpen] = useState(false);
+  const [isAuditoriaModalOpen, setIsAuditoriaModalOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<DistribuidorCore>>({});
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
@@ -749,12 +751,12 @@ export default function PerfilDistribuidorModal({
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => showToast('Iniciando auditoría interna para distribuidora...')}
+                    onClick={() => setIsAuditoriaModalOpen(true)}
                     className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50 hover:border-purple-300 text-slate-800 hover:text-purple-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
                     <ShieldCheck className="w-4 h-4 text-purple-600" />
-                    <span className="font-bold text-xs">Auditar Distribuidora</span>
-                    <span className="text-[10px] text-slate-500">Verificación de cartera</span>
+                    <span className="font-bold text-xs">Auditar & Recalcular</span>
+                    <span className="text-[10px] text-slate-500">Conciliación de cartera y saldos</span>
                   </button>
 
                   <button
@@ -993,6 +995,18 @@ export default function PerfilDistribuidorModal({
           isOpen={isLanaPuntosModalOpen}
           onClose={() => setIsLanaPuntosModalOpen(false)}
           distribuidor={currentDv}
+        />
+      )}
+
+      {/* Modal Oficial de Auditoría & Recálculo de Cartera */}
+      {isAuditoriaModalOpen && (
+        <AuditoriaDistribuidorModal
+          isOpen={isAuditoriaModalOpen}
+          onClose={() => setIsAuditoriaModalOpen(false)}
+          distribuidor={currentDv}
+          onAuditoriaCompletada={(res) => {
+            showToast(`Auditoría finalizada: Cartera y disponible conciliados al 100%`);
+          }}
         />
       )}
     </div>
