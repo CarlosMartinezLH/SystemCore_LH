@@ -777,21 +777,13 @@ export default function PerfilDistribuidorModal({
                   <button
                     type="button"
                     onClick={() => setIsAutIngresoAppModalOpen(true)}
-                    className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50 hover:border-purple-300 text-slate-800 hover:text-purple-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
+                    className="col-span-2 p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50 hover:border-purple-300 text-slate-800 hover:text-purple-900 transition flex items-center justify-center gap-2 cursor-pointer text-center"
                   >
                     <UserCheck className="w-4 h-4 text-purple-600" />
-                    <span className="font-bold text-xs">Aut. Ingreso APP</span>
-                    <span className="text-[10px] text-slate-500">Resetear acceso móvil</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => showToast('Cuestionario de visita ocular cargado.')}
-                    className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50 hover:border-purple-300 text-slate-800 hover:text-purple-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
-                  >
-                    <Building className="w-4 h-4 text-purple-600" />
-                    <span className="font-bold text-xs">Encuesta Visita Ocular</span>
-                    <span className="text-[10px] text-slate-500">Cotejo domiciliario</span>
+                    <div className="flex flex-col items-start sm:items-center">
+                      <span className="font-bold text-xs">Aut. Ingreso APP</span>
+                      <span className="text-[10px] text-slate-500">Resetear acceso móvil</span>
+                    </div>
                   </button>
                 </div>
               </div>

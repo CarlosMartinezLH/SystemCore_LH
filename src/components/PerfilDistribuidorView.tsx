@@ -513,12 +513,6 @@ export default function PerfilDistribuidorView({
                   Solicitud Crédito
                 </button>
                 <button
-                  onClick={() => handleActionClick('Vista ocular')}
-                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-bold text-left transition"
-                >
-                  Vista Ocular
-                </button>
-                <button
                   onClick={() => handleActionClick('Auditar')}
                   className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-bold text-left transition"
                 >
