@@ -99,6 +99,7 @@ interface CoreSyncContextType {
     diaCorte?: string;
     concepto?: string;
   }) => Promise<any>;
+  addProspect: (newP: Prospect) => void;
   updateProspect: (updated: Prospect) => void;
   pasarProspectoACore: (prospectId: string) => Promise<{
     success: boolean;
@@ -182,6 +183,10 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
 
   const updateProspect = (updated: Prospect) => {
     setProspects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+  };
+
+  const addProspect = (newP: Prospect) => {
+    setProspects((prev) => [newP, ...prev]);
   };
 
   const pasarProspectoACore = async (prospectId: string) => {
@@ -299,7 +304,39 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
       updatedAt: new Date().toISOString(),
     };
 
-    // 5. Aplicar cambios a memoria reactiva
+    // 5. Enviar al endpoint de sincronización para persistencia central
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'PASAR_A_CORE', payload: { prospectId } }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.result) {
+          if (json.result.persona) {
+            setPersonas((prev) => [json.result.persona, ...prev.filter((p) => p.personaId !== json.result.persona.personaId)]);
+          }
+          if (json.result.distribuidor) {
+            setDistribuidores((prev) => [json.result.distribuidor, ...prev.filter((d) => d.noDist !== json.result.distribuidor.noDist)]);
+          }
+          if (json.result.prospect) {
+            setProspects((prev) => prev.map((p) => (p.id === prospectId ? json.result.prospect : p)));
+          }
+          await fetchSyncData();
+          return {
+            success: true,
+            distribuidor: json.result.distribuidor || nuevoDistribuidor,
+            persona: json.result.persona || nuevaPersona,
+            message: `¡Distribuidora No. ${json.result.distribuidor?.noDist || nuevoNoDist} activada con éxito en Core Central y reflejada en Personas!`,
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('Sync POST error, using reactive fallback:', e);
+    }
+
+    // Fallback reactivo local
     setPersonas((prev) => [nuevaPersona, ...prev]);
     setDistribuidores((prev) => [nuevoDistribuidor, ...prev]);
     setProspects((prev) => prev.map((p) => (p.id === prospectId ? updatedProspect : p)));
@@ -308,7 +345,7 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
       success: true,
       distribuidor: nuevoDistribuidor,
       persona: nuevaPersona,
-      message: `¡Distribuidora No. ${nuevoNoDist} activada con éxito en Core Central!`,
+      message: `¡Distribuidora No. ${nuevoNoDist} activada con éxito en Core Central y reflejada en Personas!`,
     };
   };
 
@@ -513,6 +550,7 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
         registrarCliente,
         registrarPago,
         registrarSpeiInbound,
+        addProspect,
         updateProspect,
         pasarProspectoACore,
       }}

@@ -31,15 +31,31 @@ import { UserSession } from '@/types/auth';
 import { DistribuidorCore } from '@/types/core';
 import { Prospect, StageId, OriginType } from '@/types/crm';
 import { INITIAL_PROSPECTS, STAGES, createDefaultDocuments } from '@/lib/data/initialData';
-import { CoreSyncProvider } from '@/context/CoreSyncContext';
+import { CoreSyncProvider, useCoreSync } from '@/context/CoreSyncContext';
 
 const STORAGE_KEY = 'lanahora_crm_prospects_v4';
 const AUTH_KEY = 'lanahora_user_session_v2';
 
 export default function Home() {
+  return (
+    <CoreSyncProvider>
+      <SystemCoreApp />
+    </CoreSyncProvider>
+  );
+}
+
+function SystemCoreApp() {
+  const {
+    prospects,
+    updateProspect,
+    addProspect,
+    pasarProspectoACore,
+    distribuidores,
+    personas,
+  } = useCoreSync();
+
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
   const [activeModule, setActiveModule] = useState<ActiveAppModule>('core_dashboard');
-  const [prospects, setProspects] = useState<Prospect[]>(INITIAL_PROSPECTS);
   const [selectedProspectId, setSelectedProspectId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,46 +70,17 @@ export default function Home() {
     setTimeout(() => setToastMessage(null), 5000);
   };
 
-  const handlePasarACore = (prospectId: string) => {
-    const prospect = prospects.find((p) => p.id === prospectId);
-    if (!prospect) return;
-
-    if (prospect.coreSincronizado && prospect.coreDistribuidorId) {
-      showToast(`El prospecto ya está enlazado a Core Central (DV #${prospect.coreDistribuidorId}).`);
-      return;
-    }
-
-    const nuevoNoDist = 1043 + Math.floor(Math.random() * 50);
-    const nuevaPersonaId = 14090 + Math.floor(Math.random() * 50);
-    const nombreCompleto = `${prospect.firstName} ${prospect.lastName}`.trim().toUpperCase();
-
-    const updated: Prospect = {
-      ...prospect,
-      stage: 'activacion',
-      coreSincronizado: true,
-      coreDistribuidorId: nuevoNoDist,
-      corePersonaId: nuevaPersonaId,
-      fechaPaseCore: new Date().toLocaleString('es-MX'),
-      messages: [
-        {
-          id: `msg-pase-${Date.now()}`,
-          author: 'Sistema Core Central',
-          authorEmail: 'sistema@core.lanahora.com.mx',
-          type: 'sistema',
-          content: `✓ Prospecto transferido a Core Central con éxito. Se dio de alta como Distribuidora Oficial No. ${nuevoNoDist} con línea autorizada de $${(prospect.creditLines?.valelana || 150000).toLocaleString('es-MX')} MXN.`,
-          createdAt: new Date().toLocaleString('es-MX'),
-        },
-        ...prospect.messages,
-      ],
-      updatedAt: new Date().toISOString(),
-    };
-
-    const newProspects = prospects.map((p) => (p.id === prospectId ? updated : p));
-    saveProspects(newProspects);
-    showToast(`✓ ¡${nombreCompleto} ha sido dada de alta en Core Central como Distribuidora #${nuevoNoDist}!`);
+  const handlePasarACore = async (prospectId: string) => {
+    const res = await pasarProspectoACore(prospectId);
+    showToast(res.message);
   };
 
   const handleVerPerfilDv = (noDist: number) => {
+    const existing = distribuidores.find((d) => d.noDist === noDist);
+    if (existing) {
+      setSelectedDvForModal(existing);
+      return;
+    }
     const p = prospects.find((pr) => pr.coreDistribuidorId === noDist);
     const dvObj: DistribuidorCore = {
       noDist,
@@ -135,25 +122,10 @@ export default function Home() {
         const user = JSON.parse(savedAuth);
         setCurrentUser(user);
       }
-
-      const savedProspects = localStorage.getItem(STORAGE_KEY);
-      if (savedProspects) {
-        setProspects(JSON.parse(savedProspects));
-      }
     } catch (e) {
-      console.error('Error loading session or prospects:', e);
+      console.error('Error loading session:', e);
     }
   }, []);
-
-  // Save prospects to localStorage
-  const saveProspects = (newList: Prospect[]) => {
-    setProspects(newList);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
-    } catch (e) {
-      console.error('Error saving prospects:', e);
-    }
-  };
 
   // Login handler
   const handleLoginSuccess = (user: UserSession) => {
@@ -237,30 +209,33 @@ export default function Home() {
       updatedAt: new Date().toISOString(),
     };
 
-    const updated = [newLead, ...prospects];
-    saveProspects(updated);
+    addProspect(newLead);
     setSelectedProspectId(newLead.id);
-    setActiveModule('core_dashboard');
+    setActiveModule('crm');
   };
 
   // Add new lead directly from Mobile App
   const handleAddMobileLead = (newProspect: Prospect) => {
-    const updated = [newProspect, ...prospects];
-    saveProspects(updated);
+    addProspect(newProspect);
   };
 
   // Update lead
   const handleUpdateProspect = (updatedProspect: Prospect) => {
-    const updated = prospects.map((p) =>
-      p.id === updatedProspect.id ? updatedProspect : p
-    );
-    saveProspects(updated);
+    updateProspect(updatedProspect);
   };
 
   // Move prospect across Kanban stages via Drag and Drop
-  const handleMoveStage = (prospectId: string, newStage: StageId) => {
+  const handleMoveStage = async (prospectId: string, newStage: StageId) => {
     const target = prospects.find((p) => p.id === prospectId);
     if (!target || target.stage === newStage) return;
+
+    // Si se pasa a activación, dar de alta automáticamente en Core (Personas y Distribuidores)
+    if (newStage === 'activacion') {
+      const res = await pasarProspectoACore(prospectId);
+      showToast(res.message);
+      return;
+    }
+
     const stageObj = STAGES.find((s) => s.id === newStage);
     const stageName = stageObj ? stageObj.name : newStage;
     const updated: Prospect = {
@@ -280,7 +255,7 @@ export default function Home() {
         ...target.messages,
       ],
     };
-    saveProspects(prospects.map((p) => (p.id === prospectId ? updated : p)));
+    updateProspect(updated);
   };
 
   // Filter prospects
@@ -306,8 +281,7 @@ export default function Home() {
   }
 
   return (
-    <CoreSyncProvider>
-      <div className="flex flex-col h-screen overflow-hidden bg-[#f8fafc] text-slate-800 font-sans relative">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#f8fafc] text-slate-800 font-sans relative">
         {/* Difuminados Ambientales de Fondo (Luz Mesh Suave de Alta Fidelidad) */}
         <div className="fixed top-[-100px] left-[20%] w-[550px] h-[380px] bg-blue-100/30 rounded-full blur-3xl pointer-events-none animate-ambient-glow z-0" />
         <div className="fixed bottom-[-80px] right-[5%] w-[650px] h-[450px] bg-indigo-50/40 rounded-full blur-3xl pointer-events-none z-0" />
@@ -447,6 +421,5 @@ export default function Home() {
           )}
         </div>
       </div>
-    </CoreSyncProvider>
-  );
+    );
 }

@@ -79,6 +79,11 @@ export default function LeadDetailView({
 
   // Stage changes
   const handleStageChange = (newStage: StageId) => {
+    if (newStage === data.stage) return;
+    if (newStage === 'activacion' && !data.coreSincronizado) {
+      handlePasarACore();
+      return;
+    }
     const oldStageName = STAGES.find((s) => s.id === data.stage)?.name || data.stage;
     const stageName = STAGES.find((s) => s.id === newStage)?.name || newStage;
     const newMsg: ChatterMessage = {

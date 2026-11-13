@@ -11,6 +11,7 @@ import {
   updateNotificationRulesSync,
   markNotificationReadSync,
   setMobileNotificationPermissionSync,
+  recordPasarACoreSync,
 } from '@/lib/store/serverSyncStore';
 import { sendAdbSystemNotification } from '@/lib/adbNotifications';
 import { sendWebPushNotification } from '@/lib/webPushService';
@@ -215,6 +216,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Permiso de notificaciones actualizado en la app móvil',
+        result,
+      });
+    }
+
+    if (action === 'PASAR_A_CORE') {
+      const result = recordPasarACoreSync(payload?.prospectId);
+      return NextResponse.json({
+        success: result.success,
+        message: result.message,
         result,
       });
     }

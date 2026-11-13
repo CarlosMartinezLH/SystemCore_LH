@@ -53,10 +53,10 @@ interface NavModuleItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-// Menú principal: Inicio, CRM Originación, Personas, Distribuidores
+// Menú principal: Inicio, CRM, Personas, Distribuidores
 const PRIMARY_MODULES: NavModuleItem[] = [
   { id: 'core_dashboard', name: 'Inicio', icon: LayoutDashboard },
-  { id: 'crm', name: 'CRM Originación', icon: FolderKanban },
+  { id: 'crm', name: 'CRM', icon: FolderKanban },
   { id: 'personas', name: 'Personas', icon: Users },
   { id: 'distribuidores', name: 'Distribuidores', icon: Award },
 ];
@@ -133,7 +133,7 @@ export default function Header({
             <span>Inicio</span>
           </button>
 
-          {/* CRM Originación */}
+          {/* CRM */}
           <button
             type="button"
             onClick={() => handleSelectModule('crm')}
@@ -146,7 +146,7 @@ export default function Header({
             <FolderKanban
               className={`w-4 h-4 ${activeModule === 'crm' ? 'text-white' : 'text-slate-500'}`}
             />
-            <span>CRM Originación</span>
+            <span>CRM</span>
           </button>
 
           {/* Personas */}
