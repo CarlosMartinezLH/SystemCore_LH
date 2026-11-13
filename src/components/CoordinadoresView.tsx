@@ -368,9 +368,6 @@ export default function CoordinadoresView({
                   {enrichedCoordinadores.length} Registros
                 </span>
               </h1>
-              <p className="text-xs text-slate-500 font-medium">
-                Gestión operativa de supervisores de campo, gestores de cobranza y matriz de facultades del sistema.
-              </p>
             </div>
           </div>
         </div>

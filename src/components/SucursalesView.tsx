@@ -518,9 +518,6 @@ export default function SucursalesView({ currentUser }: SucursalesViewProps) {
                 {sucursales.length} Registradas
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium">
-              Administración de plazas, rangos de distribuidor (Dist ID Min/Max), límites de crédito y abogados asignados.
-            </p>
           </div>
         </div>
 
@@ -871,9 +868,6 @@ export default function SucursalesView({ currentUser }: SucursalesViewProps) {
                   <td colSpan={15} className="p-12 text-center text-slate-400">
                     <Building2 className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                     <p className="font-semibold text-slate-600">No se encontraron sucursales</p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Prueba con otro término de búsqueda o limpia los filtros activos.
-                    </p>
                   </td>
                 </tr>
               )}
@@ -910,11 +904,6 @@ export default function SucursalesView({ currentUser }: SucursalesViewProps) {
                   <h2 className="text-base font-black text-slate-900 tracking-tight">
                     {editingId ? `Editar Sucursal: ${formSucursal}` : 'Alta de Nueva Sucursal'}
                   </h2>
-                  <p className="text-xs text-slate-500 font-medium">
-                    {editingId
-                      ? 'Actualiza los parámetros operativos, rango de distribuidores y responsables.'
-                      : 'Captura los datos y reglas operativas para dar de alta una nueva plaza.'}
-                  </p>
                 </div>
               </div>
               <button
@@ -1069,9 +1058,6 @@ export default function SucursalesView({ currentUser }: SucursalesViewProps) {
                       />
                       <span className="font-bold text-slate-800">Sucursal Activa en el Sistema</span>
                     </label>
-                    <p className="text-[11px] text-slate-500 ml-6">
-                      Si se desmarca, la sucursal quedará inactiva para nuevas operaciones.
-                    </p>
                   </div>
                 </div>
 
@@ -1206,9 +1192,6 @@ export default function SucursalesView({ currentUser }: SucursalesViewProps) {
                       />
                       <span className="font-bold text-slate-800">Req. Carta Prestanombres</span>
                     </label>
-                    <p className="text-[11px] text-slate-500 ml-6">
-                      Exigir validación de carta prestanombres en mesa de control.
-                    </p>
                   </div>
 
                   {/* No puede colocar */}
@@ -1224,9 +1207,6 @@ export default function SucursalesView({ currentUser }: SucursalesViewProps) {
                         Bloquear Colocación de Vales
                       </span>
                     </label>
-                    <p className="text-[11px] text-slate-500 ml-6">
-                      Si se marca, los distribuidores de esta sucursal no podrán colocar créditos.
-                    </p>
                   </div>
                 </div>
               </div>
@@ -1266,9 +1246,6 @@ export default function SucursalesView({ currentUser }: SucursalesViewProps) {
                 <h3 className="text-sm font-black text-slate-900">
                   ¿Eliminar sucursal {sucursalToDelete.nombre}?
                 </h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Esta acción eliminará la plaza de la configuración del sistema. Los distribuidores y coordinadores asignados deberán ser reasignados.
-                </p>
               </div>
             </div>
 
