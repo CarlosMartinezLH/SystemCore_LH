@@ -239,8 +239,12 @@ export interface DistribuidorCore {
 
 export interface CoordinadorCore {
   id: string;
+  coordinadorIdNum?: number;
   nombre: string;
   sucursal: string;
+  tipoCoordinador?: 'NORMAL' | 'GESTOR' | 'LIDER';
+  moonflowId?: string;
+  usuarioAsignado?: string;
   zonaId?: string;
   zona: string;
   subzonaId?: string;
@@ -255,6 +259,25 @@ export interface CoordinadorCore {
   totalDistribuidores?: number;
   carteraActiva?: number;
   porcentajeRecuperacion?: number;
+}
+
+export interface AccesoCoordinador {
+  id: string;
+  coordinadorId: string;
+  coordinadorNombre: string;
+  usuarioId: string;
+  usuarioNombre: string;
+  fechaAsignacion: string;
+}
+
+export interface FuncionUsuario {
+  id: string;
+  usuarioId: string;
+  usuarioNombre: string;
+  funcionId: string;
+  funcionNombre: string;
+  descripcion?: string;
+  permiso: boolean;
 }
 
 export interface CreditoCore {
