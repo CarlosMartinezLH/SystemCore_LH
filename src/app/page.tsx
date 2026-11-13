@@ -49,6 +49,7 @@ function SystemCoreApp() {
     prospects,
     updateProspect,
     addProspect,
+    registrarProspectoEnPersonas,
     pasarProspectoACore,
     distribuidores,
     personas,
@@ -210,6 +211,11 @@ function SystemCoreApp() {
     };
 
     addProspect(newLead);
+    if (leadData.stage !== 'contacto' && leadData.stage !== 'perdido') {
+      registrarProspectoEnPersonas(newLead.id, leadData.stage).then((res) => {
+        if (res?.message) showToast(res.message);
+      });
+    }
     setSelectedProspectId(newLead.id);
     setActiveModule('crm');
   };
@@ -232,6 +238,13 @@ function SystemCoreApp() {
     // Si se pasa a activación, dar de alta automáticamente en Core (Personas y Distribuidores)
     if (newStage === 'activacion') {
       const res = await pasarProspectoACore(prospectId);
+      showToast(res.message);
+      return;
+    }
+
+    // Desde que se pasa a Consulta de Buró (o etapas intermedias), dar de alta automáticamente en Personas
+    if (newStage !== 'contacto' && newStage !== 'perdido') {
+      const res = await registrarProspectoEnPersonas(prospectId, newStage);
       showToast(res.message);
       return;
     }

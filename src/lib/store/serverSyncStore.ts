@@ -104,6 +104,7 @@ export function getServerSyncData(): CoreSyncData {
   globalThis.__coreSyncData.dispersiones = globalThis.__coreSyncData.dispersiones.filter(
     (d) => d.creditoId !== 'V-999888' && d.creditoId !== 'TEST-01'
   );
+  syncProspectsToPersonas(globalThis.__coreSyncData);
   return globalThis.__coreSyncData;
 }
 
@@ -918,5 +919,161 @@ export function recordPasarACoreSync(prospectId: string) {
     persona: nuevaPersona,
     prospect: updatedProspect,
     message: `¡Distribuidora No. ${nuevoNoDist} activada con éxito en Core Central y registrada en Personas!`,
+  };
+}
+
+const STAGE_LABELS: Record<string, string> = {
+  contacto: 'Contacto',
+  consulta_buro: 'Consulta de Buró',
+  solicitud_credito: 'Solicitud de crédito',
+  autorizacion_comercial: 'Autorización Comercial',
+  mesa_credito: 'Mesa de Crédito',
+  legales: 'Legales',
+  activacion: 'Activación',
+  perdido: 'Perdido',
+};
+
+export function syncProspectsToPersonas(data: CoreSyncData): void {
+  let maxPersonaId = data.personas.length > 0
+    ? Math.max(...data.personas.map((p) => p.personaId))
+    : 14080;
+
+  data.prospects.forEach((prospect) => {
+    if (prospect.stage === 'contacto' || prospect.stage === 'perdido') {
+      return;
+    }
+
+    const curpVal = (prospect.curp || `${prospect.firstName.slice(0, 2)}${prospect.lastName.slice(0, 2)}850101MCLRN01`).trim().toUpperCase();
+    const stageLabel = STAGE_LABELS[prospect.stage] || prospect.stage;
+
+    const persona = data.personas.find(
+      (p) => (prospect.corePersonaId && p.personaId === prospect.corePersonaId) || (curpVal && p.curp.trim().toUpperCase() === curpVal)
+    );
+
+    const direccionFormateada = `${prospect.street || 'CALLE HIDALGO'} ${prospect.extNumber || '100'}, ${prospect.neighborhood || 'CENTRO'}, ${prospect.city || 'Gómez Palacio'}, ${prospect.state || 'Durango'}`.toUpperCase();
+
+    if (!persona) {
+      maxPersonaId += 1;
+      const nuevaPersonaId = prospect.corePersonaId || maxPersonaId;
+      prospect.corePersonaId = nuevaPersonaId;
+
+      const nuevaPersona: PersonaCore = {
+        personaId: nuevaPersonaId,
+        nombre: prospect.firstName.toUpperCase(),
+        apellidoPaterno: prospect.lastName.toUpperCase(),
+        apellidoMaterno: prospect.secondLastName ? prospect.secondLastName.toUpperCase() : '',
+        fechaNacimiento: prospect.birthDate || '15/05/1985',
+        categoria: 'DV',
+        pagareEstatusId: prospect.stage === 'activacion' || prospect.stage === 'legales' ? 'FIRMADO EN BLANCO' : 'NO DEFINIDO',
+        pagareCantidad: prospect.creditLines?.valelana || (prospect.stage === 'activacion' ? 150000 : 0),
+        curp: curpVal,
+        rfc: (prospect.rfc || curpVal.slice(0, 10)).toUpperCase(),
+        sexoId: prospect.gender === 'MASCULINO' ? 'MASCULINO' : 'FEMENINO',
+        buroInternoEstatus: prospect.bureauResult === 'MALO' ? 'NO SUJETO DE CREDITO' : 'NORMAL',
+        scoreBuro: prospect.bureauResult === 'BUENO' ? 685 : (prospect.bureauResult === 'REGULAR' ? 620 : 540),
+        observaciones: `Originación CRM — Etapa: ${stageLabel}`,
+        isDistribuidor: Boolean(prospect.coreSincronizado && prospect.coreDistribuidorId),
+        distribuidorId: prospect.coreDistribuidorId,
+        distribuidorNombre: prospect.coreDistribuidorId ? `${prospect.firstName} ${prospect.lastName}`.toUpperCase() : undefined,
+        telefono: prospect.phone || '8711002030',
+        direccion: direccionFormateada,
+        numeroExterior: prospect.extNumber,
+        codigoPostal: prospect.zipCode,
+        localidad: prospect.city?.toUpperCase() || 'GÓMEZ PALACIO',
+        tipoIdentificacion: 'INE',
+        numeroIdentificacion: prospect.ineNumber || 'IDMEX1829482910',
+      };
+
+      data.personas.unshift(nuevaPersona);
+    } else {
+      if (!prospect.corePersonaId) {
+        prospect.corePersonaId = persona.personaId;
+      }
+      if (!persona.observaciones) {
+        persona.observaciones = `Originación CRM — Etapa: ${stageLabel}`;
+      }
+    }
+  });
+}
+
+export function recordProspectoAPersonasSync(prospectId: string, targetStage?: string) {
+  const data = getServerSyncData();
+  const prospect = data.prospects.find((p) => p.id === prospectId);
+  if (!prospect) {
+    return { success: false, message: 'Prospecto no encontrado en CRM.' };
+  }
+
+  if (targetStage) {
+    prospect.stage = targetStage as any;
+  }
+
+  const curpVal = (prospect.curp || `${prospect.firstName.slice(0, 2)}${prospect.lastName.slice(0, 2)}850101MCLRN01`).trim().toUpperCase();
+  const stageLabel = STAGE_LABELS[prospect.stage] || prospect.stage;
+
+  let persona = data.personas.find(
+    (p) => (prospect.corePersonaId && p.personaId === prospect.corePersonaId) || (curpVal && p.curp.trim().toUpperCase() === curpVal)
+  );
+
+  const direccionFormateada = `${prospect.street || 'CALLE HIDALGO'} ${prospect.extNumber || '100'}, ${prospect.neighborhood || 'CENTRO'}, ${prospect.city || 'Gómez Palacio'}, ${prospect.state || 'Durango'}`.toUpperCase();
+
+  if (!persona) {
+    const maxPersonaId = data.personas.length > 0
+      ? Math.max(...data.personas.map((p) => p.personaId))
+      : 14080;
+    const nuevaPersonaId = maxPersonaId + 1;
+    prospect.corePersonaId = nuevaPersonaId;
+
+    persona = {
+      personaId: nuevaPersonaId,
+      nombre: prospect.firstName.toUpperCase(),
+      apellidoPaterno: prospect.lastName.toUpperCase(),
+      apellidoMaterno: prospect.secondLastName ? prospect.secondLastName.toUpperCase() : '',
+      fechaNacimiento: prospect.birthDate || '15/05/1985',
+      categoria: 'DV',
+      pagareEstatusId: prospect.stage === 'activacion' || prospect.stage === 'legales' ? 'FIRMADO EN BLANCO' : 'NO DEFINIDO',
+      pagareCantidad: prospect.creditLines?.valelana || (prospect.stage === 'activacion' ? 150000 : 0),
+      curp: curpVal,
+      rfc: (prospect.rfc || curpVal.slice(0, 10)).toUpperCase(),
+      sexoId: prospect.gender === 'MASCULINO' ? 'MASCULINO' : 'FEMENINO',
+      buroInternoEstatus: prospect.bureauResult === 'MALO' ? 'NO SUJETO DE CREDITO' : 'NORMAL',
+      scoreBuro: prospect.bureauResult === 'BUENO' ? 685 : (prospect.bureauResult === 'REGULAR' ? 620 : 540),
+      observaciones: `Originación CRM — Etapa: ${stageLabel}`,
+      isDistribuidor: Boolean(prospect.coreSincronizado && prospect.coreDistribuidorId),
+      distribuidorId: prospect.coreDistribuidorId,
+      distribuidorNombre: prospect.coreDistribuidorId ? `${prospect.firstName} ${prospect.lastName}`.toUpperCase() : undefined,
+      telefono: prospect.phone || '8711002030',
+      direccion: direccionFormateada,
+      numeroExterior: prospect.extNumber,
+      codigoPostal: prospect.zipCode,
+      localidad: prospect.city?.toUpperCase() || 'GÓMEZ PALACIO',
+      tipoIdentificacion: 'INE',
+      numeroIdentificacion: prospect.ineNumber || 'IDMEX1829482910',
+    };
+
+    data.personas.unshift(persona);
+  } else {
+    prospect.corePersonaId = persona.personaId;
+    persona.observaciones = `Originación CRM — Etapa: ${stageLabel}`;
+  }
+
+  // Bitácora del prospecto
+  prospect.messages = [
+    {
+      id: `msg-per-${Date.now()}`,
+      author: 'Sistema Core Central',
+      authorEmail: 'sistema@core.lanahora.com.mx',
+      type: 'sistema',
+      content: `✓ Registrada en el Padrón Central de Personas (ID #${persona.personaId}) al pasar a ${stageLabel}.`,
+      createdAt: new Date().toLocaleString('es-MX'),
+    },
+    ...prospect.messages,
+  ];
+
+  data.lastUpdate = Date.now();
+  return {
+    success: true,
+    persona,
+    prospect,
+    message: `✓ ¡${prospect.firstName} ${prospect.lastName} registrada en Personas (ID #${persona.personaId}) para ${stageLabel}!`,
   };
 }

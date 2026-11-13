@@ -101,6 +101,12 @@ interface CoreSyncContextType {
   }) => Promise<any>;
   addProspect: (newP: Prospect) => void;
   updateProspect: (updated: Prospect) => void;
+  registrarProspectoEnPersonas: (prospectId: string, targetStage?: string) => Promise<{
+    success: boolean;
+    persona?: PersonaCore;
+    prospect?: Prospect;
+    message: string;
+  }>;
   pasarProspectoACore: (prospectId: string) => Promise<{
     success: boolean;
     distribuidor?: DistribuidorCore;
@@ -349,6 +355,32 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
+  const registrarProspectoEnPersonas = async (prospectId: string, targetStage?: string) => {
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SYNC_PROSPECTO_PERSONAS', payload: { prospectId, targetStage } }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.result) {
+          if (json.result.persona) {
+            setPersonas((prev) => [json.result.persona, ...prev.filter((p) => p.personaId !== json.result.persona.personaId)]);
+          }
+          if (json.result.prospect) {
+            setProspects((prev) => prev.map((p) => (p.id === prospectId ? json.result.prospect : p)));
+          }
+          await fetchSyncData();
+          return json.result;
+        }
+      }
+    } catch (e) {
+      console.warn('Sync prospecto a personas warn:', e);
+    }
+    return { success: false, message: 'No se pudo registrar prospecto en Personas.' };
+  };
+
   const registrarCanje = async (payload: {
     folio?: string;
     personaId?: number;
@@ -552,6 +584,7 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
         registrarSpeiInbound,
         addProspect,
         updateProspect,
+        registrarProspectoEnPersonas,
         pasarProspectoACore,
       }}
     >

@@ -12,6 +12,7 @@ import {
   markNotificationReadSync,
   setMobileNotificationPermissionSync,
   recordPasarACoreSync,
+  recordProspectoAPersonasSync,
 } from '@/lib/store/serverSyncStore';
 import { sendAdbSystemNotification } from '@/lib/adbNotifications';
 import { sendWebPushNotification } from '@/lib/webPushService';
@@ -222,6 +223,15 @@ export async function POST(req: NextRequest) {
 
     if (action === 'PASAR_A_CORE') {
       const result = recordPasarACoreSync(payload?.prospectId);
+      return NextResponse.json({
+        success: result.success,
+        message: result.message,
+        result,
+      });
+    }
+
+    if (action === 'SYNC_PROSPECTO_PERSONAS') {
+      const result = recordProspectoAPersonasSync(payload?.prospectId, payload?.targetStage);
       return NextResponse.json({
         success: result.success,
         message: result.message,

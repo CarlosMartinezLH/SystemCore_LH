@@ -55,7 +55,7 @@ export default function LeadDetailView({
   onUpdate,
   onVerPerfilCore,
 }: LeadDetailViewProps) {
-  const { pasarProspectoACore } = useCoreSync();
+  const { pasarProspectoACore, registrarProspectoEnPersonas } = useCoreSync();
   const [data, setData] = useState<Prospect>(prospect);
   const [activeTab, setActiveTab] = useState<
     'notas' | 'contacto' | 'ine' | 'solicitud' | 'integracion' | 'mesa'
@@ -78,7 +78,7 @@ export default function LeadDetailView({
   };
 
   // Stage changes
-  const handleStageChange = (newStage: StageId) => {
+  const handleStageChange = async (newStage: StageId) => {
     if (newStage === data.stage) return;
     if (newStage === 'activacion' && !data.coreSincronizado) {
       handlePasarACore();
@@ -102,6 +102,14 @@ export default function LeadDetailView({
     };
     setData(updated);
     onUpdate(updated);
+
+    if (newStage !== 'contacto' && newStage !== 'perdido') {
+      const res = await registrarProspectoEnPersonas(data.id, newStage);
+      if (res?.persona) {
+        setCoreSuccessMsg(`✓ Prospecto registrado en Personas (ID #${res.persona.personaId})`);
+        setTimeout(() => setCoreSuccessMsg(null), 5000);
+      }
+    }
   };
 
   // Validar CURP en Cartera Core LH

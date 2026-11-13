@@ -323,6 +323,7 @@ export const INITIAL_PROSPECTS: Prospect[] = [
     references: [],
     creditLines: { valelana: 150000, lanatienda: 15000, personal: 10000 },
     documents: createDefaultDocuments(),
+    corePersonaId: 14061,
     messages: [
       {
         id: 'msg-b1',
@@ -374,6 +375,7 @@ export const INITIAL_PROSPECTS: Prospect[] = [
     references: [],
     creditLines: { valelana: 120000, lanatienda: 10000, personal: 5000 },
     documents: createDefaultDocuments(),
+    corePersonaId: 14062,
     messages: [],
     createdAt: '2026-11-13T08:30:00Z',
     updatedAt: '2026-11-13T08:30:00Z',
@@ -416,6 +418,7 @@ export const INITIAL_PROSPECTS: Prospect[] = [
     references: [],
     creditLines: { valelana: 100000, lanatienda: 10000, personal: 5000 },
     documents: createDefaultDocuments(),
+    corePersonaId: 14063,
     messages: [],
     createdAt: '2026-11-13T08:45:00Z',
     updatedAt: '2026-11-13T08:45:00Z',
@@ -458,6 +461,7 @@ export const INITIAL_PROSPECTS: Prospect[] = [
     references: [],
     creditLines: { valelana: 90000, lanatienda: 10000, personal: 0 },
     documents: createDefaultDocuments(),
+    corePersonaId: 14064,
     messages: [],
     createdAt: '2026-11-11T14:00:00Z',
     updatedAt: '2026-11-11T14:00:00Z',
