@@ -53,9 +53,10 @@ interface NavModuleItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-// Menú principal: Inicio, Personas, Distribuidores
+// Menú principal: Inicio, CRM Originación, Personas, Distribuidores
 const PRIMARY_MODULES: NavModuleItem[] = [
   { id: 'core_dashboard', name: 'Inicio', icon: LayoutDashboard },
+  { id: 'crm', name: 'CRM Originación', icon: FolderKanban },
   { id: 'personas', name: 'Personas', icon: Users },
   { id: 'distribuidores', name: 'Distribuidores', icon: Award },
 ];
