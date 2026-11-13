@@ -33,6 +33,7 @@ import {
   ExternalLink,
   Scissors,
   Coins,
+  FolderOpen,
 } from 'lucide-react';
 import EstadoCuentaDistribuidorModal from './EstadoCuentaDistribuidorModal';
 import RecibosRelacionModal from './RecibosRelacionModal';
@@ -42,6 +43,7 @@ import HistorialCreditosDistribuidorModal from './HistorialCreditosDistribuidorM
 import CreditoPersonaDVModal from './CreditoPersonaDVModal';
 import LanaPuntosModal from './LanaPuntosModal';
 import AuditoriaDistribuidorModal from './AuditoriaDistribuidorModal';
+import ExpedienteDistribuidorModal from './ExpedienteDistribuidorModal';
 
 interface PerfilDistribuidorModalProps {
   isOpen: boolean;
@@ -79,6 +81,7 @@ export default function PerfilDistribuidorModal({
   const [isCreditoPersonalModalOpen, setIsCreditoPersonalModalOpen] = useState(false);
   const [isLanaPuntosModalOpen, setIsLanaPuntosModalOpen] = useState(false);
   const [isAuditoriaModalOpen, setIsAuditoriaModalOpen] = useState(false);
+  const [isExpedienteModalOpen, setIsExpedienteModalOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<DistribuidorCore>>({});
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
@@ -761,12 +764,12 @@ export default function PerfilDistribuidorModal({
 
                   <button
                     type="button"
-                    onClick={() => showToast('Abriendo expediente y valeras digitales...')}
+                    onClick={() => setIsExpedienteModalOpen(true)}
                     className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50 hover:border-purple-300 text-slate-800 hover:text-purple-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
-                    <Tag className="w-4 h-4 text-purple-600" />
-                    <span className="font-bold text-xs">Expediente & Valeras</span>
-                    <span className="text-[10px] text-slate-500">Control de folios</span>
+                    <FolderOpen className="w-4 h-4 text-purple-600" />
+                    <span className="font-bold text-xs">Expediente Digital</span>
+                    <span className="text-[10px] text-slate-500">Documentos, contratos y anexos</span>
                   </button>
 
                   <button
@@ -1006,6 +1009,19 @@ export default function PerfilDistribuidorModal({
           distribuidor={currentDv}
           onAuditoriaCompletada={(res) => {
             showToast(`Auditoría finalizada: Cartera y disponible conciliados al 100%`);
+          }}
+        />
+      )}
+
+      {/* Modal Oficial de Expediente Digital de la Distribuidora */}
+      {isExpedienteModalOpen && (
+        <ExpedienteDistribuidorModal
+          isOpen={isExpedienteModalOpen}
+          onClose={() => setIsExpedienteModalOpen(false)}
+          distribuidor={currentDv}
+          onOpenContratoApertura={() => {
+            setIsExpedienteModalOpen(false);
+            setIsContratoModalOpen(true);
           }}
         />
       )}
