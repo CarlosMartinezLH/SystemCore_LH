@@ -1,14 +1,14 @@
 import { StageInfo, RequiredDocument, Prospect } from '@/types/crm';
 
 export const STAGES: StageInfo[] = [
-  { id: 'contacto', name: 'Contacto', order: 1, color: '#00a09d' },
-  { id: 'consulta_buro', name: 'Consulta de Buro', order: 2, color: '#f39c12' },
-  { id: 'solicitud_credito', name: 'Solicitud de crédito', order: 3, color: '#3498db' },
-  { id: 'autorizacion_comercial', name: 'Autorización Comercial', order: 4, color: '#9b59b6' },
-  { id: 'mesa_credito', name: 'Mesa de Crédito', order: 5, color: '#e67e22' },
-  { id: 'legales', name: 'Legales', order: 6, color: '#2ecc71' },
-  { id: 'activacion', name: 'Activación', order: 7, color: '#10b981' },
-  { id: 'perdido', name: 'Perdido', order: 8, color: '#e74c3c' },
+  { id: 'contacto', name: 'Contacto', order: 1, color: '#0284c7' },
+  { id: 'consulta_buro', name: 'Consulta de Buro', order: 2, color: '#d97706' },
+  { id: 'solicitud_credito', name: 'Solicitud de crédito', order: 3, color: '#2563eb' },
+  { id: 'autorizacion_comercial', name: 'Autorización Comercial', order: 4, color: '#4f46e5' },
+  { id: 'mesa_credito', name: 'Mesa de Crédito', order: 5, color: '#ea580c' },
+  { id: 'legales', name: 'Legales', order: 6, color: '#059669' },
+  { id: 'activacion', name: 'Activación', order: 7, color: '#16a34a' },
+  { id: 'perdido', name: 'Perdido', order: 8, color: '#dc2626' },
 ];
 
 export const INITIAL_REQUIRED_DOCUMENTS: Omit<RequiredDocument, 'id' | 'status'>[] = [

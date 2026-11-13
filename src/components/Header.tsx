@@ -138,12 +138,12 @@ export default function Header({
             onClick={() => handleSelectModule('crm')}
             className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
               activeModule === 'crm'
-                ? 'bg-purple-600 text-white shadow-xs'
+                ? 'bg-blue-600 text-white shadow-xs'
                 : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <FolderKanban
-              className={`w-4 h-4 ${activeModule === 'crm' ? 'text-white' : 'text-purple-600'}`}
+              className={`w-4 h-4 ${activeModule === 'crm' ? 'text-white' : 'text-slate-500'}`}
             />
             <span>CRM Originación</span>
           </button>

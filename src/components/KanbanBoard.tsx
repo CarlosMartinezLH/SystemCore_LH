@@ -105,11 +105,11 @@ export default function KanbanBoard({
       {/* ======================================================== */}
       <div className="px-4 py-2.5 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-2xs">
         <div className="flex items-center gap-2.5">
-          {/* Botón [+ Nuevo] púrpura institucional */}
+          {/* Botón [+ Nuevo] azul institucional */}
           <button
             type="button"
             onClick={() => onQuickAdd('contacto')}
-            className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white shadow-xs transition active:scale-95 cursor-pointer flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-2xs transition active:scale-95 cursor-pointer flex items-center gap-1.5"
           >
             <Plus className="w-3.5 h-3.5 stroke-[3]" />
             <span>Nuevo</span>
@@ -119,7 +119,7 @@ export default function KanbanBoard({
           <div className="relative hidden sm:flex items-center">
             <button
               type="button"
-              className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-1 cursor-pointer"
             >
               <span>Flujo</span>
               <Settings className="w-3.5 h-3.5 text-slate-400" />
@@ -128,13 +128,13 @@ export default function KanbanBoard({
 
           {/* Buscador de Oportunidades */}
           <div className="relative min-w-[200px] sm:min-w-[280px]">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
               placeholder="Buscar prospecto o teléfono..."
-              className="w-full pl-8 pr-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-purple-600 transition"
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-600 transition font-medium"
             />
           </div>
         </div>
@@ -142,17 +142,17 @@ export default function KanbanBoard({
         {/* Derecha: Sucursal & Vistas */}
         <div className="flex items-center gap-2.5">
           {/* Sucursal activa */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-700">
-            <MapPin className="w-3.5 h-3.5 text-purple-600" />
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700">
+            <MapPin className="w-3.5 h-3.5 text-blue-600" />
             <span className="font-bold">Gómez Palacio</span>
           </div>
 
           {/* Switcher de Vistas (Kanban activo / Lista) */}
-          <div className="flex items-center bg-slate-100 border border-slate-200 rounded-lg p-0.5">
+          <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-0.5">
             <button
               type="button"
               onClick={() => onToggleView && onToggleView('kanban')}
-              className="p-1.5 rounded bg-white text-purple-700 shadow-2xs font-bold transition cursor-pointer"
+              className="p-1.5 rounded-lg bg-white text-blue-600 shadow-2xs font-bold transition cursor-pointer"
               title="Vista Kanban"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
@@ -160,7 +160,7 @@ export default function KanbanBoard({
             <button
               type="button"
               onClick={() => onToggleView && onToggleView('list')}
-              className="p-1.5 rounded text-slate-500 hover:text-slate-900 transition cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 transition cursor-pointer"
               title="Vista Lista"
             >
               <List className="w-3.5 h-3.5" />
@@ -189,7 +189,7 @@ export default function KanbanBoard({
                 onDrop={(e) => handleDrop(e, stage.id)}
                 className={`w-72 sm:w-80 flex-shrink-0 bg-slate-100/70 rounded-2xl border transition-all duration-150 flex flex-col max-h-full shadow-2xs ${
                   isTargetDropZone
-                    ? 'border-purple-500 ring-2 ring-purple-500/30 bg-purple-50/40'
+                    ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-50/40'
                     : 'border-slate-200'
                 }`}
               >
@@ -236,7 +236,7 @@ export default function KanbanBoard({
                 <div className="p-2.5 overflow-y-auto space-y-2.5 flex-1 min-h-[140px] max-h-[calc(100vh-190px)]">
                   {/* Drop zone visual feedback */}
                   {isTargetDropZone && (
-                    <div className="py-2.5 px-3 border border-dashed border-purple-400 bg-purple-50 text-purple-700 rounded-xl text-center text-xs font-bold flex items-center justify-center gap-2 animate-pulse">
+                    <div className="py-2.5 px-3 border border-dashed border-blue-400 bg-blue-50 text-blue-700 rounded-xl text-center text-xs font-bold flex items-center justify-center gap-2 animate-pulse">
                       <ArrowRight className="w-3.5 h-3.5" />
                       <span>Soltar en {stage.name}</span>
                     </div>
@@ -260,10 +260,10 @@ export default function KanbanBoard({
                           onClick={() => onSelectProspect(prospect)}
                           className={`group bg-white hover:bg-slate-50/80 rounded-xl p-3.5 border transition-all cursor-pointer relative overflow-hidden shadow-2xs hover:shadow-md ${
                             isBeingDragged
-                              ? 'opacity-30 border-dashed border-purple-400'
+                              ? 'opacity-30 border-dashed border-blue-400'
                               : prospect.coreSincronizado
                               ? 'border-emerald-300 hover:border-emerald-500'
-                              : 'border-slate-200 hover:border-purple-300'
+                              : 'border-slate-200 hover:border-blue-400'
                           }`}
                         >
                           {/* Accent line si ya está en Core */}
@@ -273,7 +273,7 @@ export default function KanbanBoard({
 
                           {/* Top: Nombre de Oportunidad */}
                           <div className="flex items-start justify-between gap-1.5">
-                            <h4 className="text-xs font-black text-slate-900 group-hover:text-purple-700 transition line-clamp-1 flex-1 tracking-tight">
+                            <h4 className="text-xs font-black text-slate-900 group-hover:text-blue-600 transition line-clamp-1 flex-1 tracking-tight">
                               {prospect.opportunityName}
                             </h4>
                             <span className="text-slate-300 group-hover:text-slate-500 transition shrink-0">
@@ -303,7 +303,7 @@ export default function KanbanBoard({
                                     e.stopPropagation();
                                     onVerPerfilCore(prospect.coreDistribuidorId!);
                                   }}
-                                  className="text-purple-600 hover:text-purple-800 font-bold underline"
+                                  className="text-blue-600 hover:text-blue-800 font-bold underline"
                                 >
                                   Ver Perfil
                                 </button>
