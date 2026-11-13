@@ -98,7 +98,7 @@ export default function KanbanBoard({
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#f8fafc] text-slate-800 font-sans select-none">
+    <div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden bg-[#f8fafc] text-slate-800 font-sans select-none">
       
       {/* ======================================================== */}
       {/* SUB-HEADER SUPERIOR EN BLANCO CORPORATIVO                */}
@@ -172,8 +172,8 @@ export default function KanbanBoard({
       {/* ======================================================== */}
       {/* TABLERO KANBAN EN COLOR BLANCO / SLATE SUAVE             */}
       {/* ======================================================== */}
-      <div className="flex-1 overflow-x-auto p-4 min-h-0 bg-[#f8fafc]">
-        <div className="inline-flex gap-4 min-w-full items-start pb-4 h-full">
+      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden px-4 pt-3 pb-2 bg-[#f8fafc]">
+        <div className="inline-flex gap-4 min-w-full h-full pb-1">
           {STAGES.filter((s) => s.id !== 'perdido').map((stage) => {
             const stageProspects = prospects.filter((p) => p.stage === stage.id);
             const count = stageProspects.length;
@@ -187,7 +187,7 @@ export default function KanbanBoard({
                 onDragEnter={(e) => handleDragEnter(e, stage.id)}
                 onDragLeave={(e) => handleDragLeave(e, stage.id)}
                 onDrop={(e) => handleDrop(e, stage.id)}
-                className={`w-72 sm:w-80 flex-shrink-0 bg-slate-100/70 rounded-2xl border transition-all duration-150 flex flex-col max-h-full shadow-2xs ${
+                className={`w-72 sm:w-80 flex-shrink-0 bg-slate-100/70 rounded-2xl border transition-all duration-150 flex flex-col h-full shadow-2xs overflow-hidden ${
                   isTargetDropZone
                     ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-50/40'
                     : 'border-slate-200'
@@ -233,7 +233,7 @@ export default function KanbanBoard({
                 </div>
 
                 {/* Cards List */}
-                <div className="p-2.5 overflow-y-auto space-y-2.5 flex-1 min-h-[140px] max-h-[calc(100vh-190px)]">
+                <div className="p-2.5 overflow-y-auto space-y-2.5 flex-1 min-h-0">
                   {/* Drop zone visual feedback */}
                   {isTargetDropZone && (
                     <div className="py-2.5 px-3 border border-dashed border-blue-400 bg-blue-50 text-blue-700 rounded-xl text-center text-xs font-medium flex items-center justify-center gap-2 animate-pulse">

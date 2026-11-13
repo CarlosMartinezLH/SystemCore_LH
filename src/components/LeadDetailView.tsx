@@ -197,7 +197,7 @@ export default function LeadDetailView({
   const pipelineStages = STAGES.filter((s) => s.id !== 'perdido');
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#f8fafc] text-slate-800 font-sans select-none overflow-y-auto">
+    <div className="flex-1 flex flex-col h-full min-h-0 bg-[#f8fafc] text-slate-800 font-sans select-none overflow-hidden">
       
       {/* ======================================================== */}
       {/* SUB-HEADER SUPERIOR EN BLANCO CORPORATIVO                */}
@@ -374,12 +374,12 @@ export default function LeadDetailView({
       {/* ======================================================== */}
       {/* CONTENIDO PRINCIPAL: FORMULARIO (IZQ) Y CHATTER (DER)    */}
       {/* ======================================================== */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-0 bg-[#f8fafc]">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-0 overflow-hidden bg-[#f8fafc]">
         
         {/* ====================================================== */}
         {/* COLUMNA IZQUIERDA: FORMULARIO EN BLANCO (8 cols)       */}
         {/* ====================================================== */}
-        <div className="lg:col-span-8 p-4 lg:p-6 overflow-y-auto space-y-5">
+        <div className="lg:col-span-8 p-4 lg:p-6 overflow-y-auto space-y-5 h-full">
           <div className="bg-white border border-slate-200 rounded-2xl p-5 lg:p-6 shadow-2xs space-y-6">
             
             {/* TÍTULO PRINCIPAL: NOMBRE DE LA OPORTUNIDAD */}
@@ -813,7 +813,7 @@ export default function LeadDetailView({
         {/* ====================================================== */}
         {/* COLUMNA DERECHA: CHATTER / BITÁCORA EN BLANCO (4 cols) */}
         {/* ====================================================== */}
-        <div className="lg:col-span-4 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col min-h-0">
+        <div className="lg:col-span-4 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col h-full min-h-0 overflow-hidden">
           
           {/* BOTONES SUPERIORES DEL CHATTER */}
           <div className="p-3 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between gap-1 shrink-0">
