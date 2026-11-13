@@ -43,7 +43,6 @@ export default function AutorizarIngresoAppModal({
   // Opciones operativas del reseteo
   const [desvincularDispositivo, setDesvincularDispositivo] = useState(true);
   const [desbloquearIntentos, setDesbloquearIntentos] = useState(true);
-  const [enviarSms, setEnviarSms] = useState(true);
 
   useEffect(() => {
     setMounted(true);
@@ -204,21 +203,6 @@ export default function AutorizarIngresoAppModal({
                       <span className="font-bold text-slate-800 block">Restablecer intentos y PIN de acceso</span>
                       <span className="text-[10px] text-slate-500">
                         Elimina bloqueos por contraseña o intentos fallidos.
-                      </span>
-                    </div>
-                  </label>
-
-                  <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition">
-                    <input
-                      type="checkbox"
-                      checked={enviarSms}
-                      onChange={(e) => setEnviarSms(e.target.checked)}
-                      className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
-                    />
-                    <div className="text-xs">
-                      <span className="font-bold text-slate-800 block">Notificar por SMS al número registrado</span>
-                      <span className="text-[10px] text-slate-500">
-                        Envía confirmación al móvil {distribuidor.telefono || '(844) 459-3523'}.
                       </span>
                     </div>
                   </label>
