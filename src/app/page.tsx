@@ -11,6 +11,7 @@ import NewLeadModal from '@/components/NewLeadModal';
 import CoreDashboard from '@/components/CoreDashboard';
 import PersonasView from '@/components/PersonasView';
 import CoordinadoresView from '@/components/CoordinadoresView';
+import SucursalesView from '@/components/SucursalesView';
 import DistribuidoresView from '@/components/DistribuidoresView';
 import RHView from '@/components/RHView';
 import DispersionView from '@/components/DispersionView';
@@ -367,6 +368,8 @@ function SystemCoreApp() {
                 currentUser={currentUser}
                 onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
               />
+            ) : activeModule === 'sucursales' ? (
+              <SucursalesView currentUser={currentUser} />
             ) : activeModule === 'distribuidores' ? (
               <DistribuidoresView currentUser={currentUser} />
             ) : activeModule === 'rh' ? (

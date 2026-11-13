@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   FolderKanban,
   Award,
+  Building2,
 } from 'lucide-react';
 
 export type ActiveAppModule =
@@ -21,6 +22,7 @@ export type ActiveAppModule =
   | 'mesa_credito'
   | 'personas'
   | 'coordinadores'
+  | 'sucursales'
   | 'distribuidores'
   | 'gestoria'
   | 'reportes'
@@ -187,7 +189,7 @@ export default function Header({
               type="button"
               onClick={() => setCatalogosOpen(!catalogosOpen)}
               className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
-                activeModule === 'coordinadores'
+                activeModule === 'coordinadores' || activeModule === 'sucursales'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : catalogosOpen
                   ? 'bg-slate-100 text-slate-900'
@@ -196,7 +198,7 @@ export default function Header({
             >
               <FolderKanban
                 className={`w-4 h-4 ${
-                  activeModule === 'coordinadores' ? 'text-white' : 'text-slate-500'
+                  activeModule === 'coordinadores' || activeModule === 'sucursales' ? 'text-white' : 'text-slate-500'
                 }`}
               />
               <span>Catálogos</span>
@@ -212,12 +214,33 @@ export default function Header({
                 <button
                   type="button"
                   onClick={() => {
+                    handleSelectModule('sucursales');
+                    setCatalogosOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
+                    activeModule === 'sucursales'
+                      ? 'bg-blue-50 text-blue-700 font-bold'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-blue-600" />
+                    <span>Sucursales</span>
+                  </div>
+                  {activeModule === 'sucursales' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
                     handleSelectModule('coordinadores');
                     setCatalogosOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
                     activeModule === 'coordinadores'
-                      ? 'bg-blue-50 text-blue-700 font-extrabold'
+                      ? 'bg-blue-50 text-blue-700 font-bold'
                       : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
@@ -342,6 +365,17 @@ export default function Header({
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1 mb-1.5">
                 Catálogos
               </span>
+              <button
+                onClick={() => handleSelectModule('sucursales')}
+                className={`w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition text-left cursor-pointer mb-1.5 ${
+                  activeModule === 'sucursales'
+                    ? 'bg-blue-600 text-white font-bold'
+                    : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <Building2 className="w-4 h-4 shrink-0 text-blue-600" />
+                <span className="truncate">Sucursales</span>
+              </button>
               <button
                 onClick={() => handleSelectModule('coordinadores')}
                 className={`w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition text-left cursor-pointer ${
