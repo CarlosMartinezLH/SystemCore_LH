@@ -16,7 +16,6 @@ import {
   LayoutGrid,
   List,
   MapPin,
-  Settings,
   ChevronDown,
 } from 'lucide-react';
 
@@ -119,17 +118,6 @@ export default function KanbanBoard({
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Nuevo</span>
           </button>
-
-          {/* Menú Flujo */}
-          <div className="relative hidden sm:flex items-center">
-            <button
-              type="button"
-              className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-1 cursor-pointer"
-            >
-              <span>Flujo</span>
-              <Settings className="w-3.5 h-3.5 text-slate-400" />
-            </button>
-          </div>
 
           {/* Buscador de Oportunidades */}
           <div className="relative min-w-[200px] sm:min-w-[280px]">

@@ -36,7 +36,6 @@ import {
   Search,
   Paperclip,
   Clock,
-  Settings,
   Plus,
   MessageSquare,
   FileEdit,
@@ -236,16 +235,15 @@ export default function LeadDetailView({
             Nuevo
           </button>
 
-          {/* Breadcrumb Flujo */}
+          {/* Breadcrumb Prospecto */}
           <div className="flex items-center gap-1.5 text-xs text-slate-600">
             <span className="text-blue-600 font-medium hover:underline cursor-pointer" onClick={onBack}>
-              Flujo
+              CRM
             </span>
             <span className="text-slate-400">/</span>
             <span className="font-medium text-slate-800 truncate max-w-[200px] sm:max-w-xs">
               {data.opportunityName}
             </span>
-            <Settings className="w-3.5 h-3.5 text-slate-400" />
           </div>
         </div>
 
