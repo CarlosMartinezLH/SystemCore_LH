@@ -217,18 +217,18 @@ export default function LeadDetailView({
           <button
             type="button"
             onClick={onBack}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition active:scale-95 cursor-pointer shadow-2xs"
+            className="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white transition active:scale-95 cursor-pointer shadow-2xs"
           >
             Nuevo
           </button>
 
           {/* Breadcrumb Flujo */}
           <div className="flex items-center gap-1.5 text-xs text-slate-600">
-            <span className="text-blue-600 font-bold hover:underline cursor-pointer" onClick={onBack}>
+            <span className="text-blue-600 font-medium hover:underline cursor-pointer" onClick={onBack}>
               Flujo
             </span>
             <span className="text-slate-400">/</span>
-            <span className="font-extrabold text-slate-900 truncate max-w-[200px] sm:max-w-xs">
+            <span className="font-medium text-slate-800 truncate max-w-[200px] sm:max-w-xs">
               {data.opportunityName}
             </span>
             <Settings className="w-3.5 h-3.5 text-slate-400" />
@@ -239,14 +239,14 @@ export default function LeadDetailView({
         <div className="flex items-center gap-3">
           <button
             type="button"
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200/70 transition flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-1.5 rounded-lg text-xs font-normal bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200/70 transition flex items-center gap-1.5 cursor-pointer"
           >
             <Calendar className="w-3.5 h-3.5 text-slate-500" />
             <span>Sin reuniones</span>
           </button>
 
           <div className="flex items-center gap-1 text-xs text-slate-500">
-            <span className="font-mono font-bold">1 / 96</span>
+            <span className="font-mono text-slate-600 font-normal">1 / 96</span>
             <button type="button" className="p-1 hover:text-slate-900 transition cursor-pointer">
               <ChevronLeft className="w-3.5 h-3.5" />
             </button>
@@ -267,7 +267,7 @@ export default function LeadDetailView({
           <button
             type="button"
             onClick={() => handleStageChange('perdido')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
               data.stage === 'perdido'
                 ? 'bg-rose-600 text-white'
                 : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'
@@ -281,7 +281,7 @@ export default function LeadDetailView({
             type="button"
             onClick={handleValidateCurp}
             disabled={curpValidating}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition cursor-pointer"
+            className="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition cursor-pointer"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
             <span>{curpValidating ? 'Validando...' : 'Validar CURP'}</span>
@@ -293,14 +293,14 @@ export default function LeadDetailView({
               type="button"
               onClick={handlePasarACore}
               disabled={isPassingToCore}
-              className="px-3.5 py-2 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-2xs transition active:scale-95 cursor-pointer disabled:opacity-50"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-2xs transition active:scale-95 cursor-pointer disabled:opacity-50"
             >
               <Zap className="w-3.5 h-3.5 fill-white" />
               <span>{isPassingToCore ? 'Activando en Core...' : '⚡ Pasar a Core Central'}</span>
             </button>
           ) : (
             <div className="flex items-center gap-1.5">
-              <span className="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+              <span className="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-300 flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Enlazado a Core (DV #{data.coreDistribuidorId})</span>
               </span>
@@ -308,7 +308,7 @@ export default function LeadDetailView({
                 <button
                   type="button"
                   onClick={() => onVerPerfilCore(data.coreDistribuidorId!)}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition flex items-center gap-1 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white transition flex items-center gap-1 cursor-pointer"
                 >
                   <span>Ver Perfil DV</span>
                   <ExternalLink className="w-3 h-3" />
@@ -319,7 +319,7 @@ export default function LeadDetailView({
         </div>
 
         {/* Pipeline Chevron en Color Claro Institucional */}
-        <div className="flex items-center rounded-xl overflow-hidden text-xs font-bold bg-slate-100 border border-slate-200">
+        <div className="flex items-center rounded-lg overflow-hidden text-xs bg-slate-100 border border-slate-200">
           {pipelineStages.map((st, idx) => {
             const isActive = data.stage === st.id;
             const currentIdx = pipelineStages.findIndex((s) => s.id === data.stage);
@@ -330,12 +330,12 @@ export default function LeadDetailView({
                 key={st.id}
                 type="button"
                 onClick={() => handleStageChange(st.id)}
-                className={`px-3.5 py-2 border-r border-slate-200 last:border-r-0 whitespace-nowrap transition cursor-pointer flex items-center gap-1 ${
+                className={`px-3 py-1.5 border-r border-slate-200 last:border-r-0 whitespace-nowrap transition cursor-pointer flex items-center gap-1 ${
                   isActive
-                    ? 'bg-blue-600 text-white font-black shadow-2xs'
+                    ? 'bg-blue-600 text-white font-medium shadow-2xs'
                     : isPast
-                    ? 'bg-blue-50 text-blue-900 hover:bg-blue-100/70 border-r border-blue-200'
-                    : 'bg-transparent text-slate-500 hover:text-slate-800'
+                    ? 'bg-blue-50 text-blue-900 hover:bg-blue-100/70 border-r border-blue-200 font-normal'
+                    : 'bg-transparent text-slate-500 hover:text-slate-800 font-normal'
                 }`}
               >
                 <span>{st.name}</span>
@@ -353,7 +353,7 @@ export default function LeadDetailView({
 
       {/* Banner de Éxito al pasar a Core Central */}
       {coreSuccessMsg && (
-        <div className="mx-4 mt-3 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center justify-between gap-3 text-emerald-900 text-xs font-bold animate-in fade-in">
+        <div className="mx-4 mt-3 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center justify-between gap-3 text-emerald-900 text-xs font-medium animate-in fade-in">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{coreSuccessMsg}</span>
@@ -362,7 +362,7 @@ export default function LeadDetailView({
             <button
               type="button"
               onClick={() => onVerPerfilCore(data.coreDistribuidorId!)}
-              className="px-3 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs inline-flex items-center gap-1 transition cursor-pointer"
+              className="px-3 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-medium text-xs inline-flex items-center gap-1 transition cursor-pointer"
             >
               <span>Abrir Perfil Distribuidor</span>
               <ExternalLink className="w-3 h-3" />
@@ -384,14 +384,14 @@ export default function LeadDetailView({
             
             {/* TÍTULO PRINCIPAL: NOMBRE DE LA OPORTUNIDAD */}
             <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-blue-600 block mb-1">
+              <span className="text-[10px] uppercase font-medium tracking-wider text-blue-600 block mb-1">
                 Oportunidad de Crédito LanAhora
               </span>
               <input
                 type="text"
                 value={data.opportunityName}
                 onChange={(e) => handleFieldChange('opportunityName', e.target.value.toUpperCase())}
-                className="text-2xl lg:text-3xl font-black text-slate-900 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-600 focus:outline-none w-full transition tracking-tight"
+                className="text-2xl lg:text-3xl font-medium text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-600 focus:outline-none w-full transition tracking-tight"
               />
             </div>
 
@@ -401,84 +401,84 @@ export default function LeadDetailView({
               {/* --- COLUMNA 1: DATOS PERSONALES --- */}
               <div className="space-y-2.5">
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Nombre</span>
+                  <span className="text-slate-600 font-medium">Nombre</span>
                   <input
                     type="text"
                     value={data.firstName}
                     onChange={(e) => handleFieldChange('firstName', e.target.value.toUpperCase())}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Segundo Nombre</span>
+                  <span className="text-slate-600 font-medium">Segundo Nombre</span>
                   <input
                     type="text"
                     value={data.middleName || ''}
                     onChange={(e) => handleFieldChange('middleName', e.target.value.toUpperCase())}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Primer Apellido</span>
+                  <span className="text-slate-600 font-medium">Primer Apellido</span>
                   <input
                     type="text"
                     value={data.lastName}
                     onChange={(e) => handleFieldChange('lastName', e.target.value.toUpperCase())}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Segundo apellido</span>
+                  <span className="text-slate-600 font-medium">Segundo apellido</span>
                   <input
                     type="text"
                     value={data.secondLastName || ''}
                     onChange={(e) => handleFieldChange('secondLastName', e.target.value.toUpperCase())}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Correo electrónico</span>
+                  <span className="text-slate-600 font-medium">Correo electrónico</span>
                   <input
                     type="email"
                     value={data.email}
                     onChange={(e) => handleFieldChange('email', e.target.value.toUpperCase())}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Teléfono</span>
+                  <span className="text-slate-600 font-medium">Teléfono</span>
                   <input
                     type="tel"
                     value={data.phone}
                     onChange={(e) => handleFieldChange('phone', e.target.value)}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono font-bold focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">CURP</span>
+                  <span className="text-slate-600 font-medium">CURP</span>
                   <input
                     type="text"
                     maxLength={18}
                     value={data.curp}
                     onChange={(e) => handleFieldChange('curp', e.target.value.toUpperCase())}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono font-bold focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">RFC</span>
+                  <span className="text-slate-600 font-medium">RFC</span>
                   <input
                     type="text"
                     maxLength={13}
                     value={data.rfc}
                     onChange={(e) => handleFieldChange('rfc', e.target.value.toUpperCase())}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
               </div>
@@ -486,41 +486,41 @@ export default function LeadDetailView({
               {/* --- COLUMNA 2: DATOS COMERCIALES & FINANCIEROS --- */}
               <div className="space-y-2.5">
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Asesor</span>
-                  <div className="col-span-2 flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
-                    <div className={`w-4 h-4 rounded text-[10px] font-black flex items-center justify-center ${advBadge.bg}`}>
+                  <span className="text-slate-600 font-medium">Asesor</span>
+                  <div className="col-span-2 flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg">
+                    <div className={`w-4 h-4 rounded text-[10px] font-medium flex items-center justify-center ${advBadge.bg}`}>
                       {advBadge.letter}
                     </div>
-                    <span className="text-slate-900 font-bold">{data.advisorName || 'Eduardo Del Rio Alvarez'}</span>
+                    <span className="text-slate-800 font-medium">{data.advisorName || 'Eduardo Del Rio Alvarez'}</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Equipo de ventas</span>
+                  <span className="text-slate-600 font-medium">Equipo de ventas</span>
                   <input
                     type="text"
                     value={data.salesTeam || 'Gómez Palacio'}
                     onChange={(e) => handleFieldChange('salesTeam', e.target.value)}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Empresa</span>
+                  <span className="text-slate-600 font-medium">Empresa</span>
                   <input
                     type="text"
                     value={data.company || 'Gómez Palacio'}
                     onChange={(e) => handleFieldChange('company', e.target.value)}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Tipo distribuidor</span>
+                  <span className="text-slate-600 font-medium">Tipo distribuidor</span>
                   <select
                     value={data.distributorType || 'DV'}
                     onChange={(e) => handleFieldChange('distributorType', e.target.value)}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition cursor-pointer"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition cursor-pointer"
                   >
                     <option value="DV">EMPRENDEDORA</option>
                     <option value="Emprendedor">DV Tradicional</option>
@@ -528,56 +528,56 @@ export default function LeadDetailView({
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Tipo experiencia</span>
+                  <span className="text-slate-600 font-medium">Tipo experiencia</span>
                   <input
                     type="text"
                     value={data.experienceType || 'Trabajo Formal'}
                     onChange={(e) => handleFieldChange('experienceType', e.target.value)}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Origen ?</span>
+                  <span className="text-slate-600 font-medium">Origen ?</span>
                   <input
                     type="text"
                     value={data.origin || 'Redes asesor'}
                     onChange={(e) => handleFieldChange('origin', e.target.value as any)}
-                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+                    className="col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-normal focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Respuesta financial</span>
-                  <span className="col-span-2 font-black text-emerald-700 tracking-wider">
+                  <span className="text-slate-600 font-medium">Respuesta financial</span>
+                  <span className="col-span-2 font-semibold text-emerald-700 tracking-wide">
                     {data.financialCurpStatus === 'VALIDO' ? 'VALIDO' : data.financialCurpStatus === 'NO_VALIDO' ? 'NO VALIDO' : 'NO EVALUADO'}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Comentarios Financial</span>
-                  <span className="col-span-2 text-slate-700 font-medium truncate">
+                  <span className="text-slate-600 font-medium">Comentarios Financial</span>
+                  <span className="col-span-2 text-slate-700 font-normal truncate">
                     {data.financialComments || 'PERSONA NO EXISTE EN EL REGISTRO'}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Resultado Buró</span>
-                  <span className="col-span-2 text-slate-900 font-bold">
+                  <span className="text-slate-600 font-medium">Resultado Buró</span>
+                  <span className="col-span-2 text-slate-700 font-normal">
                     {data.bureauResult !== 'NO_CONSULTADO' ? data.bureauResult : '—'}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Perfil</span>
-                  <span className="col-span-2 text-slate-900 font-bold">
+                  <span className="text-slate-600 font-medium">Perfil</span>
+                  <span className="col-span-2 text-slate-700 font-normal">
                     {data.assignedProfile !== 'SIN_ASIGNAR' ? data.assignedProfile : '—'}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-3 items-center">
-                  <span className="text-slate-600 font-bold">Comentarios Buro</span>
-                  <span className="col-span-2 text-slate-500 italic text-[11px]">
+                  <span className="text-slate-600 font-medium">Comentarios Buro</span>
+                  <span className="col-span-2 text-slate-500 italic text-[11px] font-normal">
                     {data.bureauDictumDate ? `Dictamen emitido el ${data.bureauDictumDate}` : ''}
                   </span>
                 </div>
@@ -592,8 +592,8 @@ export default function LeadDetailView({
                 <button
                   type="button"
                   onClick={() => setActiveTab('notas')}
-                  className={`pb-2.5 font-bold transition relative cursor-pointer ${
-                    activeTab === 'notas' ? 'text-blue-600 font-extrabold' : 'text-slate-500 hover:text-slate-900'
+                  className={`pb-2.5 transition relative cursor-pointer ${
+                    activeTab === 'notas' ? 'text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-900 font-normal'
                   }`}
                 >
                   <span>Notas</span>
@@ -605,8 +605,8 @@ export default function LeadDetailView({
                 <button
                   type="button"
                   onClick={() => setActiveTab('contacto')}
-                  className={`pb-2.5 font-bold transition relative cursor-pointer ${
-                    activeTab === 'contacto' ? 'text-blue-600 font-extrabold' : 'text-slate-500 hover:text-slate-900'
+                  className={`pb-2.5 transition relative cursor-pointer ${
+                    activeTab === 'contacto' ? 'text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-900 font-normal'
                   }`}
                 >
                   <span>Contacto</span>
@@ -618,8 +618,8 @@ export default function LeadDetailView({
                 <button
                   type="button"
                   onClick={() => setActiveTab('ine')}
-                  className={`pb-2.5 font-bold transition relative cursor-pointer ${
-                    activeTab === 'ine' ? 'text-blue-600 font-extrabold' : 'text-slate-500 hover:text-slate-900'
+                  className={`pb-2.5 transition relative cursor-pointer ${
+                    activeTab === 'ine' ? 'text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-900 font-normal'
                   }`}
                 >
                   <span>INE</span>
@@ -631,8 +631,8 @@ export default function LeadDetailView({
                 <button
                   type="button"
                   onClick={() => setActiveTab('solicitud')}
-                  className={`pb-2.5 font-bold transition relative cursor-pointer ${
-                    activeTab === 'solicitud' ? 'text-blue-600 font-extrabold' : 'text-slate-500 hover:text-slate-900'
+                  className={`pb-2.5 transition relative cursor-pointer ${
+                    activeTab === 'solicitud' ? 'text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-900 font-normal'
                   }`}
                 >
                   <span>Solicitud de Crédito</span>
@@ -644,8 +644,8 @@ export default function LeadDetailView({
                 <button
                   type="button"
                   onClick={() => setActiveTab('integracion')}
-                  className={`pb-2.5 font-bold transition relative cursor-pointer ${
-                    activeTab === 'integracion' ? 'text-blue-600 font-extrabold' : 'text-slate-500 hover:text-slate-900'
+                  className={`pb-2.5 transition relative cursor-pointer ${
+                    activeTab === 'integracion' ? 'text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-900 font-normal'
                   }`}
                 >
                   <span>Expediente & Fotos</span>
@@ -657,8 +657,8 @@ export default function LeadDetailView({
                 <button
                   type="button"
                   onClick={() => setActiveTab('mesa')}
-                  className={`pb-2.5 font-bold transition relative cursor-pointer ${
-                    activeTab === 'mesa' ? 'text-blue-600 font-extrabold' : 'text-slate-500 hover:text-slate-900'
+                  className={`pb-2.5 transition relative cursor-pointer ${
+                    activeTab === 'mesa' ? 'text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-900 font-normal'
                   }`}
                 >
                   <span>Líneas Autorizadas</span>
@@ -683,35 +683,35 @@ export default function LeadDetailView({
                 {activeTab === 'contacto' && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                     <div className="space-y-2">
-                      <label className="text-slate-600 block font-bold">Calle y Número Exterior:</label>
+                      <label className="text-slate-600 block font-medium">Calle y Número Exterior:</label>
                       <input
                         type="text"
                         value={data.street || 'AVENIDA HIDALGO'}
                         onChange={(e) => handleFieldChange('street', e.target.value.toUpperCase())}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-normal"
                       />
-                      <label className="text-slate-600 block font-bold">Colonia / Código Postal:</label>
+                      <label className="text-slate-600 block font-medium">Colonia / Código Postal:</label>
                       <input
                         type="text"
                         value={`${data.neighborhood || 'CENTRO'} - CP ${data.zipCode || '35000'}`}
                         onChange={(e) => handleFieldChange('neighborhood', e.target.value.toUpperCase())}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-normal"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-slate-600 block font-bold">Municipio / Ciudad:</label>
+                      <label className="text-slate-600 block font-medium">Municipio / Ciudad:</label>
                       <input
                         type="text"
                         value={`${data.city || 'Gómez Palacio'}, ${data.state || 'Durango'}`}
                         disabled
-                        className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-medium"
+                        className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-normal"
                       />
-                      <label className="text-slate-600 block font-bold">Estado Civil & Dependientes:</label>
+                      <label className="text-slate-600 block font-medium">Estado Civil & Dependientes:</label>
                       <input
                         type="text"
                         value="CASADA · 2 DEPENDIENTES"
                         disabled
-                        className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-medium"
+                        className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-normal"
                       />
                     </div>
                   </div>
@@ -720,20 +720,20 @@ export default function LeadDetailView({
                 {activeTab === 'ine' && (
                   <div className="space-y-3 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-700 font-bold">Identificación Oficial (INE / Pasaporte)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                      <span className="text-slate-700 font-medium">Identificación Oficial (INE / Pasaporte)</span>
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-medium">
                         OCR Cotejado 100%
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-2 text-center min-h-[120px]">
                         <Camera className="w-6 h-6 text-blue-600" />
-                        <span className="text-[11px] font-bold text-slate-800">INE Anverso</span>
+                        <span className="text-[11px] font-medium text-slate-800">INE Anverso</span>
                         <span className="text-[10px] text-slate-500">INE_ANVERSO_COTEJADO.JPG</span>
                       </div>
                       <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-2 text-center min-h-[120px]">
                         <Camera className="w-6 h-6 text-blue-600" />
-                        <span className="text-[11px] font-bold text-slate-800">INE Reverso</span>
+                        <span className="text-[11px] font-medium text-slate-800">INE Reverso</span>
                         <span className="text-[10px] text-slate-500">INE_REVERSO_COTEJADO.JPG</span>
                       </div>
                     </div>
@@ -744,10 +744,10 @@ export default function LeadDetailView({
                   <div className="space-y-3 text-xs">
                     <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
                       <div>
-                        <span className="font-bold text-slate-900 block">Firma Digital del Prospecto</span>
+                        <span className="font-medium text-slate-800 block">Firma Digital del Prospecto</span>
                         <span className="text-[11px] text-slate-500">Capturada en dispositivo móvil</span>
                       </div>
-                      <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs">
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium text-xs">
                         ✓ Firmado Electrónicamente
                       </span>
                     </div>
@@ -760,7 +760,7 @@ export default function LeadDetailView({
 
                 {activeTab === 'integracion' && (
                   <div className="space-y-2 text-xs">
-                    <span className="text-slate-600 block font-bold">Expediente Documental de la Prospecta:</span>
+                    <span className="text-slate-600 block font-medium">Expediente Documental de la Prospecta:</span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {data.documents.slice(0, 6).map((doc) => (
                         <div
@@ -769,9 +769,9 @@ export default function LeadDetailView({
                         >
                           <div className="flex items-center gap-2 truncate">
                             <FileText className="w-4 h-4 text-blue-600 shrink-0" />
-                            <span className="text-[11px] text-slate-800 font-medium truncate">{doc.documentName}</span>
+                            <span className="text-[11px] text-slate-800 font-normal truncate">{doc.documentName}</span>
                           </div>
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                             {doc.status}
                           </span>
                         </div>
@@ -782,23 +782,23 @@ export default function LeadDetailView({
 
                 {activeTab === 'mesa' && (
                   <div className="space-y-3 text-xs">
-                    <span className="text-slate-600 block font-bold">Líneas de Crédito Dictaminadas:</span>
+                    <span className="text-slate-600 block font-medium">Líneas de Crédito Dictaminadas:</span>
                     <div className="grid grid-cols-3 gap-3">
                       <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold block">Línea Valelana</span>
-                        <strong className="text-base text-blue-700 font-mono">
+                        <span className="text-[10px] text-slate-500 uppercase font-medium block">Línea Valelana</span>
+                        <strong className="text-base text-blue-700 font-mono font-medium">
                           ${(data.creditLines?.valelana || 150000).toLocaleString('es-MX')}
                         </strong>
                       </div>
                       <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold block">Crédito Personal</span>
-                        <strong className="text-base text-blue-700 font-mono">
+                        <span className="text-[10px] text-slate-500 uppercase font-medium block">Crédito Personal</span>
+                        <strong className="text-base text-blue-700 font-mono font-medium">
                           ${(data.creditLines?.personal || 15000).toLocaleString('es-MX')}
                         </strong>
                       </div>
                       <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold block">LanaTienda</span>
-                        <strong className="text-base text-amber-600 font-mono">
+                        <span className="text-[10px] text-slate-500 uppercase font-medium block">LanaTienda</span>
+                        <strong className="text-base text-amber-600 font-mono font-medium">
                           ${(data.creditLines?.lanatienda || 20000).toLocaleString('es-MX')}
                         </strong>
                       </div>
@@ -821,7 +821,7 @@ export default function LeadDetailView({
               <button
                 type="button"
                 onClick={() => setChatterMode('mensaje')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-1 ${
                   chatterMode === 'mensaje'
                     ? 'bg-blue-600 text-white shadow-2xs'
                     : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -834,7 +834,7 @@ export default function LeadDetailView({
               <button
                 type="button"
                 onClick={() => setChatterMode('nota')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-1 ${
                   chatterMode === 'nota'
                     ? 'bg-blue-600 text-white shadow-2xs'
                     : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -847,7 +847,7 @@ export default function LeadDetailView({
               <button
                 type="button"
                 onClick={() => setChatterMode('actividad')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-1 ${
                   chatterMode === 'actividad'
                     ? 'bg-blue-600 text-white shadow-2xs'
                     : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -879,14 +879,14 @@ export default function LeadDetailView({
                   ? 'Enviar mensaje a asesor o mesa...'
                   : 'Registrar nueva actividad programada...'
               }
-              className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition"
+              className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition font-normal"
             />
             <div className="flex justify-end">
               <button
                 type="button"
                 onClick={handleAddNote}
                 disabled={!newNote.trim()}
-                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-40 shadow-2xs transition active:scale-95"
+                className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-40 shadow-2xs transition active:scale-95"
               >
                 <Send className="w-3 h-3" />
                 <span>Publicar</span>
@@ -897,7 +897,7 @@ export default function LeadDetailView({
           {/* TIMELINE DE MENSAJES Y AUDITORÍA */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {/* Separador de Fecha */}
-            <div className="flex items-center gap-3 text-slate-400 text-[11px] font-bold">
+            <div className="flex items-center gap-3 text-slate-400 text-[11px] font-medium">
               <div className="flex-1 h-px bg-slate-200" />
               <span>Hoy</span>
               <div className="flex-1 h-px bg-slate-200" />
@@ -912,7 +912,7 @@ export default function LeadDetailView({
                 <div key={msg.id} className="flex items-start gap-2.5 text-xs animate-in fade-in">
                   {/* Avatar inicial */}
                   <div
-                    className={`w-6 h-6 rounded text-[11px] font-black flex items-center justify-center shrink-0 ${
+                    className={`w-6 h-6 rounded text-[11px] font-medium flex items-center justify-center shrink-0 ${
                       isEduardo
                         ? 'bg-emerald-600 text-white'
                         : isAlejandro
@@ -925,11 +925,11 @@ export default function LeadDetailView({
 
                   <div className="flex-1 space-y-1">
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-bold text-slate-800">{msg.authorEmail || msg.author}</span>
+                      <span className="font-medium text-slate-800">{msg.authorEmail || msg.author}</span>
                       <span className="text-[10px] text-slate-400 font-mono">{msg.createdAt}</span>
                     </div>
 
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-slate-700 text-xs whitespace-pre-line leading-relaxed shadow-2xs">
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-slate-700 text-xs whitespace-pre-line leading-relaxed shadow-2xs font-normal">
                       {msg.content}
                     </div>
                   </div>
