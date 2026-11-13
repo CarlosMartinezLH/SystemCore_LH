@@ -158,18 +158,20 @@ export default function KanbanBoard({
             <button
               type="button"
               onClick={() => onToggleView && onToggleView('kanban')}
-              className="p-1.5 rounded-md bg-white text-blue-600 shadow-2xs font-medium transition cursor-pointer"
-              title="Vista Kanban"
+              className="px-2.5 py-1 rounded-md bg-white text-blue-600 shadow-2xs text-xs font-medium transition cursor-pointer flex items-center gap-1.5"
+              title="Vista Tablero Kanban (activa)"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Kanban</span>
             </button>
             <button
               type="button"
               onClick={() => onToggleView && onToggleView('list')}
-              className="p-1.5 rounded-md text-slate-500 hover:text-slate-900 transition cursor-pointer"
-              title="Vista Lista"
+              className="px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-900 text-xs font-medium transition cursor-pointer flex items-center gap-1.5"
+              title="Cambiar a Vista Tabla"
             >
               <List className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Tabla</span>
             </button>
           </div>
         </div>

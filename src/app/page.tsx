@@ -430,6 +430,12 @@ function SystemCoreApp() {
                   onToggleView={(v) => setCurrentView(v)}
                   selectedSucursal={selectedSucursal}
                   onSelectSucursal={setSelectedSucursal}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  onQuickAdd={(st) => {
+                    setQuickAddStage(st);
+                    setIsNewLeadOpen(true);
+                  }}
                 />
               )
             )}
