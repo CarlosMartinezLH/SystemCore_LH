@@ -17,7 +17,6 @@ import {
   List,
   MapPin,
   Settings,
-  ChevronDown,
 } from 'lucide-react';
 
 interface KanbanBoardProps {
@@ -95,22 +94,22 @@ export default function KanbanBoard({
     if (first === 'I') {
       return { letter: 'i', bg: 'bg-slate-500 text-white font-mono' };
     }
-    return { letter: 'M', bg: 'bg-teal-600 text-white' };
+    return { letter: 'M', bg: 'bg-blue-600 text-white' };
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#161822] text-slate-100 font-sans select-none">
+    <div className="flex-1 flex flex-col min-h-0 bg-[#f8fafc] text-slate-800 font-sans select-none">
       
       {/* ======================================================== */}
-      {/* SUB-HEADER ESTILO ODOO CRM                               */}
+      {/* SUB-HEADER SUPERIOR EN BLANCO CORPORATIVO                */}
       {/* ======================================================== */}
-      <div className="px-4 py-2.5 bg-[#1f222e] border-b border-[#2d3242] flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div className="px-4 py-2.5 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-2xs">
         <div className="flex items-center gap-2.5">
-          {/* Botón [+ Nuevo] púrpura oficial */}
+          {/* Botón [+ Nuevo] púrpura institucional */}
           <button
             type="button"
             onClick={() => onQuickAdd('contacto')}
-            className="px-3.5 py-1.5 rounded-lg text-xs font-black bg-[#714b67] hover:bg-[#86597b] text-white shadow-xs transition active:scale-95 cursor-pointer flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white shadow-xs transition active:scale-95 cursor-pointer flex items-center gap-1.5"
           >
             <Plus className="w-3.5 h-3.5 stroke-[3]" />
             <span>Nuevo</span>
@@ -120,10 +119,10 @@ export default function KanbanBoard({
           <div className="relative hidden sm:flex items-center">
             <button
               type="button"
-              className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-700/60 transition flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-1 cursor-pointer"
             >
               <span>Flujo</span>
-              <Settings className="w-3 h-3 text-slate-400" />
+              <Settings className="w-3.5 h-3.5 text-slate-400" />
             </button>
           </div>
 
@@ -135,7 +134,7 @@ export default function KanbanBoard({
               value={searchQuery}
               onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
               placeholder="Buscar prospecto o teléfono..."
-              className="w-full pl-8 pr-3 py-1 bg-[#13151d] border border-[#2d3242] rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-teal-500 transition"
+              className="w-full pl-8 pr-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-purple-600 transition"
             />
           </div>
         </div>
@@ -143,17 +142,17 @@ export default function KanbanBoard({
         {/* Derecha: Sucursal & Vistas */}
         <div className="flex items-center gap-2.5">
           {/* Sucursal activa */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#282d3d] border border-[#383f54] text-xs text-slate-300">
-            <MapPin className="w-3.5 h-3.5 text-teal-400" />
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-700">
+            <MapPin className="w-3.5 h-3.5 text-purple-600" />
             <span className="font-bold">Gómez Palacio</span>
           </div>
 
           {/* Switcher de Vistas (Kanban activo / Lista) */}
-          <div className="flex items-center bg-[#13151d] border border-[#2d3242] rounded-lg p-0.5">
+          <div className="flex items-center bg-slate-100 border border-slate-200 rounded-lg p-0.5">
             <button
               type="button"
               onClick={() => onToggleView && onToggleView('kanban')}
-              className="p-1.5 rounded bg-teal-600 text-white shadow-xs transition cursor-pointer"
+              className="p-1.5 rounded bg-white text-purple-700 shadow-2xs font-bold transition cursor-pointer"
               title="Vista Kanban"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
@@ -161,7 +160,7 @@ export default function KanbanBoard({
             <button
               type="button"
               onClick={() => onToggleView && onToggleView('list')}
-              className="p-1.5 rounded text-slate-400 hover:text-white transition cursor-pointer"
+              className="p-1.5 rounded text-slate-500 hover:text-slate-900 transition cursor-pointer"
               title="Vista Lista"
             >
               <List className="w-3.5 h-3.5" />
@@ -171,16 +170,14 @@ export default function KanbanBoard({
       </div>
 
       {/* ======================================================== */}
-      {/* TABLERO KANBAN                                           */}
+      {/* TABLERO KANBAN EN COLOR BLANCO / SLATE SUAVE             */}
       {/* ======================================================== */}
-      <div className="flex-1 overflow-x-auto p-3 sm:p-4 min-h-0">
-        <div className="inline-flex gap-3.5 min-w-full items-start pb-4 h-full">
+      <div className="flex-1 overflow-x-auto p-4 min-h-0 bg-[#f8fafc]">
+        <div className="inline-flex gap-4 min-w-full items-start pb-4 h-full">
           {STAGES.filter((s) => s.id !== 'perdido').map((stage) => {
             const stageProspects = prospects.filter((p) => p.stage === stage.id);
             const count = stageProspects.length;
             const isTargetDropZone = dragOverStage === stage.id;
-
-            // Cantidad de prospectos con alertas de días (pink pill estilo Odoo)
             const alertCount = stageProspects.filter((p) => p.daysInStage > 0).length;
 
             return (
@@ -190,35 +187,35 @@ export default function KanbanBoard({
                 onDragEnter={(e) => handleDragEnter(e, stage.id)}
                 onDragLeave={(e) => handleDragLeave(e, stage.id)}
                 onDrop={(e) => handleDrop(e, stage.id)}
-                className={`w-72 sm:w-80 flex-shrink-0 bg-[#1e222e] rounded-xl border transition-all duration-150 flex flex-col max-h-full ${
+                className={`w-72 sm:w-80 flex-shrink-0 bg-slate-100/70 rounded-2xl border transition-all duration-150 flex flex-col max-h-full shadow-2xs ${
                   isTargetDropZone
-                    ? 'border-teal-500 ring-2 ring-teal-500/30 bg-[#232838]'
-                    : 'border-[#2d3242]'
+                    ? 'border-purple-500 ring-2 ring-purple-500/30 bg-purple-50/40'
+                    : 'border-slate-200'
                 }`}
               >
                 {/* Column Header */}
-                <div className="p-3 border-b border-[#2d3242] bg-[#222634] rounded-t-xl shrink-0">
+                <div className="p-3 border-b border-slate-200 bg-white rounded-t-2xl shrink-0">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-2 h-2 rounded-full"
+                        className="w-2.5 h-2.5 rounded-full"
                         style={{ backgroundColor: stage.color }}
                       />
-                      <h3 className="font-bold text-xs tracking-wide text-white uppercase truncate max-w-[170px]">
+                      <h3 className="font-extrabold text-xs tracking-wider text-slate-800 uppercase truncate max-w-[170px]">
                         {stage.name}
                       </h3>
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      {/* Pink Alert Pill (días de atraso en etapa estilo Odoo) */}
+                      {/* Pink Alert Pill (días de atraso en etapa) */}
                       {alertCount > 0 && (
-                        <span className="text-[10px] font-black px-1.5 py-0.2 rounded-full bg-[#e91e63] text-white">
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
                           {alertCount}
                         </span>
                       )}
 
                       {/* Contador total de la columna */}
-                      <span className="text-[11px] font-bold text-slate-400">
+                      <span className="text-[11px] font-bold text-slate-500 px-1.5 py-0.5 rounded-md bg-slate-100">
                         {count}
                       </span>
 
@@ -226,7 +223,7 @@ export default function KanbanBoard({
                       <button
                         type="button"
                         onClick={() => onQuickAdd(stage.id)}
-                        className="p-1 hover:bg-slate-700/60 text-slate-400 hover:text-white rounded transition cursor-pointer"
+                        className="p-1 hover:bg-slate-100 text-slate-400 hover:text-slate-800 rounded transition cursor-pointer"
                         title={`Nuevo en ${stage.name}`}
                       >
                         <Plus className="w-3.5 h-3.5" />
@@ -239,14 +236,14 @@ export default function KanbanBoard({
                 <div className="p-2.5 overflow-y-auto space-y-2.5 flex-1 min-h-[140px] max-h-[calc(100vh-190px)]">
                   {/* Drop zone visual feedback */}
                   {isTargetDropZone && (
-                    <div className="py-2.5 px-3 border border-dashed border-teal-400/80 bg-teal-500/10 text-teal-300 rounded-lg text-center text-xs font-bold flex items-center justify-center gap-2 animate-pulse">
+                    <div className="py-2.5 px-3 border border-dashed border-purple-400 bg-purple-50 text-purple-700 rounded-xl text-center text-xs font-bold flex items-center justify-center gap-2 animate-pulse">
                       <ArrowRight className="w-3.5 h-3.5" />
                       <span>Soltar en {stage.name}</span>
                     </div>
                   )}
 
                   {stageProspects.length === 0 && !isTargetDropZone ? (
-                    <div className="py-8 text-center text-xs text-slate-500 border border-dashed border-[#2d3242] rounded-lg">
+                    <div className="py-8 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl bg-white/60">
                       Sin prospectos
                     </div>
                   ) : (
@@ -261,34 +258,42 @@ export default function KanbanBoard({
                           onDragStart={(e) => handleDragStart(e, prospect.id)}
                           onDragEnd={handleDragEnd}
                           onClick={() => onSelectProspect(prospect)}
-                          className={`group bg-[#2a2f3e] hover:bg-[#32384a] rounded-xl p-3 border transition-all cursor-pointer relative overflow-hidden ${
+                          className={`group bg-white hover:bg-slate-50/80 rounded-xl p-3.5 border transition-all cursor-pointer relative overflow-hidden shadow-2xs hover:shadow-md ${
                             isBeingDragged
-                              ? 'opacity-30 border-dashed border-teal-400'
+                              ? 'opacity-30 border-dashed border-purple-400'
                               : prospect.coreSincronizado
-                              ? 'border-emerald-500/50 hover:border-emerald-400'
-                              : 'border-[#373e52] hover:border-slate-500'
+                              ? 'border-emerald-300 hover:border-emerald-500'
+                              : 'border-slate-200 hover:border-purple-300'
                           }`}
                         >
                           {/* Accent line si ya está en Core */}
                           {prospect.coreSincronizado && (
-                            <div className="absolute top-0 left-0 right-0 h-0.5 bg-emerald-400" />
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-emerald-500" />
                           )}
 
                           {/* Top: Nombre de Oportunidad */}
                           <div className="flex items-start justify-between gap-1.5">
-                            <h4 className="text-xs font-extrabold text-white group-hover:text-teal-300 transition line-clamp-1 flex-1 tracking-tight">
+                            <h4 className="text-xs font-black text-slate-900 group-hover:text-purple-700 transition line-clamp-1 flex-1 tracking-tight">
                               {prospect.opportunityName}
                             </h4>
-                            <span className="text-slate-500 group-hover:text-slate-300 transition shrink-0">
+                            <span className="text-slate-300 group-hover:text-slate-500 transition shrink-0">
                               <GripVertical className="w-3.5 h-3.5" />
                             </span>
                           </div>
 
+                          {/* Teléfono */}
+                          {prospect.phone && (
+                            <div className="text-[11px] font-mono text-slate-500 mt-1 flex items-center gap-1">
+                              <Phone className="w-3 h-3 text-slate-400" />
+                              <span>{prospect.phone}</span>
+                            </div>
+                          )}
+
                           {/* Si está enlazado a Core Central */}
                           {prospect.coreSincronizado ? (
-                            <div className="mt-1.5 flex items-center justify-between text-[10px]">
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
-                                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                            <div className="mt-2 flex items-center justify-between text-[10px]">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                                 Core DV #{prospect.coreDistribuidorId}
                               </span>
                               {onVerPerfilCore && (
@@ -298,7 +303,7 @@ export default function KanbanBoard({
                                     e.stopPropagation();
                                     onVerPerfilCore(prospect.coreDistribuidorId!);
                                   }}
-                                  className="text-slate-400 hover:text-white underline"
+                                  className="text-purple-600 hover:text-purple-800 font-bold underline"
                                 >
                                   Ver Perfil
                                 </button>
@@ -314,7 +319,7 @@ export default function KanbanBoard({
                                     e.stopPropagation();
                                     onPasarACore(prospect.id);
                                   }}
-                                  className="w-full py-1 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[10px] flex items-center justify-center gap-1 shadow-xs transition active:scale-95 cursor-pointer"
+                                  className="w-full py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] flex items-center justify-center gap-1 shadow-xs transition active:scale-95 cursor-pointer"
                                 >
                                   <Zap className="w-3 h-3 fill-white" />
                                   <span>Pasar a Core Central</span>
@@ -323,8 +328,8 @@ export default function KanbanBoard({
                             )
                           )}
 
-                          {/* Card Footer: Estrellas + Clock + Pink Pill Días + Avatar */}
-                          <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-[#373e52] text-xs">
+                          {/* Card Footer: Estrellas + Clock + Días Badge + Avatar */}
+                          <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-100 text-xs">
                             {/* Estrellas amarillas */}
                             <div className="flex items-center gap-0.5">
                               {[1, 2, 3].map((star) => (
@@ -332,23 +337,23 @@ export default function KanbanBoard({
                                   key={star}
                                   className={`w-3.5 h-3.5 ${
                                     star <= prospect.priorityStars
-                                      ? 'text-yellow-400 fill-yellow-400'
-                                      : 'text-slate-600'
+                                      ? 'text-amber-400 fill-amber-400'
+                                      : 'text-slate-200'
                                   }`}
                                 />
                               ))}
-                              <Clock className="w-3 h-3 text-slate-500 ml-1.5" />
+                              <Clock className="w-3 h-3 text-slate-400 ml-1.5" />
                             </div>
 
-                            {/* Días en etapa (Pink Pill) y Badge de Asesor */}
+                            {/* Días en etapa y Badge de Asesor */}
                             <div className="flex items-center gap-1.5">
                               {prospect.daysInStage > 0 && (
-                                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[#e91e63] text-white">
+                                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
                                   {prospect.daysInStage} d
                                 </span>
                               )}
 
-                              {/* Letra inicial del asesor: Verde E / Teal M */}
+                              {/* Letra inicial del asesor */}
                               <div
                                 title={prospect.advisorName}
                                 className={`w-4 h-4 rounded text-[10px] font-black flex items-center justify-center ${advBadge.bg}`}
