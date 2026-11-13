@@ -5,6 +5,7 @@ export type StageId =
   | 'autorizacion_comercial'
   | 'mesa_credito'
   | 'legales'
+  | 'activacion'
   | 'perdido';
 
 export interface StageInfo {
@@ -170,6 +171,12 @@ export interface Prospect {
 
   // Matriz Documental (Anexo 1)
   documents: RequiredDocument[];
+
+  // Integración y Pase a Core Central LH
+  coreDistribuidorId?: number;
+  corePersonaId?: number;
+  coreSincronizado?: boolean;
+  fechaPaseCore?: string;
 
   // Historial / Chatter
   messages: ChatterMessage[];

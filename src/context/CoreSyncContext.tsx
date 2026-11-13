@@ -99,6 +99,13 @@ interface CoreSyncContextType {
     diaCorte?: string;
     concepto?: string;
   }) => Promise<any>;
+  updateProspect: (updated: Prospect) => void;
+  pasarProspectoACore: (prospectId: string) => Promise<{
+    success: boolean;
+    distribuidor?: DistribuidorCore;
+    persona?: PersonaCore;
+    message: string;
+  }>;
 }
 
 const CoreSyncContext = createContext<CoreSyncContextType | null>(null);
@@ -171,6 +178,138 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
 
   const updateDistribuidor = (updated: DistribuidorCore) => {
     setDistribuidores((prev) => prev.map((d) => (d.noDist === updated.noDist ? updated : d)));
+  };
+
+  const updateProspect = (updated: Prospect) => {
+    setProspects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+  };
+
+  const pasarProspectoACore = async (prospectId: string) => {
+    const prospect = prospects.find((p) => p.id === prospectId);
+    if (!prospect) {
+      return { success: false, message: 'Prospecto no encontrado en CRM.' };
+    }
+
+    if (prospect.coreSincronizado && prospect.coreDistribuidorId) {
+      const existingDist = distribuidores.find((d) => d.noDist === prospect.coreDistribuidorId);
+      const existingPer = personas.find((p) => p.personaId === prospect.corePersonaId);
+      return {
+        success: true,
+        distribuidor: existingDist,
+        persona: existingPer,
+        message: `El prospecto ya está enlazado a Core Central como Distribuidora #${prospect.coreDistribuidorId}.`,
+      };
+    }
+
+    // 1. Asignar nuevo noDist consecutivo y personaId
+    const maxNoDist = distribuidores.length > 0
+      ? Math.max(...distribuidores.map((d) => d.noDist))
+      : 1042;
+    const nuevoNoDist = maxNoDist >= 1000 ? maxNoDist + 1 : 1043;
+
+    const maxPersonaId = personas.length > 0
+      ? Math.max(...personas.map((p) => p.personaId))
+      : 14080;
+    const nuevaPersonaId = maxPersonaId + 1;
+
+    const curpVal = (prospect.curp || `${prospect.firstName.slice(0, 2)}${prospect.lastName.slice(0, 2)}850101MCLRN01`).toUpperCase();
+    const rfcVal = (prospect.rfc || curpVal.slice(0, 10)).toUpperCase();
+    const nombreCompleto = `${prospect.firstName} ${prospect.lastName} ${prospect.secondLastName || ''}`.trim().toUpperCase();
+
+    // 2. Crear Persona en Core
+    const direccionFormateada = `${prospect.street || 'CALLE HIDALGO'} ${prospect.extNumber || '100'}, ${prospect.neighborhood || 'CENTRO'}, ${prospect.city || 'Gómez Palacio'}, ${prospect.state || 'Durango'}`.toUpperCase();
+    const nuevaPersona: PersonaCore = {
+      personaId: nuevaPersonaId,
+      nombre: prospect.firstName.toUpperCase(),
+      apellidoPaterno: prospect.lastName.toUpperCase(),
+      apellidoMaterno: prospect.secondLastName ? prospect.secondLastName.toUpperCase() : '',
+      fechaNacimiento: prospect.birthDate || '15/05/1985',
+      categoria: 'DV',
+      pagareEstatusId: 'FIRMADO EN BLANCO',
+      pagareCantidad: 150000,
+      curp: curpVal,
+      rfc: rfcVal,
+      sexoId: prospect.gender === 'MASCULINO' ? 'MASCULINO' : 'FEMENINO',
+      buroInternoEstatus: 'NORMAL',
+      observaciones: 'Originada y aprobada desde módulo CRM Originación.',
+      isDistribuidor: true,
+      distribuidorId: nuevoNoDist,
+      telefono: prospect.phone || '8711002030',
+      direccion: direccionFormateada,
+      scoreBuro: prospect.bureauResult === 'BUENO' ? 685 : 630,
+      tipoIdentificacion: 'INE',
+      numeroIdentificacion: prospect.ineNumber || 'IDMEX1829482910',
+    };
+
+    // 3. Crear Distribuidor Oficial en Core
+    const lineaAprobada = prospect.creditLines?.valelana || 150000;
+    const lineaPersonalAprobada = prospect.creditLines?.personal || 15000;
+    const lineaTiendaAprobada = prospect.creditLines?.lanatienda || 20000;
+
+    const hoyStr = new Date().toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const nuevoDistribuidor: DistribuidorCore = {
+      noDist: nuevoNoDist,
+      nombreDistribuidor: nombreCompleto,
+      sucursal: prospect.city?.toUpperCase() || 'GÓMEZ PALACIO',
+      zona: 'ZONA NORTE',
+      subzona: 'LAGUNA',
+      coordinador: prospect.salesTeam || 'MARIA GUADALUPE AGUILERA',
+      promotor: prospect.advisorName || 'SIN PROMOTOR',
+      genero: prospect.gender === 'MASCULINO' ? 'MASCULINO' : 'FEMENINO',
+      estatus: 'ACTIVO',
+      nivel: 'BRONCE',
+      personaId: nuevaPersonaId,
+      curp: curpVal,
+      telefono: prospect.phone || '8711002030',
+      creditoLimite: lineaAprobada,
+      saldoActual: 0,
+      disponible: lineaAprobada,
+      lineaPersonal: lineaPersonalAprobada,
+      disponiblePersonal: lineaPersonalAprobada,
+      lineaLanaTienda: lineaTiendaAprobada,
+      disponibleLanaTienda: lineaTiendaAprobada,
+      tieneLanaApp: true,
+      fechaAlta: hoyStr,
+      usuarioValida: 'Mesa de Crédito / CRM',
+      fechaValidacion: `${hoyStr} ${new Date().toLocaleTimeString('es-MX')}`,
+      direccion: direccionFormateada,
+      perfil: prospect.assignedProfile || 'D-AAA',
+      valesActivos: 0,
+    };
+
+    // 4. Actualizar prospecto en CRM
+    const updatedProspect: Prospect = {
+      ...prospect,
+      stage: 'activacion',
+      coreSincronizado: true,
+      coreDistribuidorId: nuevoNoDist,
+      corePersonaId: nuevaPersonaId,
+      fechaPaseCore: new Date().toLocaleString('es-MX'),
+      messages: [
+        {
+          id: `msg-pase-${Date.now()}`,
+          author: 'Sistema Core Central',
+          authorEmail: 'sistema@core.lanahora.com.mx',
+          type: 'sistema',
+          content: `✓ Prospecto transferido a Core Central con éxito. Se dio de alta como Distribuidora Oficial No. ${nuevoNoDist} y Persona No. ${nuevaPersonaId} con línea autorizada de $${lineaAprobada.toLocaleString('es-MX')} MXN.`,
+          createdAt: new Date().toLocaleString('es-MX'),
+        },
+        ...prospect.messages,
+      ],
+      updatedAt: new Date().toISOString(),
+    };
+
+    // 5. Aplicar cambios a memoria reactiva
+    setPersonas((prev) => [nuevaPersona, ...prev]);
+    setDistribuidores((prev) => [nuevoDistribuidor, ...prev]);
+    setProspects((prev) => prev.map((p) => (p.id === prospectId ? updatedProspect : p)));
+
+    return {
+      success: true,
+      distribuidor: nuevoDistribuidor,
+      persona: nuevaPersona,
+      message: `¡Distribuidora No. ${nuevoNoDist} activada con éxito en Core Central!`,
+    };
   };
 
   const registrarCanje = async (payload: {
@@ -374,6 +513,8 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
         registrarCliente,
         registrarPago,
         registrarSpeiInbound,
+        updateProspect,
+        pasarProspectoACore,
       }}
     >
       {children}

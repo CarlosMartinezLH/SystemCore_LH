@@ -10,6 +10,7 @@ import {
   ChatterMessage,
 } from '@/types/crm';
 import { STAGES } from '@/lib/data/initialData';
+import { useCoreSync } from '@/context/CoreSyncContext';
 import SignaturePad from './SignaturePad';
 import {
   ArrowLeft,
@@ -28,25 +29,59 @@ import {
   ChevronRight,
   Star,
   ExternalLink,
+  Zap,
 } from 'lucide-react';
 
 interface LeadDetailViewProps {
   prospect: Prospect;
   onBack: () => void;
   onUpdate: (updatedProspect: Prospect) => void;
+  onVerPerfilCore?: (distribuidorId: number) => void;
 }
 
 export default function LeadDetailView({
   prospect,
   onBack,
   onUpdate,
+  onVerPerfilCore,
 }: LeadDetailViewProps) {
+  const { pasarProspectoACore } = useCoreSync();
   const [data, setData] = useState<Prospect>(prospect);
   const [activeTab, setActiveTab] = useState<
     'notas' | 'contacto' | 'ine' | 'solicitud' | 'integracion' | 'mesa'
   >('notas');
   const [newNote, setNewNote] = useState('');
   const [curpValidating, setCurpValidating] = useState(false);
+  const [isPassingToCore, setIsPassingToCore] = useState(false);
+  const [coreSuccessMsg, setCoreSuccessMsg] = useState<string | null>(null);
+
+  const handlePasarACore = async () => {
+    setIsPassingToCore(true);
+    try {
+      const res = await pasarProspectoACore(data.id);
+      if (res.success && res.distribuidor) {
+        const updated: Prospect = {
+          ...data,
+          stage: 'activacion',
+          coreSincronizado: true,
+          coreDistribuidorId: res.distribuidor.noDist,
+          corePersonaId: res.persona?.personaId,
+          fechaPaseCore: new Date().toLocaleString('es-MX'),
+        };
+        setData(updated);
+        onUpdate(updated);
+        setCoreSuccessMsg(`¡Prospecto activado en Core Central como Distribuidora #${res.distribuidor.noDist}!`);
+        setTimeout(() => setCoreSuccessMsg(null), 7000);
+      } else {
+        alert(res.message);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error al transferir prospecto a Core Central.');
+    } finally {
+      setIsPassingToCore(false);
+    }
+  };
 
   // Field change helper
   const handleFieldChange = (field: keyof Prospect, value: any) => {
@@ -209,6 +244,36 @@ export default function LeadDetailView({
               Perdido
             </button>
 
+            {/* Botón de Pase y Enlace a Core Central */}
+            {!data.coreSincronizado ? (
+              <button
+                type="button"
+                onClick={handlePasarACore}
+                disabled={isPassingToCore}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-sm transition active:scale-95 cursor-pointer disabled:opacity-50"
+              >
+                <Zap className="w-3.5 h-3.5 fill-white" />
+                <span>{isPassingToCore ? 'Activando en Core...' : 'Pasar a Core Central'}</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <span className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Enlazado en Core (DV #{data.coreDistribuidorId})</span>
+                </span>
+                {onVerPerfilCore && data.coreDistribuidorId && (
+                  <button
+                    type="button"
+                    onClick={() => onVerPerfilCore(data.coreDistribuidorId!)}
+                    className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition flex items-center gap-1 shadow-xs cursor-pointer"
+                  >
+                    <span>Ver Perfil DV</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            )}
+
             {currentStageIndex < STAGES.length - 2 && (
               <button
                 onClick={() => handleStageChange(STAGES[currentStageIndex + 1].id)}
@@ -245,6 +310,26 @@ export default function LeadDetailView({
             })}
           </div>
         </div>
+
+        {/* Banner de Éxito al pasar a Core Central */}
+        {coreSuccessMsg && (
+          <div className="p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center justify-between gap-3 text-emerald-900 text-xs font-bold animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{coreSuccessMsg}</span>
+            </div>
+            {onVerPerfilCore && data.coreDistribuidorId && (
+              <button
+                type="button"
+                onClick={() => onVerPerfilCore(data.coreDistribuidorId!)}
+                className="px-3 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs inline-flex items-center gap-1 transition cursor-pointer shrink-0"
+              >
+                <span>Abrir Perfil Distribuidor</span>
+                <ExternalLink className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Opportunity Card Main Header */}
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-5">

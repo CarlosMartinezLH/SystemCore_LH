@@ -26,12 +26,14 @@ import ReportesView from '@/components/ReportesView';
 import ContabilidadView from '@/components/ContabilidadView';
 import BuzonPLDView from '@/components/BuzonPLDView';
 import InactivityTimeoutModal from '@/components/InactivityTimeoutModal';
+import PerfilDistribuidorModal from '@/components/modals/PerfilDistribuidorModal';
 import { UserSession } from '@/types/auth';
+import { DistribuidorCore } from '@/types/core';
 import { Prospect, StageId, OriginType } from '@/types/crm';
 import { INITIAL_PROSPECTS, STAGES, createDefaultDocuments } from '@/lib/data/initialData';
 import { CoreSyncProvider } from '@/context/CoreSyncContext';
 
-const STORAGE_KEY = 'lanahora_crm_prospects_v2';
+const STORAGE_KEY = 'lanahora_crm_prospects_v4';
 const AUTH_KEY = 'lanahora_user_session_v2';
 
 export default function Home() {
@@ -44,6 +46,86 @@ export default function Home() {
   const [isNewLeadOpen, setIsNewLeadOpen] = useState(false);
   const [quickAddStage, setQuickAddStage] = useState<StageId>('contacto');
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [selectedDvForModal, setSelectedDvForModal] = useState<DistribuidorCore | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 5000);
+  };
+
+  const handlePasarACore = (prospectId: string) => {
+    const prospect = prospects.find((p) => p.id === prospectId);
+    if (!prospect) return;
+
+    if (prospect.coreSincronizado && prospect.coreDistribuidorId) {
+      showToast(`El prospecto ya está enlazado a Core Central (DV #${prospect.coreDistribuidorId}).`);
+      return;
+    }
+
+    const nuevoNoDist = 1043 + Math.floor(Math.random() * 50);
+    const nuevaPersonaId = 14090 + Math.floor(Math.random() * 50);
+    const nombreCompleto = `${prospect.firstName} ${prospect.lastName}`.trim().toUpperCase();
+
+    const updated: Prospect = {
+      ...prospect,
+      stage: 'activacion',
+      coreSincronizado: true,
+      coreDistribuidorId: nuevoNoDist,
+      corePersonaId: nuevaPersonaId,
+      fechaPaseCore: new Date().toLocaleString('es-MX'),
+      messages: [
+        {
+          id: `msg-pase-${Date.now()}`,
+          author: 'Sistema Core Central',
+          authorEmail: 'sistema@core.lanahora.com.mx',
+          type: 'sistema',
+          content: `✓ Prospecto transferido a Core Central con éxito. Se dio de alta como Distribuidora Oficial No. ${nuevoNoDist} con línea autorizada de $${(prospect.creditLines?.valelana || 150000).toLocaleString('es-MX')} MXN.`,
+          createdAt: new Date().toLocaleString('es-MX'),
+        },
+        ...prospect.messages,
+      ],
+      updatedAt: new Date().toISOString(),
+    };
+
+    const newProspects = prospects.map((p) => (p.id === prospectId ? updated : p));
+    saveProspects(newProspects);
+    showToast(`✓ ¡${nombreCompleto} ha sido dada de alta en Core Central como Distribuidora #${nuevoNoDist}!`);
+  };
+
+  const handleVerPerfilDv = (noDist: number) => {
+    const p = prospects.find((pr) => pr.coreDistribuidorId === noDist);
+    const dvObj: DistribuidorCore = {
+      noDist,
+      nombreDistribuidor: p ? `${p.firstName} ${p.lastName}`.toUpperCase() : 'DISTRIBUIDORA LANAHORA',
+      sucursal: p?.city?.toUpperCase() || 'GÓMEZ PALACIO',
+      zona: 'ZONA NORTE',
+      subzona: 'LAGUNA',
+      coordinador: p?.salesTeam || 'MARIA GUADALUPE AGUILERA',
+      promotor: p?.advisorName || 'SIN PROMOTOR',
+      genero: 'FEMENINO',
+      estatus: 'ACTIVO',
+      nivel: 'BRONCE',
+      personaId: p?.corePersonaId || 14080,
+      curp: p?.curp || 'MACE750312MCO',
+      telefono: p?.phone || '8711002030',
+      creditoLimite: p?.creditLines?.valelana || 150000,
+      saldoActual: 0,
+      disponible: p?.creditLines?.valelana || 150000,
+      lineaPersonal: p?.creditLines?.personal || 15000,
+      disponiblePersonal: p?.creditLines?.personal || 15000,
+      lineaLanaTienda: p?.creditLines?.lanatienda || 20000,
+      disponibleLanaTienda: p?.creditLines?.lanatienda || 20000,
+      tieneLanaApp: true,
+      fechaAlta: new Date().toLocaleDateString('es-MX'),
+      usuarioValida: 'Mesa de Crédito / CRM',
+      fechaValidacion: new Date().toLocaleDateString('es-MX') + ' 10:00:00',
+      direccion: p ? `${p.street} ${p.extNumber}, ${p.neighborhood}, ${p.city}` : 'AVENIDA HIDALGO 120, CENTRO, GOMEZ PALACIO',
+      perfil: p?.assignedProfile || 'D-AAA',
+      valesActivos: 0,
+    };
+    setSelectedDvForModal(dvObj);
+  };
 
   // Load from localStorage on client mount
   useEffect(() => {
@@ -311,6 +393,7 @@ export default function Home() {
                   prospect={selectedProspect}
                   onBack={() => setSelectedProspectId(null)}
                   onUpdate={handleUpdateProspect}
+                  onVerPerfilCore={handleVerPerfilDv}
                 />
               ) : currentView === 'kanban' ? (
                 <KanbanBoard
@@ -321,6 +404,11 @@ export default function Home() {
                     setIsNewLeadOpen(true);
                   }}
                   onMoveStage={handleMoveStage}
+                  onPasarACore={handlePasarACore}
+                  onVerPerfilCore={handleVerPerfilDv}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  onToggleView={(v) => setCurrentView(v)}
                 />
               ) : (
                 <TableView
@@ -340,6 +428,23 @@ export default function Home() {
 
           {/* Level 3 Security: 15-Minute Banking Inactivity Auto-Logout Watcher */}
           <InactivityTimeoutModal onLogout={handleLogout} />
+
+          {/* Toast Notification Flotante */}
+          {toastMessage && (
+            <div className="fixed bottom-6 right-6 z-[140] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 text-xs font-bold flex items-center gap-2 animate-in slide-in-from-bottom-3 duration-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>{toastMessage}</span>
+            </div>
+          )}
+
+          {/* Modal Oficial de Perfil Distribuidor abierto directamente desde CRM */}
+          {selectedDvForModal && (
+            <PerfilDistribuidorModal
+              isOpen={selectedDvForModal !== null}
+              onClose={() => setSelectedDvForModal(null)}
+              distribuidor={selectedDvForModal}
+            />
+          )}
         </div>
       </div>
     </CoreSyncProvider>
