@@ -44,6 +44,7 @@ import CreditoPersonaDVModal from './CreditoPersonaDVModal';
 import LanaPuntosModal from './LanaPuntosModal';
 import AuditoriaDistribuidorModal from './AuditoriaDistribuidorModal';
 import ExpedienteDistribuidorModal from './ExpedienteDistribuidorModal';
+import AutorizarIngresoAppModal from './AutorizarIngresoAppModal';
 
 interface PerfilDistribuidorModalProps {
   isOpen: boolean;
@@ -82,6 +83,7 @@ export default function PerfilDistribuidorModal({
   const [isLanaPuntosModalOpen, setIsLanaPuntosModalOpen] = useState(false);
   const [isAuditoriaModalOpen, setIsAuditoriaModalOpen] = useState(false);
   const [isExpedienteModalOpen, setIsExpedienteModalOpen] = useState(false);
+  const [isAutIngresoAppModalOpen, setIsAutIngresoAppModalOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<DistribuidorCore>>({});
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
@@ -774,12 +776,12 @@ export default function PerfilDistribuidorModal({
 
                   <button
                     type="button"
-                    onClick={() => showToast('Autorización de ingreso enviada a LanaApp.')}
+                    onClick={() => setIsAutIngresoAppModalOpen(true)}
                     className="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50 hover:border-purple-300 text-slate-800 hover:text-purple-900 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
                     <UserCheck className="w-4 h-4 text-purple-600" />
                     <span className="font-bold text-xs">Aut. Ingreso APP</span>
-                    <span className="text-[10px] text-slate-500">Acceso móvil seguro</span>
+                    <span className="text-[10px] text-slate-500">Resetear acceso móvil</span>
                   </button>
 
                   <button
@@ -1022,6 +1024,33 @@ export default function PerfilDistribuidorModal({
           onOpenContratoApertura={() => {
             setIsExpedienteModalOpen(false);
             setIsContratoModalOpen(true);
+          }}
+        />
+      )}
+
+      {/* Modal Oficial de Autorizar Ingreso APP / Resetear Acceso Móvil */}
+      {isAutIngresoAppModalOpen && (
+        <AutorizarIngresoAppModal
+          isOpen={isAutIngresoAppModalOpen}
+          onClose={() => setIsAutIngresoAppModalOpen(false)}
+          distribuidor={currentDv}
+          onAccesoReseteado={(res) => {
+            const updated = { ...currentDv, tieneLanaApp: true };
+            setCurrentDv(updated);
+            updateDistribuidor(updated);
+            setInternalNotes((prev) => [
+              {
+                id: `note-app-${Date.now()}`,
+                text: `Acceso a LanaApp reseteado y autorizado (Folio ${res.folio}). Dispositivo previo desvinculado. Resultado: OK.`,
+                date: res.fecha,
+                author: 'Sistema / Operaciones',
+                authorRole: 'Mesa de Control',
+                modulo: 'LanaApp Móvil',
+                avatarInitials: 'AP',
+              },
+              ...prev,
+            ]);
+            showToast(`Acceso a LanaApp reseteado (Resultado: OK)`);
           }}
         />
       )}
