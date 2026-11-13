@@ -2276,25 +2276,47 @@ export const INITIAL_ACCESOS_COORDINADOR: AccesoCoordinador[] = [
   { id: 'acc-19', coordinadorId: 'COORD-12', coordinadorNombre: 'CARLOS VAZQUEZ', usuarioId: 'usr-18', usuarioNombre: 'Carlos Vazquez Gomez', fechaAsignacion: '01/03/2023' },
 ];
 
-// --- FUNCIONES X USUARIO (Matriz de 17 Permisos Operativos del Sistema Anterior) ---
+// --- CATÁLOGO DE FUNCIONES DISPONIBLES (17 Permisos Operativos del Sistema Anterior) ---
+export const CAT_FUNCIONES_DISPONIBLES = [
+  'MODIFICAR FECHA DE COMISION',
+  'VER TODAS LAS SOLICITUDES DE BANDEJA DE CREDITO Y PERMISO A SUC',
+  'ASIGNAR CARTERA LEGAL',
+  'GENERA RESTRUTURA DE DISTRIBUIDOR',
+  'VER TELEFONOS CLIENTES FINALES',
+  'VER REPORTES DE LEGAL',
+  'QUITAR FECHA DE CASTIGO',
+  'VALIDAR DISTRIBUIDORES',
+  'CANCELAR CREDITOS',
+  'MESA AYUDA',
+  'ACTIVA DISTRIBUIDOR',
+  'BLOQUEA DISTRIBUIDOR',
+  'VALIDAR CONTRATO DE DISTRIBUIDOR',
+  'MODIFICAR COORDINADOR DE DISTRIBUIDOR',
+  'RECALCULAR ULTIMA RELACION DE DV',
+  'CAMBIA GESTOR DISTRIBUIDOR',
+  'PUEDE CAMBIAR LINEAS DE CREDITO',
+];
+
+// --- FUNCIONES X USUARIO (Matriz de Permisos Operativos con datos del Sistema Anterior) ---
 export const INITIAL_FUNCIONES_USUARIO: FuncionUsuario[] = [
-  { id: 'fun-01', usuarioId: 'usr-sistema', usuarioNombre: 'Sistema Core LH', funcionId: 'MOD_FEC_COM', funcionNombre: 'MODIFICAR FECHA DE COMISIÓN', descripcion: 'Permite ajustar la fecha corte de comisiones a coordinadores', permiso: true },
-  { id: 'fun-02', usuarioId: 'usr-sistema', usuarioNombre: 'Sistema Core LH', funcionId: 'VER_SOL_BAN', funcionNombre: 'VER TODAS LAS SOLICITUDES DE BANDEJA DE CRÉDITO Y PERMISO A SUC', descripcion: 'Visibilidad global de bandeja de originación', permiso: true },
-  { id: 'fun-03', usuarioId: 'usr-jorge', usuarioNombre: 'Jorge Valenzuela (Legal)', funcionId: 'ASIG_CART_LEG', funcionNombre: 'ASIGNAR CARTERA LEGAL', descripcion: 'Turnar expedientes a litigio o cobranza judicial', permiso: true },
-  { id: 'fun-04', usuarioId: 'usr-jorge', usuarioNombre: 'Jorge Valenzuela (Legal)', funcionId: 'GEN_REEST_DV', funcionNombre: 'GENERA REESTRUCTURA DE DISTRIBUIDOR', descripcion: 'Apertura de convenios con pagaré de reestructura', permiso: true },
-  { id: 'fun-05', usuarioId: 'usr-jorge', usuarioNombre: 'Jorge Valenzuela (Legal)', funcionId: 'VER_TEL_CLI', funcionNombre: 'VER TELÉFONOS CLIENTES FINALES', descripcion: 'Consulta de teléfonos de clientes avales y finales', permiso: true },
-  { id: 'fun-06', usuarioId: 'usr-jorge', usuarioNombre: 'Jorge Valenzuela (Legal)', funcionId: 'VER_REP_LEG', funcionNombre: 'VER REPORTES DE LEGAL', descripcion: 'Acceso a tableros de demandas y juicios mercantiles', permiso: true },
-  { id: 'fun-07', usuarioId: 'usr-jorge', usuarioNombre: 'Jorge Valenzuela (Legal)', funcionId: 'QUIT_FEC_CAS', funcionNombre: 'QUITAR FECHA DE CASTIGO', descripcion: 'Rehabilitar distribuidoras castigadas en mora', permiso: true },
-  { id: 'fun-08', usuarioId: 'usr-lizeth', usuarioNombre: 'Lizeth Martínez (Mesa de Crédito)', funcionId: 'VAL_DIST', funcionNombre: 'VALIDAR DISTRIBUIDORES', descripcion: 'Aprobación final de prospectos y línea de crédito', permiso: true },
-  { id: 'fun-09', usuarioId: 'usr-lizeth', usuarioNombre: 'Lizeth Martínez (Mesa de Crédito)', funcionId: 'CAN_CRED', funcionNombre: 'CANCELAR CRÉDITOS', descripcion: 'Cancelación de vales no dispersados o con anomalías', permiso: true },
-  { id: 'fun-10', usuarioId: 'usr-lizeth', usuarioNombre: 'Lizeth Martínez (Mesa de Crédito)', funcionId: 'MESA_AYU', funcionNombre: 'MESA DE AYUDA', descripcion: 'Soporte y desbloqueo de cuentas LanApp', permiso: true },
-  { id: 'fun-11', usuarioId: 'usr-lizeth', usuarioNombre: 'Lizeth Martínez (Mesa de Crédito)', funcionId: 'ACT_DIST', funcionNombre: 'ACTIVA DISTRIBUIDOR', descripcion: 'Activación de distribuidoras en el Core Central', permiso: true },
-  { id: 'fun-12', usuarioId: 'usr-lizeth', usuarioNombre: 'Lizeth Martínez (Mesa de Crédito)', funcionId: 'BLOQ_DIST', funcionNombre: 'BLOQUEA DISTRIBUIDOR', descripcion: 'Bloqueo preventivo por atraso o sospecha de fraude', permiso: true },
-  { id: 'fun-13', usuarioId: 'usr-lizeth', usuarioNombre: 'Lizeth Martínez (Mesa de Crédito)', funcionId: 'VAL_CONT_DV', funcionNombre: 'VALIDAR CONTRATO DE DISTRIBUIDOR', descripcion: 'Revisión y validación de contrato y pagaré firmado', permiso: true },
-  { id: 'fun-14', usuarioId: 'usr-lizeth', usuarioNombre: 'Lizeth Martínez (Mesa de Crédito)', funcionId: 'MOD_COORD_DV', funcionNombre: 'MODIFICAR COORDINADOR DE DISTRIBUIDOR', descripcion: 'Reasignar distribuidora a otra coordinación', permiso: true },
-  { id: 'fun-15', usuarioId: 'usr-lizeth', usuarioNombre: 'Lizeth Martínez (Mesa de Crédito)', funcionId: 'REC_ULT_REL', funcionNombre: 'RECALCULAR ÚLTIMA RELACIÓN DE DV', descripcion: 'Regenerar talones y relación de cobranza del corte', permiso: true },
-  { id: 'fun-16', usuarioId: 'usr-lizeth', usuarioNombre: 'Lizeth Martínez (Mesa de Crédito)', funcionId: 'CAM_GEST_DV', funcionNombre: 'CAMBIA GESTOR DISTRIBUIDOR', descripcion: 'Asignar gestor de cobranza a cartera en mora', permiso: true },
-  { id: 'fun-17', usuarioId: 'usr-lizeth', usuarioNombre: 'Lizeth Martínez (Mesa de Crédito)', funcionId: 'CAM_LIN_CRED', funcionNombre: 'PUEDE CAMBIAR LÍNEAS DE CRÉDITO', descripcion: 'Incrementar o reducir línea autorizada de distribuidora', permiso: true },
+  { id: 'fun-01', usuarioId: 'Sistema', usuarioNombre: 'Sistema', funcionId: 'MOD_FEC_COM', funcionNombre: 'MODIFICAR FECHA DE COMISION', descripcion: 'Permite ajustar la fecha corte de comisiones a coordinadores', permiso: true },
+  { id: 'fun-02', usuarioId: 'Sistema', usuarioNombre: 'Sistema', funcionId: 'VER_SOL_BAN', funcionNombre: 'VER TODAS LAS SOLICITUDES DE BANDEJA DE CREDITO Y PERMISO A SUC', descripcion: 'Visibilidad global de bandeja de originación', permiso: true },
+  { id: 'fun-03', usuarioId: 'jorge', usuarioNombre: 'jorge', funcionId: 'ASIG_CART_LEG', funcionNombre: 'ASIGNAR CARTERA LEGAL', descripcion: 'Turnar expedientes a litigio o cobranza judicial', permiso: true },
+  { id: 'fun-04', usuarioId: 'jorge', usuarioNombre: 'jorge', funcionId: 'GEN_REEST_DV', funcionNombre: 'GENERA RESTRUTURA DE DISTRIBUIDOR', descripcion: 'Apertura de convenios con pagaré de reestructura', permiso: true },
+  { id: 'fun-05', usuarioId: 'jorge', usuarioNombre: 'jorge', funcionId: 'VER_TEL_CLI', funcionNombre: 'VER TELEFONOS CLIENTES FINALES', descripcion: 'Consulta de teléfonos de clientes avales y finales', permiso: true },
+  { id: 'fun-06', usuarioId: 'jorge', usuarioNombre: 'jorge', funcionId: 'VER_REP_LEG', funcionNombre: 'VER REPORTES DE LEGAL', descripcion: 'Acceso a tableros de demandas y juicios mercantiles', permiso: true },
+  { id: 'fun-07', usuarioId: 'jorge', usuarioNombre: 'jorge', funcionId: 'QUIT_FEC_CAS', funcionNombre: 'QUITAR FECHA DE CASTIGO', descripcion: 'Rehabilitar distribuidoras castigadas en mora', permiso: true },
+  { id: 'fun-08', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'VAL_DIST', funcionNombre: 'VALIDAR DISTRIBUIDORES', descripcion: 'Aprobación final de prospectos y línea de crédito', permiso: true },
+  { id: 'fun-09', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'CAN_CRED', funcionNombre: 'CANCELAR CREDITOS', descripcion: 'Cancelación de vales no dispersados o con anomalías', permiso: true },
+  { id: 'fun-10', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'MESA_AYU', funcionNombre: 'MESA AYUDA', descripcion: 'Soporte y desbloqueo de cuentas LanApp', permiso: true },
+  { id: 'fun-11', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'ACT_DIST', funcionNombre: 'ACTIVA DISTRIBUIDOR', descripcion: 'Activación de distribuidoras en el Core Central', permiso: true },
+  { id: 'fun-12', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'BLOQ_DIST', funcionNombre: 'BLOQUEA DISTRIBUIDOR', descripcion: 'Bloqueo preventivo por atraso o sospecha de fraude', permiso: true },
+  { id: 'fun-13', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'VAL_CONT_DV', funcionNombre: 'VALIDAR CONTRATO DE DISTRIBUIDOR', descripcion: 'Revisión y validación de contrato y pagaré firmado', permiso: true },
+  { id: 'fun-14', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'MOD_COORD_DV', funcionNombre: 'MODIFICAR COORDINADOR DE DISTRIBUIDOR', descripcion: 'Reasignar distribuidora a otra coordinación', permiso: true },
+  { id: 'fun-15', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'REC_ULT_REL', funcionNombre: 'RECALCULAR ULTIMA RELACION DE DV', descripcion: 'Regenerar talones y relación de cobranza del corte', permiso: true },
+  { id: 'fun-16', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'CAM_GEST_DV', funcionNombre: 'CAMBIA GESTOR DISTRIBUIDOR', descripcion: 'Asignar gestor de cobranza a cartera en mora', permiso: true },
+  { id: 'fun-17', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'CAM_LIN_CRED', funcionNombre: 'PUEDE CAMBIAR LINEAS DE CREDITO', descripcion: 'Incrementar o reducir línea autorizada de distribuidora', permiso: true },
+  { id: 'fun-18', usuarioId: 'Lizeth Martinez', usuarioNombre: 'Lizeth Martinez', funcionId: 'GEN_REEST_DV_2', funcionNombre: 'GENERA RESTRUTURA DE DISTRIBUIDOR', descripcion: 'Apertura de convenios con pagaré de reestructura', permiso: true },
 ];
 
 
