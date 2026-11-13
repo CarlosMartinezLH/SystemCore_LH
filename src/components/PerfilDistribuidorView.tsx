@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { DistribuidorCore } from '@/types/core';
 import { useCoreSync } from '@/context/CoreSyncContext';
-import { formatMoney, formatMoneyNumber } from '@/lib/utils/formatters';
+import { formatMoney } from '@/lib/utils/formatters';
 import {
   Search,
   Edit,
@@ -209,7 +209,7 @@ export default function PerfilDistribuidorView({
               LanaPuntos
             </span>
             <span className="text-base font-black text-blue-800 font-mono mt-0.5 block">
-              {formatMoneyNumber(currentDv.lanapuntos || 41125)}
+              {(currentDv.lanapuntos || 41125).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
             </span>
           </div>
 

@@ -62,6 +62,18 @@ const INITIAL_SUCURSALES: Sucursal[] = [
     estatus: 'ACTIVA',
     fechaRegistro: '2024-06-20T09:00:00.000Z',
   },
+  {
+    id: 'suc-006',
+    clave: 'SUC-GP-CEN',
+    nombre: 'Gómez Palacio',
+    direccion: 'Av. Victoria #450, Zona Centro',
+    ciudad: 'Gómez Palacio',
+    estado: 'Durango',
+    telefono: '871 412 5836',
+    responsable: 'Eduardo Del Río Álvarez',
+    estatus: 'ACTIVA',
+    fechaRegistro: '2024-07-01T09:00:00.000Z',
+  },
 ];
 
 const INITIAL_USUARIOS: InstitutionalUserConfig[] = INSTITUTIONAL_USERS.map((u, i) => ({

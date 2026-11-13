@@ -322,7 +322,7 @@ export default function LeadDetailView({
                 <button
                   type="button"
                   onClick={() => onVerPerfilCore(data.coreDistribuidorId!)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-1 cursor-pointer shadow-2xs"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white transition flex items-center gap-1 cursor-pointer"
                 >
                   <span>Ver Perfil DV</span>
                   <ExternalLink className="w-3 h-3" />

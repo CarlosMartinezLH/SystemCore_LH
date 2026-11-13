@@ -17,6 +17,7 @@ import {
   List,
   MapPin,
   Settings,
+  ChevronDown,
 } from 'lucide-react';
 
 interface KanbanBoardProps {
@@ -29,6 +30,8 @@ interface KanbanBoardProps {
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
   onToggleView?: (view: 'kanban' | 'list') => void;
+  selectedSucursal?: string;
+  onSelectSucursal?: (sucursal: string) => void;
 }
 
 export default function KanbanBoard({
@@ -41,6 +44,8 @@ export default function KanbanBoard({
   searchQuery = '',
   onSearchChange,
   onToggleView,
+  selectedSucursal = 'GÓMEZ PALACIO',
+  onSelectSucursal,
 }: KanbanBoardProps) {
   const [draggedProspectId, setDraggedProspectId] = useState<string | null>(null);
   const [dragOverStage, setDragOverStage] = useState<StageId | null>(null);
@@ -141,10 +146,23 @@ export default function KanbanBoard({
 
         {/* Derecha: Sucursal & Vistas */}
         <div className="flex items-center gap-2.5">
-          {/* Sucursal activa */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-700 font-normal">
-            <MapPin className="w-3.5 h-3.5 text-blue-600" />
-            <span>Gómez Palacio</span>
+          {/* Selector de Sucursal Activa Seleccionable */}
+          <div className="relative inline-flex items-center">
+            <MapPin className="w-3.5 h-3.5 text-blue-600 absolute left-2.5 pointer-events-none z-10" />
+            <select
+              value={selectedSucursal || 'GÓMEZ PALACIO'}
+              onChange={(e) => onSelectSucursal && onSelectSucursal(e.target.value)}
+              className="appearance-none bg-slate-100 hover:bg-slate-200/80 border border-slate-200 hover:border-slate-300 text-xs font-medium text-slate-700 pl-8 pr-7 py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer transition shadow-2xs"
+              title="Seleccionar sucursal activa"
+            >
+              <option value="GÓMEZ PALACIO">Gómez Palacio</option>
+              <option value="TORREÓN">Torreón Centro</option>
+              <option value="SALTILLO">Saltillo Centro</option>
+              <option value="MONCLOVA">Monclova</option>
+              <option value="RAMOS ARIZPE">Ramos Arizpe</option>
+              <option value="TODAS">Todas las Sucursales</option>
+            </select>
+            <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2 pointer-events-none" />
           </div>
 
           {/* Switcher de Vistas (Kanban activo / Lista) */}

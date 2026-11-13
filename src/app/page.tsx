@@ -64,6 +64,7 @@ function SystemCoreApp() {
   const [quickAddStage, setQuickAddStage] = useState<StageId>('contacto');
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [selectedDvForModal, setSelectedDvForModal] = useState<DistribuidorCore | null>(null);
+  const [selectedSucursal, setSelectedSucursal] = useState<string>('GÓMEZ PALACIO');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -172,7 +173,7 @@ function SystemCoreApp() {
       rfc: '',
       advisorName: currentUser?.name || 'Alejandro Domínguez',
       advisorEmail: currentUser?.email || 'alejandro_dominguez@lanahora.com',
-      salesTeam: 'Ventas Campo',
+      salesTeam: selectedSucursal === 'TODAS' ? 'Ventas Gómez Palacio' : `Ventas ${selectedSucursal}`,
       company: 'Lanahora',
       distributorType: 'DV',
       experienceType: '',
@@ -182,9 +183,9 @@ function SystemCoreApp() {
       extNumber: '',
       zipCode: '',
       neighborhood: '',
-      municipality: '',
-      city: '',
-      state: 'Coahuila',
+      municipality: selectedSucursal === 'GÓMEZ PALACIO' ? 'GOMEZ PALACIO' : selectedSucursal,
+      city: selectedSucursal === 'TODAS' ? 'Gómez Palacio' : selectedSucursal === 'TORREÓN' ? 'Torreón' : selectedSucursal === 'SALTILLO' ? 'Saltillo' : selectedSucursal === 'MONCLOVA' ? 'Monclova' : selectedSucursal === 'RAMOS ARIZPE' ? 'Ramos Arizpe' : 'Gómez Palacio',
+      state: selectedSucursal === 'GÓMEZ PALACIO' ? 'Durango' : 'Coahuila',
       bureauResult: 'NO_CONSULTADO',
       smsSent: false,
       smsAuthorized: false,
@@ -271,8 +272,31 @@ function SystemCoreApp() {
     updateProspect(updated);
   };
 
-  // Filter prospects
+  // Filter prospects con filtro de sucursal activa y búsqueda
   const filteredProspects = prospects.filter((p) => {
+    // Filtrado por sucursal seleccionable
+    if (selectedSucursal && selectedSucursal !== 'TODAS') {
+      const normalize = (s: string) =>
+        s
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toUpperCase()
+          .trim();
+
+      const normTarget = normalize(selectedSucursal);
+      const normCity = normalize(p.city || '');
+      const normTeam = normalize(p.salesTeam || '');
+      const normCompany = normalize(p.company || '');
+
+      const matchesBranch =
+        normCity.includes(normTarget) ||
+        normTarget.includes(normCity) ||
+        normTeam.includes(normTarget) ||
+        normCompany.includes(normTarget);
+
+      if (!matchesBranch) return false;
+    }
+
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();
     return (
@@ -396,11 +420,16 @@ function SystemCoreApp() {
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
                   onToggleView={(v) => setCurrentView(v)}
+                  selectedSucursal={selectedSucursal}
+                  onSelectSucursal={setSelectedSucursal}
                 />
               ) : (
                 <TableView
                   prospects={filteredProspects}
                   onSelectProspect={(p) => setSelectedProspectId(p.id)}
+                  onToggleView={(v) => setCurrentView(v)}
+                  selectedSucursal={selectedSucursal}
+                  onSelectSucursal={setSelectedSucursal}
                 />
               )
             )}
