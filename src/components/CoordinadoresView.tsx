@@ -47,11 +47,13 @@ import { formatMoney } from '@/lib/utils/formatters';
 interface CoordinadoresViewProps {
   currentUser?: UserSession | null;
   onNavigateToDistribuidores?: (coordinadorNombre?: string) => void;
+  onNavigateToSucursales?: () => void;
 }
 
 export default function CoordinadoresView({
   currentUser,
   onNavigateToDistribuidores,
+  onNavigateToSucursales,
 }: CoordinadoresViewProps) {
   const { distribuidores, updateDistribuidor } = useCoreSync();
 
@@ -421,8 +423,17 @@ export default function CoordinadoresView({
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>Funciones x Usuario</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-700 font-mono font-bold">
-              17
+              18
             </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onNavigateToSucursales?.()}
+            className="px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5 cursor-pointer"
+          >
+            <Building2 className="w-3.5 h-3.5 text-blue-600" />
+            <span>Sucursales</span>
           </button>
         </div>
       </div>
