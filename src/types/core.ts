@@ -280,6 +280,13 @@ export interface FuncionUsuario {
   permiso: boolean;
 }
 
+export interface UsuarioSistema {
+  id: string;
+  nombre: string;
+  email: string;
+  rol: string;
+}
+
 export interface CreditoCore {
   creditoId: string;
   noVale: string;

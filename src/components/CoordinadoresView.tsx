@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { CoordinadorCore, DistribuidorCore, AccesoCoordinador, FuncionUsuario } from '@/types/core';
+import { CoordinadorCore, DistribuidorCore, AccesoCoordinador, FuncionUsuario, UsuarioSistema } from '@/types/core';
 import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import {
   INITIAL_COORDINADORES,
   INITIAL_ACCESOS_COORDINADOR,
   INITIAL_FUNCIONES_USUARIO,
+  INITIAL_USUARIOS_SISTEMA,
 } from '@/lib/data/coreData';
 import {
   Search,
@@ -77,6 +78,9 @@ export default function CoordinadoresView({
 
   // Filtros Tab Accesos
   const [accesoSearch, setAccesoSearch] = useState('');
+  const [usuariosSistema] = useState<UsuarioSistema[]>(INITIAL_USUARIOS_SISTEMA);
+  const [inlineCoordId, setInlineCoordId] = useState(INITIAL_COORDINADORES[0]?.id || '');
+  const [inlineUsuarioId, setInlineUsuarioId] = useState(INITIAL_USUARIOS_SISTEMA[0]?.id || '');
 
   // Filtros Tab Funciones
   const [funcionUserFilter, setFuncionUserFilter] = useState('ALL');
@@ -222,6 +226,42 @@ export default function CoordinadoresView({
       setAccesos((prev) => prev.filter((a) => a.id !== id));
       showToast(`Acceso desvinculado exitosamente.`);
     }
+  };
+
+  // Asignar / Actualizar Acceso desde el formulario superior (Estilo Sistema Legado)
+  const handleInlineAsignar = () => {
+    const coord = coordinadores.find((c) => c.id === inlineCoordId);
+    const user = usuariosSistema.find((u) => u.id === inlineUsuarioId);
+    if (!coord || !user) return;
+
+    const existing = accesos.find((a) => a.coordinadorId === coord.id);
+    if (existing) {
+      setAccesos((prev) =>
+        prev.map((a) =>
+          a.id === existing.id
+            ? { ...a, usuarioId: user.id, usuarioNombre: user.nombre, fechaAsignacion: new Date().toLocaleDateString('es-MX') }
+            : a
+        )
+      );
+      showToast(`Acceso actualizado: "${coord.nombre}" vinculado a "${user.nombre}".`);
+    } else {
+      const newAcc: AccesoCoordinador = {
+        id: `acc-${Date.now().toString().slice(-4)}`,
+        coordinadorId: coord.id,
+        coordinadorNombre: coord.nombre,
+        usuarioId: user.id,
+        usuarioNombre: user.nombre,
+        fechaAsignacion: new Date().toLocaleDateString('es-MX'),
+      };
+      setAccesos((prev) => [newAcc, ...prev]);
+      showToast(`Nuevo acceso vinculado: "${coord.nombre}" asignado a "${user.nombre}".`);
+    }
+  };
+
+  const handleCancelInline = () => {
+    setInlineCoordId(coordinadores[0]?.id || '');
+    setInlineUsuarioId(usuariosSistema[0]?.id || '');
+    showToast('Formulario de asignación cancelado.', 'error');
   };
 
   // Exportar a Excel
@@ -700,13 +740,87 @@ export default function CoordinadoresView({
             </div>
           </div>
 
-          {/* Barra de control */}
+          {/* Formulario Superior Estilo Sistema Anterior */}
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-2">
+                <Link2 className="w-4 h-4 text-blue-600" />
+                <span>Asignación de Acceso a Coordinador</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setInlineCoordId(coordinadores[0]?.id || '');
+                  setInlineUsuarioId(usuariosSistema[0]?.id || '');
+                  showToast('Formulario listo para nuevo registro.');
+                }}
+                className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+              >
+                + Nuevo
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+              <div className="md:col-span-5">
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                  Coordinador ID:
+                </label>
+                <select
+                  value={inlineCoordId}
+                  onChange={(e) => setInlineCoordId(e.target.value)}
+                  className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:bg-white focus:border-blue-600"
+                >
+                  {coordinadores.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre} ({c.sucursal} · #{c.coordinadorIdNum || c.id})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="md:col-span-5">
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                  Usuario ID:
+                </label>
+                <select
+                  value={inlineUsuarioId}
+                  onChange={(e) => setInlineUsuarioId(e.target.value)}
+                  className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:bg-white focus:border-blue-600"
+                >
+                  {usuariosSistema.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.nombre} ({u.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="md:col-span-2 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleInlineAsignar}
+                  className="flex-1 py-1.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition active:scale-95 cursor-pointer shadow-2xs"
+                >
+                  Actualizar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelInline}
+                  className="py-1.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 font-bold text-xs transition cursor-pointer"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Buscador Estilo Sistema Anterior */}
           <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-wrap items-center justify-between gap-3">
             <div className="relative flex-1 min-w-[240px]">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Buscar por coordinador, usuario o ID..."
+                placeholder="Introduzca el texto a buscar..."
                 value={accesoSearch}
                 onChange={(e) => setAccesoSearch(e.target.value)}
                 className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-blue-600 font-medium text-slate-900"
@@ -715,65 +829,90 @@ export default function CoordinadoresView({
 
             <button
               onClick={() => setIsNewAccesoModalOpen(true)}
-              className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition active:scale-95 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition active:scale-95 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Vincular Nuevo Acceso</span>
+              <span>Vincular Nuevo Acceso (Modal)</span>
             </button>
           </div>
 
-          {/* Tabla de Accesos */}
+          {/* Tabla de Accesos con Columnas Idénticas al Sistema Anterior */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
             <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
               <thead className="bg-slate-50/90 border-b border-slate-200/80 text-slate-500 uppercase text-[10px] tracking-wider font-extrabold select-none">
                 <tr>
-                  <th className="p-3">ID Mapeo</th>
-                  <th className="p-3">Coordinador en Campo</th>
-                  <th className="p-3">ID Usuario</th>
-                  <th className="p-3">Cuenta de Usuario Vinculada</th>
+                  <th className="p-3 text-center w-20">Acción</th>
+                  <th className="p-3">Coordinador ID</th>
+                  <th className="p-3">Usuario ID</th>
                   <th className="p-3 text-center">Fecha Asignación</th>
-                  <th className="p-3 text-center">Estatus Acceso</th>
-                  <th className="p-3 text-center">Acciones</th>
+                  <th className="p-3 text-center">Estatus</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredAccesos.map((acc) => (
                   <tr key={acc.id} className="hover:bg-slate-50/80 transition">
-                    <td className="p-3 font-mono font-bold text-slate-600">{acc.id}</td>
+                    {/* Enlace Eliminar en azul al estilo del sistema legado */}
+                    <td className="p-3 text-center">
+                      <button
+                        onClick={() => handleRemoveAcceso(acc.id)}
+                        className="text-blue-600 hover:text-rose-600 hover:underline font-bold text-xs transition cursor-pointer"
+                        title="Eliminar este acceso"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+
+                    {/* Coordinador ID */}
                     <td className="p-3">
-                      <div className="font-bold text-slate-900">{acc.coordinadorNombre}</div>
+                      <div className="font-bold text-slate-900 uppercase">{acc.coordinadorNombre}</div>
                       <div className="text-[10px] font-mono text-slate-400">{acc.coordinadorId}</div>
                     </td>
-                    <td className="p-3 font-mono text-blue-600 font-bold">{acc.usuarioId}</td>
+
+                    {/* Usuario ID */}
                     <td className="p-3">
                       <div className="font-semibold text-slate-800">{acc.usuarioNombre}</div>
+                      <div className="text-[10px] font-mono text-slate-400">{acc.usuarioId}</div>
                     </td>
+
+                    {/* Fecha de Asignación */}
                     <td className="p-3 text-center font-mono text-slate-500">{acc.fechaAsignacion}</td>
+
+                    {/* Estatus */}
                     <td className="p-3 text-center">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                         CONECTADO
                       </span>
                     </td>
-                    <td className="p-3 text-center">
-                      <button
-                        onClick={() => handleRemoveAcceso(acc.id)}
-                        className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
-                        title="Desvincular acceso"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
                   </tr>
                 ))}
                 {filteredAccesos.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center text-slate-400">
+                    <td colSpan={5} className="p-8 text-center text-slate-400">
                       No se encontraron vinculaciones de acceso con el criterio de búsqueda.
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
+
+            {/* Paginación estilo sistema anterior */}
+            <div className="p-3 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 font-medium">
+              <span>
+                Página <strong>1 de 1</strong> ({filteredAccesos.length} elementos)
+              </span>
+              <div className="flex items-center gap-1 font-mono text-[11px]">
+                <span className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-400 cursor-not-allowed">
+                  &lt;
+                </span>
+                <span className="px-2.5 py-0.5 rounded bg-blue-600 text-white font-bold">
+                  [1]
+                </span>
+                <span className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-400 cursor-not-allowed">
+                  &gt;
+                </span>
+                <span className="ml-1 text-slate-500 font-sans">All</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -1107,6 +1246,7 @@ export default function CoordinadoresView({
           isOpen={isNewAccesoModalOpen}
           onClose={() => setIsNewAccesoModalOpen(false)}
           coordinadores={coordinadores}
+          usuariosSistema={usuariosSistema}
           onSave={(newAcceso) => {
             setAccesos((prev) => [newAcceso, ...prev]);
             setIsNewAccesoModalOpen(false);
@@ -1696,30 +1836,32 @@ function NuevoAccesoModal({
   isOpen,
   onClose,
   coordinadores,
+  usuariosSistema,
   onSave,
 }: {
   isOpen: boolean;
   onClose: () => void;
   coordinadores: CoordinadorCore[];
+  usuariosSistema: UsuarioSistema[];
   onSave: (acceso: AccesoCoordinador) => void;
 }) {
   const [selectedCoordId, setSelectedCoordId] = useState(coordinadores[0]?.id || '');
-  const [usuarioId, setUsuarioId] = useState('');
-  const [usuarioNombre, setUsuarioNombre] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState(usuariosSistema[0]?.id || '');
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const coord = coordinadores.find((c) => c.id === selectedCoordId);
-    if (!coord || !usuarioNombre.trim()) return;
+    const user = usuariosSistema.find((u) => u.id === selectedUserId);
+    if (!coord || !user) return;
 
     onSave({
       id: `acc-${Date.now().toString().slice(-4)}`,
       coordinadorId: coord.id,
       coordinadorNombre: coord.nombre,
-      usuarioId: usuarioId.trim() || `usr-${Math.floor(Math.random() * 90 + 10)}`,
-      usuarioNombre: usuarioNombre.trim(),
+      usuarioId: user.id,
+      usuarioNombre: user.nombre,
       fechaAsignacion: new Date().toLocaleDateString('es-MX'),
     });
   };
@@ -1739,7 +1881,7 @@ function NuevoAccesoModal({
 
         <form onSubmit={handleSubmit} className="p-5 space-y-3.5 text-xs">
           <div>
-            <label className="font-bold text-slate-700 block mb-1">Seleccionar Coordinador</label>
+            <label className="font-bold text-slate-700 block mb-1">Coordinador ID</label>
             <select
               value={selectedCoordId}
               onChange={(e) => setSelectedCoordId(e.target.value)}
@@ -1747,33 +1889,25 @@ function NuevoAccesoModal({
             >
               {coordinadores.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.nombre} ({c.sucursal} · {c.tipoCoordinador || 'NORMAL'})
+                  {c.nombre} ({c.sucursal} · #{c.coordinadorIdNum || c.id})
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="font-bold text-slate-700 block mb-1">ID de Usuario del Sistema</label>
-            <input
-              type="text"
-              placeholder="Ej. usr-08 o adrian.garcia"
-              value={usuarioId}
-              onChange={(e) => setUsuarioId(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white font-mono"
-            />
-          </div>
-
-          <div>
-            <label className="font-bold text-slate-700 block mb-1">Nombre Completo del Usuario</label>
-            <input
-              type="text"
-              required
-              placeholder="Ej. Adrian Garcia Lopez"
-              value={usuarioNombre}
-              onChange={(e) => setUsuarioNombre(e.target.value)}
+            <label className="font-bold text-slate-700 block mb-1">Usuario ID del Sistema</label>
+            <select
+              value={selectedUserId}
+              onChange={(e) => setSelectedUserId(e.target.value)}
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white font-semibold"
-            />
+            >
+              {usuariosSistema.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.nombre} ({u.email} · {u.id})
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="pt-3 border-t flex items-center justify-end gap-2">
@@ -1788,7 +1922,7 @@ function NuevoAccesoModal({
               type="submit"
               className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition shadow-xs cursor-pointer"
             >
-              Asignar Acceso
+              Actualizar / Asignar
             </button>
           </div>
         </form>
