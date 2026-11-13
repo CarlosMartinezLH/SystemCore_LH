@@ -10,7 +10,6 @@ import {
   RefreshCw,
   Clock,
   Printer,
-  Sparkles,
   ArrowRight,
   TrendingUp,
   CreditCard,
@@ -35,7 +34,6 @@ interface AuditoriaDistribuidorModalProps {
 interface AuditoriaPaso {
   id: string;
   titulo: string;
-  descripcion: string;
   subtotalEsperado: string;
   subtotalCalculado: string;
   diferencia: string;
@@ -65,7 +63,6 @@ export default function AuditoriaDistribuidorModal({
     {
       id: 'cartera',
       titulo: '1. Verificación de Vales y Cartera Activa',
-      descripcion: 'Recalcula la suma de los 8 créditos vigentes y abonos de clientes finales.',
       subtotalEsperado: `$${saldoCartera.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
       subtotalCalculado: `$${saldoCartera.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
       diferencia: '$0.00 M.N.',
@@ -74,7 +71,6 @@ export default function AuditoriaDistribuidorModal({
     {
       id: 'linea',
       titulo: '2. Conciliación de Línea y Disponible',
-      descripcion: 'Comprueba Línea Autorizada menos Cartera Vigente contra pagos en tránsito.',
       subtotalEsperado: `$${disponibleCalculado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
       subtotalCalculado: `$${disponibleCalculado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
       diferencia: '$0.00 M.N.',
@@ -83,7 +79,6 @@ export default function AuditoriaDistribuidorModal({
     {
       id: 'personal',
       titulo: '3. Auditoría de Crédito Personal DV',
-      descripcion: 'Valida línea personal disponible y amortizaciones quincenales pactadas.',
       subtotalEsperado: `$${disponiblePersonal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
       subtotalCalculado: `$${disponiblePersonal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
       diferencia: '$0.00 M.N.',
@@ -92,7 +87,6 @@ export default function AuditoriaDistribuidorModal({
     {
       id: 'monedero',
       titulo: '4. Balance de LanaPuntos (Monedero)',
-      descripcion: 'Revisa 56 transacciones históricas de abonos por cortes de relación y retos.',
       subtotalEsperado: `${saldoPuntos.toLocaleString('es-MX', { minimumFractionDigits: 2 })} pts`,
       subtotalCalculado: `${saldoPuntos.toLocaleString('es-MX', { minimumFractionDigits: 2 })} pts`,
       diferencia: '0.00 pts',
@@ -243,19 +237,6 @@ export default function AuditoriaDistribuidorModal({
         {/* CONTENIDO PRINCIPAL: PASOS Y DICTAMEN                    */}
         {/* ======================================================== */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
-          
-          {/* BANNER DE EXPLICACIÓN OPERATIVA */}
-          <div className="bg-purple-50/60 border border-purple-200/80 rounded-xl p-3.5 flex items-start gap-3 text-xs text-purple-950">
-            <Sparkles className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold">
-                Módulo de Reconciliación Contable en Tiempo Real
-              </p>
-              <p className="text-purple-800/90 text-[11px] mt-0.5">
-                Esta función audita cada crédito individual, coteja pagos aplicados contra la cartera activa, recalcula el disponible liberado y valida los saldos de monedero LanaPuntos sin intermediación manual.
-              </p>
-            </div>
-          </div>
 
           {/* LISTA DE COMPROBACIONES Y PASOS AUDITADOS */}
           <div className="space-y-3">
@@ -266,11 +247,11 @@ export default function AuditoriaDistribuidorModal({
               </span>
             </h4>
 
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {pasos.map((paso) => (
                 <div
                   key={paso.id}
-                  className={`p-3.5 rounded-xl border transition-all duration-200 ${
+                  className={`p-3 rounded-xl border transition-all duration-200 ${
                     paso.estado === 'procesando'
                       ? 'bg-purple-50/70 border-purple-300 shadow-xs'
                       : paso.estado === 'conciliado'
@@ -278,9 +259,9 @@ export default function AuditoriaDistribuidorModal({
                       : 'bg-slate-50 border-slate-200 opacity-60'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div>
                         {paso.estado === 'conciliado' ? (
                           <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
                             <Check className="w-3.5 h-3.5 stroke-[3]" />
@@ -292,21 +273,16 @@ export default function AuditoriaDistribuidorModal({
                         )}
                       </div>
 
-                      <div>
-                        <h5 className="font-bold text-xs text-slate-900">
-                          {paso.titulo}
-                        </h5>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
-                          {paso.descripcion}
-                        </p>
-                      </div>
+                      <h5 className="font-bold text-xs text-slate-900 truncate">
+                        {paso.titulo}
+                      </h5>
                     </div>
 
-                    <div className="text-right shrink-0 font-mono text-xs">
+                    <div className="text-right shrink-0 font-mono text-xs flex items-center gap-3">
                       <div className="font-bold text-slate-900">
                         {paso.subtotalCalculado}
                       </div>
-                      <div className="text-[10px] text-emerald-600 font-bold">
+                      <div className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                         Dif: {paso.diferencia}
                       </div>
                     </div>
@@ -317,7 +293,7 @@ export default function AuditoriaDistribuidorModal({
           </div>
 
           {/* DICTAMEN OFICIAL */}
-          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-2">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-2.5">
             <div className="flex items-center gap-2 text-emerald-800">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
               <h4 className="font-black text-xs uppercase tracking-wider">
@@ -325,8 +301,8 @@ export default function AuditoriaDistribuidorModal({
               </h4>
             </div>
 
-            <p className="text-xs text-emerald-900/90 leading-relaxed">
-              La verificación matemática no encontró descuadres ni cobros huérfanos. Los abonos registrados corresponden con el saldo vivo y el disponible de <strong>${disponibleCalculado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</strong> está validado para emisión de vales.
+            <p className="text-xs text-emerald-900/90 font-medium">
+              Saldos conciliados contra libro mayor sin diferencias contables.
             </p>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-emerald-200/60 text-[11px]">
