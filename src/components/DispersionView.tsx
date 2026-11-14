@@ -31,9 +31,11 @@ import {
   Eye,
 } from 'lucide-react';
 import { DispersionSTP, PagoCore, SpeiInboundPago, ClabeVirtualSTP } from '@/types/core';
+import { UserSession } from '@/types/auth';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import { buildSafeCsv } from '@/lib/utils/csv';
 import { formatMoney } from '@/lib/utils/formatters';
+import CriticalActionOtpModal from '@/components/modals/CriticalActionOtpModal';
 
 const BANCOS_EMISORES = [
   { id: '40012', nombre: 'BBVA México' },
@@ -58,7 +60,7 @@ const DIAS_CORTE_OPCIONES = [
   { id: '08 o 23', label: 'Día 08 o 23 — Escala 10% / 8% / 6%' },
 ];
 
-export default function DispersionView() {
+export default function DispersionView({ currentUser }: { currentUser?: UserSession | null } = {}) {
   const [activeTab, setActiveTab] = useState<'spei_inbound' | 'dispersion' | 'clabes' | 'pagos'>('spei_inbound');
   const {
     dispersiones,
@@ -82,6 +84,17 @@ export default function DispersionView() {
   const [newBanco, setNewBanco] = useState('BBVA México');
   const [newMonto, setNewMonto] = useState('5000');
   const [newConcepto, setNewConcepto] = useState('Desembolso ValeLanAhora');
+
+  // Step-Up Security OTP Modal for Money Dispersions
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [pendingDispersionPayload, setPendingDispersionPayload] = useState<{
+    clienteNombre: string;
+    curp: string;
+    clabe: string;
+    banco: string;
+    monto: number;
+    metodo: 'STP';
+  } | null>(null);
 
   // Interactive SPEI Simulator State
   const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
@@ -368,27 +381,38 @@ export default function DispersionView() {
     }
   };
 
-  const handleCrearDispersion = async (e: React.FormEvent) => {
+  // Abre el modal de confirmación con código de seguridad OTP al correo
+  const handleCrearDispersion = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBeneficiario.trim() || newClabe.length !== 18) {
       alert('Por favor captura el nombre y una CLABE interbancaria válida de 18 dígitos.');
       return;
     }
 
+    setPendingDispersionPayload({
+      clienteNombre: newBeneficiario.trim(),
+      curp: newCurp.trim(),
+      clabe: newClabe.trim(),
+      banco: newBanco,
+      monto: Number(newMonto),
+      metodo: 'STP',
+    });
+    setIsNewDispOpen(false);
+    setIsOtpModalOpen(true);
+  };
+
+  // Se ejecuta una vez que el usuario ingresó el código de 6 dígitos enviado a su correo
+  const handleConfirmDispersionWithOtp = async (_verifiedToken: string) => {
+    if (!pendingDispersionPayload) return;
+
     try {
-      const res = await registrarCanje({
-        clienteNombre: newBeneficiario.trim(),
-        curp: newCurp.trim(),
-        clabe: newClabe.trim(),
-        banco: newBanco,
-        monto: Number(newMonto),
-        metodo: 'STP',
-      });
-      setIsNewDispOpen(false);
+      const res = await registrarCanje(pendingDispersionPayload);
+      const folio = res?.result?.nuevaDispersion?.folioSTP || 'STP-OK';
       setNewBeneficiario('');
       setNewCurp('');
       setNewClabe('');
-      alert(`✓ Dispersión SPEI enviada a STP exitosamente. Folio: ${res?.result?.nuevaDispersion?.folioSTP || 'STP-OK'}`);
+      setPendingDispersionPayload(null);
+      alert(`✓ Dispersión SPEI autorizada con código de seguridad. Folio: ${folio}`);
     } catch (err) {
       alert('Error enviando dispersión: ' + (err as Error).message);
     }
@@ -1323,6 +1347,26 @@ export default function DispersionView() {
           </div>
         </div>
       )}
+
+      {/* ========================================================= */}
+      {/* MODAL STEP-UP: AUTORIZACIÓN OTP POR CORREO PARA DISPERSIÓN*/}
+      {/* ========================================================= */}
+      <CriticalActionOtpModal
+        isOpen={isOtpModalOpen}
+        onClose={() => {
+          setIsOtpModalOpen(false);
+          setPendingDispersionPayload(null);
+        }}
+        actionType="DISPERSION_STP"
+        actionTitle="Dispersión SPEI STP de Fondos"
+        actionDetails={
+          pendingDispersionPayload
+            ? `Monto: ${formatMoney(pendingDispersionPayload.monto)} a ${pendingDispersionPayload.clienteNombre} (CLABE: ${pendingDispersionPayload.clabe})`
+            : 'Autorización de transferencia bancaria SPEI'
+        }
+        userEmail={currentUser?.email || 'admin@lanahora.com'}
+        onSuccess={handleConfirmDispersionWithOtp}
+      />
     </div>
   );
 }

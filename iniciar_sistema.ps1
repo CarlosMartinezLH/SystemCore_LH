@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Script de Inicio y Puesta en Marcha - LanAhora SystemCore
 .DESCRIPTION

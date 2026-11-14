@@ -39,7 +39,9 @@ import {
   ALL_SYSTEM_MODULES,
   DEFAULT_ROLE_PERMISSIONS,
   ActionPermissions,
+  UserSession,
 } from '@/types/auth';
+import CriticalActionOtpModal from '@/components/modals/CriticalActionOtpModal';
 
 const ROLE_OPTIONS: { role: UserRole; label: string; defaultScope: 'ALL' | 'BRANCH' }[] = [
   { role: 'ADMINISTRADOR', label: 'Dirección General / Administrador', defaultScope: 'ALL' },
@@ -66,11 +68,15 @@ function getAuthHeaders(): HeadersInit {
   return { 'Content-Type': 'application/json', 'x-dev-bypass': 'true' };
 }
 
-export default function ConfiguracionView() {
+export default function ConfiguracionView({ currentUser }: { currentUser?: UserSession | null } = {}) {
   const [activeTab, setActiveTab] = useState<'sucursales' | 'usuarios' | 'roles'>('usuarios');
   const [sucursales, setSucursales] = useState<Sucursal[]>([]);
   const [usuarios, setUsuarios] = useState<InstitutionalUserConfig[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Step-Up Security OTP Modal for User Deletion
+  const [userToDelete, setUserToDelete] = useState<InstitutionalUserConfig | null>(null);
+  const [isDeleteUserOtpOpen, setIsDeleteUserOtpOpen] = useState(false);
 
   // Search & Filters
   const [searchSucursal, setSearchSucursal] = useState('');
@@ -470,22 +476,28 @@ export default function ConfiguracionView() {
     }
   };
 
-  const handleDeleteUsuario = async (usr: InstitutionalUserConfig) => {
-    const confirm = window.confirm(`¿Estás seguro de eliminar el usuario "${usr.name}" (${usr.email})?`);
-    if (!confirm) return;
+  const handleDeleteUsuario = (usr: InstitutionalUserConfig) => {
+    setUserToDelete(usr);
+    setIsDeleteUserOtpOpen(true);
+  };
+
+  const handleConfirmDeleteUserWithOtp = async (_verifiedToken: string) => {
+    if (!userToDelete) return;
 
     try {
-      const res = await fetch(`/api/configuracion/usuarios/${usr.id}`, {
+      const res = await fetch(`/api/configuracion/usuarios/${userToDelete.id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });
       const data = await res.json();
       if (data.success) {
-        setUsuarios((prev) => prev.filter((u) => u.id !== usr.id));
-        showNotification(`Usuario "${usr.name}" eliminado del sistema.`);
+        setUsuarios((prev) => prev.filter((u) => u.id !== userToDelete.id));
+        showNotification(`Usuario "${userToDelete.name}" eliminado del sistema con autorización OTP.`);
       }
     } catch {
       showNotification('Error al eliminar usuario.', 'error');
+    } finally {
+      setUserToDelete(null);
     }
   };
 
@@ -1597,6 +1609,25 @@ export default function ConfiguracionView() {
           </div>
         </div>
       )}
+      {/* ========================================================= */}
+      {/* MODAL STEP-UP: AUTORIZACIÓN OTP AL CORREO PARA BORRAR USR */}
+      {/* ========================================================= */}
+      <CriticalActionOtpModal
+        isOpen={isDeleteUserOtpOpen}
+        onClose={() => {
+          setIsDeleteUserOtpOpen(false);
+          setUserToDelete(null);
+        }}
+        actionType="DELETE_USER"
+        actionTitle="Eliminación Definitiva de Usuario Institucional"
+        actionDetails={
+          userToDelete
+            ? `Usuario: ${userToDelete.name} (${userToDelete.email}) - Puesto: ${userToDelete.puesto} - Sucursal: ${userToDelete.branch}`
+            : 'Eliminación de cuenta de usuario institucional'
+        }
+        userEmail={currentUser?.email || 'admin@lanahora.com'}
+        onSuccess={handleConfirmDeleteUserWithOtp}
+      />
     </div>
   );
 }

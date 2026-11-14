@@ -375,12 +375,12 @@ function SystemCoreApp() {
             ) : activeModule === 'rh' ? (
               <RHView currentUser={currentUser} />
             ) : activeModule === 'dispersion' ? (
-              <DispersionView />
+              <DispersionView currentUser={currentUser} />
             ) : activeModule === 'integraciones' ? (
               <IntegracionesView />
             ) : activeModule === 'configuracion' ? (
               <div className="p-6">
-                <ConfiguracionView />
+                <ConfiguracionView currentUser={currentUser} />
               </div>
             ) : activeModule === 'lanatienda' ? (
               <LanaTiendaAdminView />
