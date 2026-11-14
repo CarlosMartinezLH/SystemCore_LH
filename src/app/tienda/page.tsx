@@ -1544,7 +1544,7 @@ function TiendaCoreContent() {
                       </div>
                     </div>
 
-                    {/* Delivery Tabs (Liverpool exact pattern: Recibe a domicilio vs Click & Collect) */}
+                    {/* Modalidad de Entrega (Oficial LanAhora: Domicilio o Sucursal) */}
                     <div className="mt-4 grid grid-cols-2 gap-2.5">
                       <button
                         type="button"
@@ -1557,10 +1557,10 @@ function TiendaCoreContent() {
                       >
                         <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
                           <Truck className="w-3.5 h-3.5 text-blue-600" />
-                          <span>Recibe a domicilio</span>
+                          <span>Entrega a Domicilio</span>
                         </div>
                         <span className="text-[10px] text-slate-500 block mt-0.5">
-                          Envío gratis a todo el país
+                          Envío directo a tu casa
                         </span>
                       </button>
 
@@ -1575,10 +1575,10 @@ function TiendaCoreContent() {
                       >
                         <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
                           <Building2 className="w-3.5 h-3.5 text-blue-600" />
-                          <span>Click & Collect</span>
+                          <span>Recoger en Sucursal</span>
                         </div>
                         <span className="text-[10px] text-slate-500 block mt-0.5">
-                          Recoge en sucursal
+                          En ventanilla de tu sucursal
                         </span>
                       </button>
                     </div>
