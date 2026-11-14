@@ -51,6 +51,14 @@ export async function POST(req: Request) {
       );
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail.endsWith('@lanahora.com') && !cleanEmail.endsWith('@lanahora.com.mx')) {
+      return NextResponse.json(
+        { success: false, error: 'El correo debe pertenecer estrictamente al dominio institucional (@lanahora.com)' },
+        { status: 400 }
+      );
+    }
+
     const nuevo = configuracionStore.crearUsuario({
       name: name.trim().toUpperCase(),
       email: email.trim().toLowerCase(),

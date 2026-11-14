@@ -153,6 +153,18 @@ export async function POST(req: Request) {
         );
       }
 
+      // Validar dominio si se ingresa correo electrónico
+      if (
+        identifier.includes('@') &&
+        !identifier.trim().toLowerCase().endsWith('@lanahora.com') &&
+        !identifier.trim().toLowerCase().endsWith('@lanahora.com.mx')
+      ) {
+        return NextResponse.json(
+          { error: 'Acceso restringido. Solo se admiten correos corporativos (@lanahora.com).' },
+          { status: 403 }
+        );
+      }
+
       // 1.1 Validar Cloudflare Turnstile si fue enviado
       if (turnstileToken === 'INVALID') {
         return NextResponse.json(

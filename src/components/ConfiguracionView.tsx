@@ -392,6 +392,12 @@ export default function ConfiguracionView({ currentUser }: { currentUser?: UserS
       return;
     }
 
+    const cleanEmail = usuarioEmail.trim().toLowerCase();
+    if (!cleanEmail.endsWith('@lanahora.com') && !cleanEmail.endsWith('@lanahora.com.mx')) {
+      showNotification('El correo debe pertenecer al dominio institucional (@lanahora.com).', 'error');
+      return;
+    }
+
     const selectedRole = ROLE_OPTIONS.find((r) => r.role === usuarioRole);
 
     try {
