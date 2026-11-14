@@ -74,6 +74,11 @@ export default function Sidebar({
           name: 'Personas',
           icon: Users,
         },
+        {
+          id: 'lanatienda',
+          name: 'LanaTienda Core',
+          icon: ShoppingBag,
+        },
       ],
     },
   ];
