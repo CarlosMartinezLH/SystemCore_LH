@@ -18,7 +18,46 @@ export default function proxy(request: NextRequest) {
 
   const { pathname, search } = request.nextUrl;
 
-  // Static assets and internal api requests should pass through
+  // 1. Sinergia y Validación de Perímetro Cloudflare Zero Trust
+  // Activo en producción o cuando se defina ENFORCE_CLOUDFLARE_ZERO_TRUST=true
+  const isZeroTrustEnforced =
+    process.env.ENFORCE_CLOUDFLARE_ZERO_TRUST === 'true' ||
+    (process.env.NODE_ENV === 'production' && Boolean(process.env.CLOUDFLARE_ZERO_TRUST_TEAM));
+
+  if (isZeroTrustEnforced && !pathname.startsWith('/_next') && !pathname.startsWith('/favicon')) {
+    const cfJwtAssertion = request.headers.get('cf-access-jwt-assertion');
+    const cfEmail = request.headers.get('cf-access-authenticated-user-email');
+
+    // Bloquear intentos de bypass directo al servidor de origen
+    if (!cfJwtAssertion) {
+      return new NextResponse(
+        JSON.stringify({
+          success: false,
+          error: 'Acceso Denegado: La conexión debe originarse a través del túnel seguro de Cloudflare Zero Trust.',
+        }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Validar dominio corporativo inyectado por la identidad de Cloudflare
+    if (cfEmail && !cfEmail.endsWith('@lanahora.com') && !cfEmail.endsWith('@lanahora.com.mx')) {
+      return new NextResponse(
+        JSON.stringify({
+          success: false,
+          error: 'Identidad corporativa no autorizada en el perímetro Cloudflare Zero Trust.',
+        }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+  }
+
+  // 2. Static assets and internal api requests should pass through with security headers
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
@@ -27,28 +66,37 @@ export default function proxy(request: NextRequest) {
     pathname.startsWith('/favicon') ||
     pathname.includes('.')
   ) {
-    return NextResponse.next();
+    const res = NextResponse.next();
+    applySecurityHeaders(res);
+    return res;
   }
 
-  // Multi-domain routing estricto contra lista blanca o prefijo seguro
+  // 3. Multi-domain routing estricto contra lista blanca o prefijo seguro
   const isTiendaDomain =
     ALLOWED_TIENDA_HOSTS.some((h) => effectiveHost.startsWith(h) || effectiveHost === h) ||
     effectiveHost.startsWith('tienda.');
 
+  let response = NextResponse.next();
+
   if (isTiendaDomain) {
     // If accessing root on tienda subdomain, rewrite to /tienda
     if (pathname === '/') {
-      return NextResponse.rewrite(new URL(`/tienda${search}`, request.url));
-    }
-    // If not already prefixed with /tienda, rewrite to /tienda/...
-    if (!pathname.startsWith('/tienda')) {
-      return NextResponse.rewrite(new URL(`/tienda${pathname}${search}`, request.url));
+      response = NextResponse.rewrite(new URL(`/tienda${search}`, request.url));
+    } else if (!pathname.startsWith('/tienda')) {
+      // If not already prefixed with /tienda, rewrite to /tienda/...
+      response = NextResponse.rewrite(new URL(`/tienda${pathname}${search}`, request.url));
     }
   }
 
-  return NextResponse.next();
+  applySecurityHeaders(response);
+  return response;
 }
 
-export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
-};
+// Inyección de Cabeceras de Seguridad HTTP (Defense-in-Depth)
+function applySecurityHeaders(res: NextResponse) {
+  res.headers.set('X-Frame-Options', 'DENY');
+  res.headers.set('X-Content-Type-Options', 'nosniff');
+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.headers.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self)');
+  res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+}

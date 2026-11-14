@@ -22,7 +22,7 @@ Aunque la infraestructura perimetral cuenta con la protección de **Cloudflare Z
 | **SEC-03** | Gestión de Secretos | 🔴 **ALTA** | **Credenciales en código fuente:** Contraseñas de Nubarium (`#vEJfpcF#`) y llave privada VAPID hardcodeadas en texto plano en controladores KYC y WebPush. | Se eliminaron todas las credenciales literales y fallbacks inseguros en `compare-faces`, `validate-liveness`, `validate-curp` y `webPushService.ts`. Ahora se leen estrictamente de variables de entorno seguras (`.env.local`). |
 | **SEC-04** | Contenedores | 🔴 **ALTA** | **Docker Inseguro:** Keycloak corriendo en `start-dev`, contraseña `admin_password` por defecto y puerto `8080` expuesto en `0.0.0.0` (acceso directo sin pasar por Cloudflare). | Se modificó `docker-compose.yml` para enlazar el puerto exclusivamente a `127.0.0.1:8080:8080`, se parametrizaron contraseñas mediante variables de entorno y se asignó usuario no-root (`70:70`) para Postgres. |
 | **SEC-05** | Contenedores | 🟡 **MEDIA** | **Ausencia de Dockerfile Rootless:** No existía contenedor multi-etapa para ejecutar Next.js con privilegios restringidos. | Se creó un `Dockerfile` multi-etapa con imagen base `node:20-alpine` y ejecución bajo el usuario sin privilegios `nextjs:nodejs` (UID 1001). |
-| **SEC-06** | Sinergia Cloudflare | 🟡 **MEDIA** | **Bypass de Origen Cloudflare:** Sin middleware, peticiones directas al puerto 3000 podían suplantar cabeceras `Cf-Access-*` sin que el servidor lo validara. | Se creó `src/middleware.ts` para verificar la existencia del token `cf-access-jwt-assertion`, restringir correos a `@lanahora.com` e inyectar cabeceras de seguridad HTTP en cada respuesta. |
+| **SEC-06** | Sinergia Cloudflare | 🟡 **MEDIA** | **Bypass de Origen Cloudflare:** Sin filtro perimetral, peticiones directas al puerto 3000 podían suplantar cabeceras `Cf-Access-*` sin que el servidor lo validara. | Se integró la validación en `src/proxy.ts` (especificación moderna de Next.js 16) para verificar el token `cf-access-jwt-assertion`, restringir identidades a `@lanahora.com` e inyectar cabeceras HTTP de seguridad (`X-Frame-Options`, `X-Content-Type-Options`, HSTS). |
 | **SEC-07** | CORS | 🟡 **MEDIA** | **CORS Permisivo Wildcard (`*`):** Endpoint `/api/kyc/validate-curp` permitía consultas entre sitios desde cualquier dominio no autorizado. | Se sustituyó el wildcard por una lista blanca estricta (`ALLOWED_CORS_ORIGINS`) restringida a dominios oficiales de LanAhora y localhost local. |
 | **SEC-08** | SCA / Dependencias | 🟡 **MEDIA** | **Alerta en biblioteca `xlsx` (SheetJS):** CVEs por Prototype Pollution (`GHSA-4r6h-8v6p-xvw6`) y ReDoS en versión `^0.18.5`. | Se auditó el uso en el código: `xlsx` se utiliza **únicamente en el navegador del cliente para exportar JSON a archivo descargable**, nunca para procesar o parsear archivos subidos en el servidor. Se ejecutó `npm audit fix` para actualizar librerías transitivas. |
 
@@ -52,11 +52,11 @@ Aunque la infraestructura perimetral cuenta con la protección de **Cloudflare Z
   - `src/lib/webPushService.ts`: Eliminada la clave privada VAPID quemada en código.
   - `.env.example`: Actualizado con nombres de variables descriptivos y sin contraseñas predeterminadas.
 
-### 3.4. Sinergia con Cloudflare Zero Trust (`src/middleware.ts`)
+### 3.4. Sinergia con Cloudflare Zero Trust (`src/proxy.ts`)
 * **Problema:** Ataques directos a la dirección IP pública del servidor omitiendo el túnel de Cloudflare.
 * **Solución Aplicada:**
-  - El middleware intercepta las peticiones y comprueba la cabecera `cf-access-jwt-assertion` cuando se activa la política en producción o mediante `ENFORCE_CLOUDFLARE_ZERO_TRUST=true`.
-  - Inyección global de cabeceras HTTP de protección:
+  - En Next.js 16, la lógica de intercepción corre a través de `src/proxy.ts`. El proxy intercepta las peticiones y comprueba la cabecera `cf-access-jwt-assertion` cuando se activa la política en producción o mediante `ENFORCE_CLOUDFLARE_ZERO_TRUST=true`.
+  - Inyección global de cabeceras HTTP de protección en cada respuesta:
     - `X-Frame-Options: DENY` (Anti-Clickjacking).
     - `X-Content-Type-Options: nosniff` (Anti-MIME Sniffing).
     - `Referrer-Policy: strict-origin-when-cross-origin`.
