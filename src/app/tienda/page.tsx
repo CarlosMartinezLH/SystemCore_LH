@@ -154,47 +154,22 @@ function TiendaCoreContent() {
     }
   }, [refSku, products]);
 
-  // System Core Banners
+  // System Core Official Graphic Banners (2400x600 panoramic)
   const banners = [
     {
       src: '/tienda/banners/banner_1.png',
-      tag: 'FINANCIAMIENTO INSTITUCIONAL',
-      title: 'Equipa tu Hogar y Familia sin Enganche',
-      subtitle: 'Tus artículos favoritos a 16 quincenas fijas autorizadas por tu distribuidora LanAhora.',
-      cta: 'Ver Artículos Disponibles',
-      badge: '16 Quincenas Fijas • 0% Enganche',
+      alt: 'Equipa tu Hogar y Familia sin Enganche - Financiera LanAhora',
+      categoria: 'TODOS',
     },
     {
       src: '/tienda/banners/banner_2.png',
-      tag: 'CRÉDITO LANAHORA',
-      title: 'Compra con tu Distribuidora Autorizada',
-      subtitle: 'Solicita productos en línea con cargo a tu línea autorizada sin desembolso inicial.',
-      cta: 'Solicitar con Distribuidora',
-      badge: '16 Pagos Fijos • Sin Enganche',
+      alt: 'Smart TV, Computadoras y Audio a 16 Quincenas Fijas',
+      categoria: 'Electrónica',
     },
     {
       src: '/tienda/banners/banner_3.png',
-      tag: 'GARANTÍA OFICIAL LANAHORA',
-      title: 'Protección de Entrega y Garantía 48 Horas',
-      subtitle: 'Recibe en tu sucursal Saltillo Centro o en tu domicilio con total respaldo de reposición.',
-      cta: 'Conocer Beneficios',
-      badge: 'Entrega en Sucursal o Casa • 100% Seguro',
-    },
-    {
-      src: '/tienda/banners/banner_2.png',
-      tag: 'PANTALLAS & ENTRETENIMIENTO',
-      title: 'Smart TV 4K y Audio de Alta Fidelidad',
-      subtitle: 'La mejor tecnología con cargo a tu línea autorizada y canje de LanaPuntos acumulados.',
-      cta: 'Explorar Electrónica',
-      badge: 'Garantía Oficial • Envío Rápido',
-    },
-    {
-      src: '/tienda/banners/banner_1.png',
-      tag: 'CLIMATIZACIÓN & CONFORT',
-      title: 'Minisplits Inverter de Máximo Ahorro',
-      subtitle: 'Precios preferenciales y pagos quincenales congelados durante todo tu plazo.',
-      cta: 'Ver Climatización',
-      badge: 'Ahorro Inverter • Respaldo LanAhora',
+      alt: 'Minisplits Inverter y Climatización - Entrega Inmediata',
+      categoria: 'Línea Blanca',
     },
   ];
 
@@ -550,77 +525,64 @@ function TiendaCoreContent() {
           </div>
         )}
 
-        {/* HERO CAROUSEL BANNER (Full-Width) */}
-        <div className="w-full relative rounded-3xl overflow-hidden shadow-lg bg-slate-900 h-72 sm:h-96 md:h-[440px] group border border-slate-200/80">
+        {/* HERO CAROUSEL BANNER (Full-Width Panoramic 2400x600) */}
+        <div className="w-full relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-md bg-slate-950 aspect-[21/9] sm:aspect-[24/8] md:aspect-[24/7] lg:aspect-[24/6] group border border-slate-200/90 select-none">
           {banners.map((b, idx) => (
             <div
               key={idx}
-              className={`absolute inset-0 transition-opacity duration-700 ease-out ${
+              onClick={() => {
+                if (b.categoria && b.categoria !== 'TODOS') setSelectedCategory(b.categoria);
+                const el = document.getElementById('catalogo-grid');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className={`absolute inset-0 transition-opacity duration-700 ease-out cursor-pointer ${
                 idx === activeBanner
                   ? 'opacity-100 z-10'
                   : 'opacity-0 z-0 pointer-events-none'
               }`}
+              title={b.alt}
             >
-              <img src={b.src} alt={b.title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-transparent flex flex-col justify-end p-6 sm:p-10 md:p-12 text-white">
-                <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
-                  <span className="text-xs font-black tracking-wider uppercase bg-blue-600 text-white px-3.5 py-1 rounded-full shadow-xs">
-                    {b.tag}
-                  </span>
-                  <span className="text-xs font-bold text-amber-300 bg-slate-900/80 backdrop-blur-xs px-3 py-1 rounded-full border border-amber-400/30 hidden sm:inline-flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{b.badge}</span>
-                  </span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl md:text-5xl font-black mt-1 leading-tight max-w-3xl drop-shadow-md">
-                  {b.title}
-                </h2>
-                <p className="text-xs sm:text-sm md:text-base text-slate-200 mt-2 max-w-2xl font-medium leading-relaxed drop-shadow-xs">
-                  {b.subtitle}
-                </p>
-                <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-3">
-                  <button
-                    onClick={() => {
-                      const el = document.getElementById('catalogo-grid');
-                      el?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>{b.cta}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                  <span className="text-xs sm:text-sm text-slate-300 font-semibold px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-xs">
-                    16 Quincenas Fijas • Sin Enganche
-                  </span>
-                </div>
-              </div>
+              <img
+                src={b.src}
+                alt={b.alt}
+                className="w-full h-full object-cover sm:object-fill lg:object-cover"
+              />
             </div>
           ))}
 
           {/* Carousel Navigation Arrows */}
           <button
-            onClick={() => setActiveBanner((prev) => (prev - 1 + banners.length) % banners.length)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-slate-950/50 hover:bg-slate-950/80 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-xl border border-white/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveBanner((prev) => (prev - 1 + banners.length) % banners.length);
+            }}
+            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-2xl backdrop-blur-xs border border-white/20 cursor-pointer"
             title="Anterior"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <button
-            onClick={() => setActiveBanner((prev) => (prev + 1) % banners.length)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-slate-950/50 hover:bg-slate-950/80 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-xl border border-white/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveBanner((prev) => (prev + 1) % banners.length);
+            }}
+            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-2xl backdrop-blur-xs border border-white/20 cursor-pointer"
             title="Siguiente"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
 
           {/* Slider Dots */}
-          <div className="absolute bottom-5 right-6 sm:right-8 z-20 flex gap-2">
+          <div className="absolute bottom-3 sm:bottom-4 right-4 sm:right-6 z-20 flex items-center gap-2 bg-slate-950/50 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/10">
             {banners.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => setActiveBanner(idx)}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
-                  idx === activeBanner ? 'w-9 bg-amber-400' : 'w-2.5 bg-white/50 hover:bg-white/80'
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveBanner(idx);
+                }}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                  idx === activeBanner ? 'w-8 bg-amber-400' : 'w-2 bg-white/50 hover:bg-white/80'
                 }`}
                 title={`Banner ${idx + 1}`}
               />
