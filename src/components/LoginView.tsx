@@ -29,7 +29,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
   const [currentStep, setCurrentStep] = useState<'credentials' | '2fa_totp' | 'webauthn'>('credentials');
 
   // Step 1: Credentials State
-  const [identifier, setIdentifier] = useState('cmartinez_mayorga');
+  const [email, setEmail] = useState('carlos_martinez@lanahora.com');
   const [password, setPassword] = useState('lanahora2026');
   const [showPassword, setShowPassword] = useState(false);
   const [isTurnstileVerified, setIsTurnstileVerified] = useState(true);
@@ -161,6 +161,17 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
     e.preventDefault();
     setErrorMessage(null);
 
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail.includes('@')) {
+      setErrorMessage('Ingresa tu correo institucional (@lanahora.com).');
+      return;
+    }
+
+    if (!cleanEmail.endsWith('@lanahora.com') && !cleanEmail.endsWith('@lanahora.com.mx')) {
+      setErrorMessage('Solo se admiten correos corporativos (@lanahora.com).');
+      return;
+    }
+
     if (!isTurnstileVerified) {
       setErrorMessage('Por favor confirma la casilla de verificación humana.');
       return;
@@ -174,7 +185,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           step: 'credentials',
-          identifier: identifier.trim(),
+          identifier: cleanEmail,
           password,
           turnstileToken: isTurnstileVerified ? 'CLOUDFLARE_VALID_TOKEN' : 'INVALID',
           deviceFingerprint: deviceInfo,
@@ -351,7 +362,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           step: 'webauthn_verify',
-          identifier: identifier.trim() || 'cmartinez_mayorga',
+          identifier: email.trim() || 'carlos_martinez@lanahora.com',
           deviceFingerprint: deviceInfo,
         }),
       });
@@ -440,22 +451,22 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
           {/* ========================================================= */}
           {currentStep === 'credentials' && (
             <form onSubmit={handleCredentialsSubmit} className="space-y-4 text-xs">
-              {/* Usuario */}
+              {/* Correo Electrónico Institucional */}
               <div className="space-y-1.5">
                 <label className="block text-slate-700 font-semibold text-xs">
-                  Usuario:
+                  Correo Electrónico:
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
-                    type="text"
+                    type="email"
                     required
-                    value={identifier}
+                    value={email}
                     onChange={(e) => {
-                      setIdentifier(e.target.value);
+                      setEmail(e.target.value);
                       setErrorMessage(null);
                     }}
-                    placeholder="cmartinez_mayorga"
+                    placeholder="carlos_martinez@lanahora.com"
                     className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs font-medium transition"
                   />
                 </div>

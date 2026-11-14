@@ -148,16 +148,23 @@ export async function POST(req: Request) {
     if (step === 'credentials') {
       if (!identifier || !password) {
         return NextResponse.json(
-          { error: 'Usuario / Correo institucional y contraseña son requeridos' },
+          { error: 'Correo institucional y contraseña son requeridos' },
           { status: 400 }
         );
       }
 
-      // Validar dominio si se ingresa correo electrónico
+      // Validar que se ingrese estrictamente un correo electrónico @lanahora.com
+      if (!identifier.includes('@')) {
+        return NextResponse.json(
+          { error: 'Debes ingresar tu correo institucional (@lanahora.com), no tu nombre de usuario.' },
+          { status: 400 }
+        );
+      }
+
+      const cleanIdentifier = identifier.trim().toLowerCase();
       if (
-        identifier.includes('@') &&
-        !identifier.trim().toLowerCase().endsWith('@lanahora.com') &&
-        !identifier.trim().toLowerCase().endsWith('@lanahora.com.mx')
+        !cleanIdentifier.endsWith('@lanahora.com') &&
+        !cleanIdentifier.endsWith('@lanahora.com.mx')
       ) {
         return NextResponse.json(
           { error: 'Acceso restringido. Solo se admiten correos corporativos (@lanahora.com).' },
