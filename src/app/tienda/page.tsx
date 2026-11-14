@@ -158,24 +158,43 @@ function TiendaCoreContent() {
   const banners = [
     {
       src: '/tienda/banners/banner_1.png',
-      tag: 'FINANCIAMIENTO OFICIAL',
+      tag: 'FINANCIAMIENTO INSTITUCIONAL',
       title: 'Equipa tu Hogar y Familia sin Enganche',
-      subtitle: 'Tus artículos favoritos a 16 quincenas fijas autorizadas por tu distribuidora LanAhora',
+      subtitle: 'Tus artículos favoritos a 16 quincenas fijas autorizadas por tu distribuidora LanAhora.',
       cta: 'Ver Artículos Disponibles',
+      badge: '16 Quincenas Fijas • 0% Enganche',
+    },
+    {
+      src: '/tienda/banners/banner_2.png',
+      tag: 'CRÉDITO LANAHORA',
+      title: 'Compra con tu Distribuidora Autorizada',
+      subtitle: 'Solicita productos en línea con cargo a tu línea autorizada sin desembolso inicial.',
+      cta: 'Solicitar con Distribuidora',
+      badge: '16 Pagos Fijos • Sin Enganche',
+    },
+    {
+      src: '/tienda/banners/banner_3.png',
+      tag: 'GARANTÍA OFICIAL LANAHORA',
+      title: 'Protección de Entrega y Garantía 48 Horas',
+      subtitle: 'Recibe en tu sucursal Saltillo Centro o en tu domicilio con total respaldo de reposición.',
+      cta: 'Conocer Beneficios',
+      badge: 'Entrega en Sucursal o Casa • 100% Seguro',
     },
     {
       src: '/tienda/banners/banner_2.png',
       tag: 'PANTALLAS & ENTRETENIMIENTO',
       title: 'Smart TV 4K y Audio de Alta Fidelidad',
-      subtitle: 'La mejor tecnología con cargo a tu línea de crédito autorizada',
+      subtitle: 'La mejor tecnología con cargo a tu línea autorizada y canje de LanaPuntos acumulados.',
       cta: 'Explorar Electrónica',
+      badge: 'Garantía Oficial • Envío Rápido',
     },
     {
-      src: '/tienda/banners/banner_3.png',
+      src: '/tienda/banners/banner_1.png',
       tag: 'CLIMATIZACIÓN & CONFORT',
       title: 'Minisplits Inverter de Máximo Ahorro',
-      subtitle: 'Entrega directa en tu domicilio o en tu sucursal Saltillo Centro',
+      subtitle: 'Precios preferenciales y pagos quincenales congelados durante todo tu plazo.',
       cta: 'Ver Climatización',
+      badge: 'Ahorro Inverter • Respaldo LanAhora',
     },
   ];
 
@@ -539,119 +558,154 @@ function TiendaCoreContent() {
           </div>
         )}
 
-        {/* HERO SECTION WITH DUAL WIDGETS (Full-Width 5 Cols) */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-          {/* Main Carousel Banner (Col Span 3 on lg, 4 on xl) */}
-          <div className="lg:col-span-3 xl:col-span-4 relative rounded-2xl overflow-hidden shadow-xs bg-slate-900 h-64 sm:h-80 md:h-[400px] group border border-slate-200">
-            {banners.map((b, idx) => (
-              <div
-                key={idx}
-                className={`absolute inset-0 transition-opacity duration-700 ease-out ${
-                  idx === activeBanner
-                    ? 'opacity-100 z-10'
-                    : 'opacity-0 z-0 pointer-events-none'
-                }`}
-              >
-                <img src={b.src} alt={b.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
-                  <span className="text-xs font-bold tracking-wider uppercase bg-blue-600 text-white px-3 py-1 rounded-full w-max shadow-xs">
+        {/* HERO CAROUSEL BANNER (Full-Width) */}
+        <div className="w-full relative rounded-3xl overflow-hidden shadow-lg bg-slate-900 h-72 sm:h-96 md:h-[440px] group border border-slate-200/80">
+          {banners.map((b, idx) => (
+            <div
+              key={idx}
+              className={`absolute inset-0 transition-opacity duration-700 ease-out ${
+                idx === activeBanner
+                  ? 'opacity-100 z-10'
+                  : 'opacity-0 z-0 pointer-events-none'
+              }`}
+            >
+              <img src={b.src} alt={b.title} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-transparent flex flex-col justify-end p-6 sm:p-10 md:p-12 text-white">
+                <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                  <span className="text-xs font-black tracking-wider uppercase bg-blue-600 text-white px-3.5 py-1 rounded-full shadow-xs">
                     {b.tag}
                   </span>
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mt-2 leading-tight max-w-2xl">
-                    {b.title}
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-200 mt-1 max-w-xl font-medium">
-                    {b.subtitle}
-                  </p>
-                  <div className="mt-4 flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        const el = document.getElementById('catalogo-grid');
-                        el?.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5"
-                    >
-                      <span>{b.cta}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="text-xs text-amber-300 font-bold hidden sm:inline">
-                      16 Quincenas Fijas • Sin Enganche
-                    </span>
-                  </div>
+                  <span className="text-xs font-bold text-amber-300 bg-slate-900/80 backdrop-blur-xs px-3 py-1 rounded-full border border-amber-400/30 hidden sm:inline-flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>{b.badge}</span>
+                  </span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl md:text-5xl font-black mt-1 leading-tight max-w-3xl drop-shadow-md">
+                  {b.title}
+                </h2>
+                <p className="text-xs sm:text-sm md:text-base text-slate-200 mt-2 max-w-2xl font-medium leading-relaxed drop-shadow-xs">
+                  {b.subtitle}
+                </p>
+                <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={() => {
+                      const el = document.getElementById('catalogo-grid');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
+                  >
+                    <span>{b.cta}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                  <span className="text-xs sm:text-sm text-slate-300 font-semibold px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-xs">
+                    16 Quincenas Fijas • Sin Enganche
+                  </span>
                 </div>
               </div>
+            </div>
+          ))}
+
+          {/* Carousel Navigation Arrows */}
+          <button
+            onClick={() => setActiveBanner((prev) => (prev - 1 + banners.length) % banners.length)}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-slate-950/50 hover:bg-slate-950/80 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-xl border border-white/10"
+            title="Anterior"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => setActiveBanner((prev) => (prev + 1) % banners.length)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-slate-950/50 hover:bg-slate-950/80 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-xl border border-white/10"
+            title="Siguiente"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Slider Dots */}
+          <div className="absolute bottom-5 right-6 sm:right-8 z-20 flex gap-2">
+            {banners.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveBanner(idx)}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  idx === activeBanner ? 'w-9 bg-amber-400' : 'w-2.5 bg-white/50 hover:bg-white/80'
+                }`}
+                title={`Banner ${idx + 1}`}
+              />
             ))}
+          </div>
+        </div>
 
-            {/* Carousel Navigation Arrows */}
-            <button
-              onClick={() => setActiveBanner((prev) => (prev - 1 + banners.length) % banners.length)}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-950/40 hover:bg-slate-950/70 backdrop-blur-xs text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-md"
-              title="Anterior"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setActiveBanner((prev) => (prev + 1) % banners.length)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-950/40 hover:bg-slate-950/70 backdrop-blur-xs text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-md"
-              title="Siguiente"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-
-            {/* Slider Dots */}
-            <div className="absolute bottom-4 right-6 z-20 flex gap-2">
-              {banners.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveBanner(idx)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    idx === activeBanner ? 'w-8 bg-amber-400' : 'w-2 bg-white/50 hover:bg-white/80'
-                  }`}
-                />
-              ))}
+        {/* PROMO BANNERS HORIZONTALES (Full-Width Dual Banners) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Banner 1: Crédito LanAhora */}
+          <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white rounded-2xl p-6 sm:p-7 shadow-xs border border-slate-800 flex flex-col justify-between relative overflow-hidden group hover:border-blue-500/40 transition">
+            <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 font-bold text-xs uppercase tracking-wider">
+                  <CreditCard className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Crédito LanAhora</span>
+                </div>
+                <span className="text-xs font-black text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-400/30">
+                  16 Pagos Fijos
+                </span>
+              </div>
+              <h3 className="text-lg sm:text-xl font-black text-white mt-3.5 leading-snug">
+                Compra con tu Distribuidora Autorizada
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 mt-1.5 leading-relaxed">
+                Adquiere productos en línea a <strong>16 quincenas fijas</strong> con cargo directo a tu línea autorizada. Sin enganches ni trámites complicados.
+              </p>
+            </div>
+            <div className="relative z-10 mt-5 pt-3.5 border-t border-slate-800/80 flex items-center justify-between">
+              <div className="flex items-center gap-3 text-xs text-slate-300 font-medium">
+                <span className="text-emerald-400 font-bold">✓ 0% Enganche</span>
+                <span className="hidden sm:inline text-slate-600">•</span>
+                <span className="text-slate-300 hidden sm:inline">Aprobación Inmediata</span>
+              </div>
+              <button
+                onClick={() => {
+                  const el = document.getElementById('catalogo-grid');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="text-xs font-bold text-amber-300 hover:text-amber-200 flex items-center gap-1 group-hover:translate-x-1 transition cursor-pointer"
+              >
+                <span>Ver Catálogo</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
 
-          {/* Right Side Cards (Col Span 1) */}
-          <div className="lg:col-span-1 xl:col-span-1 flex flex-col gap-4 justify-between">
-            {/* Card 1: Financiamiento sin enganche */}
-            <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-xs flex-1 flex flex-col justify-between border border-slate-800 hover:border-slate-700 transition">
-              <div>
-                <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                  <CreditCard className="w-4 h-4" />
-                  <span>Crédito LanAhora</span>
-                </div>
-                <h3 className="text-base font-bold text-white mt-2 leading-snug">
-                  Compra con tu Distribuidora Autorizada
-                </h3>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                  Adquiere productos en línea a <strong>16 quincenas fijas</strong> con cargo a tu línea autorizada.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                <span className="text-amber-300 font-bold">16 Pagos Fijos</span>
-                <span className="text-slate-400">Sin Enganche</span>
-              </div>
-            </div>
-
-            {/* Card 2: Garantía Oficial 48 hrs */}
-            <div className="bg-white rounded-2xl p-5 shadow-xs flex-1 flex flex-col justify-between border border-slate-200 hover:border-slate-300 transition">
-              <div>
-                <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider">
-                  <ShieldAlert className="w-4 h-4" />
+          {/* Banner 2: Garantía Oficial */}
+          <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-2xl p-6 sm:p-7 shadow-xs border border-blue-900/50 flex flex-col justify-between relative overflow-hidden group hover:border-indigo-500/40 transition">
+            <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 font-bold text-xs uppercase tracking-wider">
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-300" />
                   <span>Garantía Oficial</span>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 mt-2 leading-snug">
-                  Protección de Entrega 48 Horas
-                </h3>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Cuentas con 48 hrs hábiles tras recibir tu producto para reportar cualquier detalle o anomalía.
-                </p>
+                <span className="text-xs font-black text-emerald-300 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-400/30">
+                  100% Seguro
+                </span>
               </div>
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-emerald-700 font-bold">Entrega en Sucursal o Casa</span>
-                <span className="text-slate-400">100% Seguro</span>
+              <h3 className="text-lg sm:text-xl font-black text-white mt-3.5 leading-snug">
+                Protección de Entrega 48 Horas
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 mt-1.5 leading-relaxed">
+                Cuentas con 48 hrs hábiles tras recibir tu producto para reportar cualquier detalle o anomalía con reposición y respaldo total.
+              </p>
+            </div>
+            <div className="relative z-10 mt-5 pt-3.5 border-t border-slate-800/80 flex items-center justify-between">
+              <div className="flex items-center gap-3 text-xs text-slate-300 font-medium">
+                <span className="text-teal-300 font-bold">✓ Sucursal o Domicilio</span>
+                <span className="hidden sm:inline text-slate-600">•</span>
+                <span className="text-slate-300 hidden sm:inline">Soporte Directo</span>
               </div>
+              <span className="text-xs font-bold text-blue-300 flex items-center gap-1">
+                <span>Respaldo LanAhora</span>
+              </span>
             </div>
           </div>
         </div>
