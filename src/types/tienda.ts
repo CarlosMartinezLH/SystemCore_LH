@@ -19,6 +19,10 @@ export interface LanaTiendaProduct {
   rating?: number; // ej. 4.9
   reviewsCount?: number; // ej. 128
   envioGratis?: boolean;
+  proveedorId?: string; // ID del mayorista/proveedor API asociado
+  proveedorNombre?: string;
+  costoProveedor?: number;
+  stockDisponible?: number;
 }
 
 export interface LanaTiendaDistribuidoraLineas {
@@ -76,6 +80,14 @@ export interface LanaTiendaPedido {
   referenciasDomicilio: string;
   telefonoContacto: string;
   estatus: LanaTiendaEstatusPedido;
+  metodoPago?: 'CREDITO_LANATIENDA' | 'LANAPUNTOS' | 'MIXTO';
+  montoTotal?: number;
+  montoFinanciado?: number;
+  puntosCanjeados?: number;
+  creditoCoreId?: number;
+  proveedorId?: string;
+  proveedorNombre?: string;
+  ordenCompraProveedor?: string;
   guiaEnvio?: string;
   paqueteria?: string;
   notas?: string;

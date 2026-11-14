@@ -94,6 +94,10 @@ export const INITIAL_PRODUCTS: LanaTiendaProduct[] = [
     rating: 4.9,
     reviewsCount: 142,
     envioGratis: true,
+    proveedorId: 'prov-003',
+    proveedorNombre: 'Mueblería & Hogar Central',
+    costoProveedor: 1850.0,
+    stockDisponible: 45,
   },
   {
     id: 'prod-002',
@@ -121,6 +125,10 @@ export const INITIAL_PRODUCTS: LanaTiendaProduct[] = [
     rating: 4.8,
     reviewsCount: 98,
     envioGratis: true,
+    proveedorId: 'prov-001',
+    proveedorNombre: 'Syscom México Tech',
+    costoProveedor: 5900.0,
+    stockDisponible: 28,
   },
   {
     id: 'prod-003',
@@ -147,6 +155,10 @@ export const INITIAL_PRODUCTS: LanaTiendaProduct[] = [
     rating: 4.9,
     reviewsCount: 76,
     envioGratis: true,
+    proveedorId: 'prov-003',
+    proveedorNombre: 'Mueblería & Hogar Central',
+    costoProveedor: 5200.0,
+    stockDisponible: 19,
   },
   {
     id: 'prod-004',
@@ -174,6 +186,10 @@ export const INITIAL_PRODUCTS: LanaTiendaProduct[] = [
     rating: 4.7,
     reviewsCount: 215,
     envioGratis: true,
+    proveedorId: 'prov-002',
+    proveedorNombre: 'Ingram Micro México',
+    costoProveedor: 6990.0,
+    stockDisponible: 34,
   },
   {
     id: 'prod-005',
@@ -200,6 +216,10 @@ export const INITIAL_PRODUCTS: LanaTiendaProduct[] = [
     rating: 5.0,
     reviewsCount: 88,
     envioGratis: true,
+    proveedorId: 'prov-003',
+    proveedorNombre: 'Mueblería & Hogar Central',
+    costoProveedor: 2400.0,
+    stockDisponible: 60,
   },
   {
     id: 'prod-006',
@@ -226,6 +246,10 @@ export const INITIAL_PRODUCTS: LanaTiendaProduct[] = [
     rating: 4.9,
     reviewsCount: 310,
     envioGratis: true,
+    proveedorId: 'prov-003',
+    proveedorNombre: 'Mueblería & Hogar Central',
+    costoProveedor: 1350.0,
+    stockDisponible: 52,
   },
   {
     id: 'prod-007',
@@ -252,6 +276,10 @@ export const INITIAL_PRODUCTS: LanaTiendaProduct[] = [
     rating: 4.9,
     reviewsCount: 184,
     envioGratis: true,
+    proveedorId: 'prov-001',
+    proveedorNombre: 'Syscom México Tech',
+    costoProveedor: 1720.0,
+    stockDisponible: 75,
   },
   {
     id: 'prod-008',
@@ -278,6 +306,10 @@ export const INITIAL_PRODUCTS: LanaTiendaProduct[] = [
     rating: 4.8,
     reviewsCount: 65,
     envioGratis: true,
+    proveedorId: 'prov-003',
+    proveedorNombre: 'Mueblería & Hogar Central',
+    costoProveedor: 3100.0,
+    stockDisponible: 15,
   },
 ];
 
@@ -293,7 +325,7 @@ export const MOCK_DISTRIBUIDORA_DEFAULT: LanaTiendaDistribuidoraLineas = {
   limiteClienteFinal: 9000.0,
   valelanaActivo: 3000.0,
   kitBellezaActivo: 3750.0,
-  monedero: 0.0,
+  monedero: 3500.0,
 };
 
 export const MOCK_CLIENTES_DEFAULT: LanaTiendaCliente[] = [

@@ -702,6 +702,67 @@ export function recordCreditoSync(payload: {
   return nuevoCredito;
 }
 
+// Sincronización oficial de compras de LanaTienda con Créditos en Core y Monedero LanaPuntos
+export function recordLanaTiendaCompraCore(payload: {
+  folioPedido: string;
+  distribuidorId: number | string;
+  distribuidorNombre: string;
+  clienteId?: string;
+  clienteNombre: string;
+  productoNombre: string;
+  sku: string;
+  montoTotal: number;
+  montoFinanciado: number;
+  puntosCanjeados: number;
+  metodoPago: 'CREDITO_LANATIENDA' | 'LANAPUNTOS' | 'MIXTO';
+  tipoEntrega: 'SUCURSAL' | 'DOMICILIO';
+  direccionEntrega: string;
+}) {
+  const data = getServerSyncData();
+  const distNum = Number(String(payload.distribuidorId).replace(/\D/g, '')) || 1002;
+  const dist = data.distribuidores.find((d) => d.noDist === distNum) || data.distribuidores[0];
+
+  // 1. Si se canjearon LanaPuntos: Descontar del monedero del distribuidor en el Core
+  if (payload.puntosCanjeados > 0 && dist) {
+    dist.lanapuntos = Math.max(0, (dist.lanapuntos || 2850) - payload.puntosCanjeados);
+  }
+
+  // 2. Si hay financiamiento a crédito: Generar el crédito en Core
+  let nuevoCredito: CreditoCore | null = null;
+  if (payload.montoFinanciado > 0) {
+    if (dist) {
+      dist.disponibleLanaTienda = Math.max(0, (dist.disponibleLanaTienda || 20000) - payload.montoFinanciado);
+      dist.saldoActual = (dist.saldoActual || 0) + payload.montoFinanciado;
+      dist.disponible = Math.max(0, (dist.disponible || 50000) - payload.montoFinanciado);
+    }
+
+    nuevoCredito = {
+      creditoId: `CR-LT-${Date.now().toString().slice(-6)}`,
+      noVale: payload.folioPedido,
+      noDist: dist ? dist.noDist : distNum,
+      distribuidorNombre: dist ? dist.nombreDistribuidor : payload.distribuidorNombre,
+      clienteNombre: payload.clienteNombre.toUpperCase(),
+      monto: payload.montoFinanciado,
+      saldo: payload.montoFinanciado,
+      estatus: 'VIGENTE',
+      fechaOtorgamiento: new Date().toLocaleDateString('es-MX'),
+      quincenasPlazo: 16,
+      sucursal: dist?.sucursal || 'SALTILLO CENTRO',
+    };
+
+    data.creditos = [nuevoCredito, ...data.creditos];
+  }
+
+  data.lastUpdate = Date.now();
+
+  return {
+    success: true,
+    credito: nuevoCredito,
+    disponibleRestante: dist?.disponibleLanaTienda ?? 0,
+    lanapuntosRestantes: dist?.lanapuntos ?? 0,
+  };
+}
+
 export function sendNotificationSync(payload: Partial<MobileNotification>): MobileNotification {
   const data = getServerSyncData();
   const nueva: MobileNotification = {

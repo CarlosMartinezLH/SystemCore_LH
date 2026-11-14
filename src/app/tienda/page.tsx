@@ -82,6 +82,8 @@ function TiendaCoreContent() {
   const [referenciasDomicilio, setReferenciasDomicilio] = useState('');
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderError, setOrderError] = useState('');
+  const [metodoPago, setMetodoPago] = useState<'CREDITO_LANATIENDA' | 'LANAPUNTOS' | 'MIXTO'>('CREDITO_LANATIENDA');
+  const [puntosCanjeados, setPuntosCanjeados] = useState<number>(0);
 
   // Copy notification
   const [copiedLink, setCopiedLink] = useState(false);
@@ -198,12 +200,22 @@ function TiendaCoreContent() {
     setCartQuantity(1);
     setSelectedProduct(null);
     setOrderError('');
+    setMetodoPago('CREDITO_LANATIENDA');
+    setPuntosCanjeados(0);
   };
 
   const handleFinalizeOrder = async () => {
     if (!cartProduct) return;
     setIsSubmittingOrder(true);
     setOrderError('');
+
+    const totalOrden = cartProduct.precio * cartQuantity;
+    const finalPuntos =
+      metodoPago === 'LANAPUNTOS'
+        ? totalOrden
+        : metodoPago === 'MIXTO'
+        ? puntosCanjeados
+        : 0;
 
     const payload = {
       distribuidoraId: distribuidora.distribuidoraId,
@@ -219,6 +231,8 @@ function TiendaCoreContent() {
           : `${selectedCliente.direccion}, ${selectedCliente.ciudad} CP ${selectedCliente.cp}`,
       referenciasDomicilio,
       telefonoContacto: selectedCliente.telefono,
+      metodoPago,
+      puntosCanjeados: finalPuntos,
     };
 
     try {
@@ -233,7 +247,10 @@ function TiendaCoreContent() {
         setCompletedOrder(data.pedido);
         setDistribuidora((prev) => ({
           ...prev,
-          disponibleLanaTienda: data.disponibleRestante,
+          disponibleLanaTienda:
+            data.disponibleRestante !== undefined ? data.disponibleRestante : prev.disponibleLanaTienda,
+          monedero:
+            data.monederoRestante !== undefined ? data.monederoRestante : prev.monedero,
         }));
         setIsConfirmModalOpen(false);
         setCartProduct(null);
@@ -357,15 +374,20 @@ function TiendaCoreContent() {
 
                 {/* Profile Pill */}
                 <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5">
-                  <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
                     {distribuidora.distribuidoraNombre.charAt(0)}
                   </div>
                   <div className="text-left hidden sm:block">
-                    <div className="text-xs font-bold text-slate-900 truncate max-w-[120px]">
+                    <div className="text-xs font-bold text-slate-900 truncate max-w-[130px]">
                       {distribuidora.distribuidoraNombre}
                     </div>
-                    <div className="text-[10px] text-blue-700 font-bold">
-                      Nivel {distribuidora.nivel}
+                    <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-500">
+                      <span className="text-blue-700 font-bold">Nivel {distribuidora.nivel}</span>
+                      <span>•</span>
+                      <span className="text-amber-600 font-bold flex items-center gap-0.5">
+                        <Sparkles className="w-3 h-3 fill-amber-500 text-amber-500" />
+                        {distribuidora.monedero.toLocaleString()} pts
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -735,7 +757,31 @@ function TiendaCoreContent() {
                           Total: {formatMoney(product.precio)}
                         </span>
                       </div>
+
+                      {/* LanaPuntos canje alternative */}
+                      <div className="mt-1.5 pt-1.5 border-t border-blue-200/60 flex items-center justify-between text-[10px]">
+                        <span className="text-slate-600 flex items-center gap-1 font-semibold">
+                          <Sparkles className="w-3 h-3 text-amber-500 fill-amber-500" />
+                          LanaPuntos:
+                        </span>
+                        <span className="font-black text-amber-700">
+                          {Math.round(product.precio).toLocaleString()} pts
+                        </span>
+                      </div>
                     </div>
+
+                    {/* Supplier origin tag */}
+                    {product.proveedorNombre && (
+                      <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg">
+                        <span className="flex items-center gap-1 truncate max-w-[150px]">
+                          <PackageCheck className="w-3 h-3 text-slate-400" />
+                          {product.proveedorNombre}
+                        </span>
+                        {product.stockDisponible && (
+                          <span className="text-emerald-700 font-bold">{product.stockDisponible} disp.</span>
+                        )}
+                      </div>
+                    )}
 
                     {/* Shipping free tag */}
                     <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
@@ -1144,6 +1190,22 @@ function TiendaCoreContent() {
                       Disponible: {formatMoney(distribuidora.disponiblePersonal)}
                     </div>
                   </div>
+
+                  {/* Monedero LanaPuntos Tile */}
+                  <div className="bg-slate-850 rounded-xl p-3 border border-amber-500/30 col-span-2 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-amber-400 font-bold uppercase flex items-center gap-1">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                        Monedero LanaPuntos (SystemCore)
+                      </span>
+                      <div className="text-sm font-black text-amber-300 mt-0.5">
+                        {distribuidora.monedero.toLocaleString()} pts disponibles
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-semibold bg-slate-800 px-2.5 py-1 rounded-md border border-slate-700">
+                      1 punto = $1.00 MXN
+                    </span>
+                  </div>
                 </div>
 
                 {/* Tier deduction breakdown (Official Bronce $9,000 example) */}
@@ -1260,31 +1322,238 @@ function TiendaCoreContent() {
                 </div>
               </div>
 
-              {/* TERMS */}
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold text-slate-700 block">Plazo Oficial Fijo</span>
-                  <span className="text-[10px] text-slate-400">16 pagos quincenales iguales</span>
+              {/* PAYMENT METHOD SELECTOR */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
+                  Forma de Liquidación y Pago
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {/* 1. Crédito LanaTienda */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMetodoPago('CREDITO_LANATIENDA');
+                      setPuntosCanjeados(0);
+                    }}
+                    className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                      metodoPago === 'CREDITO_LANATIENDA'
+                        ? 'bg-blue-50/80 border-blue-600 ring-2 ring-blue-500/20 shadow-xs'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                          <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+                          16 Quincenas
+                        </span>
+                        <span className="text-[9px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded">
+                          Línea Core
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-1">
+                        100% financiado con cargo a tu línea LanaTienda
+                      </p>
+                    </div>
+                    <div className="mt-2 text-xs font-black text-blue-700">
+                      16 x {formatMoney((cartProduct.precio * cartQuantity) / 16)}
+                    </div>
+                  </button>
+
+                  {/* 2. LanaPuntos Monedero */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMetodoPago('LANAPUNTOS');
+                      setPuntosCanjeados(cartProduct.precio * cartQuantity);
+                    }}
+                    className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                      metodoPago === 'LANAPUNTOS'
+                        ? 'bg-amber-50/80 border-amber-600 ring-2 ring-amber-500/20 shadow-xs'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                          LanaPuntos
+                        </span>
+                        <span className="text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded">
+                          100% Puntos
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-1">
+                        Paga 100% con saldo monedero sin generar deuda
+                      </p>
+                    </div>
+                    <div className="mt-2 text-xs font-black text-amber-600">
+                      {Math.round(cartProduct.precio * cartQuantity).toLocaleString()} pts (0 quincenas)
+                    </div>
+                  </button>
+
+                  {/* 3. Pago Mixto */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMetodoPago('MIXTO');
+                      const total = cartProduct.precio * cartQuantity;
+                      const maxCanje = Math.min(distribuidora.monedero, Math.floor(total * 0.5));
+                      setPuntosCanjeados(maxCanje > 0 ? maxCanje : 0);
+                    }}
+                    className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                      metodoPago === 'MIXTO'
+                        ? 'bg-emerald-50/80 border-emerald-600 ring-2 ring-emerald-500/20 shadow-xs'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                          <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                          Pago Mixto
+                        </span>
+                        <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.2 rounded">
+                          Descuento
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-1">
+                        Aplica puntos como anticipo y financia el resto
+                      </p>
+                    </div>
+                    <div className="mt-2 text-[11px] font-black text-emerald-700">
+                      Puntos + Crédito
+                    </div>
+                  </button>
                 </div>
-                <div className="text-right">
-                  <span className="text-base font-black text-blue-700">
-                    {formatMoney(cartProduct.pagoQuincenal * cartQuantity)}
-                  </span>
-                  <span className="text-[10px] text-slate-500 block">/ por quincena</span>
-                </div>
+
+                {/* Slider for Mixed Method */}
+                {metodoPago === 'MIXTO' && (
+                  <div className="bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-200 space-y-2 mt-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-bold text-slate-700">Puntos a aplicar como anticipo:</span>
+                      <span className="font-black text-emerald-700 text-sm">
+                        {puntosCanjeados.toLocaleString()} pts (-{formatMoney(puntosCanjeados)})
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="100"
+                      max={Math.min(distribuidora.monedero, cartProduct.precio * cartQuantity)}
+                      step="50"
+                      value={puntosCanjeados}
+                      onChange={(e) => setPuntosCanjeados(Number(e.target.value))}
+                      className="w-full accent-emerald-600 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-500 font-medium">
+                      <span>Mínimo: 100 pts</span>
+                      <span>
+                        Máx canjeable en cartera:{' '}
+                        {Math.min(distribuidora.monedero, cartProduct.precio * cartQuantity).toLocaleString()} pts
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Finalize Button */}
-              <div className="pt-2">
-                <button
-                  onClick={() => setIsConfirmModalOpen(true)}
-                  disabled={isSubmittingOrder}
-                  className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-xs transition flex items-center justify-center gap-2"
-                >
-                  <span>Finalizar y Autorizar Pedido</span>
-                  <ArrowRight className="w-4 h-4 text-amber-400" />
-                </button>
-              </div>
+              {/* DYNAMIC BREAKDOWN & TERMS */}
+              {(() => {
+                const total = cartProduct.precio * cartQuantity;
+                const puntosUsados =
+                  metodoPago === 'LANAPUNTOS'
+                    ? total
+                    : metodoPago === 'MIXTO'
+                    ? puntosCanjeados
+                    : 0;
+                const montoFinanciado = Math.max(0, total - puntosUsados);
+                const pagoQuincenal = montoFinanciado / 16;
+                const puntosInsuficientes =
+                  metodoPago === 'LANAPUNTOS' && distribuidora.monedero < total;
+                const lineaInsuficiente =
+                  montoFinanciado > distribuidora.disponibleLanaTienda;
+                const disableSubmit =
+                  puntosInsuficientes || lineaInsuficiente || isSubmittingOrder;
+
+                return (
+                  <div className="space-y-3">
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-slate-500">Monto Total del Pedido:</span>
+                        <span className="font-bold text-slate-900">{formatMoney(total)}</span>
+                      </div>
+
+                      {puntosUsados > 0 && (
+                        <div className="flex justify-between text-xs text-amber-700 font-bold">
+                          <span className="flex items-center gap-1">
+                            <Sparkles className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                            Descuento LanaPuntos ({puntosUsados.toLocaleString()} pts):
+                          </span>
+                          <span>-{formatMoney(puntosUsados)}</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center border-t border-slate-200 pt-2.5">
+                        <div>
+                          <span className="text-xs font-bold text-slate-700 block">
+                            {montoFinanciado > 0
+                              ? 'Plazo Fijo a 16 Quincenas'
+                              : 'Liquidación 100% con LanaPuntos'}
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            {montoFinanciado > 0
+                              ? '16 pagos quincenales iguales cargados a tu cuenta'
+                              : 'Sin cobros quincenales ni cargos adicionales'}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          {montoFinanciado > 0 ? (
+                            <>
+                              <span className="text-base font-black text-blue-700">
+                                {formatMoney(pagoQuincenal)}
+                              </span>
+                              <span className="text-[10px] text-slate-500 block">/ por quincena</span>
+                            </>
+                          ) : (
+                            <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200">
+                              Pagado con Puntos
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {puntosInsuficientes && (
+                      <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 shrink-0" />
+                        <span>
+                          Saldo insuficiente. Cuentas con {distribuidora.monedero.toLocaleString()} pts y se requieren {Math.round(total).toLocaleString()} pts.
+                        </span>
+                      </div>
+                    )}
+
+                    {lineaInsuficiente && (
+                      <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 shrink-0" />
+                        <span>
+                          Línea de crédito insuficiente. Disponible: {formatMoney(distribuidora.disponibleLanaTienda)}, requeridos para financiar: {formatMoney(montoFinanciado)}.
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Finalize Button */}
+                    <div className="pt-1">
+                      <button
+                        onClick={() => setIsConfirmModalOpen(true)}
+                        disabled={disableSubmit}
+                        className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-xs transition flex items-center justify-center gap-2"
+                      >
+                        <span>Finalizar y Autorizar Pedido</span>
+                        <ArrowRight className="w-4 h-4 text-amber-400" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -1307,7 +1576,7 @@ function TiendaCoreContent() {
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-2">
               <div className="flex justify-between">
                 <span className="text-slate-500">Producto:</span>
-                <span className="font-bold text-slate-800 text-right">{cartProduct.nombre}</span>
+                <span className="font-bold text-slate-800 text-right truncate max-w-[200px]">{cartProduct.nombre}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Cliente Asignado:</span>
@@ -1319,10 +1588,39 @@ function TiendaCoreContent() {
                   {tipoDireccion === 'SUCURSAL' ? 'En Sucursal' : 'A Domicilio'}
                 </span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Método de Pago:</span>
+                <span className="font-bold text-slate-900">
+                  {metodoPago === 'CREDITO_LANATIENDA'
+                    ? '100% Crédito LanaTienda'
+                    : metodoPago === 'LANAPUNTOS'
+                    ? '100% LanaPuntos Monedero'
+                    : 'Mixto (Puntos + Crédito)'}
+                </span>
+              </div>
+              {metodoPago !== 'CREDITO_LANATIENDA' && (
+                <div className="flex justify-between text-amber-700 font-bold">
+                  <span>Puntos a Descontar:</span>
+                  <span>
+                    {(metodoPago === 'LANAPUNTOS'
+                      ? cartProduct.precio * cartQuantity
+                      : puntosCanjeados
+                    ).toLocaleString()}{' '}
+                    pts
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between border-t border-slate-200 pt-2">
-                <span className="text-slate-700 font-bold">Plazo:</span>
+                <span className="text-slate-700 font-bold">Financiamiento:</span>
                 <span className="font-black text-blue-700">
-                  16 quincenas de {formatMoney(cartProduct.pagoQuincenal * cartQuantity)}
+                  {(() => {
+                    const total = cartProduct.precio * cartQuantity;
+                    const puntos =
+                      metodoPago === 'LANAPUNTOS' ? total : metodoPago === 'MIXTO' ? puntosCanjeados : 0;
+                    const fin = Math.max(0, total - puntos);
+                    if (fin === 0) return 'Sin Deuda (Liquidado con Puntos)';
+                    return `16 quincenas de ${formatMoney(fin / 16)}`;
+                  })()}
                 </span>
               </div>
             </div>
@@ -1386,9 +1684,45 @@ function TiendaCoreContent() {
                   {completedOrder.producto.nombre}
                 </span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Forma de Pago:</span>
+                <span className="font-bold text-slate-900">
+                  {completedOrder.metodoPago === 'LANAPUNTOS'
+                    ? '100% LanaPuntos Monedero'
+                    : completedOrder.metodoPago === 'MIXTO'
+                    ? 'Pago Mixto (Puntos + Crédito)'
+                    : '100% Crédito LanaTienda'}
+                </span>
+              </div>
+              {completedOrder.puntosCanjeados && completedOrder.puntosCanjeados > 0 ? (
+                <div className="flex justify-between text-amber-700 font-bold">
+                  <span>LanaPuntos Canjeados:</span>
+                  <span>{completedOrder.puntosCanjeados.toLocaleString()} pts</span>
+                </div>
+              ) : null}
+              {completedOrder.creditoCoreId ? (
+                <div className="flex justify-between text-blue-700 font-bold">
+                  <span>Contrato Core:</span>
+                  <span className="font-mono bg-blue-100/70 text-blue-800 px-2 py-0.5 rounded text-[11px] border border-blue-200">
+                    CR-LT-{completedOrder.creditoCoreId} (16 qnas)
+                  </span>
+                </div>
+              ) : null}
+              {completedOrder.ordenCompraProveedor ? (
+                <div className="flex justify-between text-slate-700 border-t border-slate-200 pt-1.5">
+                  <span className="text-slate-500">PO Proveedor API:</span>
+                  <span className="font-mono font-bold text-emerald-700">
+                    {completedOrder.ordenCompraProveedor} ({completedOrder.proveedorNombre || 'Dropshipping API'})
+                  </span>
+                </div>
+              ) : null}
               <div className="flex justify-between border-t border-slate-200 pt-2 font-bold text-blue-700">
                 <span>16 Pagos Quincenales:</span>
-                <span>{formatMoney(completedOrder.producto.pagoQuincenal)}</span>
+                <span>
+                  {completedOrder.montoFinanciado && completedOrder.montoFinanciado > 0
+                    ? `${formatMoney(completedOrder.montoFinanciado / 16)}/qna`
+                    : '$0.00 (Liquidado)'}
+                </span>
               </div>
             </div>
 

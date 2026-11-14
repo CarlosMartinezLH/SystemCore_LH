@@ -46,6 +46,8 @@ export async function POST(req: Request) {
       direccionEntrega,
       referenciasDomicilio,
       telefonoContacto,
+      metodoPago = 'CREDITO_LANATIENDA',
+      puntosCanjeados = 0,
     } = body;
 
     if (!distribuidoraId || !clienteId || !sku || !tipoEntrega || !direccionEntrega) {
@@ -66,17 +68,23 @@ export async function POST(req: Request) {
       direccionEntrega,
       referenciasDomicilio: referenciasDomicilio || '',
       telefonoContacto: telefonoContacto || '',
+      metodoPago,
+      puntosCanjeados: Number(puntosCanjeados) || 0,
     });
 
     if (!resultado.success) {
       return NextResponse.json({ success: false, error: resultado.error }, { status: 422 });
     }
 
+    const distActual = tiendaStore.getDistribuidora(distribuidoraId);
+
     return NextResponse.json({
       success: true,
       pedido: resultado.pedido,
-      disponibleRestante: tiendaStore.getDistribuidora(distribuidoraId).disponibleLanaTienda,
-      mensaje: `Pedido ${resultado.pedido?.folio} registrado exitosamente a 16 quincenas fijas.`,
+      creditoCoreId: resultado.creditoCoreId,
+      disponibleRestante: distActual.disponibleLanaTienda,
+      monederoRestante: distActual.monedero,
+      mensaje: `Pedido ${resultado.pedido?.folio} registrado exitosamente.`,
     });
   } catch (error: any) {
     return NextResponse.json(
