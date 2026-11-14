@@ -38,7 +38,6 @@ export default function CriticalActionOtpModal({
   const [requesting, setRequesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [maskedEmail, setMaskedEmail] = useState<string>('c***@lanahora.com');
-  const [devCode, setDevCode] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(600); // 10 minutos
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -61,9 +60,6 @@ export default function CriticalActionOtpModal({
       if (data.success) {
         setMaskedEmail(data.emailMasked);
         setTimeLeft(data.expiresInSeconds || 600);
-        if (data.devCode) {
-          setDevCode(data.devCode);
-        }
       } else {
         setError(data.error || 'No se pudo generar el código de verificación.');
       }
@@ -192,22 +188,6 @@ export default function CriticalActionOtpModal({
             </div>
           </div>
 
-          {/* Banner de asistencia en Desarrollo */}
-          {devCode && (
-            <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-emerald-800 text-[11px]">
-              <div className="flex items-center gap-1.5 font-bold">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Código en bandeja: <strong className="font-mono text-xs">{devCode}</strong></span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setCode(devCode)}
-                className="text-emerald-700 hover:text-emerald-900 font-bold underline cursor-pointer text-[10px]"
-              >
-                Autocompletar
-              </button>
-            </div>
-          )}
 
           {/* Input del Código de 6 Dígitos */}
           <div className="space-y-1.5 text-center pt-1">

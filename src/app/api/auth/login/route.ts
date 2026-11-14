@@ -238,7 +238,7 @@ export async function POST(req: Request) {
 
       // 1.4 Generar código de seguridad de 6 dígitos enviado al correo (One-Time PIN)
       failedAttemptsMap.delete(lockKey);
-      const otpRes = generateCriticalOtp(
+      const otpRes = await generateCriticalOtp(
         targetUser.email,
         'LOGIN',
         `Inicio de sesión en SystemCore LanAhora desde ${deviceFingerprint}`
@@ -257,7 +257,6 @@ export async function POST(req: Request) {
           roleLabel: targetUser.roleLabel,
           avatarInitials: targetUser.avatarInitials,
         },
-        devCode: otpRes.devCode,
         expiresInSeconds: otpRes.expiresInSeconds,
         message: `Código de seguridad enviado a ${otpRes.emailMasked}`,
       });
@@ -336,7 +335,7 @@ export async function POST(req: Request) {
     // -------------------------------------------------------------
     if (step === 'resend_email_otp') {
       const user = targetUser || INSTITUTIONAL_USERS.find((u) => u.id === userId) || INSTITUTIONAL_USERS[0];
-      const otpRes = generateCriticalOtp(
+      const otpRes = await generateCriticalOtp(
         user.email,
         'LOGIN',
         `Reenvío de código de seguridad desde ${deviceFingerprint}`
@@ -344,7 +343,6 @@ export async function POST(req: Request) {
       return NextResponse.json({
         success: true,
         maskedEmail: otpRes.emailMasked,
-        devCode: otpRes.devCode,
         expiresInSeconds: otpRes.expiresInSeconds,
         message: `Nuevo código enviado a ${otpRes.emailMasked}`,
       });

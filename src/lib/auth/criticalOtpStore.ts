@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { sendOtpEmail } from '@/lib/email/emailService';
 
 export interface CriticalOtpEntry {
   email: string;
@@ -22,11 +23,11 @@ export function maskEmail(email: string): string {
   return `${local[0]}${'*'.repeat(Math.max(local.length - 2, 3))}${local[local.length - 1]}@${domain}`;
 }
 
-export function generateCriticalOtp(
+export async function generateCriticalOtp(
   email: string,
   action: string,
   details: string
-): { success: boolean; emailMasked: string; expiresInSeconds: number; devCode: string } {
+): Promise<{ success: boolean; emailMasked: string; expiresInSeconds: number }> {
   const normalizedEmail = email.trim().toLowerCase();
   
   // Generar código numérico de 6 dígitos con aleatoriedad criptográfica
@@ -48,21 +49,18 @@ export function generateCriticalOtp(
     attempts: 0,
   });
 
-  // Simulación de envío por correo SMTP corporativo
-  console.log(`\n======================================================`);
-  console.log(`[CORREO INSTITUCIONAL LANAHORA] - OPERACIÓN CRÍTICA`);
-  console.log(`Destinatario: ${normalizedEmail}`);
-  console.log(`Acción:       ${action}`);
-  console.log(`Detalle:      ${details}`);
-  console.log(`CÓDIGO DE SEGURIDAD (6 DÍGITOS): [ ${code} ]`);
-  console.log(`Válido por:   10 minutos`);
-  console.log(`======================================================\n`);
+  // Enviar correo real a través del servicio SMTP
+  await sendOtpEmail({
+    to: normalizedEmail,
+    code,
+    actionTitle: action === 'LOGIN' ? 'Inicio de Sesión' : action,
+    actionDetails: details,
+  });
 
   return {
     success: true,
     emailMasked: maskEmail(normalizedEmail),
     expiresInSeconds,
-    devCode: code,
   };
 }
 

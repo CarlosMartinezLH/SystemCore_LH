@@ -19,7 +19,7 @@ export async function POST(req: Request) {
         );
       }
 
-      const res = generateCriticalOtp(
+      const res = await generateCriticalOtp(
         targetEmail,
         actionType,
         details || 'Confirmación de operación crítica de seguridad'
@@ -29,7 +29,6 @@ export async function POST(req: Request) {
         success: true,
         emailMasked: res.emailMasked,
         expiresInSeconds: res.expiresInSeconds,
-        devCode: res.devCode,
       });
     }
 

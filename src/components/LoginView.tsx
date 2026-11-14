@@ -40,7 +40,6 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
   const [trustDevice, setTrustDevice] = useState(true);
   const [challengeUser, setChallengeUser] = useState<any>(null);
   const [totpCountdown, setTotpCountdown] = useState(600); // 10 minutos
-  const [devOtpCode, setDevOtpCode] = useState<string | null>(null);
   const [isResending, setIsResending] = useState(false);
   const [isTrustedDeviceCached, setIsTrustedDeviceCached] = useState(false);
 
@@ -115,7 +114,6 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
       });
       const data = await res.json();
       if (data.success) {
-        if (data.devCode) setDevOtpCode(data.devCode);
         setTotpCountdown(data.expiresInSeconds || 600);
         setTotpDigits(['', '', '', '', '', '']);
       }
@@ -196,7 +194,6 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
 
       if (res.ok && data.requires2FA) {
         setChallengeUser(data.challengeUser);
-        if (data.devCode) setDevOtpCode(data.devCode);
         if (data.expiresInSeconds) setTotpCountdown(data.expiresInSeconds);
         setCurrentStep('2fa_totp');
         setTimeout(() => {
@@ -588,26 +585,6 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 </div>
               </div>
 
-              {/* Banner de Desarrollo: Código recibido */}
-              {devOtpCode && (
-                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-emerald-800 text-[11px]">
-                  <div className="flex items-center gap-1.5 font-bold">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Código en bandeja: <strong className="font-mono text-xs">{devOtpCode}</strong></span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newDigits = devOtpCode.slice(0, 6).split('');
-                      setTotpDigits(newDigits);
-                      executeVerifyTotp(devOtpCode);
-                    }}
-                    className="text-emerald-700 hover:text-emerald-900 font-bold underline cursor-pointer text-[10px]"
-                  >
-                    Autocompletar
-                  </button>
-                </div>
-              )}
 
               {/* 6 Digit Inputs */}
               <div className="space-y-2.5">
