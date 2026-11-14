@@ -63,7 +63,6 @@ function TiendaCoreContent() {
   const [cartProduct, setCartProduct] = useState<LanaTiendaProduct | null>(null);
   const [cartQuantity, setCartQuantity] = useState(1);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<LanaTiendaPedido | null>(null);
   const [viewHistoryModal, setViewHistoryModal] = useState(false);
   const [historyOrders, setHistoryOrders] = useState<LanaTiendaPedido[]>([]);
@@ -252,15 +251,12 @@ function TiendaCoreContent() {
           monedero:
             data.monederoRestante !== undefined ? data.monederoRestante : prev.monedero,
         }));
-        setIsConfirmModalOpen(false);
         setCartProduct(null);
       } else {
         setOrderError(data.error || 'No fue posible registrar el pedido');
-        setIsConfirmModalOpen(false);
       }
     } catch (err: any) {
       setOrderError(err.message || 'Error de conexión');
-      setIsConfirmModalOpen(false);
     } finally {
       setIsSubmittingOrder(false);
     }
@@ -738,77 +734,38 @@ function TiendaCoreContent() {
 
                   {/* Pricing Block */}
                   <div className="pt-2.5 border-t border-slate-100 space-y-2">
-                    {/* Hero Quincenal Price (SystemCore Blue Card) */}
-                    <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-2.5">
-                      <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider block">
-                        Pago Quincenal Fijo
-                      </span>
-                      <div className="flex items-baseline gap-1 mt-0.5">
-                        <span className="text-xl font-black text-blue-700 leading-none">
-                          {formatMoney(product.pagoQuincenal)}
-                        </span>
-                        <span className="text-xs font-bold text-blue-900">/ quincena</span>
-                      </div>
-                      <div className="flex items-center justify-between mt-1 text-[10px] font-semibold text-slate-600">
-                        <span className="bg-amber-400 text-slate-950 px-2 py-0.2 rounded-full font-bold">
-                          16 Quincenas
-                        </span>
-                        <span className="text-slate-500">
-                          Total: {formatMoney(product.precio)}
-                        </span>
-                      </div>
-
-                      {/* LanaPuntos canje alternative */}
-                      <div className="mt-1.5 pt-1.5 border-t border-blue-200/60 flex items-center justify-between text-[10px]">
-                        <span className="text-slate-600 flex items-center gap-1 font-semibold">
-                          <Sparkles className="w-3 h-3 text-amber-500 fill-amber-500" />
-                          LanaPuntos:
-                        </span>
-                        <span className="font-black text-amber-700">
-                          {Math.round(product.precio).toLocaleString()} pts
-                        </span>
+                    <div className="bg-blue-50/70 border border-blue-200/80 rounded-xl p-2.5">
+                      <div className="flex items-baseline justify-between">
+                        <div>
+                          <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider block">
+                            16 pagos de
+                          </span>
+                          <div className="flex items-baseline gap-1 mt-0.5">
+                            <span className="text-xl font-black text-blue-700 leading-none">
+                              {formatMoney(product.pagoQuincenal)}
+                            </span>
+                            <span className="text-[11px] font-bold text-blue-900">/ quincena</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[10px] text-slate-400 font-semibold block uppercase">
+                            Precio
+                          </span>
+                          <span className="text-xs font-bold text-slate-700">
+                            {formatMoney(product.precio)}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Supplier origin tag */}
-                    {product.proveedorNombre && (
-                      <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg">
-                        <span className="flex items-center gap-1 truncate max-w-[150px]">
-                          <PackageCheck className="w-3 h-3 text-slate-400" />
-                          {product.proveedorNombre}
-                        </span>
-                        {product.stockDisponible && (
-                          <span className="text-emerald-700 font-bold">{product.stockDisponible} disp.</span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Shipping free tag */}
-                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                      <Truck className="w-3.5 h-3.5 text-blue-600" />
-                      <span>Entrega a domicilio o en sucursal</span>
-                    </div>
-
-                    {/* Primary CTA: "¡Compra con tu distribuidora aquí!" */}
-                    <div className="pt-1 flex flex-col gap-1.5">
-                      <button
-                        onClick={() => setShareModalProduct(product)}
-                        className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5"
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                        <span>¡Compra con tu distribuidora aquí!</span>
-                      </button>
-
-                      {isDistribuidoraLoggedIn && (
-                        <button
-                          onClick={() => handleOpenCart(product)}
-                          className="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[11px] rounded-xl transition flex items-center justify-center gap-1"
-                        >
-                          <ShoppingCart className="w-3.5 h-3.5 text-blue-600" />
-                          <span>Cargar a mi Carrito</span>
-                        </button>
-                      )}
-                    </div>
+                    {/* Direct 1-Click Buy Button */}
+                    <button
+                      onClick={() => handleOpenCart(product)}
+                      className="w-full py-2.5 px-3 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5 text-amber-300" />
+                      <span>Comprar a 16 quincenas</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -958,31 +915,21 @@ function TiendaCoreContent() {
               </div>
 
               {/* CTA Buttons */}
-              <div className="pt-3 border-t border-slate-200 space-y-2">
+              <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row gap-2.5">
+                <button
+                  onClick={() => handleOpenCart(selectedProduct)}
+                  className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart className="w-4 h-4 text-amber-300" />
+                  <span>Comprar a 16 quincenas</span>
+                </button>
                 <button
                   onClick={() => setShareModalProduct(selectedProduct)}
-                  className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2"
+                  className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-4 h-4" />
-                  <span>¡Compra con tu distribuidora aquí!</span>
+                  <span>Compartir</span>
                 </button>
-
-                {isDistribuidoraLoggedIn ? (
-                  <button
-                    onClick={() => handleOpenCart(selectedProduct)}
-                    className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition flex items-center justify-center gap-2"
-                  >
-                    <ShoppingCart className="w-4 h-4 text-amber-400" />
-                    <span>Agregar a Mi Carrito de Distribuidora</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setIsLoginModalOpen(true)}
-                    className="w-full py-2 text-slate-500 hover:text-slate-800 text-xs font-semibold text-center transition"
-                  >
-                    ¿Eres Distribuidora? Inicia sesión con tus credenciales LanApp
-                  </button>
-                )}
               </div>
             </div>
           </div>
@@ -1162,130 +1109,67 @@ function TiendaCoreContent() {
               )}
 
               {/* Product Row */}
-              <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div className="flex items-center gap-3.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                 <img
                   src={cartProduct.imagen}
-                  alt=""
+                  alt={cartProduct.nombre}
                   className="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0"
                 />
                 <div className="flex-1 min-w-0">
                   <span className="text-[10px] font-bold text-slate-400 uppercase">SKU: {cartProduct.sku}</span>
                   <h4 className="text-xs font-bold text-slate-900 truncate">{cartProduct.nombre}</h4>
-                  <div className="flex items-center gap-3 mt-1 text-xs">
-                    <span className="text-blue-700 font-bold">
-                      {formatMoney(cartProduct.precio)}
+                  <div className="flex items-center gap-2 mt-0.5 text-xs">
+                    <span className="text-blue-700 font-black">
+                      16 pagos de {formatMoney(cartProduct.pagoQuincenal)}
                     </span>
-                    <span className="text-slate-500 font-semibold">
-                      16 quincenas de {formatMoney(cartProduct.pagoQuincenal)}
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] text-slate-400 block uppercase font-bold">Total</span>
-                  <span className="text-base font-black text-slate-900">
-                    {formatMoney(cartProduct.precio * cartQuantity)}
-                  </span>
-                </div>
-              </div>
-
-              {/* CREDIT MATRIX GAUGE CARD (SystemCore Slate-900 Card) */}
-              <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-xs space-y-3.5 border border-slate-800">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                      Distribuidora Acreditada
-                    </span>
-                    <h4 className="text-base font-bold text-white">{distribuidora.distribuidoraNombre}</h4>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Nivel</span>
-                    <span className="bg-amber-400 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded-full">
-                      {distribuidora.nivel}
+                    <span className="text-slate-400 text-[11px]">
+                      (Total {formatMoney(cartProduct.precio)})
                     </span>
                   </div>
                 </div>
 
-                {/* Lines Grid */}
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
-                    <span className="text-[10px] text-amber-400 font-bold uppercase block">
-                      Línea LanaTienda
-                    </span>
-                    <div className="text-xs text-slate-300">
-                      Total: {formatMoney(distribuidora.lineaLanaTiendaTotal)}
-                    </div>
-                    <div className="text-sm font-black text-emerald-400 mt-0.5">
-                      Disponible: {formatMoney(distribuidora.disponibleLanaTienda)}
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
-                    <span className="text-[10px] text-blue-400 font-bold uppercase block">Línea Personal</span>
-                    <div className="text-xs text-slate-300">
-                      Total: {formatMoney(distribuidora.lineaPersonalTotal)}
-                    </div>
-                    <div className="text-sm font-black text-blue-300 mt-0.5">
-                      Disponible: {formatMoney(distribuidora.disponiblePersonal)}
-                    </div>
-                  </div>
-
-                  {/* Monedero LanaPuntos Tile */}
-                  <div className="bg-slate-850 rounded-xl p-3 border border-amber-500/30 col-span-2 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-amber-400 font-bold uppercase flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                        Monedero LanaPuntos (SystemCore)
-                      </span>
-                      <div className="text-sm font-black text-amber-300 mt-0.5">
-                        {distribuidora.monedero.toLocaleString()} pts disponibles
-                      </div>
-                    </div>
-                    <span className="text-[10px] text-slate-400 font-semibold bg-slate-800 px-2.5 py-1 rounded-md border border-slate-700">
-                      1 punto = $1.00 MXN
-                    </span>
-                  </div>
-                </div>
-
-                {/* Tier deduction breakdown (Official Bronce $9,000 example) */}
-                <div className="bg-black/30 rounded-xl p-3 text-[11px] text-slate-300 space-y-1">
-                  <div className="flex justify-between font-bold text-amber-300">
-                    <span>Límite Crédito Cliente Final ({distribuidora.nivel}):</span>
-                    <span>
-                      {formatMoney(distribuidora.limiteClienteFinal)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-slate-400 text-[10px]">
-                    <span>(-) ValeLana con canje activo:</span>
-                    <span>-{formatMoney(distribuidora.valelanaActivo)}</span>
-                  </div>
-                  <div className="flex justify-between text-slate-400 text-[10px]">
-                    <span>(-) Kits de Belleza comprometidos:</span>
-                    <span>
-                      -{formatMoney(distribuidora.kitBellezaActivo)}
-                    </span>
-                  </div>
+                {/* Quantity */}
+                <div className="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setCartQuantity((q) => Math.max(1, q - 1))}
+                    className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-bold text-xs transition"
+                  >
+                    -
+                  </button>
+                  <span className="px-2 text-xs font-bold text-slate-800">{cartQuantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => setCartQuantity((q) => Math.min(10, q + 1))}
+                    className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-bold text-xs transition"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
 
               {/* CLIENT SELECTOR */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
-                  Selecciona a tu Cliente
+                  Titular de la Solicitud
                 </label>
-                <select
-                  value={selectedClienteId}
-                  onChange={(e) => setSelectedClienteId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                >
-                  {clientes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre} (Tel: {c.telefono})
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[10px] text-slate-500 italic">
-                  *Si tu cliente no se encuentra registrado deberá visitar la sucursal con su papelería oficial.
-                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <select
+                    value={selectedClienteId}
+                    onChange={(e) => setSelectedClienteId(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                    {clientes.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nombre}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 flex items-center justify-between">
+                    <span>Teléfono:</span>
+                    <span className="font-bold text-slate-800">{selectedCliente.telefono}</span>
+                  </div>
+                </div>
               </div>
 
               {/* DELIVERY ADDRESS SELECTION */}
@@ -1578,112 +1462,31 @@ function TiendaCoreContent() {
                       </div>
                     )}
 
-                    {/* Finalize Button */}
-                    <div className="pt-1">
+                    {/* Finalize Button - Direct 1-Click Purchase */}
+                    <div className="pt-2">
                       <button
-                        onClick={() => setIsConfirmModalOpen(true)}
+                        type="button"
+                        onClick={handleFinalizeOrder}
                         disabled={disableSubmit}
-                        className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-xs transition flex items-center justify-center gap-2"
+                        className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-xs transition flex items-center justify-center gap-2"
                       >
-                        <span>Finalizar y Autorizar Pedido</span>
-                        <ArrowRight className="w-4 h-4 text-amber-400" />
+                        {isSubmittingOrder ? (
+                          <span>Procesando pedido...</span>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-amber-300" />
+                            <span>
+                              {montoFinanciado > 0
+                                ? `Confirmar Compra • 16 quincenas de ${formatMoney(pagoQuincenal)}`
+                                : 'Confirmar Canje con LanaPuntos'}
+                            </span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
                 );
               })()}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 10. CONFIRMATION POPUP */}
-      {isConfirmModalOpen && cartProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200">
-                <CheckCircle className="w-5 h-5 text-amber-600" />
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">Confirmar Pedido Institucional</h3>
-                <p className="text-[11px] text-slate-500">Verifica los detalles antes de concluir</p>
-              </div>
-            </div>
-
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-2">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Producto:</span>
-                <span className="font-bold text-slate-800 text-right truncate max-w-[200px]">{cartProduct.nombre}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Cliente Asignado:</span>
-                <span className="font-bold text-slate-800">{selectedCliente.nombre}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Modalidad de Entrega:</span>
-                <span className="font-bold text-slate-800">
-                  {tipoDireccion === 'SUCURSAL' ? 'En Sucursal' : 'A Domicilio'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Método de Pago:</span>
-                <span className="font-bold text-slate-900">
-                  {metodoPago === 'CREDITO_LANATIENDA'
-                    ? '100% Crédito LanaTienda'
-                    : metodoPago === 'LANAPUNTOS'
-                    ? '100% LanaPuntos Monedero'
-                    : 'Mixto (Puntos + Crédito)'}
-                </span>
-              </div>
-              {metodoPago !== 'CREDITO_LANATIENDA' && (
-                <div className="flex justify-between text-amber-700 font-bold">
-                  <span>Puntos a Descontar:</span>
-                  <span>
-                    {(metodoPago === 'LANAPUNTOS'
-                      ? cartProduct.precio * cartQuantity
-                      : puntosCanjeados
-                    ).toLocaleString()}{' '}
-                    pts
-                  </span>
-                </div>
-              )}
-              <div className="flex justify-between border-t border-slate-200 pt-2">
-                <span className="text-slate-700 font-bold">Financiamiento:</span>
-                <span className="font-black text-blue-700">
-                  {(() => {
-                    const total = cartProduct.precio * cartQuantity;
-                    const puntos =
-                      metodoPago === 'LANAPUNTOS' ? total : metodoPago === 'MIXTO' ? puntosCanjeados : 0;
-                    const fin = Math.max(0, total - puntos);
-                    if (fin === 0) return 'Sin Deuda (Liquidado con Puntos)';
-                    return `16 quincenas de ${formatMoney(fin / 16)}`;
-                  })()}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-2.5 pt-2">
-              <button
-                onClick={() => setIsConfirmModalOpen(false)}
-                className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
-              >
-                Modificar
-              </button>
-              <button
-                onClick={handleFinalizeOrder}
-                disabled={isSubmittingOrder}
-                className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs"
-              >
-                {isSubmittingOrder ? (
-                  <span>Procesando...</span>
-                ) : (
-                  <>
-                    <CheckCircle className="w-4 h-4 text-amber-400" />
-                    <span>Aceptar y Concluir</span>
-                  </>
-                )}
-              </button>
             </div>
           </div>
         </div>

@@ -23,11 +23,24 @@ class TiendaStore {
   private pedidos: LanaTiendaPedido[] = [...INITIAL_PEDIDOS];
 
   getProducts(): LanaTiendaProduct[] {
+    // Sync any newly added products from INITIAL_PRODUCTS
+    for (const initP of INITIAL_PRODUCTS) {
+      if (!this.products.some((p) => p.sku.toLowerCase() === initP.sku.toLowerCase())) {
+        this.products.push(initP);
+      }
+    }
     return this.products;
   }
 
   getProductBySku(sku: string): LanaTiendaProduct | undefined {
-    return this.products.find((p) => p.sku.toLowerCase() === sku.toLowerCase());
+    const found = this.products.find((p) => p.sku.toLowerCase() === sku.toLowerCase());
+    if (found) return found;
+    const initialFound = INITIAL_PRODUCTS.find((p) => p.sku.toLowerCase() === sku.toLowerCase());
+    if (initialFound) {
+      this.products.push(initialFound);
+      return initialFound;
+    }
+    return undefined;
   }
 
   getDistribuidora(id?: string): LanaTiendaDistribuidoraLineas {
