@@ -1802,14 +1802,16 @@ function TiendaCoreContent() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Historia oficial */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <img
-                  src="/lanahora-logo.png"
-                  alt="LanAhora"
-                  className="h-10 w-auto object-contain brightness-0 invert"
-                />
+              <div>
+                <div className="inline-flex items-center bg-white px-3.5 py-2 rounded-xl shadow-xs border border-slate-700/50">
+                  <img
+                    src="/lanahora-logo.png"
+                    alt="LanAhora"
+                    className="h-8 w-auto object-contain"
+                  />
+                </div>
               </div>
-              <h4 className="font-bold text-amber-400 text-sm">LanAhora</h4>
+              <h4 className="font-bold text-amber-400 text-sm">Financiera LanAhora</h4>
               <p className="text-slate-300 text-[11px] leading-relaxed">
                 LanAhora nace en el 2011 en la Ciudad de Monterrey, estamos en la ciudad de Saltillo desde el mes de
                 abril del 2015 y en la ciudad de Gómez Palacio Durango desde el mes de Junio 2017. A la fecha tenemos más
