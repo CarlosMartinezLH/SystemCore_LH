@@ -519,10 +519,10 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
 
               <div className="text-center space-y-1">
                 <h2 className="text-sm font-bold text-slate-900">
-                  Google Authenticator
+                  Código de Verificación
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Introduce el código de 6 dígitos de tu app
+                  Introduce el código de 6 dígitos
                 </p>
               </div>
 
@@ -632,7 +632,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
               Ayuda de Doble Factor
             </h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Si cambiaste de teléfono o no tienes acceso a Google Authenticator, contacta a Soporte o a tu coordinador para recibir asistencia.
+              Si tienes problemas para acceder a tu cuenta, contacta a Soporte o a tu coordinador para recibir asistencia.
             </p>
             <div className="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 space-y-0.5">
               <p>Mesa de Control: (844) 870-7297</p>

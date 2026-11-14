@@ -300,7 +300,7 @@ export default function Header({
                     <span className="font-semibold truncate">
                       {currentUser.mfaMethod === 'WEBAUTHN_PASSKEY'
                         ? '2FA: Windows Hello'
-                        : '2FA: Google Authenticator'}
+                        : 'Sesión Segura (14 días)'}
                     </span>
                   </div>
                 </div>
