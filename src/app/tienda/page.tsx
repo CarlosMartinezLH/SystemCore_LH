@@ -32,6 +32,13 @@ import {
   Eye,
   MessageCircle,
   SlidersHorizontal,
+  Heart,
+  ShieldCheck,
+  BadgeCheck,
+  ArrowUpDown,
+  Filter,
+  Printer,
+  ChevronLeft,
 } from 'lucide-react';
 import {
   LanaTiendaProduct,
@@ -56,6 +63,24 @@ function TiendaCoreContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('TODOS');
   const [activeBanner, setActiveBanner] = useState(0);
+  const [sortBy, setSortBy] = useState<'featured' | 'quincena-asc' | 'quincena-desc' | 'price-asc' | 'price-desc' | 'rating'>('featured');
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const toggleFavorite = (productId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setFavorites((prev) => {
+      const exists = prev.includes(productId);
+      const next = exists ? prev.filter((id) => id !== productId) : [...prev, productId];
+      showToast(exists ? 'Eliminado de tus favoritos' : '❤️ Guardado en tus favoritos');
+      return next;
+    });
+  };
 
   // Modals & Panels
   const [selectedProduct, setSelectedProduct] = useState<LanaTiendaProduct | null>(null);
@@ -161,9 +186,9 @@ function TiendaCoreContent() {
     return () => clearInterval(timer);
   }, [banners.length]);
 
-  // Filtered list
+  // Filtered and sorted list
   const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
+    const list = products.filter((p) => {
       const matchesCat =
         selectedCategory === 'TODOS' ||
         p.categoria.toLowerCase() === selectedCategory.toLowerCase() ||
@@ -176,7 +201,22 @@ function TiendaCoreContent() {
         p.categoria.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCat && matchesQuery;
     });
-  }, [products, selectedCategory, searchQuery]);
+
+    switch (sortBy) {
+      case 'quincena-asc':
+        return [...list].sort((a, b) => a.pagoQuincenal - b.pagoQuincenal);
+      case 'quincena-desc':
+        return [...list].sort((a, b) => b.pagoQuincenal - a.pagoQuincenal);
+      case 'price-asc':
+        return [...list].sort((a, b) => a.precio - b.precio);
+      case 'price-desc':
+        return [...list].sort((a, b) => b.precio - a.precio);
+      case 'rating':
+        return [...list].sort((a, b) => (b.rating || 5) - (a.rating || 5));
+      default:
+        return list;
+    }
+  }, [products, selectedCategory, searchQuery, sortBy]);
 
   const selectedCliente = useMemo(() => {
     return clientes.find((c) => c.id === selectedClienteId) || clientes[0];
@@ -287,6 +327,7 @@ function TiendaCoreContent() {
     const refUrl = `${origin}/tienda?sku=${encodeURIComponent(product.sku)}`;
     navigator.clipboard.writeText(refUrl);
     setCopiedLink(true);
+    showToast('✓ Enlace de producto copiado al portapapeles');
     setTimeout(() => setCopiedLink(false), 3000);
   };
 
@@ -541,6 +582,22 @@ function TiendaCoreContent() {
               </div>
             ))}
 
+            {/* Carousel Navigation Arrows */}
+            <button
+              onClick={() => setActiveBanner((prev) => (prev - 1 + banners.length) % banners.length)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-950/40 hover:bg-slate-950/70 backdrop-blur-xs text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-md"
+              title="Anterior"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setActiveBanner((prev) => (prev + 1) % banners.length)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-950/40 hover:bg-slate-950/70 backdrop-blur-xs text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-md"
+              title="Siguiente"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
             {/* Slider Dots */}
             <div className="absolute bottom-4 right-6 z-20 flex gap-2">
               {banners.map((_, idx) => (
@@ -558,7 +615,7 @@ function TiendaCoreContent() {
           {/* Right Side Cards (Col Span 1) */}
           <div className="lg:col-span-1 xl:col-span-1 flex flex-col gap-4 justify-between">
             {/* Card 1: Financiamiento sin enganche */}
-            <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-xs flex-1 flex flex-col justify-between border border-slate-800">
+            <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-xs flex-1 flex flex-col justify-between border border-slate-800 hover:border-slate-700 transition">
               <div>
                 <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
                   <CreditCard className="w-4 h-4" />
@@ -578,7 +635,7 @@ function TiendaCoreContent() {
             </div>
 
             {/* Card 2: Garantía Oficial 48 hrs */}
-            <div className="bg-white rounded-2xl p-5 shadow-xs flex-1 flex flex-col justify-between border border-slate-200">
+            <div className="bg-white rounded-2xl p-5 shadow-xs flex-1 flex flex-col justify-between border border-slate-200 hover:border-slate-300 transition">
               <div>
                 <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider">
                   <ShieldAlert className="w-4 h-4" />
@@ -595,6 +652,49 @@ function TiendaCoreContent() {
                 <span className="text-emerald-700 font-bold">Entrega en Sucursal o Casa</span>
                 <span className="text-slate-400">100% Seguro</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* TRUST VALUE PROPOSITIONS BAR */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center gap-3.5 hover:shadow-md transition">
+            <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-150 font-black text-sm">
+              16Q
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-900 block leading-tight">16 Quincenas Fijas</span>
+              <span className="text-[11px] text-slate-500">Sin desembolso inicial</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center gap-3.5 hover:shadow-md transition">
+            <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200">
+              <Sparkles className="w-5 h-5 fill-amber-400 text-amber-500" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-900 block leading-tight">Monedero LanaPuntos</span>
+              <span className="text-[11px] text-slate-500">1 pt = $1.00 MXN para canje</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center gap-3.5 hover:shadow-md transition">
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200">
+              <Truck className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-900 block leading-tight">Envío Garantizado</span>
+              <span className="text-[11px] text-slate-500">A domicilio o en sucursal</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center gap-3.5 hover:shadow-md transition">
+            <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-200">
+              <ShieldCheck className="w-5 h-5 text-indigo-600" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-900 block leading-tight">Garantía Oficial 48h</span>
+              <span className="text-[11px] text-slate-500">Respaldo directo LanAhora</span>
             </div>
           </div>
         </div>
@@ -616,7 +716,7 @@ function TiendaCoreContent() {
                 onClick={() => setSelectedCategory(cat.nombre)}
                 className={`group flex flex-col items-center p-3 rounded-xl border transition text-center ${
                   selectedCategory.toLowerCase() === cat.nombre.toLowerCase()
-                    ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500'
+                    ? 'bg-blue-50 border-blue-500 ring-2 ring-blue-500/20 shadow-xs'
                     : 'bg-slate-50 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
                 }`}
               >
@@ -632,144 +732,190 @@ function TiendaCoreContent() {
           </div>
         </div>
 
-        {/* 5. PRODUCTS CATALOG (Full-Width 6 Columns on wide screens) */}
+        {/* 5. PRODUCTS CATALOG TOOLBAR */}
         <div id="catalogo-grid" className="space-y-4 pt-2">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                <span>Catálogo de Productos en Línea</span>
-                <span className="text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full">
-                  {filteredProducts.length} Artículos
-                </span>
-              </h2>
-              <p className="text-xs text-slate-500">
-                Todos los precios calculados automáticamente a 16 quincenas fijas
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                  <span>{selectedCategory === 'TODOS' ? 'Catálogo General' : selectedCategory}</span>
+                  <span className="text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full">
+                    {filteredProducts.length} Artículos
+                  </span>
+                </h2>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  16 pagos quincenales calculados automáticamente
+                </p>
+              </div>
+
+              {selectedCategory !== 'TODOS' && (
+                <button
+                  onClick={() => setSelectedCategory('TODOS')}
+                  className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-lg transition flex items-center gap-1 border border-blue-200"
+                >
+                  <span>Ver Todos</span>
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
-            {selectedCategory !== 'TODOS' && (
-              <button
-                onClick={() => setSelectedCategory('TODOS')}
-                className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
-              >
-                <span>Mostrar todos los productos</span>
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
+            {/* Sorting & Filter Controls */}
+            <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-semibold">
+                <ArrowUpDown className="w-3.5 h-3.5 text-blue-600" />
+                <span className="text-slate-400 text-[11px] font-medium hidden sm:inline">Ordenar:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer"
+                >
+                  <option value="featured">★ Más Populares</option>
+                  <option value="quincena-asc">↓ Menor Pago Quincenal</option>
+                  <option value="quincena-desc">↑ Mayor Pago Quincenal</option>
+                  <option value="price-asc">↓ Menor Precio Total</option>
+                  <option value="price-desc">↑ Mayor Precio Total</option>
+                  <option value="rating">★ Mejor Calificados</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           {/* Full-Width Grid (1 to 6 columns) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col justify-between group"
-              >
-                {/* Image */}
+            {filteredProducts.map((product) => {
+              const isFav = favorites.includes(product.id);
+              return (
                 <div
-                  className="relative aspect-square bg-slate-50 overflow-hidden cursor-pointer"
-                  onClick={() => setSelectedProduct(product)}
+                  key={product.id}
+                  className="group bg-white rounded-2xl border border-slate-200/80 hover:border-blue-400/80 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden"
                 >
-                  <img
-                    src={product.imagen}
-                    alt={product.nombre}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  {/* Image */}
+                  <div
+                    className="relative aspect-square bg-slate-50 overflow-hidden cursor-pointer"
+                    onClick={() => setSelectedProduct(product)}
+                  >
+                    <img
+                      src={product.imagen}
+                      alt={product.nombre}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                    />
 
-                  {/* Promo Tag */}
-                  {product.tag && (
-                    <span className="absolute top-2.5 left-2.5 bg-blue-600 text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded-md shadow-xs">
-                      {product.tag}
-                    </span>
-                  )}
-
-                  {/* Quick Action Overlay */}
-                  <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedProduct(product);
-                      }}
-                      className="w-7 h-7 rounded-full bg-white text-slate-700 shadow-xs hover:bg-slate-100 flex items-center justify-center transition border border-slate-200"
-                      title="Ver detalle"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShareModalProduct(product);
-                      }}
-                      className="w-7 h-7 rounded-full bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 flex items-center justify-center transition"
-                      title="Enviar a mi distribuidora"
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Body Content */}
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                  <div>
-                    {/* Category & Rating */}
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-                      <span className="font-semibold uppercase tracking-wider truncate max-w-[130px]">
-                        {product.categoria}
+                    {/* Promo Tag */}
+                    {product.tag && (
+                      <span className="absolute top-2.5 left-2.5 bg-blue-600 text-white font-bold text-[10px] uppercase px-2.5 py-0.5 rounded-md shadow-xs">
+                        {product.tag}
                       </span>
-                      <div className="flex items-center gap-1 text-amber-500 font-bold">
-                        <Star className="w-3 h-3 fill-amber-400" />
-                        <span>{product.rating || '4.9'}</span>
-                      </div>
+                    )}
+
+                    {/* Favorite Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => toggleFavorite(product.id, e)}
+                      className={`absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center transition shadow-xs ${
+                        isFav
+                          ? 'bg-rose-50 text-rose-600 border border-rose-200'
+                          : 'bg-white/90 hover:bg-white text-slate-400 hover:text-rose-500 border border-slate-200'
+                      }`}
+                      title={isFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+                    >
+                      <Heart className={`w-4 h-4 ${isFav ? 'fill-rose-500' : ''}`} />
+                    </button>
+
+                    {/* Bottom floating badge: 16 Quincenas */}
+                    <div className="absolute bottom-2.5 left-2.5">
+                      <span className="bg-slate-900/85 backdrop-blur-xs text-amber-300 font-bold text-[10px] uppercase px-2 py-0.5 rounded-md shadow-xs">
+                        16 Quincenas
+                      </span>
                     </div>
 
-                    {/* Product Title */}
-                    <h3
-                      onClick={() => setSelectedProduct(product)}
-                      className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 hover:text-blue-700 cursor-pointer transition leading-snug"
-                      title={product.nombre}
-                    >
-                      {product.nombre}
-                    </h3>
+                    {/* Quick Action Overlay */}
+                    <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-200">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedProduct(product);
+                        }}
+                        className="w-7 h-7 rounded-full bg-white text-slate-700 shadow-md hover:bg-slate-100 flex items-center justify-center transition border border-slate-200"
+                        title="Ver detalle"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShareModalProduct(product);
+                        }}
+                        className="w-7 h-7 rounded-full bg-emerald-600 text-white shadow-md hover:bg-emerald-700 flex items-center justify-center transition"
+                        title="Enviar a mi distribuidora"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Pricing Block */}
-                  <div className="pt-2.5 border-t border-slate-100 space-y-2">
-                    <div className="bg-blue-50/70 border border-blue-200/80 rounded-xl p-2.5">
-                      <div className="flex items-baseline justify-between">
-                        <div>
-                          <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider block">
-                            16 pagos de
-                          </span>
-                          <div className="flex items-baseline gap-1 mt-0.5">
-                            <span className="text-xl font-black text-blue-700 leading-none">
-                              {formatMoney(product.pagoQuincenal)}
+                  {/* Body Content */}
+                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                    <div>
+                      {/* Category & Rating */}
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                        <span className="font-semibold uppercase tracking-wider truncate max-w-[130px]">
+                          {product.categoria}
+                        </span>
+                        <div className="flex items-center gap-1 text-amber-500 font-bold">
+                          <Star className="w-3 h-3 fill-amber-400" />
+                          <span>{product.rating || '4.9'}</span>
+                        </div>
+                      </div>
+
+                      {/* Product Title */}
+                      <h3
+                        onClick={() => setSelectedProduct(product)}
+                        className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 hover:text-blue-700 cursor-pointer transition leading-snug"
+                        title={product.nombre}
+                      >
+                        {product.nombre}
+                      </h3>
+                    </div>
+
+                    {/* Pricing Block with elevated visual depth */}
+                    <div className="pt-2 border-t border-slate-100 space-y-2">
+                      <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-slate-50 border border-blue-200/70 rounded-xl p-2.5">
+                        <div className="flex items-baseline justify-between">
+                          <div>
+                            <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider block">
+                              16 pagos de
                             </span>
-                            <span className="text-[11px] font-bold text-blue-900">/ quincena</span>
+                            <div className="flex items-baseline gap-1 mt-0.5">
+                              <span className="text-xl font-black text-blue-700 leading-none">
+                                {formatMoney(product.pagoQuincenal)}
+                              </span>
+                              <span className="text-[11px] font-bold text-blue-900">/ quincena</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[10px] text-slate-400 font-semibold block uppercase">
+                              Total Contado
+                            </span>
+                            <span className="text-xs font-bold text-slate-700">
+                              {formatMoney(product.precio)}
+                            </span>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <span className="text-[10px] text-slate-400 font-semibold block uppercase">
-                            Precio
-                          </span>
-                          <span className="text-xs font-bold text-slate-700">
-                            {formatMoney(product.precio)}
-                          </span>
-                        </div>
                       </div>
-                    </div>
 
-                    {/* Direct 1-Click Buy Button */}
-                    <button
-                      onClick={() => handleOpenCart(product)}
-                      className="w-full py-2.5 px-3 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5"
-                    >
-                      <ShoppingCart className="w-3.5 h-3.5 text-amber-300" />
-                      <span>Comprar a 16 quincenas</span>
-                    </button>
+                      {/* Direct 1-Click Buy Button */}
+                      <button
+                        onClick={() => handleOpenCart(product)}
+                        className="w-full py-2.5 px-3 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-md transition flex items-center justify-center gap-2"
+                      >
+                        <ShoppingCart className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Comprar a 16 quincenas</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* BENEFICIOS INSTITUCIONALES TIENDA.LANAHORA.COM */}
@@ -1080,43 +1226,53 @@ function TiendaCoreContent() {
         </div>
       )}
 
-      {/* 9. CHECKOUT / MI CARRITO MODAL */}
+      {/* 9. CHECKOUT FINTECH EN 1 CLIC (LanaTienda Direct) */}
       {cartProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-2xl w-full shadow-xl overflow-hidden animate-in zoom-in-95 duration-150 my-6 border border-slate-200">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-4 border border-slate-200/80">
             {/* Header */}
-            <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ShoppingCart className="w-5 h-5 text-amber-400" />
-                <h3 className="font-bold text-sm uppercase tracking-wide">
-                  MI CARRITO • SOLICITUD DE PEDIDO A 16 QUINCENAS
-                </h3>
+            <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-600/30 text-amber-400 flex items-center justify-center border border-amber-400/30">
+                  <ShoppingCart className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm tracking-wide flex items-center gap-2">
+                    <span>Finalizar Pedido</span>
+                    <span className="text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-400/30">
+                      16 Quincenas
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400">Sin comisiones ocultas • Respaldo oficial</p>
+                </div>
               </div>
               <button
                 onClick={() => setCartProduct(null)}
-                className="text-white/70 hover:text-white p-1 rounded-full transition"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center transition"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+            <div className="p-5 sm:p-6 space-y-4 max-h-[82vh] overflow-y-auto">
               {orderError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2.5">
                   <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
-                  <span>{orderError}</span>
+                  <span className="font-medium">{orderError}</span>
                 </div>
               )}
 
-              {/* Product Row */}
-              <div className="flex items-center gap-3.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+              {/* Paso 1: Product Snapshot with Quantity Stepper */}
+              <div className="flex items-center gap-3.5 bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200">
                 <img
                   src={cartProduct.imagen}
                   alt={cartProduct.nombre}
-                  className="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0"
+                  className="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0 shadow-2xs"
                 />
                 <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">SKU: {cartProduct.sku}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    SKU: {cartProduct.sku}
+                  </span>
                   <h4 className="text-xs font-bold text-slate-900 truncate">{cartProduct.nombre}</h4>
                   <div className="flex items-center gap-2 mt-0.5 text-xs">
                     <span className="text-blue-700 font-black">
@@ -1128,36 +1284,105 @@ function TiendaCoreContent() {
                   </div>
                 </div>
 
-                {/* Quantity */}
-                <div className="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden shrink-0">
+                {/* Quantity Stepper */}
+                <div className="flex items-center border border-slate-300 rounded-xl bg-white overflow-hidden shrink-0 shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setCartQuantity((q) => Math.max(1, q - 1))}
-                    className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-bold text-xs transition"
+                    className="px-2.5 py-1.5 text-slate-600 hover:bg-slate-100 font-bold text-xs transition"
                   >
                     -
                   </button>
-                  <span className="px-2 text-xs font-bold text-slate-800">{cartQuantity}</span>
+                  <span className="px-2 text-xs font-bold text-slate-900">{cartQuantity}</span>
                   <button
                     type="button"
                     onClick={() => setCartQuantity((q) => Math.min(10, q + 1))}
-                    className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-bold text-xs transition"
+                    className="px-2.5 py-1.5 text-slate-600 hover:bg-slate-100 font-bold text-xs transition"
                   >
                     +
                   </button>
                 </div>
               </div>
 
-              {/* CLIENT SELECTOR */}
+              {/* Paso 2: Modalidad de Entrega */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center justify-between">
+                  <span>1. Modalidad de Entrega</span>
+                  <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    Envío Garantizado
+                  </span>
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setTipoDireccion('SUCURSAL')}
+                    className={`p-3.5 rounded-2xl border text-left transition flex items-start gap-3 relative ${
+                      tipoDireccion === 'SUCURSAL'
+                        ? 'bg-blue-50/80 border-blue-600 ring-2 ring-blue-500/20 shadow-xs'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${tipoDireccion === 'SUCURSAL' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                      <Building2 className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="font-bold text-xs text-slate-900 block">Recoger en Sucursal</span>
+                      <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">
+                        Saltillo Centro (Hidalgo #382 Nte.)
+                      </span>
+                      <span className="inline-block mt-1 text-[10px] font-bold text-blue-700 bg-blue-100/60 px-1.5 py-0.2 rounded">
+                        Listo para recoger
+                      </span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTipoDireccion('DOMICILIO')}
+                    className={`p-3.5 rounded-2xl border text-left transition flex items-start gap-3 relative ${
+                      tipoDireccion === 'DOMICILIO'
+                        ? 'bg-blue-50/80 border-blue-600 ring-2 ring-blue-500/20 shadow-xs'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${tipoDireccion === 'DOMICILIO' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="font-bold text-xs text-slate-900 block">Envío a Domicilio</span>
+                      <span className="text-[11px] text-slate-500 block leading-tight mt-0.5">
+                        Directo a tu dirección
+                      </span>
+                      <span className="inline-block mt-1 text-[10px] font-bold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.2 rounded">
+                        Entrega 48-72 hrs
+                      </span>
+                    </div>
+                  </button>
+                </div>
+
+                {tipoDireccion === 'DOMICILIO' && (
+                  <div className="mt-2 space-y-1.5 animate-in fade-in duration-200">
+                    <input
+                      type="text"
+                      value={referenciasDomicilio}
+                      onChange={(e) => setReferenciasDomicilio(e.target.value)}
+                      placeholder="Calle, número exterior/interior, colonia y referencias de entrega..."
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Paso 3: Titular del Pedido */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
-                  Titular de la Solicitud
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  2. Titular de la Solicitud
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <select
                     value={selectedClienteId}
                     onChange={(e) => setSelectedClienteId(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   >
                     {clientes.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -1165,220 +1390,123 @@ function TiendaCoreContent() {
                       </option>
                     ))}
                   </select>
-                  <div className="px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 flex items-center justify-between">
-                    <span>Teléfono:</span>
+                  <div className="px-3 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 flex items-center justify-between">
+                    <span className="text-slate-400">Teléfono:</span>
                     <span className="font-bold text-slate-800">{selectedCliente.telefono}</span>
                   </div>
                 </div>
               </div>
 
-              {/* DELIVERY ADDRESS SELECTION */}
+              {/* Paso 4: Forma de Pago */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
-                  Dirección de Entrega
-                </label>
-
-                {/* Sucursal */}
-                <label
-                  className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition ${
-                    tipoDireccion === 'SUCURSAL'
-                      ? 'bg-blue-50/70 border-blue-500 ring-1 ring-blue-500'
-                      : 'bg-white border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="tipoDireccion"
-                    checked={tipoDireccion === 'SUCURSAL'}
-                    onChange={() => setTipoDireccion('SUCURSAL')}
-                    className="mt-0.5 text-blue-600 focus:ring-blue-500"
-                  />
-                  <div className="text-xs">
-                    <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-                      <Building2 className="w-4 h-4 text-blue-600" />
-                      Domicilio de la Sucursal (Recoger en Sucursal)
-                    </span>
-                    <p className="text-slate-600 text-[11px] mt-0.5">{distribuidora.sucursal}</p>
-                  </div>
-                </label>
-
-                {/* Cliente */}
-                <label
-                  className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition ${
-                    tipoDireccion === 'DOMICILIO'
-                      ? 'bg-blue-50/70 border-blue-500 ring-1 ring-blue-500'
-                      : 'bg-white border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="tipoDireccion"
-                    checked={tipoDireccion === 'DOMICILIO'}
-                    onChange={() => setTipoDireccion('DOMICILIO')}
-                    className="mt-0.5 text-blue-600 focus:ring-blue-500"
-                  />
-                  <div className="text-xs">
-                    <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 text-emerald-600" />
-                      Domicilio del Cliente (Entrega a Domicilio)
-                    </span>
-                    <p className="text-slate-600 text-[11px] mt-0.5">
-                      {selectedCliente.direccion}, {selectedCliente.ciudad} CP {selectedCliente.cp} (Tel.{' '}
-                      {selectedCliente.telefono})
-                    </p>
-                  </div>
-                </label>
-
-                {/* References */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mt-2 mb-1">
-                    Referencias del domicilio (Obligatorio)
-                  </label>
-                  <input
-                    type="text"
-                    value={referenciasDomicilio}
-                    onChange={(e) => setReferenciasDomicilio(e.target.value)}
-                    placeholder="Ej. Casa de altos, fachada café, barandal negro..."
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* PAYMENT METHOD SELECTOR */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
-                  Forma de Liquidación y Pago
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center justify-between">
+                  <span>3. Forma de Pago</span>
+                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                    {distribuidora.monedero.toLocaleString()} LanaPuntos en monedero
+                  </span>
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {/* 1. Crédito LanaTienda */}
                   <button
                     type="button"
                     onClick={() => {
                       setMetodoPago('CREDITO_LANATIENDA');
                       setPuntosCanjeados(0);
                     }}
-                    className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                    className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between ${
                       metodoPago === 'CREDITO_LANATIENDA'
                         ? 'bg-blue-50/80 border-blue-600 ring-2 ring-blue-500/20 shadow-xs'
                         : 'bg-white border-slate-200 hover:bg-slate-50'
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                          <CreditCard className="w-3.5 h-3.5 text-blue-600" />
-                          16 Quincenas
-                        </span>
-                        <span className="text-[9px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded">
-                          Línea Core
-                        </span>
+                      <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
+                        <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+                        <span>16 Quincenas</span>
                       </div>
-                      <p className="text-[10px] text-slate-500 mt-1">
-                        100% financiado con cargo a tu línea LanaTienda
-                      </p>
+                      <p className="text-[10px] text-slate-500 mt-1">Sin desembolso hoy</p>
                     </div>
-                    <div className="mt-2 text-xs font-black text-blue-700">
+                    <div className="text-[11px] text-blue-700 font-black mt-2">
                       16 x {formatMoney((cartProduct.precio * cartQuantity) / 16)}
                     </div>
                   </button>
 
-                  {/* 2. LanaPuntos Monedero */}
                   <button
                     type="button"
                     onClick={() => {
                       setMetodoPago('LANAPUNTOS');
                       setPuntosCanjeados(cartProduct.precio * cartQuantity);
                     }}
-                    className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                    className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between ${
                       metodoPago === 'LANAPUNTOS'
                         ? 'bg-amber-50/80 border-amber-600 ring-2 ring-amber-500/20 shadow-xs'
                         : 'bg-white border-slate-200 hover:bg-slate-50'
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                          LanaPuntos
-                        </span>
-                        <span className="text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded">
-                          100% Puntos
-                        </span>
+                      <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                        <span>LanaPuntos</span>
                       </div>
-                      <p className="text-[10px] text-slate-500 mt-1">
-                        Paga 100% con saldo monedero sin generar deuda
-                      </p>
+                      <p className="text-[10px] text-slate-500 mt-1">100% con saldo</p>
                     </div>
-                    <div className="mt-2 text-xs font-black text-amber-600">
-                      {Math.round(cartProduct.precio * cartQuantity).toLocaleString()} pts (0 quincenas)
+                    <div className="text-[11px] text-amber-700 font-black mt-2">
+                      {Math.round(cartProduct.precio * cartQuantity).toLocaleString()} pts
                     </div>
                   </button>
 
-                  {/* 3. Pago Mixto */}
                   <button
                     type="button"
                     onClick={() => {
                       setMetodoPago('MIXTO');
                       const total = cartProduct.precio * cartQuantity;
-                      const maxCanje = Math.min(distribuidora.monedero, Math.floor(total * 0.5));
+                      const maxCanje = Math.min(distribuidora.monedero || 3000, Math.floor(total * 0.5));
                       setPuntosCanjeados(maxCanje > 0 ? maxCanje : 0);
                     }}
-                    className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                    className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between ${
                       metodoPago === 'MIXTO'
                         ? 'bg-emerald-50/80 border-emerald-600 ring-2 ring-emerald-500/20 shadow-xs'
                         : 'bg-white border-slate-200 hover:bg-slate-50'
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                          <Zap className="w-3.5 h-3.5 text-emerald-600" />
-                          Pago Mixto
-                        </span>
-                        <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.2 rounded">
-                          Descuento
-                        </span>
+                      <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
+                        <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Pago Mixto</span>
                       </div>
-                      <p className="text-[10px] text-slate-500 mt-1">
-                        Aplica puntos como anticipo y financia el resto
-                      </p>
+                      <p className="text-[10px] text-slate-500 mt-1">Puntos + Quincenas</p>
                     </div>
-                    <div className="mt-2 text-[11px] font-black text-emerald-700">
-                      Puntos + Crédito
+                    <div className="text-[11px] text-emerald-700 font-black mt-2">
+                      Descuento
                     </div>
                   </button>
                 </div>
 
-                {/* Slider for Mixed Method */}
                 {metodoPago === 'MIXTO' && (
-                  <div className="bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-200 space-y-2 mt-2">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-bold text-slate-700">Puntos a aplicar como anticipo:</span>
-                      <span className="font-black text-emerald-700 text-sm">
+                  <div className="bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200 space-y-1.5 mt-2 text-xs animate-in fade-in duration-150">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-slate-700">Puntos a aplicar como anticipo:</span>
+                      <span className="font-black text-emerald-700">
                         {puntosCanjeados.toLocaleString()} pts (-{formatMoney(puntosCanjeados)})
                       </span>
                     </div>
                     <input
                       type="range"
                       min="100"
-                      max={Math.min(distribuidora.monedero, cartProduct.precio * cartQuantity)}
+                      max={Math.min(distribuidora.monedero || 3000, cartProduct.precio * cartQuantity)}
                       step="50"
                       value={puntosCanjeados}
                       onChange={(e) => setPuntosCanjeados(Number(e.target.value))}
                       className="w-full accent-emerald-600 cursor-pointer"
                     />
-                    <div className="flex justify-between text-[10px] text-slate-500 font-medium">
-                      <span>Mínimo: 100 pts</span>
-                      <span>
-                        Máx canjeable en cartera:{' '}
-                        {Math.min(distribuidora.monedero, cartProduct.precio * cartQuantity).toLocaleString()} pts
-                      </span>
+                    <div className="flex justify-between text-[10px] text-slate-500">
+                      <span>Mínimo 100 pts</span>
+                      <span>Máx: {Math.min(distribuidora.monedero || 3000, cartProduct.precio * cartQuantity).toLocaleString()} pts</span>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* DYNAMIC BREAKDOWN & TERMS */}
+              {/* Paso 5: Resumen Financiero & Confirmar en 1 Clic */}
               {(() => {
                 const total = cartProduct.precio * cartQuantity;
                 const puntosUsados =
@@ -1390,100 +1518,68 @@ function TiendaCoreContent() {
                 const montoFinanciado = Math.max(0, total - puntosUsados);
                 const pagoQuincenal = montoFinanciado / 16;
                 const puntosInsuficientes =
-                  metodoPago === 'LANAPUNTOS' && distribuidora.monedero < total;
-                const lineaInsuficiente =
-                  montoFinanciado > distribuidora.disponibleLanaTienda;
-                const disableSubmit =
-                  puntosInsuficientes || lineaInsuficiente || isSubmittingOrder;
+                  metodoPago === 'LANAPUNTOS' && (distribuidora.monedero || 3000) < total;
 
                 return (
-                  <div className="space-y-3">
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-slate-500">Monto Total del Pedido:</span>
-                        <span className="font-bold text-slate-900">{formatMoney(total)}</span>
+                  <div className="space-y-3 pt-3 border-t border-slate-200">
+                    <div className="flex items-center justify-between text-xs text-slate-600">
+                      <span>Total del pedido:</span>
+                      <span className="font-bold text-slate-900">{formatMoney(total)}</span>
+                    </div>
+
+                    {puntosUsados > 0 && (
+                      <div className="flex items-center justify-between text-xs text-amber-700 font-bold">
+                        <span>Anticipo con LanaPuntos:</span>
+                        <span>-{formatMoney(puntosUsados)}</span>
                       </div>
+                    )}
 
-                      {puntosUsados > 0 && (
-                        <div className="flex justify-between text-xs text-amber-700 font-bold">
-                          <span className="flex items-center gap-1">
-                            <Sparkles className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                            Descuento LanaPuntos ({puntosUsados.toLocaleString()} pts):
-                          </span>
-                          <span>-{formatMoney(puntosUsados)}</span>
-                        </div>
-                      )}
-
-                      <div className="flex justify-between items-center border-t border-slate-200 pt-2.5">
-                        <div>
-                          <span className="text-xs font-bold text-slate-700 block">
-                            {montoFinanciado > 0
-                              ? 'Plazo Fijo a 16 Quincenas'
-                              : 'Liquidación 100% con LanaPuntos'}
-                          </span>
-                          <span className="text-[10px] text-slate-400">
-                            {montoFinanciado > 0
-                              ? '16 pagos quincenales iguales cargados a tu cuenta'
-                              : 'Sin cobros quincenales ni cargos adicionales'}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          {montoFinanciado > 0 ? (
-                            <>
-                              <span className="text-base font-black text-blue-700">
-                                {formatMoney(pagoQuincenal)}
-                              </span>
-                              <span className="text-[10px] text-slate-500 block">/ por quincena</span>
-                            </>
-                          ) : (
-                            <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200">
-                              Pagado con Puntos
-                            </span>
-                          )}
-                        </div>
+                    <div className="flex items-center justify-between bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-slate-50 border border-blue-200/80 p-4 rounded-2xl shadow-2xs">
+                      <div>
+                        <span className="text-xs font-black text-blue-950 uppercase tracking-wide block">
+                          {montoFinanciado > 0 ? 'Plan a 16 Quincenas Fijas' : 'Liquidación con Puntos'}
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          {montoFinanciado > 0 ? 'Sin enganche • Cargo a tu cuenta' : 'Sin pagos quincenales'}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xl font-black text-blue-700">
+                          {montoFinanciado > 0 ? `${formatMoney(pagoQuincenal)}` : '$0.00'}
+                        </span>
+                        {montoFinanciado > 0 && (
+                          <span className="text-[10px] font-bold text-blue-900 block">/ por quincena</span>
+                        )}
                       </div>
                     </div>
 
                     {puntosInsuficientes && (
                       <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4 shrink-0" />
-                        <span>
-                          Saldo insuficiente. Cuentas con {distribuidora.monedero.toLocaleString()} pts y se requieren {Math.round(total).toLocaleString()} pts.
-                        </span>
+                        <span>Saldo insuficiente de LanaPuntos para liquidar esta orden.</span>
                       </div>
                     )}
 
-                    {lineaInsuficiente && (
-                      <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 shrink-0" />
-                        <span>
-                          Línea de crédito insuficiente. Disponible: {formatMoney(distribuidora.disponibleLanaTienda)}, requeridos para financiar: {formatMoney(montoFinanciado)}.
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Finalize Button - Direct 1-Click Purchase */}
-                    <div className="pt-2">
-                      <button
-                        type="button"
-                        onClick={handleFinalizeOrder}
-                        disabled={disableSubmit}
-                        className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-xs transition flex items-center justify-center gap-2"
-                      >
-                        {isSubmittingOrder ? (
-                          <span>Procesando pedido...</span>
-                        ) : (
-                          <>
-                            <CheckCircle className="w-4 h-4 text-amber-300" />
-                            <span>
-                              {montoFinanciado > 0
-                                ? `Confirmar Compra • 16 quincenas de ${formatMoney(pagoQuincenal)}`
-                                : 'Confirmar Canje con LanaPuntos'}
-                            </span>
-                          </>
-                        )}
-                      </button>
-                    </div>
+                    {/* Botón directo de confirmación en 1 clic */}
+                    <button
+                      type="button"
+                      onClick={handleFinalizeOrder}
+                      disabled={isSubmittingOrder || puntosInsuficientes}
+                      className="w-full py-4 px-5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 active:scale-[0.99] disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition flex items-center justify-center gap-2.5"
+                    >
+                      {isSubmittingOrder ? (
+                        <span>Procesando tu pedido...</span>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-5 h-5 text-amber-300" />
+                          <span>
+                            {montoFinanciado > 0
+                              ? `Confirmar Compra • 16 quincenas de ${formatMoney(pagoQuincenal)}`
+                              : 'Confirmar Canje con LanaPuntos'}
+                          </span>
+                        </>
+                      )}
+                    </button>
                   </div>
                 );
               })()}
@@ -1492,74 +1588,95 @@ function TiendaCoreContent() {
         </div>
       )}
 
-      {/* 11. COMPLETED ORDER TICKET */}
+      {/* 11. COMPLETED ORDER TICKET (Digital Voucher UI) */}
       {completedOrder && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 text-center border border-slate-200">
-            <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
-              <CheckCircle className="w-8 h-8" />
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-center border border-slate-200">
+            {/* Success Icon */}
+            <div className="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200 shadow-xs">
+              <CheckCircle className="w-9 h-9" />
             </div>
 
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full">
-                ¡Pedido Registrado con Éxito!
+              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full inline-block shadow-2xs">
+                ¡Compra Confirmada con Éxito!
               </span>
-              <h3 className="text-2xl font-black text-slate-900 mt-2">Folio: {completedOrder.folio}</h3>
+              <h3 className="text-2xl font-black text-slate-900 mt-2 tracking-tight">
+                Folio: {completedOrder.folio}
+              </h3>
               <p className="text-xs text-slate-500 mt-1">
-                El pedido ha sido cargado a tu línea LanaTienda y notificado a la mesa de control de SystemCore.
+                Cargado a tu línea de crédito oficial y enviado al centro de distribución.
               </p>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4 text-xs text-left border border-slate-200 space-y-2">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Distribuidora:</span>
-                <span className="font-bold text-slate-800">{completedOrder.distribuidoraNombre}</span>
+            {/* Digital Receipt Card */}
+            <div className="bg-slate-50 rounded-2xl p-4 text-xs text-left border border-slate-200/90 space-y-2.5 shadow-2xs">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500 font-medium">Titular / Cliente:</span>
+                <span className="font-bold text-slate-900">{completedOrder.clienteNombre}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Cliente:</span>
-                <span className="font-bold text-slate-800">{completedOrder.clienteNombre}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Artículo:</span>
-                <span className="font-bold text-slate-800 truncate max-w-[200px]">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500 font-medium">Artículo:</span>
+                <span className="font-bold text-slate-900 truncate max-w-[200px]" title={completedOrder.producto.nombre}>
                   {completedOrder.producto.nombre}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Forma de Pago:</span>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500 font-medium">Modalidad:</span>
                 <span className="font-bold text-slate-900">
-                  {completedOrder.metodoPago === 'LANAPUNTOS'
-                    ? '100% LanaPuntos Monedero'
-                    : completedOrder.metodoPago === 'MIXTO'
-                    ? 'Pago Mixto (Puntos + Crédito)'
-                    : '100% Crédito LanaTienda'}
+                  {completedOrder.tipoEntrega === 'SUCURSAL' ? '🏢 Recoger en Sucursal' : '🚚 A Domicilio'}
                 </span>
               </div>
-              {completedOrder.puntosCanjeados && completedOrder.puntosCanjeados > 0 ? (
-                <div className="flex justify-between text-amber-700 font-bold">
-                  <span>LanaPuntos Canjeados:</span>
-                  <span>{completedOrder.puntosCanjeados.toLocaleString()} pts</span>
-                </div>
-              ) : null}
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500 font-medium">Forma de Pago:</span>
+                <span className="font-bold text-slate-900">
+                  {completedOrder.metodoPago === 'LANAPUNTOS'
+                    ? '100% LanaPuntos'
+                    : completedOrder.metodoPago === 'MIXTO'
+                    ? 'Pago Mixto'
+                    : '16 Quincenas Fijas'}
+                </span>
+              </div>
+
               {completedOrder.creditoCoreId ? (
-                <div className="flex justify-between text-blue-700 font-bold">
-                  <span>Contrato Core:</span>
-                  <span className="font-mono bg-blue-100/70 text-blue-800 px-2 py-0.5 rounded text-[11px] border border-blue-200">
-                    CR-LT-{completedOrder.creditoCoreId} (16 qnas)
+                <div className="flex justify-between items-center text-blue-700 font-bold border-t border-dashed border-slate-200 pt-2">
+                  <span className="flex items-center gap-1">
+                    <CreditCard className="w-3.5 h-3.5" />
+                    Contrato Core:
+                  </span>
+                  <span className="font-mono bg-blue-100 text-blue-900 px-2 py-0.5 rounded text-[11px] border border-blue-200">
+                    CR-LT-{completedOrder.creditoCoreId}
                   </span>
                 </div>
               ) : null}
+
               {completedOrder.ordenCompraProveedor ? (
-                <div className="flex justify-between text-slate-700 border-t border-slate-200 pt-1.5">
-                  <span className="text-slate-500">PO Proveedor API:</span>
-                  <span className="font-mono font-bold text-emerald-700">
-                    {completedOrder.ordenCompraProveedor} ({completedOrder.proveedorNombre || 'Dropshipping API'})
+                <div className="flex justify-between items-center text-emerald-800 font-bold">
+                  <span className="flex items-center gap-1">
+                    <PackageCheck className="w-3.5 h-3.5" />
+                    PO Proveedor API:
+                  </span>
+                  <span className="font-mono text-[11px]">
+                    {completedOrder.ordenCompraProveedor}
                   </span>
                 </div>
               ) : null}
-              <div className="flex justify-between border-t border-slate-200 pt-2 font-bold text-blue-700">
-                <span>16 Pagos Quincenales:</span>
-                <span>
+
+              {completedOrder.guiaEnvio ? (
+                <div className="flex justify-between items-center text-slate-600">
+                  <span className="flex items-center gap-1 font-medium">
+                    <Truck className="w-3.5 h-3.5 text-blue-600" />
+                    Guía {completedOrder.paqueteria || 'FedEx'}:
+                  </span>
+                  <span className="font-mono font-bold text-slate-900 text-[11px]">
+                    {completedOrder.guiaEnvio}
+                  </span>
+                </div>
+              ) : null}
+
+              <div className="flex justify-between items-center border-t border-slate-200 pt-2.5 font-bold text-blue-700">
+                <span className="text-slate-800">16 Pagos Quincenales:</span>
+                <span className="text-sm font-black">
                   {completedOrder.montoFinanciado && completedOrder.montoFinanciado > 0
                     ? `${formatMoney(completedOrder.montoFinanciado / 16)}/qna`
                     : '$0.00 (Liquidado)'}
@@ -1567,12 +1684,24 @@ function TiendaCoreContent() {
               </div>
             </div>
 
-            <button
-              onClick={() => setCompletedOrder(null)}
-              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-xs transition"
-            >
-              Regresar al Catálogo
-            </button>
+            {/* Actions */}
+            <div className="flex gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-bold text-xs transition flex items-center justify-center gap-1.5"
+              >
+                <Printer className="w-3.5 h-3.5 text-slate-500" />
+                <span>Imprimir Ticket</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCompletedOrder(null)}
+                className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-xs transition"
+              >
+                Listo
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1788,6 +1917,14 @@ function TiendaCoreContent() {
           </div>
         </div>
       </footer>
+
+      {/* Modern Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-5 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }
