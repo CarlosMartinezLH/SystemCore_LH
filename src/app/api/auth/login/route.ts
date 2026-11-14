@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { INSTITUTIONAL_USERS, UserSession, UserRole, SecurityAuditRecord } from '@/types/auth';
 import { verifyTOTP } from '@/lib/auth/totpService';
 import { generateCriticalOtp, verifyCriticalOtp, maskEmail } from '@/lib/auth/criticalOtpStore';
+import { signSessionToken } from '@/lib/auth/serverAuth';
 
 const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'http://localhost:8080';
 const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'lanahora';
@@ -31,34 +32,30 @@ function findUser(identifier: string): UserSession | undefined {
   );
 }
 
-// Helper to generate institutional session token (JWT simulation)
+// Helper to generate institutional session token (HMAC-SHA256 Cryptographic Signature)
 function createSignedToken(user: UserSession, device: string, mfaMethod: string) {
-  const fakeHeader = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
-  const fakePayload = Buffer.from(
-    JSON.stringify({
-      sub: user.id,
-      name: user.name,
-      email: user.email,
-      username: user.username,
-      realm_access: {
-        roles:
-          user.role === 'ADMINISTRADOR'
-            ? ['ADMIN', 'DIRECTOR_GENERAL', 'MESA_CREDITO']
-            : user.role === 'MESA_CREDITO'
-            ? ['MESA_CREDITO']
-            : [user.role],
-      },
-      sucursal: user.branch,
-      scope: user.branchScope,
-      puesto: user.roleLabel,
-      mfaMethod,
-      device,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 15 * 60, // 15 minutos (SOFOM standard)
-    })
-  ).toString('base64');
-  const fakeSignature = Buffer.from('lanahora_verified_hmac_2026').toString('base64');
-  return `${fakeHeader}.${fakePayload}.${fakeSignature}`;
+  const payload = {
+    sub: user.id,
+    name: user.name,
+    email: user.email,
+    username: user.username,
+    realm_access: {
+      roles:
+        user.role === 'ADMINISTRADOR'
+          ? ['ADMIN', 'DIRECTOR_GENERAL', 'MESA_CREDITO']
+          : user.role === 'MESA_CREDITO'
+          ? ['MESA_CREDITO']
+          : [user.role],
+    },
+    sucursal: user.branch,
+    scope: user.branchScope,
+    puesto: user.roleLabel,
+    mfaMethod,
+    device,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 14 * 24 * 60 * 60, // 14 días (Políticas de Confianza)
+  };
+  return signSessionToken(payload);
 }
 
 // Log security audit record

@@ -92,8 +92,19 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. CAPA 2: Invocar API Oficial de Biometría y Prueba de Vida de Nubarium (RENAPO)
-    const authHeader = 'Basic ' + Buffer.from('lanahora:#vEJfpcF#').toString('base64');
+    // 4. CAPA 2: Invocar API Oficial de Biometría y Prueba de Vida de Nubarium (Variables de entorno seguras)
+    const nubariumUser = process.env.NUBARIUM_USERNAME;
+    const nubariumPass = process.env.NUBARIUM_PASSWORD;
+
+    if (!nubariumUser || !nubariumPass) {
+      console.error('[KYC Liveness] Credenciales NUBARIUM_USERNAME / NUBARIUM_PASSWORD no configuradas.');
+      return NextResponse.json(
+        { success: false, error: 'Servicio de prueba de vida no configurado en el servidor.' },
+        { status: 503 }
+      );
+    }
+
+    const authHeader = 'Basic ' + Buffer.from(`${nubariumUser}:${nubariumPass}`).toString('base64');
     
     try {
       const nubariumRes = await fetch('https://api.nubarium.com/global/biometrics/v1/liveness-face', {

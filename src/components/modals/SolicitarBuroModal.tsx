@@ -86,10 +86,19 @@ export default function SolicitarBuroModal({
           : persona.observaciones,
       };
 
+      let authHeader = {};
+      try {
+        const raw = localStorage.getItem('lanahora_user_session');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.token) authHeader = { Authorization: `Bearer ${parsed.token}` };
+        }
+      } catch {}
+
       // Sync with backend API
       await fetch('/api/sync', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeader },
         body: JSON.stringify({
           action: 'UPDATE_CLIENTE',
           persona: updatedPersona,

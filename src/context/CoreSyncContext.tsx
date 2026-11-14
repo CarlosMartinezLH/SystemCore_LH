@@ -132,9 +132,31 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
   const [mobileNotificationAccepted, setMobileNotificationAccepted] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const getAuthHeaders = (): Record<string, string> => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('lanahora_user_session') : null;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.token) {
+          return { Authorization: `Bearer ${parsed.token}` };
+        }
+      }
+    } catch {}
+    return {};
+  };
+
   const fetchSyncData = useCallback(async () => {
     try {
-      const res = await fetch('/api/sync', { cache: 'no-store' });
+      const authHeaders = getAuthHeaders();
+      // Omitir sincronización si no hay sesión activa en el navegador
+      if (!authHeaders.Authorization) return;
+
+      const res = await fetch('/api/sync', {
+        headers: {
+          ...authHeaders,
+        },
+        cache: 'no-store',
+      });
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.data) {
@@ -175,7 +197,7 @@ export function CoreSyncProvider({ children }: { children: React.ReactNode }) {
     try {
       await fetch('/api/sync', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ action: 'UPDATE_CLIENTE', payload: updated }),
       });
       await fetchSyncData();

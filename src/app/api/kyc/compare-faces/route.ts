@@ -45,8 +45,19 @@ export async function POST(req: NextRequest) {
       console.warn('[Compare-Faces] Fallback raw Selfie image:', e);
     }
 
-    // Invocar API Oficial de Comparación Facial 1:1 de Nubarium
-    const authHeader = 'Basic ' + Buffer.from('lanahora:#vEJfpcF#').toString('base64');
+    // Invocar API Oficial de Comparación Facial 1:1 de Nubarium (Variables de entorno seguras)
+    const nubariumUser = process.env.NUBARIUM_USERNAME;
+    const nubariumPass = process.env.NUBARIUM_PASSWORD;
+
+    if (!nubariumUser || !nubariumPass) {
+      console.error('[KYC Biometrics] Credenciales NUBARIUM_USERNAME / NUBARIUM_PASSWORD no configuradas.');
+      return NextResponse.json(
+        { success: false, error: 'Servicio de biometría no disponible en el servidor.' },
+        { status: 503 }
+      );
+    }
+
+    const authHeader = 'Basic ' + Buffer.from(`${nubariumUser}:${nubariumPass}`).toString('base64');
 
     const nubariumRes = await fetch('https://api.nubarium.com/global/biometrics/v1/compare-id-face', {
       method: 'POST',

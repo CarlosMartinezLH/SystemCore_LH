@@ -63,13 +63,26 @@ function checkRateLimit(ip: string): boolean {
 // Regex oficial RENAPO para formato estricto de CURP
 const CURP_REGEX = /^[A-Z]{4}\d{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d$/;
 
-export async function OPTIONS() {
+const ALLOWED_CORS_ORIGINS = [
+  'https://lanahora.com',
+  'https://www.lanahora.com',
+  'https://core.lanahora.com',
+  'https://lanapp.lanahora.com',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+];
+
+export async function OPTIONS(req: NextRequest) {
+  const origin = req.headers.get('origin') || '';
+  const isAllowed = ALLOWED_CORS_ORIGINS.includes(origin);
+
   return new NextResponse(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': isAllowed ? origin : ALLOWED_CORS_ORIGINS[0],
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-session-token',
+      'Access-Control-Max-Age': '86400',
     },
   });
 }
@@ -141,9 +154,9 @@ export async function POST(req: NextRequest) {
           mensaje: 'Sin antecedentes en el Padrón Oficial de Contribuyentes con Operaciones Inexistentes (SAT 69-B).',
         };
 
-    // 2. COTEJO EN VIVO CON NUBARIUM / RENAPO
-    const nubariumUser = process.env.NUBARIUM_USERNAME || 'lanahora';
-    const nubariumPass = process.env.NUBARIUM_PASSWORD || '#vEJfpcF#';
+    // 2. COTEJO EN VIVO CON NUBARIUM / RENAPO (Variables de Entorno)
+    const nubariumUser = process.env.NUBARIUM_USERNAME;
+    const nubariumPass = process.env.NUBARIUM_PASSWORD;
 
     let renapoResultado: Record<string, unknown> = {
       curp,

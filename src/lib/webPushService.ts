@@ -2,21 +2,23 @@ import { setVapidDetails, sendNotification } from 'web-push';
 import { getPushSubscriptions, removePushSubscription } from './store/serverSyncStore';
 
 const VAPID_PUBLIC_KEY =
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ||
-  'BFDy2CwbSkeP1gE-Klz7QDteiOpVKM7JzXMuxpXbxiux_RcM3wqS9mTeKxy4tDsccW95-aa0l1CRu9FnJ59ynog';
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 
 const VAPID_PRIVATE_KEY =
-  process.env.VAPID_PRIVATE_KEY ||
-  '6U5Zi8NK43BJ8cMQGoJLE0pYJ_V1ZS3nMNK2qfnMZ9E';
+  process.env.VAPID_PRIVATE_KEY || '';
 
 const VAPID_SUBJECT =
   process.env.VAPID_SUBJECT || 'mailto:soporte@lanahora.com.mx';
 
-// Inicializar configuración VAPID
-try {
-  setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-} catch (e) {
-  console.warn('[WebPush] Error inicializando VAPID:', e);
+// Inicializar configuración VAPID si las llaves existen
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  try {
+    setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+  } catch (e) {
+    console.warn('[WebPush] Error inicializando VAPID:', e);
+  }
+} else {
+  console.warn('[WebPush] VAPID_PUBLIC_KEY o VAPID_PRIVATE_KEY no configurados en entorno seguro.');
 }
 
 export function getVapidPublicKey(): string {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/auth/serverAuth';
 import {
   getServerSyncData,
   recordCanjeSync,
@@ -18,9 +19,14 @@ import { sendAdbSystemNotification } from '@/lib/adbNotifications';
 import { sendWebPushNotification } from '@/lib/webPushService';
 import { formatMoney } from '@/lib/utils/formatters';
 
-// GET: Retorna todo el estado sincronizado del Core
-export async function GET() {
+// GET: Retorna todo el estado sincronizado del Core (Requiere Autenticación)
+export async function GET(req: Request) {
   try {
+    const auth = requireAuth(req);
+    if (!auth.ok) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status || 401 });
+    }
+
     const data = getServerSyncData();
     return NextResponse.json({
       success: true,
@@ -34,9 +40,14 @@ export async function GET() {
   }
 }
 
-// POST: Recibe eventos desde la App Móvil (Flutter) o Web y los replica en todo el sistema
+// POST: Recibe eventos desde la App Móvil o Web y los replica en todo el sistema (Requiere Autenticación)
 export async function POST(req: NextRequest) {
   try {
+    const auth = requireAuth(req);
+    if (!auth.ok) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status || 401 });
+    }
+
     const body = await req.json();
     const { action, payload } = body;
 

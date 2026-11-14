@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { tiendaStore } from '@/lib/store/tiendaStore';
+import { requireAuth } from '@/lib/auth/serverAuth';
 
 export async function GET(req: Request) {
   try {
+    const auth = requireAuth(req);
+    if (!auth.ok) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status || 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const distribuidoraId = searchParams.get('distribuidoraId') || undefined;
 
@@ -23,6 +29,11 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const auth = requireAuth(req);
+    if (!auth.ok) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status || 401 });
+    }
+
     const body = await req.json();
     const {
       distribuidoraId,

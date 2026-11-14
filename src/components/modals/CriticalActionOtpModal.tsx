@@ -41,6 +41,19 @@ export default function CriticalActionOtpModal({
   const [timeLeft, setTimeLeft] = useState<number>(600); // 10 minutos
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const getAuthHeader = (): Record<string, string> => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('lanahora_user_session') : null;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.token) {
+          return { Authorization: `Bearer ${parsed.token}` };
+        }
+      }
+    } catch {}
+    return {};
+  };
+
   // Solicitar código al abrir el modal
   const handleRequestCode = async () => {
     setRequesting(true);
@@ -48,7 +61,10 @@ export default function CriticalActionOtpModal({
     try {
       const res = await fetch('/api/auth/critical-otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-dev-bypass': 'true' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader(),
+        },
         body: JSON.stringify({
           mode: 'request',
           email: userEmail,
@@ -109,7 +125,10 @@ export default function CriticalActionOtpModal({
     try {
       const res = await fetch('/api/auth/critical-otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-dev-bypass': 'true' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader(),
+        },
         body: JSON.stringify({
           mode: 'verify',
           email: userEmail,
