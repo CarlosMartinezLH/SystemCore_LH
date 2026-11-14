@@ -430,20 +430,20 @@ function TiendaCoreContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100/70 text-slate-800 selection:bg-blue-600 selection:text-white font-sans antialiased">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 selection:bg-blue-600 selection:text-white font-sans antialiased">
       {/* =========================================================================
-          1. TOP MICRO-UTILITY BAR (Estilo Liverpool: selector de tienda y servicios)
+          1. TOP MICRO-UTILITY BAR (Estilo Liverpool: limpio, claro y funcional)
          ========================================================================= */}
-      <div className="bg-slate-900 text-slate-200 text-[11px] font-medium tracking-wide border-b border-slate-800/80">
+      <div className="bg-white text-slate-600 text-[11px] font-medium tracking-wide border-b border-slate-200/90 shadow-2xs">
         <div className="w-full px-4 sm:px-8 xl:px-12 py-1.5 flex items-center justify-between gap-3">
           {/* Sucursal Selector */}
           <div className="relative">
             <button
               onClick={() => setIsStoreSelectorOpen(!isStoreSelectorOpen)}
-              className="flex items-center gap-1.5 text-slate-200 hover:text-white transition py-0.5 cursor-pointer font-semibold"
+              className="flex items-center gap-1.5 text-slate-700 hover:text-blue-600 transition py-0.5 cursor-pointer font-semibold"
             >
-              <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Sucursal: <strong className="text-white">{activeStore}</strong></span>
+              <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+              <span>Sucursal: <strong className="text-slate-900">{activeStore}</strong></span>
               <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isStoreSelectorOpen ? 'rotate-180' : ''}`} />
             </button>
 
@@ -480,32 +480,32 @@ function TiendaCoreContent() {
           </div>
 
           {/* Micro Utility Links */}
-          <div className="flex items-center gap-4 text-slate-300">
+          <div className="flex items-center gap-4 text-slate-500">
             <a
               href="https://lanahora.com/lineas-de-credito/"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-amber-300 transition hidden sm:inline"
+              className="hover:text-blue-600 transition hidden sm:inline"
             >
               Líneas de Crédito
             </a>
-            <span className="text-slate-700 hidden sm:inline">•</span>
+            <span className="text-slate-300 hidden sm:inline">•</span>
             <button
               onClick={() => {
                 if (isDistribuidoraLoggedIn) loadHistory();
                 else setIsLoginModalOpen(true);
               }}
-              className="hover:text-amber-300 transition hidden md:inline"
+              className="hover:text-blue-600 transition hidden md:inline"
             >
               Mi Crédito y Vales
             </button>
-            <span className="text-slate-700 hidden md:inline">•</span>
-            <span className="text-amber-400 font-bold hidden lg:flex items-center gap-1">
-              <Sparkles className="w-3 h-3 fill-amber-400" />
+            <span className="text-slate-300 hidden md:inline">•</span>
+            <span className="text-blue-700 font-bold hidden lg:flex items-center gap-1">
+              <Sparkles className="w-3 h-3 fill-amber-400 text-amber-500" />
               16 Quincenas Fijas Sin Enganche
             </span>
-            <span className="text-slate-700 hidden lg:inline">•</span>
-            <span className="text-slate-300 hidden xl:inline">
+            <span className="text-slate-300 hidden lg:inline">•</span>
+            <span className="text-slate-500 hidden xl:inline">
               Garantía de Entrega 48 hrs
             </span>
           </div>
@@ -708,7 +708,7 @@ function TiendaCoreContent() {
          ========================================================================= */}
       {isMegaMenuOpen && (
         <div
-          className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xs top-[108px] flex items-start animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 bg-slate-900/35 backdrop-blur-xs top-[108px] flex items-start animate-in fade-in duration-150"
           onClick={() => setIsMegaMenuOpen(false)}
         >
           <div
@@ -851,16 +851,20 @@ function TiendaCoreContent() {
                   </div>
 
                   {/* Column 4: Promo Card */}
-                  <div className="relative rounded-2xl overflow-hidden border border-slate-200 group aspect-4/3 sm:aspect-auto">
-                    <img
-                      src={activeMegaDept.imagen}
-                      alt={activeMegaDept.nombre}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent p-4 flex flex-col justify-end text-white">
-                      <span className="text-[10px] font-black text-amber-300 uppercase">Destacado</span>
-                      <h5 className="text-xs font-bold leading-tight">{activeMegaDept.nombre}</h5>
-                      <span className="text-[10px] text-slate-300 mt-0.5">Estrena hoy a 16 quincenas</span>
+                  <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200/90 flex flex-col justify-between group">
+                    <div className="aspect-video w-full rounded-xl overflow-hidden bg-white border border-slate-200/80 mb-2.5">
+                      <img
+                        src={activeMegaDept.imagen}
+                        alt={activeMegaDept.nombre}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded uppercase">
+                        Destacado
+                      </span>
+                      <h5 className="text-xs font-bold text-slate-900 mt-1">{activeMegaDept.nombre}</h5>
+                      <p className="text-[11px] text-slate-500 mt-0.5">Estrena hoy a 16 quincenas fijas sin enganche.</p>
                     </div>
                   </div>
                 </div>
@@ -874,8 +878,8 @@ function TiendaCoreContent() {
           4. MAIN CONTAINER & HERO CAROUSEL
          ========================================================================= */}
       <main className="w-full px-4 sm:px-8 xl:px-12 py-5 flex-1 space-y-6">
-        {/* HERO PANORAMIC CAROUSEL (Estilo Liverpool: banner a todo lo ancho) */}
-        <div className="w-full relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-md bg-slate-950 aspect-[21/9] sm:aspect-[24/8] md:aspect-[24/7] lg:aspect-[24/6] group border border-slate-200 select-none">
+        {/* HERO PANORAMIC CAROUSEL (Estilo Liverpool: banner a todo lo ancho con bordes limpios) */}
+        <div className="w-full relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm bg-slate-100 aspect-[21/9] sm:aspect-[24/8] md:aspect-[24/7] lg:aspect-[24/6] group border border-slate-200/90 select-none">
           {banners.map((b, idx) => (
             <div
               key={idx}
@@ -899,13 +903,13 @@ function TiendaCoreContent() {
             </div>
           ))}
 
-          {/* Nav arrows */}
+          {/* Nav arrows (Clean white buttons) */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               setActiveBanner((prev) => (prev - 1 + banners.length) % banners.length);
             }}
-            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-2xl backdrop-blur-xs border border-white/20 cursor-pointer"
+            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 w-10 sm:w-11 h-10 sm:h-11 rounded-full bg-white/95 hover:bg-white text-slate-700 hover:text-blue-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg border border-slate-200 cursor-pointer"
             title="Anterior"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -915,14 +919,14 @@ function TiendaCoreContent() {
               e.stopPropagation();
               setActiveBanner((prev) => (prev + 1) % banners.length);
             }}
-            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-2xl backdrop-blur-xs border border-white/20 cursor-pointer"
+            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 w-10 sm:w-11 h-10 sm:h-11 rounded-full bg-white/95 hover:bg-white text-slate-700 hover:text-blue-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg border border-slate-200 cursor-pointer"
             title="Siguiente"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
 
-          {/* Dots */}
-          <div className="absolute bottom-3 sm:bottom-4 right-4 sm:right-6 z-20 flex items-center gap-2 bg-slate-950/50 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/10">
+          {/* Dots (Clean light container) */}
+          <div className="absolute bottom-3 sm:bottom-4 right-4 sm:right-6 z-20 flex items-center gap-2 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-full border border-slate-200/90 shadow-xs">
             {banners.map((_, idx) => (
               <button
                 key={idx}
@@ -931,7 +935,7 @@ function TiendaCoreContent() {
                   setActiveBanner(idx);
                 }}
                 className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                  idx === activeBanner ? 'w-8 bg-amber-400' : 'w-2 bg-white/50 hover:bg-white/80'
+                  idx === activeBanner ? 'w-7 bg-blue-600' : 'w-2 bg-slate-300 hover:bg-slate-400'
                 }`}
                 title={`Banner ${idx + 1}`}
               />
@@ -1263,7 +1267,7 @@ function TiendaCoreContent() {
 
                           {/* 16 Quincenas Badge */}
                           <div className="absolute bottom-2.5 left-2.5">
-                            <span className="bg-slate-900/90 backdrop-blur-xs text-amber-300 font-black text-[9px] uppercase px-2 py-0.5 rounded shadow-2xs">
+                            <span className="bg-blue-600 text-white font-black text-[9px] uppercase px-2 py-0.5 rounded shadow-xs">
                               16 Quincenas
                             </span>
                           </div>
@@ -1353,7 +1357,7 @@ function TiendaCoreContent() {
           7. PRODUCT DETAIL MODAL (Screenshots 4 & 5: Exact Liverpool PDP)
          ========================================================================= */}
       {selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-900/35 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
           <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-4 border border-slate-200">
             {/* Top Modal Bar: Breadcrumbs + Close */}
             <div className="px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
@@ -1682,27 +1686,27 @@ function TiendaCoreContent() {
           8. CHECKOUT FINTECH EN 1 CLIC (LanaTienda Direct Modal)
          ========================================================================= */}
       {cartProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-4 border border-slate-200/80">
             {/* Header */}
-            <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800">
+            <div className="bg-slate-50 text-slate-900 px-6 py-4 flex items-center justify-between border-b border-slate-200">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-600/30 text-amber-400 flex items-center justify-center border border-amber-400/30">
-                  <ShoppingCart className="w-5 h-5 text-amber-300" />
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200">
+                  <ShoppingCart className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm tracking-wide flex items-center gap-2">
                     <span>Solicitud de Pedido</span>
-                    <span className="text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-400/30">
+                    <span className="text-[10px] font-black uppercase bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full border border-blue-200">
                       16 Quincenas
                     </span>
                   </h3>
-                  <p className="text-[11px] text-slate-400">Sin comisiones ocultas • Respaldo oficial</p>
+                  <p className="text-[11px] text-slate-500">Sin comisiones ocultas • Respaldo oficial</p>
                 </div>
               </div>
               <button
                 onClick={() => setCartProduct(null)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"
+                className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -2008,7 +2012,7 @@ function TiendaCoreContent() {
           9. COMPLETED ORDER DIGITAL TICKET
          ========================================================================= */}
       {completedOrder && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-center border border-slate-200">
             <div className="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200 shadow-xs">
               <CheckCircle className="w-9 h-9" />
@@ -2078,7 +2082,7 @@ function TiendaCoreContent() {
           10. SHARE WHATSAPP MODAL
          ========================================================================= */}
       {shareModalProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/35 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -2155,7 +2159,7 @@ function TiendaCoreContent() {
           11. DISTRIBUIDORA LOGIN MODAL
          ========================================================================= */}
       {isLoginModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/35 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
@@ -2225,7 +2229,7 @@ function TiendaCoreContent() {
           12. ORDERS HISTORY MODAL
          ========================================================================= */}
       {viewHistoryModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/35 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
@@ -2268,15 +2272,15 @@ function TiendaCoreContent() {
       )}
 
       {/* =========================================================================
-          13. CORPORATE FOOTER
+          13. CORPORATE FOOTER (Estilo Liverpool: claro, limpio y elegante)
          ========================================================================= */}
-      <footer className="bg-slate-900 text-white border-t border-slate-800 mt-16 pt-12 pb-8 text-xs">
+      <footer className="bg-white text-slate-600 border-t border-slate-200 mt-16 pt-12 pb-8 text-xs">
         <div className="w-full px-4 sm:px-8 xl:px-12 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Historia oficial */}
             <div className="space-y-3">
               <div>
-                <div className="inline-flex items-center bg-white px-3.5 py-2 rounded-xl shadow-xs border border-slate-700/50">
+                <div className="inline-flex items-center bg-slate-50 px-3.5 py-2 rounded-xl shadow-2xs border border-slate-200">
                   <img
                     src="/lanahora-logo.png"
                     alt="LanAhora"
@@ -2284,8 +2288,8 @@ function TiendaCoreContent() {
                   />
                 </div>
               </div>
-              <h4 className="font-bold text-amber-400 text-sm">Financiera LanAhora</h4>
-              <p className="text-slate-300 text-[11px] leading-relaxed">
+              <h4 className="font-bold text-slate-900 text-sm">Financiera LanAhora</h4>
+              <p className="text-slate-500 text-[11px] leading-relaxed">
                 LanAhora nace en el 2011 en la Ciudad de Monterrey, estamos en la ciudad de Saltillo desde el mes de
                 abril del 2015 y en la ciudad de Gómez Palacio Durango desde el mes de Junio 2017. A la fecha tenemos más
                 de 1000 distribuidoras exitosas.
@@ -2294,17 +2298,17 @@ function TiendaCoreContent() {
 
             {/* Enlaces Oficiales */}
             <div>
-              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Enlaces</h4>
-              <ul className="space-y-2 text-slate-300 text-[11px]">
+              <h4 className="font-bold text-slate-900 uppercase tracking-wider mb-3 text-[11px]">Enlaces</h4>
+              <ul className="space-y-2 text-slate-600 text-[11px]">
                 <li>
                   <a
                     href="https://lanahora.com/lineas-de-credito/"
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:text-amber-400 transition flex items-center gap-1.5"
+                    className="hover:text-blue-600 transition flex items-center gap-1.5"
                   >
                     <span>Líneas de créditos</span>
-                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                    <ExternalLink className="w-3 h-3 text-slate-400" />
                   </a>
                 </li>
                 <li>
@@ -2312,10 +2316,10 @@ function TiendaCoreContent() {
                     href="https://lanahora.com/distribuidora/"
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:text-amber-400 transition flex items-center gap-1.5"
+                    className="hover:text-blue-600 transition flex items-center gap-1.5"
                   >
                     <span>Distribuidores</span>
-                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                    <ExternalLink className="w-3 h-3 text-slate-400" />
                   </a>
                 </li>
                 <li>
@@ -2323,10 +2327,10 @@ function TiendaCoreContent() {
                     href="https://lanahora.com/formas-de-pago-2/"
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:text-amber-400 transition flex items-center gap-1.5"
+                    className="hover:text-blue-600 transition flex items-center gap-1.5"
                   >
                     <span>Formas de pago</span>
-                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                    <ExternalLink className="w-3 h-3 text-slate-400" />
                   </a>
                 </li>
                 <li>
@@ -2334,10 +2338,10 @@ function TiendaCoreContent() {
                     href="https://lanahora.com/aviso-privacidad/"
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:text-amber-400 transition flex items-center gap-1.5"
+                    className="hover:text-blue-600 transition flex items-center gap-1.5"
                   >
                     <span>Aviso de privacidad</span>
-                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                    <ExternalLink className="w-3 h-3 text-slate-400" />
                   </a>
                 </li>
                 <li>
@@ -2345,10 +2349,10 @@ function TiendaCoreContent() {
                     href="https://tienda.lanahora.com/#"
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:text-amber-400 transition flex items-center gap-1.5"
+                    className="hover:text-blue-600 transition flex items-center gap-1.5"
                   >
                     <span>Términos y condiciones</span>
-                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                    <ExternalLink className="w-3 h-3 text-slate-400" />
                   </a>
                 </li>
               </ul>
@@ -2356,8 +2360,8 @@ function TiendaCoreContent() {
 
             {/* Síguenos */}
             <div>
-              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Síguenos</h4>
-              <p className="text-slate-300 text-[11px] leading-relaxed mb-3">
+              <h4 className="font-bold text-slate-900 uppercase tracking-wider mb-3 text-[11px]">Síguenos</h4>
+              <p className="text-slate-500 text-[11px] leading-relaxed mb-3">
                 Síguenos en redes sociales y entérate de lo último en noticias y eventos de la empresa.
               </p>
               <div className="flex flex-wrap gap-2 text-xs">
@@ -2365,7 +2369,7 @@ function TiendaCoreContent() {
                   href="https://facebook.com/lanahora"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 rounded-lg text-slate-200 transition font-bold"
+                  className="px-3 py-1.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-lg text-slate-700 hover:text-blue-600 transition font-bold"
                 >
                   Facebook
                 </a>
@@ -2373,7 +2377,7 @@ function TiendaCoreContent() {
                   href="https://instagram.com/lanahora"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-pink-600 rounded-lg text-slate-200 transition font-bold"
+                  className="px-3 py-1.5 bg-slate-50 hover:bg-pink-50 border border-slate-200 hover:border-pink-300 rounded-lg text-slate-700 hover:text-pink-600 transition font-bold"
                 >
                   Instagram
                 </a>
@@ -2381,7 +2385,7 @@ function TiendaCoreContent() {
                   href="https://wa.me/528446011797"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-emerald-600 rounded-lg text-slate-200 transition font-bold"
+                  className="px-3 py-1.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-lg text-slate-700 hover:text-emerald-600 transition font-bold"
                 >
                   WhatsApp
                 </a>
@@ -2390,25 +2394,25 @@ function TiendaCoreContent() {
 
             {/* Sucursales */}
             <div>
-              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Sucursales</h4>
-              <div className="space-y-2 text-slate-300 text-[11px]">
+              <h4 className="font-bold text-slate-900 uppercase tracking-wider mb-3 text-[11px]">Sucursales</h4>
+              <div className="space-y-2 text-slate-600 text-[11px]">
                 <div>
-                  <strong className="text-white block">Saltillo Centro (Sucursal Matriz):</strong>
+                  <strong className="text-slate-900 block font-semibold">Saltillo Centro (Sucursal Matriz):</strong>
                   <span>C. Hidalgo #382 Nte., Col. Centro, Saltillo Coah. CP 25000</span>
                 </div>
                 <div>
-                  <strong className="text-white block">Gómez Palacio (Durango):</strong>
+                  <strong className="text-slate-900 block font-semibold">Gómez Palacio (Durango):</strong>
                   <span>Calle Victoria #730, Centro, Gómez Palacio, Dgo.</span>
                 </div>
                 <div>
-                  <strong className="text-white block">Monterrey (Nuevo León):</strong>
+                  <strong className="text-slate-900 block font-semibold">Monterrey (Nuevo León):</strong>
                   <span>Presencia institucional desde 2011</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400 text-[10px]">
+          <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[10px]">
             <p>© 2026 Financiera LanAhora S.A.P.I. de C.V. SOFOM E.N.R. Más de 1000 distribuidoras autorizadas.</p>
             <div className="flex gap-4">
               <a href="https://lanahora.com/aviso-privacidad/" target="_blank" rel="noreferrer" className="hover:underline">
@@ -2427,8 +2431,8 @@ function TiendaCoreContent() {
 
       {/* Floating Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-5 duration-200">
-          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 bg-white text-slate-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-200 animate-in slide-in-from-bottom-5 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -2440,7 +2444,7 @@ export default function TiendaPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-slate-900 text-amber-400 font-bold text-sm">
+        <div className="min-h-screen flex items-center justify-center bg-white text-blue-600 font-bold text-sm">
           Cargando LanAtienda...
         </div>
       }
