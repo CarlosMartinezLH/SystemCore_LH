@@ -52,6 +52,11 @@ class TiendaStore {
   }
 
   getPedidos(distribuidoraId?: string): LanaTiendaPedido[] {
+    for (const initPed of INITIAL_PEDIDOS) {
+      if (!this.pedidos.some((p) => p.id === initPed.id || (p.ordenInterna && p.ordenInterna === initPed.ordenInterna))) {
+        this.pedidos.push(initPed);
+      }
+    }
     if (distribuidoraId) {
       return this.pedidos.filter((p) => p.distribuidoraId === distribuidoraId);
     }

@@ -91,5 +91,19 @@ export interface LanaTiendaPedido {
   guiaEnvio?: string;
   paqueteria?: string;
   notas?: string;
+  // Campos del Módulo Operativo Core (repCompras.aspx)
+  sucursal?: string;
+  coordinador?: string;
+  ordenInterna?: string;
+  customerOrderNumber?: string;
+  personaId?: string;
+  direccionCliente?: string;
+  incidencia?: {
+    folio: string;
+    fecha: string;
+    motivo: string;
+    estatus: 'ABIERTA' | 'RESUELTA';
+    solucion?: string;
+  };
 }
 
