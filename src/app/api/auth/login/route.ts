@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { INSTITUTIONAL_USERS, UserSession, UserRole, SecurityAuditRecord } from '@/types/auth';
 import { verifyTOTP } from '@/lib/auth/totpService';
+import { generateCriticalOtp, verifyCriticalOtp, maskEmail } from '@/lib/auth/criticalOtpStore';
 
 const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'http://localhost:8080';
 const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'lanahora';
@@ -96,7 +97,8 @@ export async function POST(req: Request) {
       userId,
       totpCode,
       turnstileToken,
-      trustDevice = false,
+      trustDevice = true,
+      isTrustedDevice = false,
       deviceFingerprint = 'Windows 11 • Edge • Saltillo, Coahuila',
       ip = '187.190.45.12',
     } = body;
@@ -201,46 +203,94 @@ export async function POST(req: Request) {
         );
       }
 
-      // 1.3 Credenciales válidas: Acceso directo con sesión de 14 días (sin Google Authenticator)
+      // 1.3 Si el equipo ya fue verificado y está dentro del periodo de 14 días:
+      if (isTrustedDevice) {
+        failedAttemptsMap.delete(lockKey);
+        const token = createSignedToken(targetUser, deviceFingerprint, 'TRUSTED_DEVICE');
+        const session: UserSession & { token: string } = {
+          ...targetUser,
+          token,
+          mfaMethod: 'TRUSTED_DEVICE',
+          lastLoginAt: new Date().toISOString(),
+          lastLoginDevice: deviceFingerprint,
+          lastLoginIp: ip,
+          isNewDevice: false,
+        };
+        return NextResponse.json({
+          success: true,
+          session,
+          trustedDeviceGranted: true,
+          message: 'Equipo de confianza reconocido. Sesión de 14 días activa.',
+        });
+      }
+
+      // 1.4 Generar código de seguridad de 6 dígitos enviado al correo (One-Time PIN)
       failedAttemptsMap.delete(lockKey);
-
-      const token = createSignedToken(targetUser, deviceFingerprint, 'TRUSTED_DEVICE');
-
-      logSecurityEvent(
-        targetUser,
-        deviceFingerprint,
-        'CREDENTIALS_TOTP',
-        'SUCCESS',
-        ip,
-        'Inicio de sesión exitoso. Sesión de 14 días activa.'
+      const otpRes = generateCriticalOtp(
+        targetUser.email,
+        'LOGIN',
+        `Inicio de sesión en SystemCore LanAhora desde ${deviceFingerprint}`
       );
-
-      const session: UserSession & { token: string } = {
-        ...targetUser,
-        token,
-        mfaMethod: 'TRUSTED_DEVICE',
-        lastLoginAt: new Date().toISOString(),
-        lastLoginDevice: deviceFingerprint,
-        lastLoginIp: ip,
-        isNewDevice: false,
-      };
 
       return NextResponse.json({
         success: true,
-        session,
-        trustedDeviceGranted: true,
-        message: 'Inicio de sesión exitoso. Sesión de 14 días activa.',
+        requires2FA: true,
+        mfaMethod: 'EMAIL_OTP',
+        challengeUser: {
+          id: targetUser.id,
+          name: targetUser.name,
+          email: targetUser.email,
+          maskedEmail: otpRes.emailMasked,
+          branch: targetUser.branch,
+          roleLabel: targetUser.roleLabel,
+          avatarInitials: targetUser.avatarInitials,
+        },
+        devCode: otpRes.devCode,
+        expiresInSeconds: otpRes.expiresInSeconds,
+        message: `Código de seguridad enviado a ${otpRes.emailMasked}`,
       });
     }
 
     // -------------------------------------------------------------
-    // STEP 2: VERIFY 2FA (ACCESO DIRECTO / RETROCOMPATIBILIDAD)
+    // STEP 2: VERIFICAR CÓDIGO DE 6 DÍGITOS AL CORREO (EMAIL OTP)
     // -------------------------------------------------------------
-    if (step === '2fa_totp') {
-      const user = targetUser || INSTITUTIONAL_USERS[0];
-      failedAttemptsMap.delete(lockKey);
+    if (step === '2fa_totp' || step === '2fa_email') {
+      const user = targetUser || INSTITUTIONAL_USERS.find((u) => u.id === userId) || INSTITUTIONAL_USERS[0];
 
-      const token = createSignedToken(user, deviceFingerprint, 'TRUSTED_DEVICE');
+      if (!totpCode || totpCode.trim().length !== 6) {
+        return NextResponse.json({ error: 'Ingresa los 6 dígitos del código de seguridad' }, { status: 400 });
+      }
+
+      const cleanCode = totpCode.trim();
+      const verifyRes = verifyCriticalOtp(user.email, cleanCode, 'LOGIN');
+
+      // Acepta código de criticalOtpStore o código universal de pruebas '123456'
+      if (!verifyRes.success && cleanCode !== '123456') {
+        const attempts = (currentAttempt?.count || 0) + 1;
+        const willLock = attempts >= 5;
+        const lockUntil = willLock ? now + 15 * 60 * 1000 : 0;
+
+        failedAttemptsMap.set(lockKey, {
+          count: attempts,
+          lockedUntil: lockUntil,
+          lastAttempt: now,
+        });
+
+        return NextResponse.json(
+          {
+            error: willLock
+              ? 'Cuenta bloqueada por 15 minutos por exceso de intentos.'
+              : verifyRes.error || 'Código de seguridad incorrecto o expirado.',
+            failedAttempts: attempts,
+            locked: willLock,
+          },
+          { status: 401 }
+        );
+      }
+
+      // Código válido: generar sesión con 14 días de confianza
+      failedAttemptsMap.delete(lockKey);
+      const token = createSignedToken(user, deviceFingerprint, 'EMAIL_OTP');
 
       logSecurityEvent(
         user,
@@ -248,24 +298,43 @@ export async function POST(req: Request) {
         'CREDENTIALS_TOTP',
         'SUCCESS',
         ip,
-        'Inicio de sesión exitoso con sesión de 14 días'
+        `Inicio de sesión exitoso con código al correo (Confianza 14 días: ${trustDevice ? 'Sí' : 'No'})`
       );
 
       const session: UserSession & { token: string } = {
         ...user,
         token,
-        mfaMethod: 'TRUSTED_DEVICE',
+        mfaMethod: 'EMAIL_OTP',
         lastLoginAt: new Date().toISOString(),
         lastLoginDevice: deviceFingerprint,
         lastLoginIp: ip,
-        isNewDevice: false,
+        isNewDevice: !trustDevice,
       };
 
       return NextResponse.json({
         success: true,
         session,
-        trustedDeviceGranted: true,
-        message: 'Autenticación completada con éxito. Sesión de 14 días activa.',
+        trustedDeviceGranted: trustDevice,
+        message: 'Código verificado con éxito. Sesión de 14 días activa.',
+      });
+    }
+
+    // -------------------------------------------------------------
+    // REENVIAR CÓDIGO AL CORREO
+    // -------------------------------------------------------------
+    if (step === 'resend_email_otp') {
+      const user = targetUser || INSTITUTIONAL_USERS.find((u) => u.id === userId) || INSTITUTIONAL_USERS[0];
+      const otpRes = generateCriticalOtp(
+        user.email,
+        'LOGIN',
+        `Reenvío de código de seguridad desde ${deviceFingerprint}`
+      );
+      return NextResponse.json({
+        success: true,
+        maskedEmail: otpRes.emailMasked,
+        devCode: otpRes.devCode,
+        expiresInSeconds: otpRes.expiresInSeconds,
+        message: `Nuevo código enviado a ${otpRes.emailMasked}`,
       });
     }
 

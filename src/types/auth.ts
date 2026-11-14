@@ -30,7 +30,7 @@ export interface UserSession {
   permissions?: ActionPermissions;
   // Security & MFA Metadata
   mfaEnabled?: boolean;
-  mfaMethod?: 'TOTP' | 'WEBAUTHN_PASSKEY' | 'TRUSTED_DEVICE';
+  mfaMethod?: 'TOTP' | 'WEBAUTHN_PASSKEY' | 'TRUSTED_DEVICE' | 'EMAIL_OTP';
   totpSecret?: string;
   lastLoginAt?: string;
   lastLoginIp?: string;

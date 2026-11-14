@@ -16,6 +16,8 @@ import {
   EyeOff,
   ArrowLeft,
   Smartphone,
+  Mail,
+  RefreshCw,
 } from 'lucide-react';
 
 interface LoginViewProps {
@@ -33,11 +35,14 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
   const [isTurnstileVerified, setIsTurnstileVerified] = useState(true);
   const [isTurnstileLoading, setIsTurnstileLoading] = useState(false);
 
-  // Step 2: 2FA TOTP State
+  // Step 2: 2FA Email OTP State
   const [totpDigits, setTotpDigits] = useState<string[]>(['', '', '', '', '', '']);
-  const [trustDevice, setTrustDevice] = useState(false);
+  const [trustDevice, setTrustDevice] = useState(true);
   const [challengeUser, setChallengeUser] = useState<any>(null);
-  const [totpCountdown, setTotpCountdown] = useState(30);
+  const [totpCountdown, setTotpCountdown] = useState(600); // 10 minutos
+  const [devOtpCode, setDevOtpCode] = useState<string | null>(null);
+  const [isResending, setIsResending] = useState(false);
+  const [isTrustedDeviceCached, setIsTrustedDeviceCached] = useState(false);
 
   // Status & Security States
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +64,11 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
         setInactivityNotice(true);
         localStorage.removeItem('lanahora_logout_reason');
       }
+
+      const until = localStorage.getItem('lanahora_trusted_device_until');
+      if (until && Number(until) > Date.now()) {
+        setIsTrustedDeviceCached(true);
+      }
     } catch {}
 
     const ua = navigator.userAgent;
@@ -75,18 +85,46 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
     setDeviceInfo(`${os} · ${browser}`);
   }, []);
 
-  // Timer for RFC 6238 TOTP window (30s cycle)
+  // Timer para código de seguridad al correo (10 minutos)
   useEffect(() => {
-    const updateCountdown = () => {
-      const epoch = Math.floor(Date.now() / 1000);
-      const remaining = 30 - (epoch % 30);
-      setTotpCountdown(remaining);
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
+    if (currentStep !== '2fa_totp' || totpCountdown <= 0) return;
+    const interval = setInterval(() => {
+      setTotpCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [currentStep, totpCountdown]);
+
+  const formatCountdown = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleResendOtp = async () => {
+    setIsResending(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 'resend_email_otp',
+          userId: challengeUser?.id,
+          deviceFingerprint: deviceInfo,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.devCode) setDevOtpCode(data.devCode);
+        setTotpCountdown(data.expiresInSeconds || 600);
+        setTotpDigits(['', '', '', '', '', '']);
+      }
+    } catch {
+      setErrorMessage('Error al reenviar el código.');
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   // Lockout countdown timer
   useEffect(() => {
@@ -142,6 +180,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
           password,
           turnstileToken: isTurnstileVerified ? 'CLOUDFLARE_VALID_TOKEN' : 'INVALID',
           deviceFingerprint: deviceInfo,
+          isTrustedDevice: isTrustedDeviceCached,
         }),
       });
 
@@ -157,11 +196,18 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
 
       if (res.ok && data.requires2FA) {
         setChallengeUser(data.challengeUser);
+        if (data.devCode) setDevOtpCode(data.devCode);
+        if (data.expiresInSeconds) setTotpCountdown(data.expiresInSeconds);
         setCurrentStep('2fa_totp');
         setTimeout(() => {
           digitInputRefs.current[0]?.focus();
         }, 150);
       } else if (res.ok && data.success && data.session) {
+        if (trustDevice) {
+          try {
+            localStorage.setItem('lanahora_trusted_device_until', String(Date.now() + 14 * 24 * 60 * 60 * 1000));
+          } catch {}
+        }
         onLoginSuccess(data.session);
       } else {
         setErrorMessage(data.error || 'Credenciales inválidas. Verifica tu usuario y contraseña.');
@@ -261,6 +307,11 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
       }
 
       if (res.ok && data.success && data.session) {
+        if (trustDevice) {
+          try {
+            localStorage.setItem('lanahora_trusted_device_until', String(Date.now() + 14 * 24 * 60 * 60 * 1000));
+          } catch {}
+        }
         onLoginSuccess(data.session);
       } else {
         setErrorMessage(data.error || 'Código incorrecto o expirado.');
@@ -312,6 +363,11 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
       setIsLoading(false);
 
       if (res.ok && data.success && data.session) {
+        if (trustDevice) {
+          try {
+            localStorage.setItem('lanahora_trusted_device_until', String(Date.now() + 14 * 24 * 60 * 60 * 1000));
+          } catch {}
+        }
         onLoginSuccess(data.session);
       } else {
         setCurrentStep('credentials');
@@ -501,7 +557,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
           )}
 
           {/* ========================================================= */}
-          {/* STEP 2: MINIMALIST GOOGLE AUTHENTICATOR (TOTP)            */}
+          {/* STEP 2: CÓDIGO DE SEGURIDAD AL CORREO (ONE-TIME PIN)      */}
           {/* ========================================================= */}
           {currentStep === '2fa_totp' && (
             <div className="space-y-4 animate-in fade-in duration-150">
@@ -518,16 +574,43 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
               </button>
 
               <div className="text-center space-y-1">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center mx-auto mb-1">
+                  <Mail className="w-5 h-5" />
+                </div>
                 <h2 className="text-sm font-bold text-slate-900">
-                  Código de Verificación
+                  Código de Seguridad por Correo
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Introduce el código de 6 dígitos
+                  Hemos enviado un código de 6 dígitos a:
                 </p>
+                <div className="text-xs font-bold font-mono text-blue-700">
+                  {challengeUser?.maskedEmail || 'c***@lanahora.com'}
+                </div>
               </div>
 
+              {/* Banner de Desarrollo: Código recibido */}
+              {devOtpCode && (
+                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-emerald-800 text-[11px]">
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Código en bandeja: <strong className="font-mono text-xs">{devOtpCode}</strong></span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newDigits = devOtpCode.slice(0, 6).split('');
+                      setTotpDigits(newDigits);
+                      executeVerifyTotp(devOtpCode);
+                    }}
+                    className="text-emerald-700 hover:text-emerald-900 font-bold underline cursor-pointer text-[10px]"
+                  >
+                    Autocompletar
+                  </button>
+                </div>
+              )}
+
               {/* 6 Digit Inputs */}
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <div className="flex items-center justify-center gap-1.5" onPaste={handleDigitPaste}>
                   {totpDigits.map((digit, idx) => (
                     <input
@@ -546,23 +629,35 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                   ))}
                 </div>
 
-                {/* Subtitle timer */}
-                <div className="text-center text-[11px] text-slate-400">
-                  El código cambia en <span className="font-mono font-medium text-slate-600">{totpCountdown}s</span>
+                {/* Subtitle timer & reenviar */}
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-slate-400" />
+                    <span>Expira en <span className="font-mono font-medium text-slate-700">{formatCountdown(totpCountdown)}</span></span>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isResending}
+                    onClick={handleResendOtp}
+                    className="text-blue-600 hover:text-blue-800 font-bold inline-flex items-center gap-1 transition cursor-pointer disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${isResending ? 'animate-spin' : ''}`} />
+                    <span>Reenviar</span>
+                  </button>
                 </div>
               </div>
 
-              {/* Trust this device checkbox */}
+              {/* Trust this device checkbox (14 días) */}
               <div className="flex items-center justify-center gap-2 text-xs text-slate-600 pt-1">
                 <input
                   type="checkbox"
                   id="trust"
                   checked={trustDevice}
                   onChange={(e) => setTrustDevice(e.target.checked)}
-                  className="rounded border-slate-300 text-slate-900 focus:ring-0 cursor-pointer"
+                  className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-0 cursor-pointer"
                 />
-                <label htmlFor="trust" className="cursor-pointer select-none text-[11px]">
-                  Recordar este equipo por 15 días
+                <label htmlFor="trust" className="cursor-pointer select-none text-[11px] font-medium text-slate-700">
+                  Recordar este equipo por 14 días
                 </label>
               </div>
 
@@ -579,7 +674,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                     <span>Verificando...</span>
                   </>
                 ) : (
-                  <span>Verificar código</span>
+                  <span>Verificar e Iniciar Sesión</span>
                 )}
               </button>
 
@@ -590,7 +685,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                   onClick={() => setShowBackupModal(true)}
                   className="text-[11px] text-slate-400 hover:text-slate-700 transition"
                 >
-                  ¿No tienes acceso al código?
+                  ¿No tienes acceso al correo?
                 </button>
               </div>
             </div>
