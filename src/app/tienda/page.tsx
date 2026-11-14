@@ -814,6 +814,44 @@ function TiendaCoreContent() {
               </div>
             ))}
           </div>
+
+          {/* BENEFICIOS INSTITUCIONALES TIENDA.LANAHORA.COM */}
+          <div className="pt-12 pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Envío Garantizado */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-200">
+                  <ShieldAlert className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm">Envío garantizado</h4>
+                  <p className="text-xs text-slate-500 mt-0.5">Todas tus compras con envío seguro y respaldo oficial.</p>
+                </div>
+              </div>
+
+              {/* Envío Rápido */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+                <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200">
+                  <Truck className="w-6 h-6 text-amber-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm">Envío rápido</h4>
+                  <p className="text-xs text-slate-500 mt-0.5">Cualquier parte de la República Mexicana o en sucursal.</p>
+                </div>
+              </div>
+
+              {/* Gran Calidad */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200">
+                  <Star className="w-6 h-6 fill-emerald-500 text-emerald-500" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm">Gran Calidad</h4>
+                  <p className="text-xs text-slate-500 mt-0.5">En todos nuestros productos seleccionados de catálogo.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
@@ -1780,10 +1818,11 @@ function TiendaCoreContent() {
         </div>
       )}
 
-      {/* 13. FOOTER (SystemCore Slate-900 Theme) */}
+      {/* 13. FOOTER CORPORATIVO OFICIAL LANAHORA */}
       <footer className="bg-slate-900 text-white border-t border-slate-800 mt-16 pt-12 pb-8 text-xs">
         <div className="w-full px-4 sm:px-8 xl:px-12 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Historia oficial */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <img
@@ -1792,48 +1831,155 @@ function TiendaCoreContent() {
                   className="h-10 w-auto object-contain brightness-0 invert"
                 />
               </div>
-              <p className="text-slate-400 text-[11px] leading-relaxed">
-                Plataforma de comercio electrónico de Financiera LanAhora S.A.P.I. de C.V. SOFOM E.N.R. Adquiere
-                artículos de calidad financiados a 16 quincenas con tu distribuidora autorizada.
+              <h4 className="font-bold text-amber-400 text-sm">LanAhora</h4>
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                LanAhora nace en el 2011 en la Ciudad de Monterrey, estamos en la ciudad de Saltillo desde el mes de
+                abril del 2015 y en la ciudad de Gómez Palacio Durango desde el mes de Junio 2017. A la fecha tenemos más
+                de 1000 distribuidoras exitosas.
               </p>
             </div>
 
+            {/* Enlaces Oficiales */}
             <div>
-              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Departamentos</h4>
+              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Enlaces</h4>
               <ul className="space-y-2 text-slate-300 text-[11px]">
-                <li>Hogar y Cocina</li>
-                <li>Pantallas y Electrónica</li>
-                <li>Cómputo y Laptops</li>
-                <li>Salud y Belleza</li>
-                <li>Moda y Equipaje</li>
+                <li>
+                  <a
+                    href="https://lanahora.com/lineas-de-credito/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-amber-400 transition flex items-center gap-1.5"
+                  >
+                    <span>Líneas de créditos</span>
+                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://lanahora.com/distribuidora/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-amber-400 transition flex items-center gap-1.5"
+                  >
+                    <span>Distribuidores</span>
+                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://lanahora.com/formas-de-pago-2/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-amber-400 transition flex items-center gap-1.5"
+                  >
+                    <span>Formas de pago</span>
+                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://lanahora.com/aviso-privacidad/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-amber-400 transition flex items-center gap-1.5"
+                  >
+                    <span>Aviso de privacidad</span>
+                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://tienda.lanahora.com/#"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-amber-400 transition flex items-center gap-1.5"
+                  >
+                    <span>Términos y condiciones</span>
+                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                  </a>
+                </li>
+                <li>
+                  <span className="text-amber-300 font-bold block pt-1">
+                    Contacto para Garantías (Reporte de 48 hrs hábiles)
+                  </span>
+                </li>
               </ul>
             </div>
 
+            {/* Síguenos */}
             <div>
-              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Garantía y Entrega</h4>
-              <ul className="space-y-2 text-slate-300 text-[11px]">
-                <li>48 horas hábiles para reporte de daños</li>
-                <li>Envíos directos a domicilio</li>
-                <li>Recolección en sucursal autorizada</li>
-                <li>Rastreo y folios oficiales en tiempo real</li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Sucursal Matriz</h4>
-              <p className="text-slate-400 text-[11px] leading-relaxed">
-                C. Hidalgo #382 Nte., Col. Centro, Saltillo, Coahuila C.P. 25000.
+              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Síguenos</h4>
+              <p className="text-slate-300 text-[11px] leading-relaxed mb-3">
+                Síguenos en redes sociales y entérate de lo último en noticias y eventos de la empresa.
               </p>
-              <div className="mt-3 text-amber-400 font-bold text-xs">Teléfono: 844 601 1797</div>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <a
+                  href="https://facebook.com/lanahora"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-blue-600 rounded-lg text-slate-200 transition font-bold"
+                >
+                  Facebook
+                </a>
+                <a
+                  href="https://instagram.com/lanahora"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-pink-600 rounded-lg text-slate-200 transition font-bold"
+                >
+                  Instagram
+                </a>
+                <a
+                  href="https://wa.me/528446011797"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-emerald-600 rounded-lg text-slate-200 transition font-bold"
+                >
+                  WhatsApp
+                </a>
+              </div>
+            </div>
+
+            {/* Sucursales */}
+            <div>
+              <h4 className="font-bold text-amber-400 uppercase tracking-wider mb-3 text-[11px]">Sucursales</h4>
+              <div className="space-y-2 text-slate-300 text-[11px]">
+                <div>
+                  <strong className="text-white block">Saltillo Centro (Sucursal Matriz):</strong>
+                  <span>C. Hidalgo #382 Nte., Col. Centro, Saltillo Coah. CP 25000</span>
+                </div>
+                <div>
+                  <strong className="text-white block">Gómez Palacio (Durango):</strong>
+                  <span>Calle Victoria #730, Centro, Gómez Palacio, Dgo.</span>
+                </div>
+                <div>
+                  <strong className="text-white block">Monterrey (Nuevo León):</strong>
+                  <span>Presencia institucional desde 2011</span>
+                </div>
+              </div>
+              <div className="mt-3">
+                <a
+                  href="/#sucursales"
+                  className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-3 py-1.5 rounded-lg shadow-xs transition"
+                >
+                  <span>Ver Sucursales</span>
+                  <Building2 className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[10px]">
-            <p>© 2026 Financiera LanAhora S.A.P.I. de C.V. SOFOM E.N.R. Todos los derechos reservados.</p>
+          <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400 text-[10px]">
+            <p>© 2026 Financiera LanAhora S.A.P.I. de C.V. SOFOM E.N.R. Más de 1000 distribuidoras autorizadas.</p>
             <div className="flex gap-4">
+              <a href="https://lanahora.com/aviso-privacidad/" target="_blank" rel="noreferrer" className="hover:underline">
+                Aviso de Privacidad
+              </a>
+              <span>•</span>
               <span>Términos y Condiciones</span>
-              <span>Aviso de Privacidad</span>
+              <span>•</span>
               <span>CONDUSEF</span>
+              <span>•</span>
               <span>CNBV</span>
             </div>
           </div>
