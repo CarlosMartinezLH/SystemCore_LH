@@ -381,20 +381,12 @@ function TiendaCoreContent() {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
         <div className="w-full px-4 sm:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
           {/* Official SystemCore Logo */}
-          <a href="/tienda" className="flex items-center gap-3 shrink-0 group">
+          <a href="/tienda" className="flex items-center shrink-0 group" title="LanAhora Tienda">
             <img
               src="/lanahora-logo.png"
               alt="LanAhora"
-              className="h-10 w-auto object-contain group-hover:scale-105 transition"
+              className="h-9 sm:h-10 w-auto object-contain group-hover:opacity-90 transition"
             />
-            <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
-              <span className="bg-blue-600 text-white font-black text-xs px-2.5 py-0.5 rounded-lg tracking-wider uppercase shadow-xs">
-                LanaTienda
-              </span>
-              <span className="hidden xl:inline-block text-[11px] font-semibold text-slate-400">
-                16 Quincenas Fijas
-              </span>
-            </div>
           </a>
 
           {/* SystemCore Search Omnibar */}
