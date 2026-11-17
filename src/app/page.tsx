@@ -14,6 +14,7 @@ import CoordinadoresView from '@/components/CoordinadoresView';
 import SucursalesView from '@/components/SucursalesView';
 import CatalogosView, { CatalogoTab } from '@/components/CatalogosView';
 import UsuariosView from '@/components/UsuariosView';
+import GlobalCarteraView from '@/components/GlobalCarteraView';
 import DistribuidoresView from '@/components/DistribuidoresView';
 import RHView from '@/components/RHView';
 import DispersionView from '@/components/DispersionView';
@@ -61,6 +62,7 @@ function SystemCoreApp() {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
   const [activeModule, setActiveModule] = useState<ActiveAppModule>('core_dashboard');
   const [catalogosActiveTab, setCatalogosActiveTab] = useState<CatalogoTab>('usuarios');
+  const [carteraSubTab, setCarteraSubTab] = useState<'TODA' | 'VIGENTE' | 'ATRASO' | 'LEGAL' | 'LIQUIDADA'>('TODA');
   const [selectedProspectId, setSelectedProspectId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
@@ -334,6 +336,15 @@ function SystemCoreApp() {
           onModuleChange={(mod, subTab) => {
             setSelectedProspectId(null);
             setActiveModule(mod);
+            if (mod === 'cartera') {
+              if (subTab === 'legal') {
+                setCarteraSubTab('LEGAL');
+              } else if (subTab === 'totales') {
+                setCarteraSubTab('TODA');
+              } else {
+                setCarteraSubTab('TODA');
+              }
+            }
             if (subTab) {
               setCatalogosActiveTab(subTab as CatalogoTab);
             }
@@ -357,6 +368,8 @@ function SystemCoreApp() {
                 onNavigateToGestoria={() => setActiveModule('gestoria')}
                 onNavigateToPLD={() => setActiveModule('pld')}
               />
+            ) : activeModule === 'cartera' ? (
+              <GlobalCarteraView currentUser={currentUser} initialFilter={carteraSubTab} />
             ) : activeModule === 'catalogos' || activeModule === 'usuarios' ? (
               <UsuariosView currentUser={currentUser} />
             ) : activeModule === 'mesa_credito' ? (

@@ -23,6 +23,10 @@ import {
   KeyRound,
   Wrench,
   Send,
+  Wallet,
+  BarChart3,
+  PieChart,
+  ShieldAlert,
 } from 'lucide-react';
 
 export type ActiveAppModule =
@@ -30,10 +34,11 @@ export type ActiveAppModule =
   | 'core_dashboard'
   | 'mesa_credito'
   | 'personas'
+  | 'distribuidores'
+  | 'cartera'
   | 'coordinadores'
   | 'sucursales'
   | 'usuarios'
-  | 'distribuidores'
   | 'gestoria'
   | 'reportes'
   | 'contabilidad'
@@ -83,10 +88,12 @@ export default function Header({
 }: HeaderProps) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [catalogosOpen, setCatalogosOpen] = useState(false);
+  const [carteraOpen, setCarteraOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const catalogosDropdownRef = useRef<HTMLDivElement>(null);
+  const carteraDropdownRef = useRef<HTMLDivElement>(null);
 
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
@@ -96,6 +103,9 @@ export default function Header({
       }
       if (catalogosDropdownRef.current && !catalogosDropdownRef.current.contains(event.target as Node)) {
         setCatalogosOpen(false);
+      }
+      if (carteraDropdownRef.current && !carteraDropdownRef.current.contains(event.target as Node)) {
+        setCarteraOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -193,6 +203,88 @@ export default function Header({
             />
             <span>Distribuidores</span>
           </button>
+
+          {/* Menú: Cartera (Dropdown con Global Cartera, Totales, Legal) - Apertura por CLIC */}
+          <div
+            className="relative"
+            ref={carteraDropdownRef}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setCarteraOpen((prev) => !prev);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+                activeModule === 'cartera'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : carteraOpen
+                  ? 'bg-slate-100 text-slate-900'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+              title="Cartera"
+            >
+              <Wallet
+                className={`w-4 h-4 ${
+                  activeModule === 'cartera' ? 'text-white' : 'text-slate-500'
+                }`}
+              />
+              <span>Cartera</span>
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                  carteraOpen ? 'rotate-180' : ''
+                } ${
+                  activeModule === 'cartera' ? 'text-white' : 'text-slate-400'
+                }`}
+              />
+            </button>
+
+            {carteraOpen && (
+              <div
+                className="absolute left-0 mt-1 w-48 bg-white text-slate-800 border border-slate-200/90 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in-50 zoom-in-95 duration-100 select-none"
+              >
+                <div className="space-y-0.5 text-xs">
+                  {/* 1. Global Cartera */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('cartera', 'global');
+                      setCarteraOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <BarChart3 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Global Cartera</span>
+                  </button>
+
+                  {/* 2. Totales De Cartera */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('cartera', 'totales');
+                      setCarteraOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <PieChart className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Totales De Cartera</span>
+                  </button>
+
+                  {/* 3. Global Cartera Legal */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('cartera', 'legal');
+                      setCarteraOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Global Cartera Legal</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
 
           {/* Menú: Catálogos (Solo despliega menú al dar clic, no navega directamente) */}
@@ -395,6 +487,33 @@ export default function Header({
                 </button>
               );
             })}
+
+            <div className="pt-2 border-t border-slate-200">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1 mb-1.5">
+                Cartera
+              </span>
+              <button
+                onClick={() => handleSelectModule('cartera', 'global')}
+                className="w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 mb-1 cursor-pointer"
+              >
+                <BarChart3 className="w-4 h-4 shrink-0 text-blue-600" />
+                <span>Global Cartera</span>
+              </button>
+              <button
+                onClick={() => handleSelectModule('cartera', 'totales')}
+                className="w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 mb-1 cursor-pointer"
+              >
+                <PieChart className="w-4 h-4 shrink-0 text-blue-600" />
+                <span>Totales De Cartera</span>
+              </button>
+              <button
+                onClick={() => handleSelectModule('cartera', 'legal')}
+                className="w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 mb-1 cursor-pointer"
+              >
+                <ShieldAlert className="w-4 h-4 shrink-0 text-blue-600" />
+                <span>Global Cartera Legal</span>
+              </button>
+            </div>
 
             <div className="pt-2 border-t border-slate-200">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1 mb-1.5">
