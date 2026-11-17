@@ -18,6 +18,11 @@ import {
   Link2,
   CreditCard,
   Percent,
+  SlidersHorizontal,
+  Target,
+  KeyRound,
+  Wrench,
+  Send,
 } from 'lucide-react';
 
 export type ActiveAppModule =
@@ -80,16 +85,16 @@ export default function Header({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const userDropdownRef = useRef<HTMLDivElement>(null);
-  const catalogosDropdownRef = useRef<HTMLDivElement>(null);
-  const catalogosTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const sistemaDropdownRef = useRef<HTMLDivElement>(null);
+  const sistemaTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleCatalogosEnter = () => {
-    if (catalogosTimeoutRef.current) clearTimeout(catalogosTimeoutRef.current);
+  const handleSistemaEnter = () => {
+    if (sistemaTimeoutRef.current) clearTimeout(sistemaTimeoutRef.current);
     setCatalogosOpen(true);
   };
 
-  const handleCatalogosLeave = () => {
-    catalogosTimeoutRef.current = setTimeout(() => {
+  const handleSistemaLeave = () => {
+    sistemaTimeoutRef.current = setTimeout(() => {
       setCatalogosOpen(false);
     }, 180);
   };
@@ -100,14 +105,14 @@ export default function Header({
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
         setUserDropdownOpen(false);
       }
-      if (catalogosDropdownRef.current && !catalogosDropdownRef.current.contains(event.target as Node)) {
+      if (sistemaDropdownRef.current && !sistemaDropdownRef.current.contains(event.target as Node)) {
         setCatalogosOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      if (catalogosTimeoutRef.current) clearTimeout(catalogosTimeoutRef.current);
+      if (sistemaTimeoutRef.current) clearTimeout(sistemaTimeoutRef.current);
     };
   }, []);
 
@@ -202,41 +207,45 @@ export default function Header({
           </button>
 
 
-          {/* Menú: Catálogos (Desplegable limpio al pasar el mouse o dar clic) */}
+          {/* Menú Principal: Sistema (Menú desplegable idéntico al sistema legado) */}
           <div
             className="relative"
-            ref={catalogosDropdownRef}
-            onMouseEnter={handleCatalogosEnter}
-            onMouseLeave={handleCatalogosLeave}
+            ref={sistemaDropdownRef}
+            onMouseEnter={handleSistemaEnter}
+            onMouseLeave={handleSistemaLeave}
           >
             <button
               type="button"
-              onClick={() => {
-                handleSelectModule('catalogos');
-                setCatalogosOpen(false);
-              }}
+              onClick={() => setCatalogosOpen(!catalogosOpen)}
               className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
-                activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
+                activeModule === 'catalogos' ||
+                activeModule === 'configuracion' ||
+                activeModule === 'reglas' ||
+                catalogosOpen
                   ? 'bg-blue-600 text-white shadow-xs'
-                  : catalogosOpen
-                  ? 'bg-slate-100 text-slate-900'
                   : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
               }`}
-              title="Catálogos del Sistema"
+              title="Menú Sistema"
             >
-              <FolderKanban
+              <SlidersHorizontal
                 className={`w-4 h-4 ${
-                  activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
+                  activeModule === 'catalogos' ||
+                  activeModule === 'configuracion' ||
+                  activeModule === 'reglas' ||
+                  catalogosOpen
                     ? 'text-white'
                     : 'text-slate-500'
                 }`}
               />
-              <span>Catálogos</span>
+              <span>Sistema</span>
               <ChevronDown
                 className={`w-3.5 h-3.5 transition-transform duration-200 ${
                   catalogosOpen ? 'rotate-180' : ''
                 } ${
-                  activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
+                  activeModule === 'catalogos' ||
+                  activeModule === 'configuracion' ||
+                  activeModule === 'reglas' ||
+                  catalogosOpen
                     ? 'text-white'
                     : 'text-slate-400'
                 }`}
@@ -245,61 +254,120 @@ export default function Header({
 
             {catalogosOpen && (
               <div
-                className="absolute left-0 mt-1 w-52 bg-white text-slate-800 border border-slate-200/90 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in-50 zoom-in-95 duration-100 select-none"
-                onMouseEnter={handleCatalogosEnter}
-                onMouseLeave={handleCatalogosLeave}
+                className="absolute left-0 mt-1 w-56 bg-white text-slate-800 border border-slate-200/90 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in-50 zoom-in-95 duration-100 select-none"
+                onMouseEnter={handleSistemaEnter}
+                onMouseLeave={handleSistemaLeave}
               >
-                {/* Opción 1: Abrir todo el módulo con las 15 pestañas */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSelectModule('catalogos');
-                    setCatalogosOpen(false);
-                  }}
-                  className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer mb-1 ${
-                    activeModule === 'catalogos'
-                      ? 'bg-blue-50 text-blue-700 font-bold'
-                      : 'text-slate-800 hover:bg-slate-100'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <FolderKanban className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Ver Todos los Catálogos</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-slate-400 font-bold">15</span>
-                </button>
-
-                <div className="h-px bg-slate-100 my-1" />
-
-                {/* Submódulos directos */}
                 <div className="space-y-0.5 text-xs">
-                  {[
-                    { id: 'usuarios', label: 'Usuarios', icon: Users },
-                    { id: 'coordinadores', label: 'Coordinadores', icon: UserCheck },
-                    { id: 'sucursales', label: 'Sucursales', icon: Building2 },
-                    { id: 'accesos_coordinador', label: 'Accesos x Coord.', icon: Link2 },
-                    { id: 'funciones_usuario', label: 'Funciones x Usuario', icon: ShieldCheck },
-                    { id: 'condiciones_producto', label: 'Condiciones Producto', icon: CreditCard },
-                    { id: 'cuentas_bancarias', label: 'Cuentas Bancarias', icon: Building },
-                    { id: 'niveles_distribuidor', label: 'Niveles Distribuidor', icon: Award },
-                    { id: 'comisiones', label: 'Comisiones', icon: Percent },
-                  ].map((item) => {
-                    const ItemIcon = item.icon;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => {
-                          handleSelectModule('catalogos', item.id);
-                          setCatalogosOpen(false);
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2 transition cursor-pointer"
-                      >
-                        <ItemIcon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="truncate">{item.label}</span>
-                      </button>
-                    );
-                  })}
+                  {/* 1. Metas Colocacion Sucs */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('sucursales');
+                      setCatalogosOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <Target className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Metas Colocacion Sucs</span>
+                  </button>
+
+                  {/* 2. Catálogos (Abre la pantalla de Catálogos con sus 15 pestañas completas) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('catalogos');
+                      setCatalogosOpen(false);
+                    }}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-lg font-bold flex items-center justify-between transition cursor-pointer ${
+                      activeModule === 'catalogos'
+                        ? 'bg-blue-50 text-blue-700 font-bold'
+                        : 'text-slate-800 hover:text-blue-600 hover:bg-blue-50/70'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <FolderKanban className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <span>Catálogos</span>
+                    </div>
+                  </button>
+
+                  {/* 3. Promotores */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('asesores');
+                      setCatalogosOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Promotores</span>
+                  </button>
+
+                  {/* 4. Accesos a Cuentas */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('catalogos', 'cuentas_bancarias');
+                      setCatalogosOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <KeyRound className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Accesos a Cuentas</span>
+                  </button>
+
+                  {/* 5. Utilerias */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('integraciones');
+                      setCatalogosOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <Wrench className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Utilerias</span>
+                  </button>
+
+                  {/* 6. Utilerias Administrador */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('configuracion');
+                      setCatalogosOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Utilerias Administrador</span>
+                  </button>
+
+                  {/* 7. Parametros */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('reglas');
+                      setCatalogosOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Parametros</span>
+                  </button>
+
+                  {/* 8. SmsListado */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('notificaciones');
+                      setCatalogosOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <Send className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>SmsListado</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -413,39 +481,32 @@ export default function Header({
 
             <div className="pt-2 border-t border-slate-200">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1 mb-1.5">
-                Catálogos (15 Submódulos)
+                Sistema
               </span>
               <button
                 onClick={() => handleSelectModule('catalogos')}
-                className={`w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition text-left cursor-pointer mb-1.5 ${
+                className={`w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition text-left cursor-pointer mb-1 ${
                   activeModule === 'catalogos'
                     ? 'bg-blue-600 text-white font-bold'
                     : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 <FolderKanban className="w-4 h-4 shrink-0 text-blue-600" />
-                <span className="truncate">Ver Panel de Catálogos (15)</span>
+                <span className="truncate">Catálogos</span>
               </button>
               <button
-                onClick={() => handleSelectModule('catalogos', 'usuarios')}
+                onClick={() => handleSelectModule('configuracion')}
                 className="w-full p-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 mb-1 cursor-pointer"
               >
-                <Users className="w-4 h-4 shrink-0 text-slate-500" />
-                <span>Usuarios</span>
+                <ShieldCheck className="w-4 h-4 shrink-0 text-slate-500" />
+                <span>Utilerías Administrador</span>
               </button>
               <button
-                onClick={() => handleSelectModule('catalogos', 'sucursales')}
-                className="w-full p-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 mb-1 cursor-pointer"
-              >
-                <Building2 className="w-4 h-4 shrink-0 text-slate-500" />
-                <span>Sucursales</span>
-              </button>
-              <button
-                onClick={() => handleSelectModule('catalogos', 'coordinadores')}
+                onClick={() => handleSelectModule('reglas')}
                 className="w-full p-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 cursor-pointer"
               >
-                <UserCheck className="w-4 h-4 shrink-0 text-slate-500" />
-                <span>Coordinadores</span>
+                <SlidersHorizontal className="w-4 h-4 shrink-0 text-slate-500" />
+                <span>Parámetros</span>
               </button>
             </div>
           </div>
