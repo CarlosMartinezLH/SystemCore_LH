@@ -165,83 +165,77 @@ export default function CatalogosView({
   return (
     <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-3 sm:p-5 lg:p-6 space-y-4">
       {/* =========================================================================
-          1. HEADER PRINCIPAL DEL MÓDULO CATÁLOGOS
+          1. HEADER PRINCIPAL Y NAVEGACIÓN DE CATÁLOGOS (IDÉNTICO AL RESTO DEL CORE)
          ========================================================================= */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-200/80">
+          <div className="p-2 rounded-xl bg-blue-50 text-blue-600 border border-blue-200/80 shrink-0">
             <Layers className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
-                Sistema Core • Catálogos Institucionales
+                Sistema Core • Catálogos
+              </span>
+              <span className="font-mono text-[11px] font-bold text-slate-500">
+                Sucursal: {currentUser?.branch || 'Todas'}
               </span>
             </div>
-            <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-0.5">
-              Administración de Catálogos Maestros
+            <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight mt-0.5">
+              Administración de Catálogos
             </h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-slate-500 hidden sm:inline">3 Catálogos Principales</span>
-          <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-          <span className="font-mono text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">
-            Sucursal: {currentUser?.branch || 'Todas'}
-          </span>
-        </div>
-      </div>
-
-      {/* =========================================================================
-          2. TAB BAR DE 3 CATÁLOGOS (SUCURSALES, USUARIOS, COORDINADORES)
-         ========================================================================= */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-1.5 shadow-2xs">
-        <div className="flex items-center gap-1 overflow-x-auto scrollbar-thin pb-1 text-xs select-none">
+        {/* Tab Switcher Segmented Control (Diseño institucional idéntico a CoordinadoresView, ConfiguracionView, etc.) */}
+        <div className="inline-flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80 gap-1 text-xs select-none shrink-0 overflow-x-auto">
           {CATALOGOS_TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
+            const count =
+              tab.id === 'sucursales'
+                ? sucursales.length
+                : tab.id === 'usuarios'
+                ? usuarios.length
+                : coordinadores.length;
+
             return (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-xl font-bold transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                    ? 'bg-white text-blue-700 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
                 title={tab.label}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                <Icon
+                  className={`w-3.5 h-3.5 ${
+                    isActive
+                      ? tab.id === 'sucursales'
+                        ? 'text-blue-600'
+                        : tab.id === 'usuarios'
+                        ? 'text-indigo-600'
+                        : 'text-emerald-600'
+                      : 'text-slate-400'
+                  }`}
+                />
                 <span>{tab.label}</span>
-                {tab.id === 'sucursales' && (
-                  <span
-                    className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
-                      isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-                    }`}
-                  >
-                    {sucursales.length}
-                  </span>
-                )}
-                {tab.id === 'usuarios' && (
-                  <span
-                    className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
-                      isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-                    }`}
-                  >
-                    {usuarios.length}
-                  </span>
-                )}
-                {tab.id === 'coordinadores' && (
-                  <span
-                    className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
-                      isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-                    }`}
-                  >
-                    {coordinadores.length}
-                  </span>
-                )}
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                    isActive
+                      ? tab.id === 'sucursales'
+                        ? 'bg-blue-50 text-blue-700'
+                        : tab.id === 'usuarios'
+                        ? 'bg-indigo-50 text-indigo-700'
+                        : 'bg-emerald-50 text-emerald-700'
+                      : 'bg-slate-200/80 text-slate-600'
+                  }`}
+                >
+                  {count}
+                </span>
               </button>
             );
           })}

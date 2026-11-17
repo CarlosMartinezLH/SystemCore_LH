@@ -86,18 +86,6 @@ export default function Header({
 
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const catalogosDropdownRef = useRef<HTMLDivElement>(null);
-  const catalogosTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleCatalogosEnter = () => {
-    if (catalogosTimeoutRef.current) clearTimeout(catalogosTimeoutRef.current);
-    setCatalogosOpen(true);
-  };
-
-  const handleCatalogosLeave = () => {
-    catalogosTimeoutRef.current = setTimeout(() => {
-      setCatalogosOpen(false);
-    }, 180);
-  };
 
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
@@ -112,7 +100,6 @@ export default function Header({
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      if (catalogosTimeoutRef.current) clearTimeout(catalogosTimeoutRef.current);
     };
   }, []);
 
@@ -207,18 +194,22 @@ export default function Header({
           </button>
 
 
-          {/* Menú: Catálogos (Solo Sucursales, Usuarios y Coordinadores) */}
+          {/* Menú: Catálogos (Solo Sucursales, Usuarios y Coordinadores) - Apertura por CLIC */}
           <div
             className="relative"
             ref={catalogosDropdownRef}
-            onMouseEnter={handleCatalogosEnter}
-            onMouseLeave={handleCatalogosLeave}
           >
             <button
               type="button"
               onClick={() => {
-                handleSelectModule('catalogos');
-                setCatalogosOpen(false);
+                if (
+                  activeModule !== 'catalogos' &&
+                  activeModule !== 'coordinadores' &&
+                  activeModule !== 'sucursales'
+                ) {
+                  handleSelectModule('catalogos');
+                }
+                setCatalogosOpen((prev) => !prev);
               }}
               className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
                 activeModule === 'catalogos' ||
@@ -257,8 +248,6 @@ export default function Header({
             {catalogosOpen && (
               <div
                 className="absolute left-0 mt-1 w-44 bg-white text-slate-800 border border-slate-200/90 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in-50 zoom-in-95 duration-100 select-none"
-                onMouseEnter={handleCatalogosEnter}
-                onMouseLeave={handleCatalogosLeave}
               >
                 <div className="space-y-0.5 text-xs">
                   {/* 1. Sucursales */}
