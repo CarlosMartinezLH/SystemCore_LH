@@ -14,6 +14,10 @@ import {
   FolderKanban,
   Award,
   Building2,
+  UserCheck,
+  Link2,
+  CreditCard,
+  Percent,
 } from 'lucide-react';
 
 export type ActiveAppModule =
@@ -36,12 +40,13 @@ export type ActiveAppModule =
   | 'notificaciones'
   | 'lanapp'
   | 'asesores'
-  | 'reglas';
+  | 'reglas'
+  | 'catalogos';
 
 interface HeaderProps {
   currentUser: UserSession;
   activeModule: ActiveAppModule;
-  onModuleChange: (mod: ActiveAppModule) => void;
+  onModuleChange: (mod: ActiveAppModule, subTab?: string) => void;
   onLogout: () => void;
   onOpenNewLead?: () => void;
   onToggleMobile?: () => void;
@@ -93,8 +98,8 @@ export default function Header({
     };
   }, []);
 
-  const handleSelectModule = (mod: ActiveAppModule) => {
-    onModuleChange(mod);
+  const handleSelectModule = (mod: ActiveAppModule, subTab?: string) => {
+    onModuleChange(mod, subTab);
     setMobileMenuOpen(false);
   };
 
@@ -184,75 +189,126 @@ export default function Header({
           </button>
 
 
-          {/* Menú Desplegable: Catálogos */}
+          {/* Menú: Catálogos (15 Submódulos Oficiales del Sistema) */}
           <div className="relative" ref={catalogosDropdownRef}>
-            <button
-              type="button"
-              onClick={() => setCatalogosOpen(!catalogosOpen)}
-              className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
-                activeModule === 'coordinadores' || activeModule === 'sucursales'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : catalogosOpen
-                  ? 'bg-slate-100 text-slate-900'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <FolderKanban
-                className={`w-4 h-4 ${
-                  activeModule === 'coordinadores' || activeModule === 'sucursales' ? 'text-white' : 'text-slate-500'
+            <div className="inline-flex items-center rounded-lg shadow-2xs">
+              <button
+                type="button"
+                onClick={() => {
+                  handleSelectModule('catalogos');
+                  setCatalogosOpen(false);
+                }}
+                className={`px-3 py-1.5 rounded-l-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+                  activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
                 }`}
-              />
-              <span>Catálogos</span>
-              <ChevronDown
-                className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                  catalogosOpen ? 'rotate-180' : ''
+                title="Abrir Catálogos del Sistema"
+              >
+                <FolderKanban
+                  className={`w-4 h-4 ${
+                    activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
+                      ? 'text-white'
+                      : 'text-slate-500'
+                  }`}
+                />
+                <span>Catálogos</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                    activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-slate-100 text-slate-600'
+                  }`}
+                >
+                  15
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCatalogosOpen(!catalogosOpen)}
+                className={`px-1.5 py-1.5 rounded-r-lg text-xs inline-flex items-center transition active:scale-95 cursor-pointer border-l ${
+                  activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
+                    ? 'bg-blue-600 text-white border-blue-500 hover:bg-blue-700'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100 border-slate-200'
                 }`}
-              />
-            </button>
+                title="Desplegar accesos directos a submódulos de catálogos"
+              >
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    catalogosOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+            </div>
 
             {catalogosOpen && (
-              <div className="absolute left-0 mt-1.5 w-48 bg-white text-slate-800 border border-slate-200 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in">
+              <div className="absolute left-0 mt-1.5 w-64 bg-white text-slate-800 border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in max-h-[82vh] overflow-y-auto">
+                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Catálogos del Sistema (15)
+                </div>
+
+                {/* Opción Principal: Todos los Catálogos */}
                 <button
                   type="button"
                   onClick={() => {
-                    handleSelectModule('sucursales');
+                    handleSelectModule('catalogos');
                     setCatalogosOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                    activeModule === 'sucursales'
-                      ? 'bg-blue-50 text-blue-700 font-bold'
-                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition cursor-pointer mb-1 ${
+                    activeModule === 'catalogos'
+                      ? 'bg-blue-50 text-blue-700 font-bold border border-blue-100'
+                      : 'text-slate-800 hover:bg-slate-100'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-blue-600" />
-                    <span>Sucursales</span>
+                    <FolderKanban className="w-4 h-4 text-blue-600" />
+                    <span>Ver Panel de Catálogos</span>
                   </div>
-                  {activeModule === 'sucursales' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
-                  )}
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-blue-100 text-blue-800 font-mono font-bold">
+                    15 pestañas
+                  </span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSelectModule('coordinadores');
-                    setCatalogosOpen(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                    activeModule === 'coordinadores'
-                      ? 'bg-blue-50 text-blue-700 font-bold'
-                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-blue-600" />
-                    <span>Coordinadores</span>
-                  </div>
-                  {activeModule === 'coordinadores' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
-                  )}
-                </button>
+                <div className="h-px bg-slate-100 my-1" />
+
+                {/* Accesos directos a pestañas individuales en el orden exacto */}
+                <div className="space-y-0.5">
+                  {[
+                    { id: 'usuarios', label: 'Usuarios (Personal)', icon: Users, badge: 'Ppal' },
+                    { id: 'coordinadores', label: 'Coordinadores', icon: UserCheck },
+                    { id: 'accesos_coordinador', label: 'Accesos x Coordinador', icon: Link2 },
+                    { id: 'funciones_usuario', label: 'Funciones x Usuario', icon: ShieldCheck },
+                    { id: 'sucursales', label: 'Sucursales', icon: Building2 },
+                    { id: 'condiciones_producto', label: 'Condiciones de Producto', icon: CreditCard },
+                    { id: 'cuentas_bancarias', label: 'Cuentas Bancarias', icon: Building2 },
+                    { id: 'niveles_distribuidor', label: 'Niveles Distribuidor', icon: Award },
+                    { id: 'comisiones', label: 'Comisiones', icon: Percent },
+                    { id: 'gestores', label: 'Gestores de Cobranza', icon: UserCheck },
+                  ].map((item) => {
+                    const ItemIcon = item.icon;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          handleSelectModule('catalogos', item.id);
+                          setCatalogosOpen(false);
+                        }}
+                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <ItemIcon className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                          <span className="truncate">{item.label}</span>
+                        </div>
+                        {item.badge && (
+                          <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
@@ -365,29 +421,39 @@ export default function Header({
 
             <div className="pt-2 border-t border-slate-200">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1 mb-1.5">
-                Catálogos
+                Catálogos (15 Submódulos)
               </span>
               <button
-                onClick={() => handleSelectModule('sucursales')}
+                onClick={() => handleSelectModule('catalogos')}
                 className={`w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition text-left cursor-pointer mb-1.5 ${
-                  activeModule === 'sucursales'
+                  activeModule === 'catalogos'
                     ? 'bg-blue-600 text-white font-bold'
                     : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <Building2 className="w-4 h-4 shrink-0 text-blue-600" />
-                <span className="truncate">Sucursales</span>
+                <FolderKanban className="w-4 h-4 shrink-0 text-blue-600" />
+                <span className="truncate">Ver Panel de Catálogos (15)</span>
               </button>
               <button
-                onClick={() => handleSelectModule('coordinadores')}
-                className={`w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition text-left cursor-pointer ${
-                  activeModule === 'coordinadores'
-                    ? 'bg-blue-600 text-white font-bold'
-                    : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
-                }`}
+                onClick={() => handleSelectModule('catalogos', 'usuarios')}
+                className="w-full p-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 mb-1 cursor-pointer"
               >
-                <Users className="w-4 h-4 shrink-0 text-blue-600" />
-                <span className="truncate">Coordinadores</span>
+                <Users className="w-4 h-4 shrink-0 text-slate-500" />
+                <span>Usuarios</span>
+              </button>
+              <button
+                onClick={() => handleSelectModule('catalogos', 'sucursales')}
+                className="w-full p-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 mb-1 cursor-pointer"
+              >
+                <Building2 className="w-4 h-4 shrink-0 text-slate-500" />
+                <span>Sucursales</span>
+              </button>
+              <button
+                onClick={() => handleSelectModule('catalogos', 'coordinadores')}
+                className="w-full p-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 cursor-pointer"
+              >
+                <UserCheck className="w-4 h-4 shrink-0 text-slate-500" />
+                <span>Coordinadores</span>
               </button>
             </div>
           </div>

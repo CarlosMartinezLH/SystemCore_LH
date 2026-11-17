@@ -12,6 +12,7 @@ import CoreDashboard from '@/components/CoreDashboard';
 import PersonasView from '@/components/PersonasView';
 import CoordinadoresView from '@/components/CoordinadoresView';
 import SucursalesView from '@/components/SucursalesView';
+import CatalogosView, { CatalogoTab } from '@/components/CatalogosView';
 import DistribuidoresView from '@/components/DistribuidoresView';
 import RHView from '@/components/RHView';
 import DispersionView from '@/components/DispersionView';
@@ -58,6 +59,7 @@ function SystemCoreApp() {
 
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
   const [activeModule, setActiveModule] = useState<ActiveAppModule>('core_dashboard');
+  const [catalogosActiveTab, setCatalogosActiveTab] = useState<CatalogoTab>('usuarios');
   const [selectedProspectId, setSelectedProspectId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
@@ -328,9 +330,12 @@ function SystemCoreApp() {
         <Header
           currentUser={currentUser}
           activeModule={activeModule}
-          onModuleChange={(mod) => {
+          onModuleChange={(mod, subTab) => {
             setSelectedProspectId(null);
             setActiveModule(mod);
+            if (subTab) {
+              setCatalogosActiveTab(subTab as CatalogoTab);
+            }
           }}
           onLogout={handleLogout}
           onOpenNewLead={() => setIsNewLeadOpen(true)}
@@ -351,6 +356,12 @@ function SystemCoreApp() {
                 onNavigateToGestoria={() => setActiveModule('gestoria')}
                 onNavigateToPLD={() => setActiveModule('pld')}
               />
+            ) : activeModule === 'catalogos' ? (
+              <CatalogosView
+                currentUser={currentUser}
+                initialTab={catalogosActiveTab}
+                onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
+              />
             ) : activeModule === 'mesa_credito' ? (
               <MesaCreditoView />
             ) : activeModule === 'gestoria' ? (
@@ -364,12 +375,17 @@ function SystemCoreApp() {
             ) : activeModule === 'personas' ? (
               <PersonasView currentUser={currentUser} />
             ) : activeModule === 'coordinadores' ? (
-              <CoordinadoresView
+              <CatalogosView
                 currentUser={currentUser}
+                initialTab="coordinadores"
                 onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
               />
             ) : activeModule === 'sucursales' ? (
-              <SucursalesView currentUser={currentUser} />
+              <CatalogosView
+                currentUser={currentUser}
+                initialTab="sucursales"
+                onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
+              />
             ) : activeModule === 'distribuidores' ? (
               <DistribuidoresView currentUser={currentUser} />
             ) : activeModule === 'rh' ? (

@@ -353,7 +353,7 @@ export default function CoordinadoresView({
     <div className="flex-1 bg-slate-50 text-slate-800 flex flex-col min-h-0 overflow-y-auto font-sans p-4 lg:p-6 space-y-4">
       
       {/* ======================================================== */}
-      {/* 1. ENCABEZADO Y SELECTOR DE PESTAÑAS (SISTEMA ANTERIOR)    */}
+      {/* 1. ENCABEZADO (CATÁLOGO DE COORDINADORES)                 */}
       {/* ======================================================== */}
       <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -363,7 +363,7 @@ export default function CoordinadoresView({
             </span>
             <div>
               <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <span>Catálogo de Coordinadores y Control de Accesos</span>
+                <span>Catálogo de Coordinadores</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-50 text-blue-700 border border-blue-200">
                   {enrichedCoordinadores.length} Registros
                 </span>
@@ -372,55 +372,10 @@ export default function CoordinadoresView({
           </div>
         </div>
 
-        {/* SUB-TABS INTERACTIVAS */}
-        <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80 gap-1 text-xs">
-          <button
-            type="button"
-            onClick={() => setActiveTab('coordinadores')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'coordinadores'
-                ? 'bg-white text-blue-700 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <UserCheck className="w-3.5 h-3.5" />
-            <span>Coordinadores</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-700 font-mono">
-              {enrichedCoordinadores.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('accesos')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'accesos'
-                ? 'bg-white text-blue-700 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Link2 className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Accesos x Coordinador</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-indigo-50 text-indigo-700 font-mono">
-              {accesos.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('funciones')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'funciones'
-                ? 'bg-white text-blue-700 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Funciones x Usuario</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-700 font-mono font-bold">
-              18
-            </span>
-          </button>
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <span className="bg-slate-100 px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold text-slate-700">
+            Sucursal: {currentUser?.branch || 'Todas'}
+          </span>
         </div>
       </div>
 
