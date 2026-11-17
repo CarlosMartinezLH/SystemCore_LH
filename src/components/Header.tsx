@@ -14,8 +14,6 @@ import {
   FolderKanban,
   Award,
   Building2,
-  ShoppingBag,
-  ExternalLink,
 } from 'lucide-react';
 
 export type ActiveAppModule =
@@ -185,21 +183,6 @@ export default function Header({
             <span>Distribuidores</span>
           </button>
 
-          {/* LanaTienda Core */}
-          <button
-            type="button"
-            onClick={() => handleSelectModule('lanatienda')}
-            className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
-              activeModule === 'lanatienda'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <ShoppingBag
-              className={`w-4 h-4 ${activeModule === 'lanatienda' ? 'text-white' : 'text-slate-500'}`}
-            />
-            <span>LanaTienda</span>
-          </button>
 
           {/* Menú Desplegable: Catálogos */}
           <div className="relative" ref={catalogosDropdownRef}>
@@ -275,20 +258,8 @@ export default function Header({
           </div>
         </nav>
 
-        {/* Right Controls: Ver Tienda, User Profile & Mobile Toggle */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          {/* Direct link to public store */}
-          <a
-            href="/tienda"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold transition shadow-xs cursor-pointer"
-            title="Abrir tienda de comercio electrónico en el navegador"
-          >
-            <ShoppingBag className="w-3.5 h-3.5 text-amber-600" />
-            <span>Ver Tienda</span>
-            <ExternalLink className="w-3 h-3 text-amber-600" />
-          </a>
+        {/* Right Controls: User Profile & Mobile Toggle */}
+        <div className="flex items-center gap-2 shrink-0">
 
           {/* User Profile Avatar Pill */}
           <div className="relative" ref={userDropdownRef}>
