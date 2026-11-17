@@ -32,6 +32,7 @@ export type ActiveAppModule =
   | 'personas'
   | 'coordinadores'
   | 'sucursales'
+  | 'usuarios'
   | 'distribuidores'
   | 'gestoria'
   | 'reportes'
@@ -194,7 +195,7 @@ export default function Header({
           </button>
 
 
-          {/* Menú: Catálogos (Solo Sucursales, Usuarios y Coordinadores) - Apertura por CLIC */}
+          {/* Menú: Catálogos (Solo despliega menú al dar clic, no navega directamente) */}
           <div
             className="relative"
             ref={catalogosDropdownRef}
@@ -202,19 +203,13 @@ export default function Header({
             <button
               type="button"
               onClick={() => {
-                if (
-                  activeModule !== 'catalogos' &&
-                  activeModule !== 'coordinadores' &&
-                  activeModule !== 'sucursales'
-                ) {
-                  handleSelectModule('catalogos');
-                }
                 setCatalogosOpen((prev) => !prev);
               }}
               className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
                 activeModule === 'catalogos' ||
                 activeModule === 'coordinadores' ||
-                activeModule === 'sucursales'
+                activeModule === 'sucursales' ||
+                activeModule === 'usuarios'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : catalogosOpen
                   ? 'bg-slate-100 text-slate-900'
@@ -226,7 +221,8 @@ export default function Header({
                 className={`w-4 h-4 ${
                   activeModule === 'catalogos' ||
                   activeModule === 'coordinadores' ||
-                  activeModule === 'sucursales'
+                  activeModule === 'sucursales' ||
+                  activeModule === 'usuarios'
                     ? 'text-white'
                     : 'text-slate-500'
                 }`}
@@ -238,7 +234,8 @@ export default function Header({
                 } ${
                   activeModule === 'catalogos' ||
                   activeModule === 'coordinadores' ||
-                  activeModule === 'sucursales'
+                  activeModule === 'sucursales' ||
+                  activeModule === 'usuarios'
                     ? 'text-white'
                     : 'text-slate-400'
                 }`}
@@ -254,7 +251,7 @@ export default function Header({
                   <button
                     type="button"
                     onClick={() => {
-                      handleSelectModule('catalogos', 'sucursales');
+                      handleSelectModule('sucursales');
                       setCatalogosOpen(false);
                     }}
                     className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
@@ -267,7 +264,7 @@ export default function Header({
                   <button
                     type="button"
                     onClick={() => {
-                      handleSelectModule('catalogos', 'usuarios');
+                      handleSelectModule('usuarios');
                       setCatalogosOpen(false);
                     }}
                     className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
@@ -280,7 +277,7 @@ export default function Header({
                   <button
                     type="button"
                     onClick={() => {
-                      handleSelectModule('catalogos', 'coordinadores');
+                      handleSelectModule('coordinadores');
                       setCatalogosOpen(false);
                     }}
                     className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
@@ -404,21 +401,21 @@ export default function Header({
                 Catálogos
               </span>
               <button
-                onClick={() => handleSelectModule('catalogos', 'sucursales')}
+                onClick={() => handleSelectModule('sucursales')}
                 className="w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 mb-1 cursor-pointer"
               >
                 <Building2 className="w-4 h-4 shrink-0 text-blue-600" />
                 <span>Sucursales</span>
               </button>
               <button
-                onClick={() => handleSelectModule('catalogos', 'usuarios')}
+                onClick={() => handleSelectModule('usuarios')}
                 className="w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 mb-1 cursor-pointer"
               >
                 <Users className="w-4 h-4 shrink-0 text-blue-600" />
                 <span>Usuarios</span>
               </button>
               <button
-                onClick={() => handleSelectModule('catalogos', 'coordinadores')}
+                onClick={() => handleSelectModule('coordinadores')}
                 className="w-full p-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 cursor-pointer"
               >
                 <UserCheck className="w-4 h-4 shrink-0 text-blue-600" />

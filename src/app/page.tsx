@@ -13,6 +13,7 @@ import PersonasView from '@/components/PersonasView';
 import CoordinadoresView from '@/components/CoordinadoresView';
 import SucursalesView from '@/components/SucursalesView';
 import CatalogosView, { CatalogoTab } from '@/components/CatalogosView';
+import UsuariosView from '@/components/UsuariosView';
 import DistribuidoresView from '@/components/DistribuidoresView';
 import RHView from '@/components/RHView';
 import DispersionView from '@/components/DispersionView';
@@ -356,12 +357,8 @@ function SystemCoreApp() {
                 onNavigateToGestoria={() => setActiveModule('gestoria')}
                 onNavigateToPLD={() => setActiveModule('pld')}
               />
-            ) : activeModule === 'catalogos' ? (
-              <CatalogosView
-                currentUser={currentUser}
-                initialTab={catalogosActiveTab}
-                onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
-              />
+            ) : activeModule === 'catalogos' || activeModule === 'usuarios' ? (
+              <UsuariosView currentUser={currentUser} />
             ) : activeModule === 'mesa_credito' ? (
               <MesaCreditoView />
             ) : activeModule === 'gestoria' ? (
@@ -375,17 +372,9 @@ function SystemCoreApp() {
             ) : activeModule === 'personas' ? (
               <PersonasView currentUser={currentUser} />
             ) : activeModule === 'coordinadores' ? (
-              <CatalogosView
-                currentUser={currentUser}
-                initialTab="coordinadores"
-                onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
-              />
+              <CoordinadoresView currentUser={currentUser} />
             ) : activeModule === 'sucursales' ? (
-              <CatalogosView
-                currentUser={currentUser}
-                initialTab="sucursales"
-                onNavigateToDistribuidores={() => setActiveModule('distribuidores')}
-              />
+              <SucursalesView currentUser={currentUser} />
             ) : activeModule === 'distribuidores' ? (
               <DistribuidoresView currentUser={currentUser} />
             ) : activeModule === 'rh' ? (

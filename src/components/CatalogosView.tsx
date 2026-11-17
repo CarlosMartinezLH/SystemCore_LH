@@ -187,58 +187,10 @@ export default function CatalogosView({
           </div>
         </div>
 
-        {/* Tab Switcher Segmented Control (Diseño institucional idéntico a CoordinadoresView, ConfiguracionView, etc.) */}
-        <div className="inline-flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80 gap-1 text-xs select-none shrink-0 overflow-x-auto">
-          {CATALOGOS_TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            const count =
-              tab.id === 'sucursales'
-                ? sucursales.length
-                : tab.id === 'usuarios'
-                ? usuarios.length
-                : coordinadores.length;
-
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
-                  isActive
-                    ? 'bg-white text-blue-700 shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-                title={tab.label}
-              >
-                <Icon
-                  className={`w-3.5 h-3.5 ${
-                    isActive
-                      ? tab.id === 'sucursales'
-                        ? 'text-blue-600'
-                        : tab.id === 'usuarios'
-                        ? 'text-indigo-600'
-                        : 'text-emerald-600'
-                      : 'text-slate-400'
-                  }`}
-                />
-                <span>{tab.label}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
-                    isActive
-                      ? tab.id === 'sucursales'
-                        ? 'bg-blue-50 text-blue-700'
-                        : tab.id === 'usuarios'
-                        ? 'bg-indigo-50 text-indigo-700'
-                        : 'bg-emerald-50 text-emerald-700'
-                      : 'bg-slate-200/80 text-slate-600'
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+        <div className="flex items-center gap-2 text-xs">
+          <span className="font-mono text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">
+            Sucursal: {currentUser?.branch || 'Todas'}
+          </span>
         </div>
       </div>
 
