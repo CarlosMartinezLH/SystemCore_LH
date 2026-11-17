@@ -81,6 +81,18 @@ export default function Header({
 
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const catalogosDropdownRef = useRef<HTMLDivElement>(null);
+  const catalogosTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleCatalogosEnter = () => {
+    if (catalogosTimeoutRef.current) clearTimeout(catalogosTimeoutRef.current);
+    setCatalogosOpen(true);
+  };
+
+  const handleCatalogosLeave = () => {
+    catalogosTimeoutRef.current = setTimeout(() => {
+      setCatalogosOpen(false);
+    }, 180);
+  };
 
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
@@ -95,6 +107,7 @@ export default function Header({
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      if (catalogosTimeoutRef.current) clearTimeout(catalogosTimeoutRef.current);
     };
   }, []);
 
@@ -189,101 +202,87 @@ export default function Header({
           </button>
 
 
-          {/* Menú: Catálogos (15 Submódulos Oficiales del Sistema) */}
-          <div className="relative" ref={catalogosDropdownRef}>
-            <div className="inline-flex items-center rounded-lg shadow-2xs">
-              <button
-                type="button"
-                onClick={() => {
-                  handleSelectModule('catalogos');
-                  setCatalogosOpen(false);
-                }}
-                className={`px-3 py-1.5 rounded-l-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+          {/* Menú: Catálogos (Desplegable limpio al pasar el mouse o dar clic) */}
+          <div
+            className="relative"
+            ref={catalogosDropdownRef}
+            onMouseEnter={handleCatalogosEnter}
+            onMouseLeave={handleCatalogosLeave}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                handleSelectModule('catalogos');
+                setCatalogosOpen(false);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+                activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : catalogosOpen
+                  ? 'bg-slate-100 text-slate-900'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+              title="Catálogos del Sistema"
+            >
+              <FolderKanban
+                className={`w-4 h-4 ${
                   activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'text-white'
+                    : 'text-slate-500'
                 }`}
-                title="Abrir Catálogos del Sistema"
-              >
-                <FolderKanban
-                  className={`w-4 h-4 ${
-                    activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
-                      ? 'text-white'
-                      : 'text-slate-500'
-                  }`}
-                />
-                <span>Catálogos</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                    activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
-                      ? 'bg-white/20 text-white'
-                      : 'bg-slate-100 text-slate-600'
-                  }`}
-                >
-                  15
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setCatalogosOpen(!catalogosOpen)}
-                className={`px-1.5 py-1.5 rounded-r-lg text-xs inline-flex items-center transition active:scale-95 cursor-pointer border-l ${
+              />
+              <span>Catálogos</span>
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                  catalogosOpen ? 'rotate-180' : ''
+                } ${
                   activeModule === 'catalogos' || activeModule === 'coordinadores' || activeModule === 'sucursales'
-                    ? 'bg-blue-600 text-white border-blue-500 hover:bg-blue-700'
-                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100 border-slate-200'
+                    ? 'text-white'
+                    : 'text-slate-400'
                 }`}
-                title="Desplegar accesos directos a submódulos de catálogos"
-              >
-                <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                    catalogosOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-            </div>
+              />
+            </button>
 
             {catalogosOpen && (
-              <div className="absolute left-0 mt-1.5 w-64 bg-white text-slate-800 border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in max-h-[82vh] overflow-y-auto">
-                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Catálogos del Sistema (15)
-                </div>
-
-                {/* Opción Principal: Todos los Catálogos */}
+              <div
+                className="absolute left-0 mt-1 w-52 bg-white text-slate-800 border border-slate-200/90 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in-50 zoom-in-95 duration-100 select-none"
+                onMouseEnter={handleCatalogosEnter}
+                onMouseLeave={handleCatalogosLeave}
+              >
+                {/* Opción 1: Abrir todo el módulo con las 15 pestañas */}
                 <button
                   type="button"
                   onClick={() => {
                     handleSelectModule('catalogos');
                     setCatalogosOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition cursor-pointer mb-1 ${
+                  className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer mb-1 ${
                     activeModule === 'catalogos'
-                      ? 'bg-blue-50 text-blue-700 font-bold border border-blue-100'
+                      ? 'bg-blue-50 text-blue-700 font-bold'
                       : 'text-slate-800 hover:bg-slate-100'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <FolderKanban className="w-4 h-4 text-blue-600" />
-                    <span>Ver Panel de Catálogos</span>
+                    <FolderKanban className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Ver Todos los Catálogos</span>
                   </div>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-blue-100 text-blue-800 font-mono font-bold">
-                    15 pestañas
-                  </span>
+                  <span className="text-[10px] font-mono text-slate-400 font-bold">15</span>
                 </button>
 
                 <div className="h-px bg-slate-100 my-1" />
 
-                {/* Accesos directos a pestañas individuales en el orden exacto */}
-                <div className="space-y-0.5">
+                {/* Submódulos directos */}
+                <div className="space-y-0.5 text-xs">
                   {[
-                    { id: 'usuarios', label: 'Usuarios (Personal)', icon: Users, badge: 'Ppal' },
+                    { id: 'usuarios', label: 'Usuarios', icon: Users },
                     { id: 'coordinadores', label: 'Coordinadores', icon: UserCheck },
-                    { id: 'accesos_coordinador', label: 'Accesos x Coordinador', icon: Link2 },
-                    { id: 'funciones_usuario', label: 'Funciones x Usuario', icon: ShieldCheck },
                     { id: 'sucursales', label: 'Sucursales', icon: Building2 },
-                    { id: 'condiciones_producto', label: 'Condiciones de Producto', icon: CreditCard },
-                    { id: 'cuentas_bancarias', label: 'Cuentas Bancarias', icon: Building2 },
+                    { id: 'accesos_coordinador', label: 'Accesos x Coord.', icon: Link2 },
+                    { id: 'funciones_usuario', label: 'Funciones x Usuario', icon: ShieldCheck },
+                    { id: 'condiciones_producto', label: 'Condiciones Producto', icon: CreditCard },
+                    { id: 'cuentas_bancarias', label: 'Cuentas Bancarias', icon: Building },
                     { id: 'niveles_distribuidor', label: 'Niveles Distribuidor', icon: Award },
                     { id: 'comisiones', label: 'Comisiones', icon: Percent },
-                    { id: 'gestores', label: 'Gestores de Cobranza', icon: UserCheck },
                   ].map((item) => {
                     const ItemIcon = item.icon;
                     return (
@@ -294,17 +293,10 @@ export default function Header({
                           handleSelectModule('catalogos', item.id);
                           setCatalogosOpen(false);
                         }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
+                        className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2 transition cursor-pointer"
                       >
-                        <div className="flex items-center gap-2 truncate">
-                          <ItemIcon className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                          <span className="truncate">{item.label}</span>
-                        </div>
-                        {item.badge && (
-                          <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                            {item.badge}
-                          </span>
-                        )}
+                        <ItemIcon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="truncate">{item.label}</span>
                       </button>
                     );
                   })}
