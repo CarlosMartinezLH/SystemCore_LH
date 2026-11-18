@@ -1115,12 +1115,14 @@ export default function GlobalCarteraView({
       )}
 
       {/* MODAL 2: ESTADO DE CUENTA OFICIAL (RÉPLICA EXACTA) */}
-      <EstadoCuentaDistribuidorModal
-        isOpen={isEstadoCuentaOpen}
-        onClose={() => setIsEstadoCuentaOpen(false)}
-        distribuidor={selectedItem}
-        currentUser={currentUser}
-      />
+      {isEstadoCuentaOpen && selectedItem && (
+        <EstadoCuentaDistribuidorModal
+          isOpen={isEstadoCuentaOpen}
+          onClose={() => setIsEstadoCuentaOpen(false)}
+          distribuidor={selectedItem}
+          currentUser={currentUser}
+        />
+      )}
 
       {/* MODAL 3: APLICAR ABONO */}
       {isAplicarAbonoOpen && selectedItem && (
@@ -1204,19 +1206,23 @@ export default function GlobalCarteraView({
       )}
 
       {/* MODAL 4: NOTAS DE COBRANZA / GESTIÓN (RÉPLICA EXACTA) */}
-      <NotasCarteraModal
-        isOpen={isNotasOpen}
-        onClose={() => setIsNotasOpen(false)}
-        distribuidor={selectedItem}
-        currentUser={currentUser}
-      />
+      {isNotasOpen && selectedItem && (
+        <NotasCarteraModal
+          isOpen={isNotasOpen}
+          onClose={() => setIsNotasOpen(false)}
+          distribuidor={selectedItem}
+          currentUser={currentUser}
+        />
+      )}
 
       {/* MODAL OFICIAL: RELACIÓN DE COBRANZA (RÉPLICA EXACTA) */}
-      <RelacionCobranzaModal
-        isOpen={isRelacionOpen}
-        onClose={() => setIsRelacionOpen(false)}
-        distribuidor={selectedItem}
-      />
+      {isRelacionOpen && selectedItem && (
+        <RelacionCobranzaModal
+          isOpen={isRelacionOpen}
+          onClose={() => setIsRelacionOpen(false)}
+          distribuidor={selectedItem}
+        />
+      )}
 
       {/* Floating Toast Feedback */}
       {toast && (

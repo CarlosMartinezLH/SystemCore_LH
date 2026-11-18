@@ -931,11 +931,13 @@ export default function DistribuidoresView({ currentUser }: DistribuidoresViewPr
       )}
 
       {/* MODAL 4: RELACIÓN DE COBRANZA */}
-      <RelacionCobranzaModal
-        isOpen={isRelacionOpen}
-        onClose={() => setIsRelacionOpen(false)}
-        distribuidor={selectedDist || distribuidores[0]}
-      />
+      {isRelacionOpen && (
+        <RelacionCobranzaModal
+          isOpen={isRelacionOpen}
+          onClose={() => setIsRelacionOpen(false)}
+          distribuidor={selectedDist || distribuidores[0]}
+        />
+      )}
 
       {/* MODAL 5: MENSAJES MASIVOS WHATSAPP */}
       <MensajesMasivosModal

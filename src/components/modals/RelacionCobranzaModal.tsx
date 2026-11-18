@@ -85,16 +85,14 @@ export default function RelacionCobranzaModal({
     };
   }, [isOpen]);
 
-  if (!isOpen || !mounted || !distribuidor) return null;
-
-  const numDist = Number(distribuidor.numeroDist ?? distribuidor.noDist ?? 9601);
-  const nombreDist = String(distribuidor.nombreCompleto ?? distribuidor.nombreDistribuidor ?? 'KAREN ADRIANA ONTIVEROS DIAZ');
-  const sucursal = String(distribuidor.sucursal ?? 'CHIHUAHUA');
-  const zona = String(distribuidor.zona ?? sucursal);
-  const nivel = String(distribuidor.distribuidorNivel ?? distribuidor.nivel ?? 'PLATA');
-  const saldoActual = Number(distribuidor.saldoActual ?? 68791.10);
-  const direccion = String(distribuidor.direccion ?? `ANTON MAKARENCO 138 TIERRA Y LIBERTAD, ${sucursal}, ${zona}`);
-  const lanapuntos = Number(distribuidor.lanapuntos ?? 16125.00);
+  const numDist = Number(distribuidor?.numeroDist ?? distribuidor?.noDist ?? 9601);
+  const nombreDist = String(distribuidor?.nombreCompleto ?? distribuidor?.nombreDistribuidor ?? 'KAREN ADRIANA ONTIVEROS DIAZ');
+  const sucursal = String(distribuidor?.sucursal ?? 'CHIHUAHUA');
+  const zona = String(distribuidor?.zona ?? sucursal);
+  const nivel = String(distribuidor?.distribuidorNivel ?? distribuidor?.nivel ?? 'PLATA');
+  const saldoActual = Number(distribuidor?.saldoActual ?? 68791.10);
+  const direccion = String(distribuidor?.direccion ?? `ANTON MAKARENCO 138 TIERRA Y LIBERTAD, ${sucursal}, ${zona}`);
+  const lanapuntos = Number(distribuidor?.lanapuntos ?? 16125.00);
 
   // Items de crédito: si es Karen Ontiveros usa los datos exactos del screenshot, si es otro distribuidor adapta dinámicamente
   const items = useMemo(() => {
@@ -593,6 +591,8 @@ export default function RelacionCobranzaModal({
       </div>
     </div>
   );
+
+  if (!isOpen || !mounted || !distribuidor) return null;
 
   return createPortal(modalContent, document.body);
 }

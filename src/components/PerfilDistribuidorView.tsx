@@ -575,11 +575,13 @@ export default function PerfilDistribuidorView({
       </div>
 
       {/* Modales Interactivos */}
-      <RelacionCobranzaModal
-        isOpen={isRelacionOpen}
-        onClose={() => setIsRelacionOpen(false)}
-        distribuidor={currentDv}
-      />
+      {isRelacionOpen && (
+        <RelacionCobranzaModal
+          isOpen={isRelacionOpen}
+          onClose={() => setIsRelacionOpen(false)}
+          distribuidor={currentDv}
+        />
+      )}
 
       <EstadoCuentaModal
         isOpen={isEstadoCuentaOpen}
