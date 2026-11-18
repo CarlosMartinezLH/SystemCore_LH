@@ -376,21 +376,67 @@ export default function GlobalCarteraView({
               />
             </div>
 
-            {/* Selector de Filtro de Cartera (Legacy dropdown replica) */}
-            <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200 font-medium">
-              <Filter className="w-3.5 h-3.5 text-blue-600" />
-              <span className="text-slate-500 font-bold">Filtro:</span>
-              <select
-                value={tipoFiltro}
-                onChange={(e) => setTipoFiltro(e.target.value as any)}
-                className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer text-xs uppercase"
+            {/* Segmented Filter de Cartera (Idéntico a DistribuidoresView y PersonasView) */}
+            <div className="inline-flex p-0.5 bg-slate-200/70 rounded-lg border border-slate-300/60 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => {
+                  setTipoFiltro('TODA');
+                  setCurrentPage(1);
+                }}
+                className={`px-2.5 py-1 rounded-md transition ${
+                  tipoFiltro === 'TODA'
+                    ? 'bg-white text-slate-900 shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
               >
-                <option value="TODA">TODA LA CARTERA</option>
-                <option value="VIGENTE">AL CORRIENTE (VIGENTE)</option>
-                <option value="ATRASO">CON ATRASO (EN MORA)</option>
-                <option value="LEGAL">CARTERA LEGAL</option>
-                <option value="LIQUIDADA">LIQUIDADA</option>
-              </select>
+                Toda
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTipoFiltro('VIGENTE');
+                  setCurrentPage(1);
+                }}
+                className={`px-2.5 py-1 rounded-md transition flex items-center gap-1.5 ${
+                  tipoFiltro === 'VIGENTE'
+                    ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span>Al Corriente</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTipoFiltro('ATRASO');
+                  setCurrentPage(1);
+                }}
+                className={`px-2.5 py-1 rounded-md transition flex items-center gap-1.5 ${
+                  tipoFiltro === 'ATRASO'
+                    ? 'bg-white text-rose-700 shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                <span>Con Atraso</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTipoFiltro('LEGAL');
+                  setCurrentPage(1);
+                }}
+                className={`px-2.5 py-1 rounded-md transition flex items-center gap-1.5 ${
+                  tipoFiltro === 'LEGAL'
+                    ? 'bg-white text-amber-700 shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                <span>Legal</span>
+              </button>
             </div>
           </div>
         </div>
@@ -653,28 +699,28 @@ export default function GlobalCarteraView({
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col min-h-0">
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-            {/* Encabezado Superior con Columnas Legadas */}
-            <thead className="bg-slate-100 text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-200">
+            {/* Encabezado Superior con Columnas Modernas */}
+            <thead className="bg-slate-100/95 backdrop-blur-xs text-slate-700 uppercase text-[10px] tracking-wider font-extrabold select-none border-b border-slate-200">
               <tr>
-                <th className="px-2.5 py-2 text-center w-10">Sel</th>
-                <th className="px-2.5 py-2">zonaId</th>
-                <th className="px-2.5 py-2">zona</th>
-                <th className="px-2.5 py-2">subzonaId</th>
-                <th className="px-2.5 py-2">subzona</th>
-                <th className="px-2.5 py-2 text-center">Contrato ID</th>
-                <th className="px-2.5 py-2 text-center">Distribuidor ID</th>
-                <th className="px-2.5 py-2 text-center">Numero Dist</th>
-                <th className="px-2.5 py-2 text-center">Persona ID</th>
-                <th className="px-2.5 py-2">Nombre Completo</th>
-                <th className="px-2.5 py-2 text-center">Distribuidor Nivel</th>
-                <th className="px-2.5 py-2 text-right">Importe Total</th>
-                <th className="px-2.5 py-2 text-right">Saldo Actual</th>
-                <th className="px-2.5 py-2 text-right">saldo Atrasado</th>
-                <th className="px-2.5 py-2 text-right">Linea Credito Adic</th>
-                <th className="px-2.5 py-2 text-right">Capital</th>
-                <th className="px-2.5 py-2 text-right">Interes</th>
-                <th className="px-2.5 py-2 text-right">Seguro</th>
-                <th className="px-2.5 py-2 text-right">IVA</th>
+                <th className="px-2.5 py-2.5 text-center w-10">Sel</th>
+                <th className="px-2.5 py-2.5">Zona ID</th>
+                <th className="px-2.5 py-2.5">Zona</th>
+                <th className="px-2.5 py-2.5">Subzona ID</th>
+                <th className="px-2.5 py-2.5">Subzona</th>
+                <th className="px-2.5 py-2.5 text-center">Contrato</th>
+                <th className="px-2.5 py-2.5 text-center">Distribuidor ID</th>
+                <th className="px-2.5 py-2.5 text-center">No. Dist</th>
+                <th className="px-2.5 py-2.5 text-center">Persona ID</th>
+                <th className="px-2.5 py-2.5">Nombre Distribuidor</th>
+                <th className="px-2.5 py-2.5 text-center">Nivel</th>
+                <th className="px-2.5 py-2.5 text-right">Importe Total</th>
+                <th className="px-2.5 py-2.5 text-right">Saldo Actual</th>
+                <th className="px-2.5 py-2.5 text-right">Saldo Atrasado</th>
+                <th className="px-2.5 py-2.5 text-right">Línea Crédito Adic</th>
+                <th className="px-2.5 py-2.5 text-right">Capital</th>
+                <th className="px-2.5 py-2.5 text-right">Interés</th>
+                <th className="px-2.5 py-2.5 text-right">Seguro</th>
+                <th className="px-2.5 py-2.5 text-right">IVA</th>
               </tr>
 
               {/* Fila de Filtros individuales por columna (Idéntico a imagen legada) */}
@@ -790,15 +836,14 @@ export default function GlobalCarteraView({
               ) : (
                 groupedData.map((sucGroup) => (
                   <React.Fragment key={sucGroup.sucursal}>
-                    {/* Encabezado Grupo 1: Sucursal (Idéntico a imagen legada) */}
-                    <tr className="bg-slate-200/90 text-slate-800 font-black text-xs border-y border-slate-300">
-                      <td colSpan={19} className="px-3 py-1.5">
+                    {/* Encabezado Grupo 1: Sucursal (Moderno) */}
+                    <tr className="bg-slate-100/90 text-slate-800 font-extrabold text-xs border-y border-slate-200">
+                      <td colSpan={19} className="px-3 py-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-slate-500 font-normal">-</span>
+                          <Building2 className="w-3.5 h-3.5 text-blue-600" />
                           <span>Sucursal: {sucGroup.sucursal}</span>
-                          <span className="text-[11px] font-normal text-slate-600">
-                            (Total sucursal:{' '}
-                            {sucGroup.coordinadores.reduce((acc, c) => acc + c.items.length, 0)} contratos)
+                          <span className="text-[10px] font-bold px-2 py-0.5 bg-white rounded-full border border-slate-200 text-slate-600">
+                            {sucGroup.coordinadores.reduce((acc, c) => acc + c.items.length, 0)} contratos
                           </span>
                         </div>
                       </td>
@@ -806,13 +851,13 @@ export default function GlobalCarteraView({
 
                     {sucGroup.coordinadores.map((coordGroup) => (
                       <React.Fragment key={`${sucGroup.sucursal}-${coordGroup.coordinador}`}>
-                        {/* Encabezado Grupo 2: Coordinador (Idéntico a imagen legada) */}
-                        <tr className="bg-slate-100/90 text-slate-800 font-bold text-xs border-y border-slate-200">
-                          <td colSpan={19} className="px-3 py-1.5 pl-6">
+                        {/* Encabezado Grupo 2: Coordinador (Moderno) */}
+                        <tr className="bg-slate-50/90 text-slate-800 font-bold text-xs border-y border-slate-200">
+                          <td colSpan={19} className="px-3 py-2 pl-6">
                             <div className="flex items-center gap-2">
-                              <input type="checkbox" className="w-3.5 h-3.5 rounded text-blue-600" />
+                              <UserCheck className="w-3.5 h-3.5 text-indigo-600" />
                               <span>Coordinador: {coordGroup.coordinador}</span>
-                              <span className="text-[10px] font-mono px-2 py-0.2 bg-white rounded-full border border-slate-300 text-slate-600">
+                              <span className="text-[10px] font-mono px-2 py-0.5 bg-white rounded-full border border-slate-200 text-slate-600 font-bold">
                                 {coordGroup.items.length} contratos
                               </span>
                             </div>
@@ -887,14 +932,14 @@ export default function GlobalCarteraView({
                               {/* Distribuidor Nivel */}
                               <td className="px-2.5 py-2 text-center">
                                 <span
-                                  className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-2xs ${
                                     c.distribuidorNivel === 'PLATINO' || c.distribuidorNivel === 'DIAMANTE'
-                                      ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                      ? 'bg-purple-50 text-purple-700 border-purple-200'
                                       : c.distribuidorNivel === 'ORO'
-                                      ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                      ? 'bg-amber-50 text-amber-800 border-amber-200'
                                       : c.distribuidorNivel === 'PLATA'
-                                      ? 'bg-slate-200 text-slate-700 border border-slate-300'
-                                      : 'bg-orange-50 text-orange-700 border border-orange-200'
+                                      ? 'bg-slate-100 text-slate-700 border-slate-200'
+                                      : 'bg-orange-50 text-orange-800 border-orange-200'
                                   }`}
                                 >
                                   {c.distribuidorNivel}
