@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { CarteraItem } from '@/lib/data/carteraData';
 import { DistribuidorCore } from '@/types/core';
 import {
@@ -69,7 +70,22 @@ export default function RelacionCobranzaModal({
   onClose,
   distribuidor,
 }: RelacionCobranzaModalProps) {
-  if (!isOpen || !distribuidor) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted || !distribuidor) return null;
 
   const numDist = Number(distribuidor.numeroDist ?? distribuidor.noDist ?? 9601);
   const nombreDist = String(distribuidor.nombreCompleto ?? distribuidor.nombreDistribuidor ?? 'KAREN ADRIANA ONTIVEROS DIAZ');
@@ -223,11 +239,34 @@ export default function RelacionCobranzaModal({
     XLSX.writeFile(wb, `relacion_cobranza_DV_${numDist}_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:p-0 print:bg-white print:static">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full my-auto overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-150 flex flex-col max-h-[96vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
+  const modalContent = (
+    <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-xs flex flex-col items-center justify-start p-2 sm:p-4 md:p-6 overflow-y-auto animate-in fade-in duration-150">
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #relacion-cobranza-print-area,
+          #relacion-cobranza-print-area * {
+            visibility: visible !important;
+          }
+          #relacion-cobranza-print-area {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 10mm !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: white !important;
+          }
+        }
+      `}</style>
+
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl my-auto overflow-hidden border border-slate-300 flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
         {/* Barra Superior con Controles (Oculta en Impresión) */}
-        <div className="p-3.5 bg-slate-100 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0 print:hidden">
+        <div className="sticky top-0 z-30 p-3.5 sm:px-6 bg-slate-100 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0 print:hidden shadow-xs">
           <div className="flex items-center gap-2">
             <span className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-200">
               <Layers className="w-4 h-4" />
@@ -276,7 +315,7 @@ export default function RelacionCobranzaModal({
         {/* ======================================================== */}
         {/* DOCUMENTO: RELACION DE COBRANZA (RÉPLICA EXACTA IMAGEN) */}
         {/* ======================================================== */}
-        <div className="p-6 sm:p-8 space-y-4 overflow-y-auto text-slate-800 font-sans text-xs bg-white flex-1 select-text">
+        <div id="relacion-cobranza-print-area" className="p-4 sm:p-8 space-y-4 overflow-y-auto text-slate-800 font-sans text-xs bg-white flex-1 select-text">
           {/* 1. Header con Logo, Sucursal y Título */}
           <div className="flex flex-wrap justify-between items-start border-b border-slate-300 pb-4 gap-4">
             <div>
@@ -554,4 +593,6 @@ export default function RelacionCobranzaModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

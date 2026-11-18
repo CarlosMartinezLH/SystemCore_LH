@@ -1,16 +1,71 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { DistribuidorCore } from '@/types/core';
+import { CarteraItem } from '@/lib/data/carteraData';
 import { UserSession } from '@/types/auth';
-import { Printer, X, FileText } from 'lucide-react';
-import { formatMoney } from '@/lib/utils/formatters';
+import { Printer, X, FileSpreadsheet, FileText } from 'lucide-react';
+import * as XLSX from 'xlsx';
+
+export type DistribuidorParaEstado = CarteraItem | DistribuidorCore | any;
+
+interface UltimoPagoItem {
+  fecha: string;
+  aplicadoFecha: string;
+  aplicado: number;
+  efectivo: number;
+  bonif: number;
+  movId: number | string;
+  movBonif: number | string;
+  porcBonif: string;
+}
+
+const ULTIMOS_PAGOS_KAREN: UltimoPagoItem[] = [
+  { fecha: '13/nov./2026', aplicadoFecha: '13/nov./2026', aplicado: 1500.00, efectivo: 1500.00, bonif: 0.00, movId: 665382, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '21/oct./2026', aplicadoFecha: '21/oct./2026', aplicado: 4000.00, efectivo: 4000.00, bonif: 0.00, movId: 652920, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '10/oct./2026', aplicadoFecha: '10/oct./2026', aplicado: 74290.90, efectivo: 74290.90, bonif: 0.00, movId: 644261, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '05/oct./2026', aplicadoFecha: '05/oct./2026', aplicado: 3500.00, efectivo: 3500.00, bonif: 0.00, movId: 642364, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '18/sep./2026', aplicadoFecha: '18/sep./2026', aplicado: 1500.00, efectivo: 1500.00, bonif: 0.00, movId: 632101, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '15/sep./2026', aplicadoFecha: '15/sep./2026', aplicado: 38684.00, efectivo: 38684.00, bonif: 0.00, movId: 627782, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '11/sep./2026', aplicadoFecha: '15/sep./2026', aplicado: 1000.00, efectivo: 1000.00, bonif: 0.00, movId: 627889, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '11/sep./2026', aplicadoFecha: '15/sep./2026', aplicado: 2000.00, efectivo: 2000.00, bonif: 0.00, movId: 627890, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '09/sep./2026', aplicadoFecha: '15/sep./2026', aplicado: 1000.00, efectivo: 1000.00, bonif: 0.00, movId: 627888, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '06/sep./2026', aplicadoFecha: '15/sep./2026', aplicado: 2000.00, efectivo: 2000.00, bonif: 0.00, movId: 627886, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '22/ago./2026', aplicadoFecha: '22/ago./2026', aplicado: 2500.00, efectivo: 2500.00, bonif: 0.00, movId: 615062, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '22/ago./2026', aplicadoFecha: '22/ago./2026', aplicado: 333.00, efectivo: 333.00, bonif: 0.00, movId: 615082, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '22/ago./2026', aplicadoFecha: '24/ago./2026', aplicado: 1258.98, efectivo: 489.49, bonif: 769.49, movId: 615246, movBonif: '615247', porcBonif: '61.12%' },
+  { fecha: '18/ago./2026', aplicadoFecha: '18/ago./2026', aplicado: 6300.00, efectivo: 6300.00, bonif: 0.00, movId: 612454, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '01/ago./2026', aplicadoFecha: '01/ago./2026', aplicado: 2000.00, efectivo: 2000.00, bonif: 0.00, movId: 600701, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '01/ago./2026', aplicadoFecha: '01/ago./2026', aplicado: 5100.00, efectivo: 5100.00, bonif: 0.00, movId: 601742, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '01/ago./2026', aplicadoFecha: '01/ago./2026', aplicado: 524.00, efectivo: 524.00, bonif: 0.00, movId: 601746, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '01/ago./2026', aplicadoFecha: '01/ago./2026', aplicado: 1200.32, efectivo: 80.00, bonif: 1120.33, movId: 601802, movBonif: '601803', porcBonif: '93.34%' },
+  { fecha: '17/jul./2026', aplicadoFecha: '17/jul./2026', aplicado: 4819.42, efectivo: 3765.00, bonif: 1054.42, movId: 592142, movBonif: '592143', porcBonif: '21.88%' },
+  { fecha: '15/jul./2026', aplicadoFecha: '15/jul./2026', aplicado: 4000.00, efectivo: 4000.00, bonif: 0.00, movId: 589577, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '30/jun./2026', aplicadoFecha: '30/jun./2026', aplicado: 8186.27, efectivo: 7088.00, bonif: 1098.27, movId: 580243, movBonif: '580244', porcBonif: '13.42%' },
+  { fecha: '20/jun./2026', aplicadoFecha: '20/jun./2026', aplicado: 1845.00, efectivo: 1845.00, bonif: 0.00, movId: 575241, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '20/jun./2026', aplicadoFecha: '22/jun./2026', aplicado: 933.00, efectivo: 65.99, bonif: 867.01, movId: 575514, movBonif: '575515', porcBonif: '92.93%' },
+  { fecha: '17/jun./2026', aplicadoFecha: '17/jun./2026', aplicado: 6000.00, efectivo: 6000.00, bonif: 0.00, movId: 573227, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '12/jun./2026', aplicadoFecha: '12/jun./2026', aplicado: 974.00, efectivo: 974.00, bonif: 0.00, movId: 567697, movBonif: '', porcBonif: '0.00%' },
+  { fecha: '11/jun./2026', aplicadoFecha: '11/jun./2026', aplicado: 1000.00, efectivo: 1000.00, bonif: 0.00, movId: 567604, movBonif: '', porcBonif: '0.00%' },
+];
+
+const PROXIMO_PAGO_KAREN = {
+  vencimiento: '20/nov./2026',
+  importe: 4643.20,
+  saldo: 3786.40,
+  abonos: 856.80,
+  pagoAnt3Dias: 3104.85,
+  pagoAnt2Dias: 3104.85,
+  pagoAnt1Dia: 3142.71,
+  pagoVencimiento: 3180.58,
+  pagoAtrasado: 0.00,
+};
 
 interface EstadoCuentaDistribuidorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  distribuidor: DistribuidorCore;
+  distribuidor: DistribuidorParaEstado;
   currentUser?: UserSession | null;
 }
 
@@ -35,72 +90,74 @@ export default function EstadoCuentaDistribuidorModal({
     };
   }, [isOpen]);
 
-  if (!isOpen || !mounted) return null;
+  if (!isOpen || !mounted || !distribuidor) return null;
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const noDist = Number(distribuidor.numeroDist ?? distribuidor.noDist ?? 9601);
+  const nombreDist = String(distribuidor.nombreCompleto ?? distribuidor.nombreDistribuidor ?? 'KAREN ADRIANA ONTIVEROS DIAZ').toUpperCase();
+  const rawCoord = String(distribuidor.coordinador ?? 'ANTONIO RIOS CIGALA').toUpperCase();
+  const coordinador = rawCoord.startsWith('290') ? rawCoord : `290   ${rawCoord}`;
+  const direccion = String(distribuidor.direccion || 'ANTON MAKARENCO 138 TIERRA Y LIBERTAD, CHIHUAHUA, CHIHUAHUA');
+  const telefono = String(distribuidor.telefono ? `(614) ${distribuidor.telefono}/(614) 407-4804/(  ) - ` : '(614) 750-4619/(614) 407-4804/(  ) - ');
+
+  const isKaren = noDist === 9601 || nombreDist.includes('KAREN');
+
+  const lineaCredito = isKaren ? 40000.00 : Number(distribuidor.creditoLimite || distribuidor.lineaCredito || 40000.00);
+  const disponible = isKaren ? 2415.30 : Number(distribuidor.disponible || 2415.30);
+  const valesActivos = isKaren ? 17.00 : Number(distribuidor.valesActivos || 17.00);
+  const saldoActual = isKaren ? 68791.10 : Number(distribuidor.saldoActual || 68791.10);
+  const saldoAtraso = isKaren ? 0.00 : Number(distribuidor.saldoAtrasado || distribuidor.saldoAtraso || 0.00);
+  const diasAtraso = isKaren ? 0.00 : Number(distribuidor.diasAtraso || 0.00);
+
+  const proximoPago = isKaren
+    ? PROXIMO_PAGO_KAREN
+    : {
+        vencimiento: '20/nov./2026',
+        importe: Math.round(saldoActual * 0.0675 * 100) / 100,
+        saldo: Math.round(saldoActual * 0.055 * 100) / 100,
+        abonos: 856.80,
+        pagoAnt3Dias: Math.round(saldoActual * 0.0451 * 100) / 100,
+        pagoAnt2Dias: Math.round(saldoActual * 0.0451 * 100) / 100,
+        pagoAnt1Dia: Math.round(saldoActual * 0.0457 * 100) / 100,
+        pagoVencimiento: Math.round(saldoActual * 0.0462 * 100) / 100,
+        pagoAtrasado: saldoAtraso,
+      };
+
+  const ultimosPagos = isKaren
+    ? ULTIMOS_PAGOS_KAREN
+    : ULTIMOS_PAGOS_KAREN.map((p) => {
+        const factor = saldoActual > 0 ? saldoActual / 68791.10 : 1;
+        return {
+          ...p,
+          aplicado: Math.round(p.aplicado * factor * 100) / 100,
+          efectivo: Math.round(p.efectivo * factor * 100) / 100,
+          bonif: Math.round(p.bonif * factor * 100) / 100,
+        };
+      });
 
   const nombreUsuarioImprime = currentUser?.name || 'JOSE CARLOS MARTINEZ MAYORGA';
-  const fechaActual = '12/11/2026 04:02:38 p. m.';
+  const fechaActual = '17/11/2026 05:55:57 p. m.';
 
-  const noDist = distribuidor.noDist;
-  const nombreDist = distribuidor.nombreDistribuidor.toUpperCase();
-  const coordinador = distribuidor.coordinador ? `207 ${distribuidor.coordinador.toUpperCase()}` : '207 REYNA ELIZABETH GUTIERREZ ROSALES';
-  const direccion = distribuidor.direccion || 'NO DEFINIDA OLGA MORENO 784 IGNACIO ZARAGOZA, SALTILLO, COAHUILA DE ZARAGOZA';
-  const telefono = distribuidor.telefono ? `(844) ${distribuidor.telefono}/(844) 340-1591/( ) -` : '(844) 413-7673/(844) 340-1591/( ) -';
+  // Exportar a Excel
+  const handleExportExcel = () => {
+    const rowsExport = ultimosPagos.map((p) => ({
+      'Fecha Pago': p.fecha,
+      'Aplicado (Fecha)': p.aplicadoFecha,
+      'Aplicado ($)': p.aplicado,
+      'Pago Efectivo ($)': p.efectivo,
+      'Bonificacion ($)': p.bonif,
+      'Movimiento ID': p.movId,
+      'Movimiento ID Bonificacion': p.movBonif,
+      'Porcentaje Bonificacion': p.porcBonif,
+    }));
 
-  const lineaCredito = distribuidor.creditoLimite || 195000.0;
-  const disponible = distribuidor.disponible || 30223.4;
-  const valesActivos = 32.0;
-  const saldoActual = distribuidor.saldoActual || 325936.96;
-
-  // Próximo pago
-  const proximoPago = {
-    vencimiento: '20/nov./2026',
-    importe: 40409.0,
-    saldo: 40409.0,
-    abonos: 0.0,
-    pagoAnt3Dias: 33135.38,
-    pagoAnt2Dias: 33135.38,
-    pagoAnt1Dia: 33539.47,
-    pagoVencimiento: 33943.56,
-    pagoAtrasado: 0.0,
+    const ws = XLSX.utils.json_to_sheet(rowsExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Ultimos_Pagos');
+    XLSX.writeFile(wb, `estado_cuenta_DV_${noDist}_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
-  // Historial de últimos pagos auténticos de la captura
-  const ultimosPagos = [
-    { fecha: '31/oct./2026', aplicadoFecha: '31/oct./2026', aplicado: 15484.0, efectivo: 15484.0, bonif: 0.0, movId: 658040, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '31/oct./2026', aplicadoFecha: '31/oct./2026', aplicado: 20381.0, efectivo: 15484.0, bonif: 4897.0, movId: 658206, movBonif: '658207', porcBonif: '24.03%' },
-    { fecha: '14/oct./2026', aplicadoFecha: '14/oct./2026', aplicado: 35839.0, efectivo: 30960.0, bonif: 4879.0, movId: 645247, movBonif: '645248', porcBonif: '13.61%' },
-    { fecha: '30/sep./2026', aplicadoFecha: '01/oct./2026', aplicado: 36975.0, efectivo: 31913.0, bonif: 5062.0, movId: 637770, movBonif: '637771', porcBonif: '13.69%' },
-    { fecha: '15/sep./2026', aplicadoFecha: '15/sep./2026', aplicado: 17000.0, efectivo: 17000.0, bonif: 0.0, movId: 628093, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '15/sep./2026', aplicadoFecha: '15/sep./2026', aplicado: 10000.0, efectivo: 10000.0, bonif: 0.0, movId: 628122, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '15/sep./2026', aplicadoFecha: '15/sep./2026', aplicado: 11487.0, efectivo: 6179.0, bonif: 5307.99, movId: 628168, movBonif: '628169', porcBonif: '46.21%' },
-    { fecha: '31/ago./2026', aplicadoFecha: '31/ago./2026', aplicado: 10000.0, efectivo: 10000.0, bonif: 0.0, movId: 619155, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '31/ago./2026', aplicadoFecha: '31/ago./2026', aplicado: 10379.0, efectivo: 10379.0, bonif: 0.0, movId: 619166, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '31/ago./2026', aplicadoFecha: '31/ago./2026', aplicado: 14760.0, efectivo: 10000.0, bonif: 4760.0, movId: 619194, movBonif: '619195', porcBonif: '32.25%' },
-    { fecha: '15/ago./2026', aplicadoFecha: '15/ago./2026', aplicado: 16000.0, efectivo: 16000.0, bonif: 0.0, movId: 608617, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '15/ago./2026', aplicadoFecha: '15/ago./2026', aplicado: 21135.0, efectivo: 16021.0, bonif: 5114.0, movId: 608636, movBonif: '608637', porcBonif: '24.20%' },
-    { fecha: '31/jul./2026', aplicadoFecha: '31/jul./2026', aplicado: 21000.0, efectivo: 21000.0, bonif: 0.0, movId: 598933, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '31/jul./2026', aplicadoFecha: '31/jul./2026', aplicado: 8000.0, efectivo: 8000.0, bonif: 0.0, movId: 598945, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '31/jul./2026', aplicadoFecha: '31/jul./2026', aplicado: 8134.99, efectivo: 3021.0, bonif: 5113.99, movId: 598952, movBonif: '598953', porcBonif: '62.86%' },
-    { fecha: '20/jul./2026', aplicadoFecha: '20/jul./2026', aplicado: 11.0, efectivo: 11.0, bonif: 0.0, movId: 593516, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '18/jul./2026', aplicadoFecha: '20/jul./2026', aplicado: 5387.0, efectivo: 897.2, bonif: 4489.8, movId: 593765, movBonif: '593766', porcBonif: '83.35%' },
-    { fecha: '15/jul./2026', aplicadoFecha: '15/jul./2026', aplicado: 33411.0, efectivo: 33411.0, bonif: 0.0, movId: 589040, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '30/jun./2026', aplicadoFecha: '30/jun./2026', aplicado: 36322.0, efectivo: 31326.0, bonif: 4996.0, movId: 579978, movBonif: '579979', porcBonif: '13.75%' },
-    { fecha: '15/jun./2026', aplicadoFecha: '15/jun./2026', aplicado: 9712.0, efectivo: 9712.0, bonif: 0.0, movId: 569702, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '15/jun./2026', aplicadoFecha: '15/jun./2026', aplicado: 10900.0, efectivo: 10900.0, bonif: 0.0, movId: 569720, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '15/jun./2026', aplicadoFecha: '15/jun./2026', aplicado: 12340.0, efectivo: 7800.0, bonif: 4540.0, movId: 569738, movBonif: '569739', porcBonif: '36.79%' },
-    { fecha: '30/may./2026', aplicadoFecha: '30/may./2026', aplicado: 33221.0, efectivo: 28636.0, bonif: 4585.0, movId: 560176, movBonif: '560177', porcBonif: '13.80%' },
-    { fecha: '15/may./2026', aplicadoFecha: '15/may./2026', aplicado: 7000.0, efectivo: 7000.0, bonif: 0.0, movId: 551918, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '15/may./2026', aplicadoFecha: '15/may./2026', aplicado: 4560.0, efectivo: 4560.0, bonif: 0.0, movId: 551962, movBonif: '', porcBonif: '0.00%' },
-    { fecha: '15/may./2026', aplicadoFecha: '15/may./2026', aplicado: 19223.34, efectivo: 15000.0, bonif: 4223.34, movId: 551981, movBonif: '551982', porcBonif: '21.97%' },
-    { fecha: '30/abr./2026', aplicadoFecha: '30/abr./2026', aplicado: 32081.66, efectivo: 27730.0, bonif: 4351.66, movId: 542898, movBonif: '542899', porcBonif: '13.56%' },
-  ];
-
   const modalContent = (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-xs flex flex-col items-center justify-start p-2 sm:p-4 md:p-6 overflow-y-auto animate-in fade-in duration-150">
       <style jsx global>{`
         @media print {
           body * {
@@ -124,218 +181,247 @@ export default function EstadoCuentaDistribuidorModal({
         }
       `}</style>
 
-      {/* Barra de control superior fija */}
-      <header className="sticky top-0 z-30 shrink-0 bg-slate-900 border-b border-slate-800 text-white px-4 sm:px-6 py-2.5 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-blue-600 rounded-lg text-white">
-            <FileText className="w-4 h-4" />
+      {/* Tarjeta Modal Principal */}
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl my-auto overflow-hidden border border-slate-300 flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
+        {/* Barra Superior con Controles (Oculta en Impresión) */}
+        <div className="sticky top-0 z-30 p-3.5 sm:px-6 bg-slate-100 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0 print:hidden shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-200">
+              <FileText className="w-4 h-4" />
+            </span>
+            <div>
+              <h2 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <span>Estado de Cuenta Oficial</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  DV #{noDist}
+                </span>
+              </h2>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xs sm:text-sm font-black tracking-tight flex items-center gap-2">
-              <span>Estado de Cuenta Oficial</span>
-              <span className="font-mono text-[11px] font-normal text-blue-300 bg-blue-950/80 px-2 py-0.5 rounded border border-blue-800">
-                DV #{noDist}
-              </span>
-            </h2>
-            <p className="text-[10px] text-slate-400 font-medium">
-              {nombreDist} · LanAhora Core
-            </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportExcel}
+              className="px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition active:scale-95"
+              title="Descargar en formato Excel"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Exportar Excel</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition shadow-2xs active:scale-95"
+              title="Imprimir documento oficial"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Imprimir Estado</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-200 transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95 cursor-pointer"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Imprimir / Guardar PDF</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer"
-            title="Cerrar visor"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      </header>
-
-      {/* Área del Documento con Scroll */}
-      <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 flex justify-center bg-slate-900/60">
+        {/* ======================================================== */}
+        {/* DOCUMENTO: ESTADO DE CUENTA (RÉPLICA EXACTA IMAGEN)      */}
+        {/* ======================================================== */}
         <div
           id="estado-cuenta-print-area"
-          className="bg-white text-slate-900 rounded-none sm:rounded-xl shadow-2xl p-6 sm:p-10 w-full max-w-[850px] space-y-4 font-sans text-xs border border-slate-300"
+          className="p-4 sm:p-8 space-y-4 overflow-y-auto text-slate-900 font-sans text-xs bg-white flex-1 select-text"
         >
-          {/* Header del Estado de Cuenta */}
-          <div className="flex items-start justify-between pb-2 border-b border-slate-300">
+          {/* 1. Header con Logo y Título a la Derecha */}
+          <div className="flex flex-wrap justify-between items-start pb-2">
             <div>
               <img
                 src="/lanahora-logo.png"
-                alt="LanAhora"
-                className="h-10 object-contain"
+                alt="LanAhora - en Ti confiamos!"
+                className="h-12 object-contain"
               />
             </div>
             <div className="text-right">
-              <h1 className="text-base font-black text-slate-900 tracking-tight uppercase">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight uppercase">
                 ESTADO DE CUENTA
               </h1>
-              <div className="text-[10px] text-slate-600 font-mono mt-0.5">
-                <div>{nombreUsuarioImprime}</div>
-                <div>{fechaActual}</div>
+              <div className="text-[11px] text-slate-700 font-mono mt-1 space-y-0.5">
+                <div className="font-bold">{nombreUsuarioImprime}</div>
+                <div className="text-slate-500">{fechaActual}</div>
               </div>
             </div>
           </div>
 
-          {/* Bloque Distribuidor */}
-          <div className="grid grid-cols-12 gap-2 text-[11px] leading-tight">
-            <div className="col-span-6 space-y-0.5">
+          {/* 2. Bloque de Datos del Distribuidor */}
+          <div className="text-[11px] font-mono leading-tight space-y-2 border-t border-slate-200 pt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
               <div>
-                <span className="font-bold text-slate-700">DISTRIBUIDOR: </span>
-                <span className="font-bold text-slate-950">{nombreDist}</span>
+                <span className="text-[10px] text-slate-500 font-bold block uppercase">DISTRIBUIDOR</span>
+                <strong className="text-slate-900 text-xs block">{nombreDist}</strong>
               </div>
-              <div className="pt-1">
-                <span className="font-bold text-slate-700">DIRECCION: </span>
-                <span className="text-slate-800 text-[10px]">{direccion}</span>
+              <div>
+                <span className="text-[10px] text-slate-500 font-bold block uppercase">DISTRIBUIDORID</span>
+                <strong className="text-slate-900 text-xs block">{noDist}</strong>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-500 font-bold block uppercase">NO DISTRIBUIDOR</span>
+                <strong className="text-slate-900 text-xs block">{noDist}</strong>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-500 font-bold block uppercase">COORDINADOR</span>
+                <strong className="text-slate-900 text-xs block">{coordinador}</strong>
               </div>
             </div>
 
-            <div className="col-span-6 space-y-0.5 text-right sm:text-left">
-              <div className="grid grid-cols-2">
-                <div>
-                  <span className="font-bold text-slate-700">DISTRIBUIDORID: </span>
-                  <span className="font-mono text-slate-950">{noDist}</span>
-                </div>
-                <div>
-                  <span className="font-bold text-slate-700">NO DISTRIBUIDOR: </span>
-                  <span className="font-mono text-slate-950">{noDist}</span>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+              <div className="sm:col-span-2">
+                <span className="text-[10px] text-slate-500 font-bold block uppercase">DIRECCION</span>
+                <span className="text-slate-800 text-[11px]">{direccion}</span>
               </div>
-
               <div>
-                <span className="font-bold text-slate-700">COORDINADOR: </span>
-                <span className="text-slate-900 font-medium">{coordinador}</span>
-              </div>
-
-              <div>
-                <span className="font-bold text-slate-700">TELEFONO: </span>
-                <span className="font-mono text-slate-800">{telefono}</span>
+                <span className="text-[10px] text-slate-500 font-bold block uppercase">TELEFONO</span>
+                <span className="text-slate-800 text-[11px]">{telefono}</span>
               </div>
             </div>
           </div>
 
-          {/* Fila de Métricas Financieras */}
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-2 pb-2 border-t border-b border-slate-200 text-center font-mono">
+          {/* 3. Fila de Métricas Financieras (6 Columnas exactas) */}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-3 pb-3 border-t border-b border-slate-200 text-center font-mono">
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">LINEA DE CREDITO</span>
-              <span className="text-xs font-bold text-slate-900">{formatMoney(lineaCredito)}</span>
+              <span className="text-xs font-bold text-slate-900">
+                {lineaCredito.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">DISPONIBLE</span>
-              <span className="text-xs font-bold text-slate-900">{formatMoney(disponible)}</span>
+              <span className="text-xs font-bold text-slate-900">
+                {disponible.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">VALES ACTIVOS</span>
-              <span className="text-xs font-bold text-slate-900">{formatMoney(valesActivos)}</span>
+              <span className="text-xs font-bold text-slate-900">
+                {valesActivos.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">SALDO ACTUAL</span>
-              <span className="text-xs font-bold text-slate-900">{formatMoney(saldoActual)}</span>
+              <span className="text-xs font-bold text-slate-900">
+                {saldoActual.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">SALDO ATRASO</span>
-              <span className="text-xs font-bold text-slate-900">$0.00</span>
+              <span className="text-xs font-bold text-slate-900">
+                {saldoAtraso.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-slate-500 uppercase block">DIAS ATRASO</span>
-              <span className="text-xs font-bold text-slate-900">0</span>
+              <span className="text-xs font-bold text-slate-900">
+                {diasAtraso.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </div>
           </div>
 
-          {/* SECCIÓN 1: PROXIMOS PAGOS */}
+          {/* 4. SECCIÓN: PROXIMOS PAGOS */}
           <div className="space-y-1">
             <div className="bg-black text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 text-center">
               PROXIMOS PAGOS
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-[10px] border-collapse">
-                <thead className="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-300">
+            <div className="overflow-x-auto border border-slate-300 rounded">
+              <table className="w-full text-left text-[10px] border-collapse font-mono whitespace-nowrap">
+                <thead className="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-300 text-[9px]">
                   <tr>
-                    <th className="p-1">VENCIMIENTO</th>
-                    <th className="p-1 text-right">IMPORTE</th>
-                    <th className="p-1 text-right">SALDO</th>
-                    <th className="p-1 text-right">ABONOS</th>
-                    <th className="p-1 text-right">PAGO ANT. 3 DIAS</th>
-                    <th className="p-1 text-right">PAGO ANT. 2 DIAS</th>
-                    <th className="p-1 text-right">PAGO ANT. 1 DIAS</th>
-                    <th className="p-1 text-right">PAGO VENCIMIENTO</th>
-                    <th className="p-1 text-right">PAGO ATRASADO</th>
+                    <th className="p-1 px-2 text-center">VENCIMIENTO</th>
+                    <th className="p-1 px-2 text-right">IMPORTE</th>
+                    <th className="p-1 px-2 text-right">SALDO</th>
+                    <th className="p-1 px-2 text-right">ABONOS</th>
+                    <th className="p-1 px-2 text-right">PAGO ANT. 3 DIAS</th>
+                    <th className="p-1 px-2 text-right">PAGO ANT. 2 DIAS</th>
+                    <th className="p-1 px-2 text-right">PAGO ANT. 1 DIAS</th>
+                    <th className="p-1 px-2 text-right">PAGO VENCIMIENTO</th>
+                    <th className="p-1 px-2 text-right">PAGO ATRASADO</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 font-mono text-[10px]">
-                  <tr>
-                    <td className="p-1 font-sans">{proximoPago.vencimiento}</td>
-                    <td className="p-1 text-right">{formatMoney(proximoPago.importe)}</td>
-                    <td className="p-1 text-right">{formatMoney(proximoPago.saldo)}</td>
-                    <td className="p-1 text-right">{formatMoney(proximoPago.abonos)}</td>
-                    <td className="p-1 text-right font-bold text-emerald-700">{formatMoney(proximoPago.pagoAnt3Dias)}</td>
-                    <td className="p-1 text-right">{formatMoney(proximoPago.pagoAnt2Dias)}</td>
-                    <td className="p-1 text-right">{formatMoney(proximoPago.pagoAnt1Dia)}</td>
-                    <td className="p-1 text-right">{formatMoney(proximoPago.pagoVencimiento)}</td>
-                    <td className="p-1 text-right">{formatMoney(proximoPago.pagoAtrasado)}</td>
+                <tbody className="divide-y divide-slate-200">
+                  <tr className="hover:bg-slate-50">
+                    <td className="p-1 px-2 text-center font-bold text-slate-900">{proximoPago.vencimiento}</td>
+                    <td className="p-1 px-2 text-right">{proximoPago.importe.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-1 px-2 text-right">{proximoPago.saldo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-1 px-2 text-right text-emerald-700 font-bold">{proximoPago.abonos.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-1 px-2 text-right font-bold text-slate-900">{proximoPago.pagoAnt3Dias.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-1 px-2 text-right font-bold text-slate-900">{proximoPago.pagoAnt2Dias.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-1 px-2 text-right font-bold text-slate-900">{proximoPago.pagoAnt1Dia.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-1 px-2 text-right font-bold text-slate-900">{proximoPago.pagoVencimiento.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-1 px-2 text-right">{proximoPago.pagoAtrasado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* SECCIÓN 2: ULTIMOS PAGOS */}
+          {/* 5. SECCIÓN: ULTIMOS PAGOS */}
           <div className="space-y-1 pt-1">
             <div className="bg-black text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 text-center">
               ULTIMOS PAGOS
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-[10px] border-collapse whitespace-nowrap">
-                <thead className="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-300">
+            <div className="overflow-x-auto border border-slate-300 rounded">
+              <table className="w-full text-left text-[10px] border-collapse whitespace-nowrap font-mono">
+                <thead className="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-300 text-[9px]">
                   <tr>
-                    <th className="p-1">FECHA PAGO</th>
-                    <th className="p-1">APLICADO</th>
-                    <th className="p-1 text-right">APLICADO</th>
-                    <th className="p-1 text-right">PAGO EFECTIVO</th>
-                    <th className="p-1 text-right">BONIFICACION</th>
-                    <th className="p-1 text-center">MOVIMIENTO ID</th>
-                    <th className="p-1 text-center">MOVIMIENTO ID BONIFICACION</th>
-                    <th className="p-1 text-right">PORCENTAJE BONIFICACION</th>
+                    <th className="p-1 px-2">FECHA PAGO</th>
+                    <th className="p-1 px-2">APLICADO</th>
+                    <th className="p-1 px-2 text-right">APLICADO</th>
+                    <th className="p-1 px-2 text-right">PAGO EFECTIVO</th>
+                    <th className="p-1 px-2 text-right">BONIFICACION</th>
+                    <th className="p-1 px-2 text-center">MOVIMIENTO ID</th>
+                    <th className="p-1 px-2 text-center">MOVIMIENTO ID BONIFICACION</th>
+                    <th className="p-1 px-2 text-right">PORCENTAJE BONIFICACION</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 font-mono text-[10px]">
+                <tbody className="divide-y divide-slate-200">
                   {ultimosPagos.map((p, idx) => (
                     <tr key={idx} className="hover:bg-slate-50">
-                      <td className="p-1 font-sans">{p.fecha}</td>
-                      <td className="p-1 font-sans">{p.aplicadoFecha}</td>
-                      <td className="p-1 text-right">{formatMoney(p.aplicado)}</td>
-                      <td className="p-1 text-right">{formatMoney(p.efectivo)}</td>
-                      <td className="p-1 text-right">{formatMoney(p.bonif)}</td>
-                      <td className="p-1 text-center">{p.movId}</td>
-                      <td className="p-1 text-center">{p.movBonif || ''}</td>
-                      <td className="p-1 text-right">{p.porcBonif}</td>
+                      <td className="p-1 px-2 text-slate-700">{p.fecha}</td>
+                      <td className="p-1 px-2 text-slate-700">{p.aplicadoFecha}</td>
+                      <td className="p-1 px-2 text-right font-bold text-slate-900">
+                        {p.aplicado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="p-1 px-2 text-right text-slate-800">
+                        {p.efectivo.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className={`p-1 px-2 text-right ${p.bonif > 0 ? 'text-emerald-700 font-bold' : 'text-slate-400'}`}>
+                        {p.bonif.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="p-1 px-2 text-center font-bold text-slate-800">{p.movId}</td>
+                      <td className="p-1 px-2 text-center font-bold text-blue-700">{p.movBonif || ''}</td>
+                      <td className="p-1 px-2 text-right text-slate-700">{p.porcBonif}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
-
-          {/* Pie de página oficial */}
-          <div className="pt-3 border-t border-slate-300 flex items-center justify-between text-[10px] text-slate-500 font-mono">
-            <span>LANAHORA FINANCIERA · EN TI CONFIAMOS</span>
-            <span>DOCUMENTO OFICIAL DE CORTE QUINCENAL</span>
-          </div>
         </div>
-      </main>
+
+        {/* Footer del Modal (Oculto en Impresión) */}
+        <div className="p-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 print:hidden shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl cursor-pointer transition active:scale-95 shadow-xs"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
     </div>
   );
 

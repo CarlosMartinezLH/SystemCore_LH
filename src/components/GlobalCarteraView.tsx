@@ -34,6 +34,7 @@ import {
 import * as XLSX from 'xlsx';
 import { formatMoney } from '@/lib/utils/formatters';
 import RelacionCobranzaModal from './modals/RelacionCobranzaModal';
+import EstadoCuentaDistribuidorModal from './modals/EstadoCuentaDistribuidorModal';
 
 interface GlobalCarteraViewProps {
   currentUser?: UserSession | null;
@@ -1111,106 +1112,13 @@ export default function GlobalCarteraView({
         </div>
       )}
 
-      {/* MODAL 2: ESTADO DE CUENTA */}
-      {isEstadoCuentaOpen && selectedItem && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-150">
-            <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <FileText className="w-4 h-4 text-blue-600" />
-                <span>Estado de Cuenta Oficial • Contrato #{selectedItem.contratoId}</span>
-              </h3>
-              <button onClick={() => setIsEstadoCuentaOpen(false)} className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4 text-xs font-sans">
-              <div className="flex justify-between items-start border-b pb-3">
-                <div>
-                  <img src="/lanahora-logo.png" alt="LanAhora" className="h-6 object-contain mb-1" />
-                  <span className="text-[10px] text-slate-400">FINANCIERA LANAHORA S.A. DE C.V.</span>
-                </div>
-                <div className="text-right text-[11px] font-mono text-slate-500">
-                  <div>Fecha de Emisión: {new Date().toLocaleDateString('es-MX')}</div>
-                  <div>Corte: 15/11/2026</div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Distribuidora</span>
-                  <strong className="text-slate-900 text-sm block">{selectedItem.nombreCompleto}</strong>
-                  <span className="font-mono text-slate-500">No. Dist: #{selectedItem.numeroDist}</span>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Resumen de Cuenta</span>
-                  <div className="flex justify-between font-mono mt-1">
-                    <span>Saldo Actual:</span>
-                    <strong className="text-slate-900">{formatMoney(selectedItem.saldoActual)}</strong>
-                  </div>
-                  <div className="flex justify-between font-mono text-rose-600">
-                    <span>Atraso:</span>
-                    <strong>{formatMoney(selectedItem.saldoAtrasado)}</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border border-slate-200 rounded-xl overflow-hidden">
-                <table className="w-full text-left text-[11px]">
-                  <thead className="bg-slate-100 font-bold border-b text-slate-600">
-                    <tr>
-                      <th className="p-2">Concepto</th>
-                      <th className="p-2 text-right">Cargo</th>
-                      <th className="p-2 text-right">Abono</th>
-                      <th className="p-2 text-right">Saldo</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 font-mono">
-                    <tr>
-                      <td className="p-2">Dispersión de Crédito / Vale</td>
-                      <td className="p-2 text-right">{formatMoney(selectedItem.capital)}</td>
-                      <td className="p-2 text-right">$0.00</td>
-                      <td className="p-2 text-right">{formatMoney(selectedItem.capital)}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-2">Interés Ordinario y Seguro</td>
-                      <td className="p-2 text-right">{formatMoney(selectedItem.interes + selectedItem.seguro)}</td>
-                      <td className="p-2 text-right">$0.00</td>
-                      <td className="p-2 text-right">{formatMoney(selectedItem.importeTotal)}</td>
-                    </tr>
-                    {selectedItem.ultimoPagoMonto && (
-                      <tr className="bg-emerald-50/50">
-                        <td className="p-2 font-bold text-emerald-800">Abono Pago Quincenal ({selectedItem.ultimoPagoFecha})</td>
-                        <td className="p-2 text-right">$0.00</td>
-                        <td className="p-2 text-right text-emerald-700">-{formatMoney(selectedItem.ultimoPagoMonto)}</td>
-                        <td className="p-2 text-right font-bold text-slate-900">{formatMoney(selectedItem.saldoActual)}</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="p-4 bg-slate-50 border-t flex justify-between items-center">
-              <button
-                onClick={() => {
-                  window.print();
-                  showToast('Preparando impresión del estado de cuenta...');
-                }}
-                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
-              >
-                <Printer className="w-4 h-4" />
-                <span>Imprimir Estado</span>
-              </button>
-              <button
-                onClick={() => setIsEstadoCuentaOpen(false)}
-                className="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl cursor-pointer"
-              >
-                Aceptar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* MODAL 2: ESTADO DE CUENTA OFICIAL (RÉPLICA EXACTA) */}
+      <EstadoCuentaDistribuidorModal
+        isOpen={isEstadoCuentaOpen}
+        onClose={() => setIsEstadoCuentaOpen(false)}
+        distribuidor={selectedItem}
+        currentUser={currentUser}
+      />
 
       {/* MODAL 3: APLICAR ABONO */}
       {isAplicarAbonoOpen && selectedItem && (
