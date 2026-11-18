@@ -475,13 +475,11 @@ export default function CarteraDistribuidorModal({
     );
   });
 
-  // Agrupamiento por Clasificación de Crédito
-  const grouped = filteredCredits.reduce((acc, item) => {
-    const key = item.clasificacionDesc || 'VALE DE DINERO';
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(item);
-    return acc;
-  }, {} as Record<string, CreditoHistorialPersona[]>);
+  // Agrupamiento por Clasificación de Crédito usando Object.groupBy
+  const grouped = (Object.groupBy(
+    filteredCredits,
+    (item) => item.clasificacionDesc || 'VALE DE DINERO'
+  ) ?? {}) as Record<string, CreditoHistorialPersona[]>;
 
   // Totales Generales
   const grandTotals = filteredCredits.reduce(

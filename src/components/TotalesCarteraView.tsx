@@ -328,7 +328,7 @@ export default function TotalesCarteraView({
       {/* 4. TABLA PRINCIPAL DE TOTALES DE CARTERA POR SUCURSAL    */}
       {/* ======================================================== */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col min-h-0">
-        <div className="overflow-x-auto scrollbar-thin">
+        <div tabIndex={0} role="region" aria-label="Tabla de Totales de Cartera por Sucursal" className="overflow-x-auto scrollbar-thin focus:outline-none focus:ring-1 focus:ring-blue-500">
           <table className="w-full text-left text-xs border-collapse whitespace-nowrap font-sans">
             <thead className="sticky top-0 bg-slate-100/95 backdrop-blur-xs text-slate-700 uppercase text-[10px] tracking-wider font-extrabold border-b border-slate-200 select-none z-10">
               <tr>

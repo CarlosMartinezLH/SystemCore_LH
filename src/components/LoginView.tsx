@@ -453,13 +453,17 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
             <form onSubmit={handleCredentialsSubmit} className="space-y-4 text-xs">
               {/* Correo Electrónico Institucional */}
               <div className="space-y-1.5">
-                <label className="block text-slate-700 font-semibold text-xs">
+                <label htmlFor="login-email" className="block text-slate-700 font-semibold text-xs">
                   Correo Electrónico:
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
+                    id="login-email"
+                    name="email"
                     type="email"
+                    autoComplete="username"
+                    spellCheck={false}
                     required
                     value={email}
                     onChange={(e) => {
@@ -474,13 +478,16 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
 
               {/* Contraseña */}
               <div className="space-y-1.5">
-                <label className="block text-slate-700 font-semibold text-xs">
+                <label htmlFor="login-password" className="block text-slate-700 font-semibold text-xs">
                   Contraseña:
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
+                    id="login-password"
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
                     required
                     value={password}
                     onChange={(e) => {

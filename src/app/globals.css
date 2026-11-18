@@ -126,3 +126,14 @@ div[data-nextjs-route-announcer],
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
+
+/* Modern Web Guidance: Prevención de scroll chaining bajo modales y dialogs */
+dialog:modal,
+[role="dialog"] {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}

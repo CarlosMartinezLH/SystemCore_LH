@@ -283,15 +283,15 @@ function TiendaCoreContent() {
 
     switch (sortBy) {
       case 'quincena-asc':
-        return [...list].sort((a, b) => a.pagoQuincenal - b.pagoQuincenal);
+        return list.toSorted((a, b) => a.pagoQuincenal - b.pagoQuincenal);
       case 'quincena-desc':
-        return [...list].sort((a, b) => b.pagoQuincenal - a.pagoQuincenal);
+        return list.toSorted((a, b) => b.pagoQuincenal - a.pagoQuincenal);
       case 'price-asc':
-        return [...list].sort((a, b) => a.precio - b.precio);
+        return list.toSorted((a, b) => a.precio - b.precio);
       case 'price-desc':
-        return [...list].sort((a, b) => b.precio - a.precio);
+        return list.toSorted((a, b) => b.precio - a.precio);
       case 'rating':
-        return [...list].sort((a, b) => (b.rating || 5) - (a.rating || 5));
+        return list.toSorted((a, b) => (b.rating || 5) - (a.rating || 5));
       default:
         return list;
     }
@@ -2186,9 +2186,14 @@ function TiendaCoreContent() {
 
             <form onSubmit={handleDistribuidoraLogin} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Usuario o Teléfono LanApp</label>
+                <label htmlFor="tienda-login-user" className="block text-xs font-bold text-slate-700 mb-1">Usuario o Teléfono LanApp</label>
                 <input
+                  id="tienda-login-user"
+                  name="username"
                   type="text"
+                  autoComplete="username"
+                  spellCheck={false}
+                  required
                   value={loginUser}
                   onChange={(e) => setLoginUser(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -2197,9 +2202,13 @@ function TiendaCoreContent() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Contraseña</label>
+                <label htmlFor="tienda-login-pass" className="block text-xs font-bold text-slate-700 mb-1">Contraseña</label>
                 <input
+                  id="tienda-login-pass"
+                  name="password"
                   type="password"
+                  autoComplete="current-password"
+                  required
                   value={loginPass}
                   onChange={(e) => setLoginPass(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
