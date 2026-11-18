@@ -1165,273 +1165,190 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                       </div>
                     </div>
                   ) : dvStep === 2 ? (
-                    /* PASO 2: DASHBOARD FINTECH DISTRIBUIDORA (ESTILO MODERNO LANAHORA) */
-                    <div className="flex-1 flex flex-col pt-1 pb-3 px-3">
+                    /* PASO 2: DASHBOARD FINTECH DISTRIBUIDORA (RÉPLICA EXACTA) */
+                    <div className="flex-1 flex flex-col pt-1 pb-2 px-3 space-y-2.5 overflow-y-auto no-scrollbar">
                       {/* Top Bar / Profile Header */}
-                      <div className="flex items-center justify-between pb-2">
+                      <div className="flex items-center justify-between pt-1">
                         {/* Left: Plata Level Badge */}
-                        <div className="flex items-center gap-2">
-                          <div className="px-2.5 py-0.5 rounded-full bg-blue-600/70 border border-blue-400/50 text-[9px] font-black text-white tracking-widest flex items-center gap-1 shadow-xs">
-                            <Award className="w-2.5 h-2.5 text-amber-300" />
-                            <span>PLATA</span>
-                          </div>
+                        <div className="px-3 py-1 rounded-full bg-[#1e3a8a]/90 border border-slate-400/40 text-[9.5px] font-black text-white tracking-widest flex items-center gap-1 shadow-sm">
+                          <span>PLATA</span>
                         </div>
 
-                        {/* Center: Distribuidora Name & Role */}
-                        <div className="text-center flex-1 mx-2 min-w-0">
-                          <h3 className="text-xs font-black text-white truncate leading-tight">
-                            Concepcion Montelongo
+                        {/* Center/Left: User Name & Role */}
+                        <div className="flex-1 ml-3 min-w-0">
+                          <h3 className="text-sm font-black text-white truncate leading-tight">
+                            Santiago Torres Dias
                           </h3>
-                          <p className="text-[9px] text-white/60 font-semibold leading-tight">
-                            Distribuidora DV 1004
+                          <p className="text-[10px] text-white/50 font-semibold leading-tight">
+                            Admin • DV 1004
                           </p>
                         </div>
 
-                        {/* Right: Notifications & Quick Profile */}
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => setShowNotificationsCenter(true)}
-                            className="relative p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
-                            title="Notificaciones"
-                          >
-                            <Bell className="w-4 h-4 text-white" />
-                            {unreadCount > 0 && (
-                              <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => setDvStep(1)}
-                            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition cursor-pointer"
-                            title="Cerrar sesión"
-                          >
-                            <User className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        {/* Right: Checkmark with Red Dot */}
+                        <button
+                          onClick={() => setShowNotificationsCenter(true)}
+                          className="relative w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer shrink-0"
+                          title="Notificaciones"
+                        >
+                          <Check className="w-4 h-4 text-white" />
+                          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[#132A60] animate-pulse" />
+                        </button>
                       </div>
 
-                      {/* HERO BALANCE CARD (Glassmorphism LanAhora Royal Navy) */}
-                      <div className="relative mt-2 p-4 rounded-[26px] bg-gradient-to-br from-[#1e3a8a]/85 via-[#172554]/90 to-[#0f172a]/95 border border-white/15 shadow-xl text-white backdrop-blur-md overflow-hidden">
-                        {/* Subtle Background Glow Accent */}
-                        <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-blue-500/20 blur-2xl pointer-events-none" />
-                        <div className="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-amber-400/10 blur-xl pointer-events-none" />
-
-                        {/* Top row: Balance amount & Alert pill */}
+                      {/* HERO BALANCE CARD (Glassmorphism Dark Navy) */}
+                      <div className="relative p-4 rounded-[26px] bg-gradient-to-br from-[#1e3a8a]/70 via-[#172554]/80 to-[#0f172a]/90 border border-white/15 shadow-xl text-white backdrop-blur-md overflow-hidden">
+                        {/* Top row: Balance amount & Alert pill (1 >) */}
                         <div className="flex items-start justify-between">
                           <div>
-                            <span className="text-[10px] font-bold text-white/70 tracking-wide block">
-                              Línea de crédito disponible
-                            </span>
-                            <div className="text-2xl font-black text-white tracking-tight mt-0.5">
-                              $40,000.00
+                            <div className="text-2xl font-black text-white tracking-tight">
+                              $332,706.41
                             </div>
-                            <span className="text-[9.5px] font-medium text-white/60 block mt-0.5">
-                              2 cuentas activas • Línea total $55,000.00
+                            <span className="text-[10.5px] font-medium text-white/60 block mt-0.5">
+                              2 cuentas
                             </span>
                           </div>
 
                           {/* Alert Badge Pill (1 >) */}
                           <button
                             onClick={() => setShowNotificationsCenter(true)}
-                            className="bg-red-500 hover:bg-red-600 text-white text-[9.5px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md shadow-red-500/30 transition cursor-pointer"
+                            className="bg-red-500 hover:bg-red-600 text-white text-[9.5px] font-black px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-md shadow-red-500/30 transition cursor-pointer"
                           >
                             <span>1</span>
                             <ChevronRight className="w-2.5 h-2.5" />
                           </button>
                         </div>
 
-                        {/* Action Buttons: Prestar Vale & Pagar Saldo */}
-                        <div className="grid grid-cols-2 gap-2.5 mt-4 relative z-10">
+                        {/* Action Buttons: Recibir & Transferir */}
+                        <div className="grid grid-cols-2 gap-2.5 mt-4">
                           <button
                             onClick={() => setDvStep(3)}
-                            className="bg-white/15 hover:bg-white/25 active:scale-95 text-white font-black text-[11px] py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 border border-white/20 transition backdrop-blur-xs shadow-sm cursor-pointer"
+                            className="bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-xs py-2 px-3 rounded-2xl flex items-center justify-center gap-1.5 border border-white/20 transition backdrop-blur-xs cursor-pointer"
                           >
-                            <ArrowDownLeft className="w-3.5 h-3.5 text-[#facc15]" />
-                            <span>Prestar Vale</span>
+                            <Plus className="w-3.5 h-3.5 text-white/90" />
+                            <span>Recibir</span>
                           </button>
                           <button
                             onClick={() => setShowPaymentModal(true)}
-                            className="bg-[#facc15] hover:bg-yellow-400 active:scale-95 text-slate-950 font-black text-[11px] py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 transition shadow-md shadow-amber-400/20 cursor-pointer"
+                            className="bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-xs py-2 px-3 rounded-2xl flex items-center justify-center gap-1.5 border border-white/20 transition backdrop-blur-xs cursor-pointer"
                           >
-                            <ArrowUpRight className="w-3.5 h-3.5 text-slate-950" />
-                            <span>Pagar Saldo</span>
+                            <Send className="w-3.5 h-3.5 text-white/90" />
+                            <span>Transferir</span>
                           </button>
                         </div>
                       </div>
 
-                      {/* MOVIMIENTOS PILL BAR */}
+                      {/* MOVIMIENTOS CARD */}
                       <div
                         onClick={() => setShowRelacionModal(true)}
-                        className="mt-2.5 rounded-2xl bg-[#162752]/90 border border-white/15 px-3.5 py-2.5 flex items-center justify-between shadow-sm cursor-pointer hover:bg-[#1c3268]/90 transition"
+                        className="rounded-[22px] bg-gradient-to-r from-[#172554]/90 to-[#1e3a8a]/80 border border-white/10 px-4 py-3 shadow-md cursor-pointer hover:border-white/20 transition"
                       >
-                        <div className="min-w-0">
-                          <h4 className="text-[11px] font-black text-white leading-tight">
-                            Movimientos
-                          </h4>
-                          <p className="text-[9.5px] font-medium leading-tight mt-0.5 flex items-center gap-1">
-                            <span className="text-emerald-400 font-bold">+$45,890</span>
-                            <span className="text-white/60">• Próximo corte: 24 Nov</span>
-                          </p>
-                        </div>
-                        <ChevronRight className="w-3.5 h-3.5 text-white/60 shrink-0" />
+                        <h4 className="text-xs font-black text-white leading-tight">
+                          Movimientos
+                        </h4>
+                        <p className="text-[10.5px] font-medium leading-tight mt-1">
+                          <span className="text-emerald-400 font-bold">+$345,890</span>
+                          <span className="text-white/60"> -$45,890 en marzo</span>
+                        </p>
                       </div>
 
-                      {/* LOWER WHITE/SLATE SURFACE (Rounded curved transition) */}
-                      <div className="mt-3 -mx-3 -mb-3 px-3.5 pt-3.5 pb-2 bg-[#f8fafc] rounded-t-[30px] flex-1 flex flex-col space-y-2.5 shadow-2xl text-slate-900">
-                        {/* 3 Quick Action Cards */}
-                        <div className="grid grid-cols-3 gap-2">
+                      {/* WHITE CARD 1: Links de pago / CFDIs / Contrapartes */}
+                      <div className="bg-white rounded-[24px] p-3.5 shadow-lg border border-slate-100">
+                        <div className="grid grid-cols-3 gap-2 text-center">
                           <button
                             onClick={() => setDvStep(3)}
-                            className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center justify-center text-center hover:bg-slate-50 transition active:scale-95 cursor-pointer"
+                            className="flex flex-col items-center justify-center py-1 hover:bg-slate-50 rounded-xl transition cursor-pointer"
                           >
-                            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1d4ed8] flex items-center justify-center mb-1.5 border border-blue-100">
+                            <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-800 flex items-center justify-center mb-1.5 border border-slate-200/80">
                               <Link2 className="w-4 h-4" />
                             </div>
-                            <span className="text-[9.5px] font-black text-slate-800 leading-tight">
-                              Prestar Vale
+                            <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                              Links de pago
                             </span>
                           </button>
 
                           <button
                             onClick={() => setShowRelacionModal(true)}
-                            className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center justify-center text-center hover:bg-slate-50 transition active:scale-95 cursor-pointer"
+                            className="flex flex-col items-center justify-center py-1 hover:bg-slate-50 rounded-xl transition cursor-pointer"
                           >
-                            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-1.5 border border-amber-100">
+                            <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-800 flex items-center justify-center mb-1.5 border border-slate-200/80">
                               <FileText className="w-4 h-4" />
                             </div>
-                            <span className="text-[9.5px] font-black text-slate-800 leading-tight">
-                              Relación Cobranza
+                            <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                              CFDIs
                             </span>
                           </button>
 
                           <button
                             onClick={() => setDvStep(3)}
-                            className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center justify-center text-center hover:bg-slate-50 transition active:scale-95 cursor-pointer"
+                            className="flex flex-col items-center justify-center py-1 hover:bg-slate-50 rounded-xl transition cursor-pointer"
                           >
-                            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-1.5 border border-indigo-100">
-                              <Users className="w-4 h-4" />
+                            <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-800 flex items-center justify-center mb-1.5 border border-slate-200/80">
+                              <User className="w-4 h-4" />
                             </div>
-                            <span className="text-[9.5px] font-black text-slate-800 leading-tight">
-                              Mis Clientes
+                            <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                              Contrapartes
                             </span>
                           </button>
                         </div>
+                      </div>
 
-                        {/* 2 Feature Cards: 2 Productos & 1 Coordinador */}
-                        <div className="grid grid-cols-2 gap-2">
-                          {/* Card 1: 2 Productos Activos */}
-                          <div className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs flex flex-col justify-between">
-                            <span className="text-[10.5px] font-black text-slate-800">
-                              2 productos
-                            </span>
-                            <div className="flex items-center my-1.5">
-                              {/* Mini Card Vale Lana */}
-                              <div className="w-10 h-6 rounded-md bg-[#132A60] p-1 flex flex-col justify-between text-white shadow-xs">
-                                <div className="w-2 h-1.5 rounded-2xs bg-amber-400" />
-                                <span className="text-[5.5px] font-bold">Lana</span>
-                              </div>
-                              {/* Mini Card LanaTienda */}
-                              <div className="w-10 h-6 rounded-md bg-gradient-to-br from-amber-400 to-yellow-500 p-1 flex flex-col justify-between text-slate-950 shadow-xs -ml-3 border border-white">
-                                <div className="w-2 h-1.5 rounded-2xs bg-[#132A60]" />
-                                <span className="text-[5.5px] font-bold">Tienda</span>
+                      {/* WHITE ROW: 2 Tarjetas & 1 Usuario */}
+                      <div className="grid grid-cols-2 gap-2.5">
+                        {/* 2 tarjetas */}
+                        <div className="bg-white rounded-[24px] p-3.5 shadow-lg border border-slate-100 flex flex-col justify-between">
+                          <span className="text-[11px] font-black text-slate-800">
+                            2 tarjetas
+                          </span>
+                          <div className="flex items-center mt-3 mb-1">
+                            {/* Blue Card */}
+                            <div className="w-10 h-6 rounded-md bg-[#1d4ed8] p-1 flex flex-col justify-between text-white shadow-xs">
+                              <div className="w-2 h-1.5 rounded-2xs bg-white/70" />
+                              <div className="flex gap-0.5 justify-end">
+                                <div className="w-2 h-2 rounded-full bg-amber-400" />
+                                <div className="w-2 h-2 rounded-full bg-red-500 -ml-1 opacity-80" />
                               </div>
                             </div>
-                            <p className="text-[8px] text-slate-500 font-bold leading-none">
-                              ValeLana & Tienda
-                            </p>
-                          </div>
-
-                          {/* Card 2: 1 Coordinador Asignado */}
-                          <div
-                            onClick={() => setShowSupportModal(true)}
-                            className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs flex flex-col justify-between cursor-pointer hover:border-slate-200 transition"
-                          >
-                            <span className="text-[10.5px] font-black text-slate-800">
-                              1 coordinador
-                            </span>
-                            <div className="flex items-center gap-2 my-1">
-                              <div className="w-7 h-7 rounded-full bg-slate-900 text-[#facc15] font-black text-[9px] flex items-center justify-center border-2 border-white shadow-xs">
-                                JG
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-[9.5px] font-bold text-slate-800 truncate leading-tight">
-                                  José Miguel G.
-                                </p>
-                                <span className="text-[7.5px] text-emerald-600 font-bold">
-                                  Activo ahora
-                                </span>
+                            {/* Red/Orange Card */}
+                            <div className="w-10 h-6 rounded-md bg-gradient-to-r from-red-600 to-amber-500 p-1 flex flex-col justify-between text-white shadow-xs -ml-3 border border-white">
+                              <div className="w-2 h-1.5 rounded-2xs bg-white/70" />
+                              <div className="flex gap-0.5 justify-end">
+                                <div className="w-2 h-2 rounded-full bg-amber-300" />
+                                <div className="w-2 h-2 rounded-full bg-yellow-400 -ml-1 opacity-80" />
                               </div>
                             </div>
-                            <p className="text-[8px] text-slate-500 font-bold leading-none">
-                              Sucursal Saltillo
-                            </p>
                           </div>
                         </div>
 
-                        {/* Recent Activity / Estados de Cuenta */}
-                        <div className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs space-y-1.5">
-                          <div className="flex items-center justify-between pb-1">
-                            <div>
-                              <h5 className="text-[10.5px] font-black text-slate-800 leading-tight">
-                                Estados de cuenta
-                              </h5>
-                              <span className="text-[8px] text-slate-400 font-bold">
-                                Todas las cuentas • Todo &gt;
-                              </span>
-                            </div>
-                            <div className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[8.5px] font-black flex items-center gap-1">
-                              <Calendar className="w-2.5 h-2.5 text-slate-500" />
-                              <span>Nov</span>
+                        {/* 1 usuario */}
+                        <div
+                          onClick={() => setShowSupportModal(true)}
+                          className="bg-white rounded-[24px] p-3.5 shadow-lg border border-slate-100 flex flex-col justify-between cursor-pointer hover:border-slate-300 transition"
+                        >
+                          <span className="text-[11px] font-black text-slate-800">
+                            1 usuario
+                          </span>
+                          <div className="flex items-center mt-2.5 mb-0.5">
+                            <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center border border-slate-300">
+                              AB
                             </div>
                           </div>
+                        </div>
+                      </div>
 
-                          {/* Item 1 */}
-                          <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-50">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <div className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-[8px] shrink-0 border border-emerald-100">
-                                EV
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-[9.5px] font-bold text-slate-800 truncate leading-tight">
-                                  José Efraín Vázquez
-                                </p>
-                                <span className="text-[8px] text-slate-400 block leading-tight">
-                                  Vale #2 • 6 quincenas de $237.00
-                                </span>
-                              </div>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <p className="text-[10px] font-black text-emerald-600 leading-tight">
-                                +$1,000.00
-                              </p>
-                              <span className="text-[7.5px] text-slate-400 block leading-tight">
-                                Canjeado STP
-                              </span>
-                            </div>
+                      {/* WHITE CARD: Estados de cuenta */}
+                      <div className="bg-white rounded-[24px] p-3.5 shadow-lg border border-slate-100 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="text-xs font-black text-slate-800 leading-tight">
+                              Estados de cuenta
+                            </h5>
+                            <span className="text-[9.5px] text-slate-400 font-medium">
+                              Todas las cuentas • Todo &gt;
+                            </span>
                           </div>
-
-                          {/* Item 2 */}
-                          <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-50">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-black text-[8px] shrink-0 border border-blue-100">
-                                RM
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-[9.5px] font-bold text-slate-800 truncate leading-tight">
-                                  Rosa Linda Mora
-                                </p>
-                                <span className="text-[8px] text-slate-400 block leading-tight">
-                                  Vale #1 • 8 quincenas de $485.00
-                                </span>
-                              </div>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <p className="text-[10px] font-black text-slate-800 leading-tight">
-                                +$3,000.00
-                              </p>
-                              <span className="text-[7.5px] text-slate-400 block leading-tight">
-                                Cobro puntual
-                              </span>
-                            </div>
+                          <div className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center gap-1 border border-slate-200">
+                            <FileText className="w-3 h-3 text-slate-500" />
+                            <span>Sep</span>
                           </div>
                         </div>
                       </div>
