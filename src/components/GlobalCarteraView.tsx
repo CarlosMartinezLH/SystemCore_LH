@@ -35,6 +35,7 @@ import * as XLSX from 'xlsx';
 import { formatMoney } from '@/lib/utils/formatters';
 import RelacionCobranzaModal from './modals/RelacionCobranzaModal';
 import EstadoCuentaDistribuidorModal from './modals/EstadoCuentaDistribuidorModal';
+import NotasCarteraModal from './modals/NotasCarteraModal';
 
 interface GlobalCarteraViewProps {
   currentUser?: UserSession | null;
@@ -494,9 +495,10 @@ export default function GlobalCarteraView({
               setIsNotasOpen(true);
             }}
             className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer active:scale-95"
+            title="Ver Bitácora de Notas de Cobranza y Gestión"
           >
             <Send className="w-3.5 h-3.5 text-amber-600" />
-            <span>Notas ({selectedItem?.notasCobranza?.length || 0})</span>
+            <span>Notas</span>
           </button>
         </div>
       </div>
@@ -1201,72 +1203,13 @@ export default function GlobalCarteraView({
         </div>
       )}
 
-      {/* MODAL 4: NOTAS DE COBRANZA */}
-      {isNotasOpen && selectedItem && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-150">
-            <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <Send className="w-4 h-4 text-amber-600" />
-                <span>Bitácora de Notas • Contrato #{selectedItem.contratoId}</span>
-              </h3>
-              <button onClick={() => setIsNotasOpen(false)} className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-5 space-y-4 text-xs">
-              {/* Formulario Agregar Nota */}
-              <form onSubmit={handleGuardarNota} className="space-y-2">
-                <label className="font-bold text-slate-700 block">Agregar Nueva Nota de Gestión / Cobranza:</label>
-                <textarea
-                  rows={3}
-                  required
-                  placeholder="Detalla acuerdos, promesas de pago o gestiones de campo realizadas..."
-                  value={nuevaNotaTexto}
-                  onChange={(e) => setNuevaNotaTexto(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white text-xs font-medium"
-                />
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-xs cursor-pointer active:scale-95"
-                  >
-                    Guardar Nota
-                  </button>
-                </div>
-              </form>
-
-              {/* Historial de Notas */}
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                <span className="font-bold text-slate-700 block">Historial Registrado:</span>
-                {(!selectedItem.notasCobranza || selectedItem.notasCobranza.length === 0) ? (
-                  <p className="text-slate-400 italic">No hay notas previas para este contrato.</p>
-                ) : (
-                  selectedItem.notasCobranza.map((n) => (
-                    <div key={n.id} className="p-3 bg-amber-50/60 rounded-xl border border-amber-200/80 space-y-1">
-                      <div className="flex justify-between items-center text-[10px] text-amber-800 font-bold">
-                        <span>{n.autor}</span>
-                        <span className="font-mono text-slate-500 font-normal">{n.fecha}</span>
-                      </div>
-                      <p className="text-slate-800 font-medium">{n.texto}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="p-4 bg-slate-50 border-t flex justify-end">
-              <button
-                onClick={() => setIsNotasOpen(false)}
-                className="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl cursor-pointer"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* MODAL 4: NOTAS DE COBRANZA / GESTIÓN (RÉPLICA EXACTA) */}
+      <NotasCarteraModal
+        isOpen={isNotasOpen}
+        onClose={() => setIsNotasOpen(false)}
+        distribuidor={selectedItem}
+        currentUser={currentUser}
+      />
 
       {/* MODAL OFICIAL: RELACIÓN DE COBRANZA (RÉPLICA EXACTA) */}
       <RelacionCobranzaModal
