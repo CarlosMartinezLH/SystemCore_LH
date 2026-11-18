@@ -1,31 +1,14 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   BarChart3,
   Search,
   FileSpreadsheet,
-  TrendingUp,
-  Award,
-  Calendar,
-  Building,
-  CheckCircle2,
-  AlertTriangle,
-  ArrowUpRight,
-  ArrowDownLeft,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
-  Layers,
-  Sparkles,
-  PieChart,
-  Filter,
-  SlidersHorizontal,
-  Download,
   RefreshCw,
+  SlidersHorizontal,
   X,
-  Check,
-  Phone,
+  CheckCircle2,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { formatMoney } from '@/lib/utils/formatters';
@@ -51,7 +34,7 @@ export interface ColocacionDistribuidorItem {
 }
 
 const INITIAL_COLOCACION_DISTRIBUIDORES: ColocacionDistribuidorItem[] = [
-  // MAZATLÁN / ALBERTO PONCE DURAN (Datos oficiales de la pantalla del usuario)
+  // MAZATLÁN / ALBERTO PONCE DURAN (Datos oficiales de la pantalla legacy)
   {
     distribuidorId: 7185,
     numeroDist: 7185,
@@ -151,7 +134,7 @@ const INITIAL_COLOCACION_DISTRIBUIDORES: ColocacionDistribuidorItem[] = [
     telefonoMovil: '(669) 982-3411',
   },
 
-  // CHIHUAHUA / ANTONIO RIOS CIGALA (Datos de plaza Chihuahua)
+  // CHIHUAHUA / ANTONIO RIOS CIGALA
   {
     distribuidorId: 9601,
     numeroDist: 9601,
@@ -282,20 +265,8 @@ const CLASIFICACIONES_DISPONIBLES = [
   'KITS DV',
 ];
 
-interface ReportesViewProps {
-  initialTab?: 'colocacion' | 'vintage' | 'comisiones';
-}
-
-export default function ReportesView({ initialTab = 'colocacion' }: ReportesViewProps) {
-  const [activeTab, setActiveTab] = useState<'colocacion' | 'vintage' | 'comisiones'>(initialTab);
-
-  useEffect(() => {
-    if (initialTab) {
-      setActiveTab(initialTab);
-    }
-  }, [initialTab]);
-
-  // Colocación Report Filters
+export default function ReportesView() {
+  // Filtros del Reporte
   const [fechaInicial, setFechaInicial] = useState('01/11/2026');
   const [fechaFinal, setFechaFinal] = useState('30/11/2026');
   const [selectedClasificaciones, setSelectedClasificaciones] = useState<string[]>([
@@ -308,7 +279,7 @@ export default function ReportesView({ initialTab = 'colocacion' }: ReportesView
   const [groupBySucursal, setGroupBySucursal] = useState(true);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
-  // Column Customization Modal
+  // Modal de Personalizar Columnas
   const [isCustomizeModalOpen, setIsCustomizeModalOpen] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
     distribuidorId: true,
@@ -351,7 +322,7 @@ export default function ReportesView({ initialTab = 'colocacion' }: ReportesView
   // Filtered List
   const filteredData = useMemo(() => {
     return INITIAL_COLOCACION_DISTRIBUIDORES.filter((item) => {
-      // Classification filter (match any of selected)
+      // Classification filter
       if (selectedClasificaciones.length > 0) {
         const matchesClass = item.creditoClasificacion.some((c) =>
           selectedClasificaciones.includes(c)
@@ -422,18 +393,7 @@ export default function ReportesView({ initialTab = 'colocacion' }: ReportesView
     return groups;
   }, [filteredData]);
 
-  // Totals
-  const totals = useMemo(() => {
-    return {
-      capital: filteredData.reduce((acc, i) => acc + i.capital, 0),
-      interes: filteredData.reduce((acc, i) => acc + i.interes, 0),
-      seguro: filteredData.reduce((acc, i) => acc + i.seguro, 0),
-      importe: filteredData.reduce((acc, i) => acc + i.importeTotal, 0),
-      creditos: filteredData.reduce((acc, i) => acc + i.noCreditosColoc, 0),
-    };
-  }, [filteredData]);
-
-  // Totales oficiales de la pantalla legacy
+  // Totales consolidados de la pantalla legacy
   const legacyTotales = {
     capital: 20879887.01,
     interes: 10053031.83,
@@ -477,700 +437,503 @@ export default function ReportesView({ initialTab = 'colocacion' }: ReportesView
   return (
     <div className="flex-1 min-h-0 overflow-y-auto font-sans p-4 lg:p-6 space-y-4 text-slate-800 bg-slate-50">
       {/* ======================================================== */}
-      {/* 1. ENCABEZADO Y SELECTOR DE PESTAÑAS                     */}
+      {/* 1. ENCABEZADO LIMPIO (SIN MENÚS INTERNOS NI PESTAÑAS)     */}
       {/* ======================================================== */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
-            <FileSpreadsheet className="w-6 h-6" />
+            <BarChart3 className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                Módulo de Reportes Oficiales
+                Colocación Por Distribuidor
               </h1>
               <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                Core Financiero
+                Reporte Oficial
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Colocación, indicadores de morosidad (IMOR) y liquidación de bonificaciones por escala
+              Consolidado de colocación quincenal de cartera agrupado por coordinador, plaza y producto
             </p>
           </div>
-        </div>
-
-        {/* Pestañas de Reportes */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
-          <button
-            type="button"
-            onClick={() => setActiveTab('colocacion')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-              activeTab === 'colocacion'
-                ? 'bg-white text-blue-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <BarChart3 className="w-3.5 h-3.5 text-blue-600" />
-            <span>Colocación Por Distribuidor</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('vintage')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-              activeTab === 'vintage'
-                ? 'bg-white text-blue-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <PieChart className="w-3.5 h-3.5 text-slate-500" />
-            <span>Índice Morosidad (IMOR)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('comisiones')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-              activeTab === 'comisiones'
-                ? 'bg-white text-blue-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Award className="w-3.5 h-3.5 text-amber-500" />
-            <span>Bonificaciones Escala 30-15</span>
-          </button>
         </div>
       </div>
 
       {/* ======================================================== */}
-      {/* 2. TAB 1: COLOCACIÓN POR DISTRIBUIDOR (PANTALLA EXACTA)   */}
+      {/* 2. BARRA DE FILTROS: FECHAS, CLASIFICACIÓN Y ACCIONES    */}
       {/* ======================================================== */}
-      {activeTab === 'colocacion' && (
-        <div className="space-y-4">
-          {/* BARRA SUPERIOR: FILTROS DE FECHAS, CLASIFICACIÓN Y BOTONES */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              {/* Fechas */}
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="font-bold text-slate-600">Fecha Inicial:</span>
-                  <input
-                    type="text"
-                    value={fechaInicial}
-                    onChange={(e) => setFechaInicial(e.target.value)}
-                    className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs font-bold text-slate-800 w-28 text-center"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="font-bold text-slate-600">Fecha Final:</span>
-                  <input
-                    type="text"
-                    value={fechaFinal}
-                    onChange={(e) => setFechaFinal(e.target.value)}
-                    className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs font-bold text-slate-800 w-28 text-center"
-                  />
-                </div>
-              </div>
-
-              {/* Botones de Acción */}
-              <div className="flex flex-wrap items-center gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => showToast('✓ Datos de colocación actualizados')}
-                  className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                >
-                  <RefreshCw className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Actualizar</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleExportExcel}
-                  className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                >
-                  <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Exportar a excel</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsCustomizeModalOpen(true)}
-                  className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Personalizar Columnas</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Clasificación Multi-Select Listbox */}
-            <div className="pt-2 border-t border-slate-100 flex flex-wrap items-start gap-3">
-              <span className="text-xs font-bold text-slate-700 pt-1">Clasificación:</span>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {CLASIFICACIONES_DISPONIBLES.map((c) => {
-                  const isChecked = selectedClasificaciones.includes(c);
-                  return (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => toggleClasificacion(c)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition flex items-center gap-1.5 cursor-pointer ${
-                        isChecked
-                          ? 'bg-blue-50 text-blue-700 border-blue-200'
-                          : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        readOnly
-                        className="w-3 h-3 rounded text-blue-600 pointer-events-none"
-                      />
-                      <span>{c}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* BUSCADOR Y BARRA DE AGRUPACIÓN ESTILO SISTEMA */}
-          <div className="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5">
-            <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          {/* Fechas Inicial y Final */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 text-xs">
+              <span className="font-bold text-slate-600">Fecha Inicial:</span>
               <input
                 type="text"
-                placeholder="Introduzca el texto a buscar (DV, nombre, teléfono, coordinador, sucursal)..."
-                value={searchFilter}
-                onChange={(e) => setSearchFilter(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
+                value={fechaInicial}
+                onChange={(e) => setFechaInicial(e.target.value)}
+                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs font-bold text-slate-800 w-28 text-center"
               />
-              {searchFilter && (
-                <button
-                  onClick={() => setSearchFilter('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
             </div>
 
-            {/* Chips de Agrupación Drag & Drop */}
-            <div className="flex items-center gap-2 pt-1 text-xs text-slate-500">
-              <span className="text-[11px] text-slate-400 italic">
-                Arrastre una columna aquí para agrupar por dicha columna:
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span
-                  onClick={() => setGroupByCoordinador(!groupByCoordinador)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-bold border flex items-center gap-1 cursor-pointer transition ${
-                    groupByCoordinador
-                      ? 'bg-slate-100 text-slate-700 border-slate-300'
-                      : 'bg-white text-slate-400 border-dashed border-slate-200'
-                  }`}
-                  title="Clic para activar/desactivar agrupación por Coordinador"
-                >
-                  <span>Coordinador</span>
-                  <span>▲</span>
-                </span>
-                <span
-                  onClick={() => setGroupBySucursal(!groupBySucursal)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-bold border flex items-center gap-1 cursor-pointer transition ${
-                    groupBySucursal
-                      ? 'bg-slate-100 text-slate-700 border-slate-300'
-                      : 'bg-white text-slate-400 border-dashed border-slate-200'
-                  }`}
-                  title="Clic para activar/desactivar agrupación por Sucursal"
-                >
-                  <span>Sucursal</span>
-                  <span>▲</span>
-                </span>
-              </div>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="font-bold text-slate-600">Fecha Final:</span>
+              <input
+                type="text"
+                value={fechaFinal}
+                onChange={(e) => setFechaFinal(e.target.value)}
+                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs font-bold text-slate-800 w-28 text-center"
+              />
             </div>
           </div>
 
-          {/* TABLA PRINCIPAL DE COLOCACIÓN POR DISTRIBUIDOR */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
-            <div className="overflow-x-auto scrollbar-thin">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead className="bg-slate-50 text-slate-700 border-b border-slate-200 font-bold uppercase tracking-wider text-[11px]">
-                  <tr>
-                    {visibleColumns.distribuidorId && (
-                      <th className="px-3 py-3 w-24 text-center">Distribuidor ID</th>
-                    )}
-                    {visibleColumns.numeroDist && (
-                      <th className="px-3 py-3 w-24 text-center">Numero Dist</th>
-                    )}
-                    {visibleColumns.nombreCompleto && (
-                      <th className="px-3 py-3 min-w-[220px]">Nombre Completo</th>
-                    )}
-                    {visibleColumns.nivelId && (
-                      <th className="px-3 py-3 w-20 text-center">Nivel ID</th>
-                    )}
-                    {visibleColumns.fechaHoraRegis && (
-                      <th className="px-3 py-3 w-28 text-center">Fecha Hora Regis</th>
-                    )}
-                    {visibleColumns.capital && (
-                      <th className="px-3 py-3 text-right">Capital</th>
-                    )}
-                    {visibleColumns.interes && (
-                      <th className="px-3 py-3 text-right">Interes</th>
-                    )}
-                    {visibleColumns.seguro && (
-                      <th className="px-3 py-3 text-right">Seguro</th>
-                    )}
-                    {visibleColumns.importeTotal && (
-                      <th className="px-3 py-3 text-right">Importe Total</th>
-                    )}
-                    {visibleColumns.noCreditosColoc && (
-                      <th className="px-3 py-3 text-center w-24">No Creditos Coloc</th>
-                    )}
-                    {visibleColumns.distribuidorNuev && (
-                      <th className="px-3 py-3 text-center w-24">Distribuidor Nuev</th>
-                    )}
-                    {visibleColumns.plazos && (
-                      <th className="px-3 py-3 text-center w-16">Plazos</th>
-                    )}
-                    {visibleColumns.tasaInteres && (
-                      <th className="px-3 py-3 text-center w-20">Tasa Interes</th>
-                    )}
-                    {visibleColumns.creditoClasificacion && (
-                      <th className="px-3 py-3 min-w-[240px]">credito Clasificaci</th>
-                    )}
-                    {visibleColumns.telefonoMovil && (
-                      <th className="px-3 py-3 w-32">Telefono Movil</th>
-                    )}
-                  </tr>
-                </thead>
+          {/* Botones de Acción */}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => showToast('✓ Datos de colocación actualizados')}
+              className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-blue-600" />
+              <span>Actualizar</span>
+            </button>
 
-                <tbody className="text-slate-700 font-medium text-xs">
-                  {groupedData.map((group) => {
-                    const groupKey = `${group.coordinador}___${group.sucursal}`;
-                    const isCollapsed = collapsedGroups[groupKey];
+            <button
+              type="button"
+              onClick={handleExportExcel}
+              className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Exportar a excel</span>
+            </button>
 
-                    return (
-                      <React.Fragment key={groupKey}>
-                        {/* ENCABEZADO DE GRUPO: COORDINADOR Y SUCURSAL */}
-                        <tr
-                          onClick={() => toggleGroupCollapse(groupKey)}
-                          className="bg-slate-100/90 border-t border-b border-slate-200 font-bold text-slate-800 cursor-pointer hover:bg-slate-200/70 transition select-none"
-                        >
-                          <td colSpan={15} className="px-3 py-2 text-xs">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <span>{isCollapsed ? '▶' : '▼'}</span>
-                                <span className="text-slate-900 uppercase">
-                                  Coordinador: {group.coordinador}
-                                </span>
-                                <span className="text-slate-400">•</span>
-                                <span className="text-blue-700 font-bold uppercase">
-                                  Sucursal: {group.sucursal}
-                                </span>
-                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200">
-                                  {group.items.length} Distribuidora(s)
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-4 text-[11px] font-mono text-slate-600">
-                                <span>Subtotal Capital: {formatMoney(group.subtotalCapital)}</span>
-                                <span>•</span>
-                                <span>Total: {formatMoney(group.subtotalImporte)}</span>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-
-                        {/* FILAS DE DISTRIBUIDORAS DEL GRUPO */}
-                        {!isCollapsed &&
-                          group.items.map((item) => {
-                            const badgeColor =
-                              item.nivelId === 'DIAMANTE'
-                                ? 'bg-purple-100 text-purple-800 border-purple-200'
-                                : item.nivelId === 'ORO'
-                                ? 'bg-amber-100 text-amber-800 border-amber-200'
-                                : item.nivelId === 'PLATA'
-                                ? 'bg-slate-100 text-slate-800 border-slate-200'
-                                : 'bg-orange-100 text-orange-800 border-orange-200';
-
-                            return (
-                              <tr
-                                key={item.distribuidorId}
-                                className="hover:bg-blue-50/30 transition border-b border-slate-100"
-                              >
-                                {visibleColumns.distribuidorId && (
-                                  <td className="px-3 py-2.5 text-center font-mono font-bold text-slate-900">
-                                    {item.distribuidorId}
-                                  </td>
-                                )}
-                                {visibleColumns.numeroDist && (
-                                  <td className="px-3 py-2.5 text-center font-mono text-slate-700">
-                                    {item.numeroDist}
-                                  </td>
-                                )}
-                                {visibleColumns.nombreCompleto && (
-                                  <td className="px-3 py-2.5 font-bold text-slate-900 uppercase">
-                                    {item.nombreCompleto}
-                                  </td>
-                                )}
-                                {visibleColumns.nivelId && (
-                                  <td className="px-3 py-2.5 text-center">
-                                    <span
-                                      className={`text-[10px] font-bold px-2 py-0.5 rounded border ${badgeColor}`}
-                                    >
-                                      {item.nivelId}
-                                    </span>
-                                  </td>
-                                )}
-                                {visibleColumns.fechaHoraRegis && (
-                                  <td className="px-3 py-2.5 text-center font-mono text-slate-600 whitespace-nowrap">
-                                    {item.fechaHoraRegis}
-                                  </td>
-                                )}
-                                {visibleColumns.capital && (
-                                  <td className="px-3 py-2.5 text-right font-mono font-semibold text-slate-800">
-                                    {formatMoney(item.capital)}
-                                  </td>
-                                )}
-                                {visibleColumns.interes && (
-                                  <td className="px-3 py-2.5 text-right font-mono text-slate-600">
-                                    {formatMoney(item.interes)}
-                                  </td>
-                                )}
-                                {visibleColumns.seguro && (
-                                  <td className="px-3 py-2.5 text-right font-mono text-slate-600">
-                                    {formatMoney(item.seguro)}
-                                  </td>
-                                )}
-                                {visibleColumns.importeTotal && (
-                                  <td className="px-3 py-2.5 text-right font-mono font-black text-slate-900">
-                                    {formatMoney(item.importeTotal)}
-                                  </td>
-                                )}
-                                {visibleColumns.noCreditosColoc && (
-                                  <td className="px-3 py-2.5 text-center font-bold text-slate-700">
-                                    {item.noCreditosColoc}
-                                  </td>
-                                )}
-                                {visibleColumns.distribuidorNuev && (
-                                  <td className="px-3 py-2.5 text-center">
-                                    <input
-                                      type="checkbox"
-                                      checked={item.distribuidorNuev}
-                                      readOnly
-                                      className="w-3.5 h-3.5 rounded text-blue-600 pointer-events-none"
-                                    />
-                                  </td>
-                                )}
-                                {visibleColumns.plazos && (
-                                  <td className="px-3 py-2.5 text-center font-semibold text-slate-700">
-                                    {item.plazos}
-                                  </td>
-                                )}
-                                {visibleColumns.tasaInteres && (
-                                  <td className="px-3 py-2.5 text-center font-mono font-semibold text-slate-700">
-                                    {item.tasaInteres}%
-                                  </td>
-                                )}
-                                {visibleColumns.creditoClasificacion && (
-                                  <td className="px-3 py-2.5 text-[11px] text-slate-600 max-w-xs leading-relaxed">
-                                    {item.creditoClasificacion.join(', ')}
-                                  </td>
-                                )}
-                                {visibleColumns.telefonoMovil && (
-                                  <td className="px-3 py-2.5 font-mono text-slate-600 whitespace-nowrap">
-                                    {item.telefonoMovil}
-                                  </td>
-                                )}
-                              </tr>
-                            );
-                          })}
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
-
-                {/* FILA DE TOTALES GENERALES DEL REPORTE */}
-                <tfoot className="bg-slate-100 border-t-2 border-slate-300 font-mono font-bold text-slate-900 text-xs">
-                  <tr>
-                    <td colSpan={5} className="px-3 py-3 text-right uppercase font-sans">
-                      Totales Globales de Cartera Colocada:
-                    </td>
-                    {visibleColumns.capital && (
-                      <td className="px-3 py-3 text-right font-black text-slate-900">
-                        {formatMoney(legacyTotales.capital)}
-                      </td>
-                    )}
-                    {visibleColumns.interes && (
-                      <td className="px-3 py-3 text-right font-black text-slate-900">
-                        {formatMoney(legacyTotales.interes)}
-                      </td>
-                    )}
-                    {visibleColumns.seguro && (
-                      <td className="px-3 py-3 text-right font-black text-slate-900">
-                        {formatMoney(legacyTotales.seguro)}
-                      </td>
-                    )}
-                    {visibleColumns.importeTotal && (
-                      <td className="px-3 py-3 text-right font-black text-blue-900 text-sm">
-                        {formatMoney(legacyTotales.importe)}
-                      </td>
-                    )}
-                    {visibleColumns.noCreditosColoc && (
-                      <td className="px-3 py-3 text-center font-black text-slate-900">
-                        {legacyTotales.creditos.toLocaleString()}
-                      </td>
-                    )}
-                    <td colSpan={5} className="px-3 py-3 text-slate-400 font-normal font-sans">
-                      (1,328 elementos consolidados)
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-
-            {/* BARRA DE PAGINACIÓN ESTILO SISTEMA ANTERIOR */}
-            <div className="p-3 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between text-xs text-slate-600 gap-2">
-              <div className="flex items-center gap-2">
-                <span>Página 1 de 27 (1328 elementos)</span>
-                <span className="text-slate-300">|</span>
-                <button
-                  type="button"
-                  className="text-blue-600 hover:underline font-bold cursor-pointer"
-                  onClick={() => showToast('Generador de filtros avanzado')}
-                >
-                  Crear filtro
-                </button>
-              </div>
-
-              <div className="flex items-center gap-1 font-semibold">
-                <button
-                  type="button"
-                  disabled
-                  className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-400 cursor-not-allowed text-[11px]"
-                >
-                  &lt;&lt;
-                </button>
-                <button
-                  type="button"
-                  disabled
-                  className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-400 cursor-not-allowed text-[11px]"
-                >
-                  &lt;
-                </button>
-                <span className="px-2.5 py-1 bg-blue-600 text-white rounded font-bold text-[11px]">
-                  1
-                </span>
-                <button
-                  type="button"
-                  onClick={() => showToast('Navegando a página 2')}
-                  className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
-                >
-                  2
-                </button>
-                <button
-                  type="button"
-                  onClick={() => showToast('Navegando a página 3')}
-                  className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
-                >
-                  3
-                </button>
-                <button
-                  type="button"
-                  onClick={() => showToast('Navegando a página 4')}
-                  className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
-                >
-                  4
-                </button>
-                <span className="px-1 text-slate-400">...</span>
-                <button
-                  type="button"
-                  className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
-                >
-                  26
-                </button>
-                <button
-                  type="button"
-                  className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
-                >
-                  27
-                </button>
-                <button
-                  type="button"
-                  className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
-                >
-                  &gt;
-                </button>
-                <button
-                  type="button"
-                  className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
-                >
-                  &gt;&gt;
-                </button>
-                <button
-                  type="button"
-                  className="px-2 py-1 rounded border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 text-[11px] font-bold cursor-pointer"
-                >
-                  All
-                </button>
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsCustomizeModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
+              <span>Personalizar Columnas</span>
+            </button>
           </div>
         </div>
-      )}
+
+        {/* Clasificación Multi-Select con Checkboxes */}
+        <div className="pt-2 border-t border-slate-100 flex flex-wrap items-start gap-3">
+          <span className="text-xs font-bold text-slate-700 pt-1">Clasificación:</span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {CLASIFICACIONES_DISPONIBLES.map((c) => {
+              const isChecked = selectedClasificaciones.includes(c);
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => toggleClasificacion(c)}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition flex items-center gap-1.5 cursor-pointer ${
+                    isChecked
+                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                      : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    readOnly
+                    className="w-3 h-3 rounded text-blue-600 pointer-events-none"
+                  />
+                  <span>{c}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
       {/* ======================================================== */}
-      {/* 3. TAB 2: VINTAGE E ÍNDICE DE MOROSIDAD (IMOR)           */}
+      {/* 3. BUSCADOR Y CHIPS DE AGRUPACIÓN (COORDINADOR, SUCURSAL) */}
       {/* ======================================================== */}
-      {activeTab === 'vintage' && (
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div>
-              <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                <PieChart className="w-4 h-4 text-blue-600" />
-                <span>Índice de Cartera Vencida (ICV / IMOR) por Sucursal</span>
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Rendimiento de cartera consolidada y provisiones de riesgo por plaza
-              </p>
-            </div>
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-              Riesgo Aceptable &lt; 5.5%
+      <div className="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5">
+        <div className="relative">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Introduzca el texto a buscar (DV, nombre, teléfono, coordinador, sucursal)..."
+            value={searchFilter}
+            onChange={(e) => setSearchFilter(e.target.value)}
+            className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
+          />
+          {searchFilter && (
+            <button
+              onClick={() => setSearchFilter('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Chips de Agrupación Drag & Drop */}
+        <div className="flex items-center gap-2 pt-1 text-xs text-slate-500">
+          <span className="text-[11px] text-slate-400 italic">
+            Arrastre una columna aquí para agrupar por dicha columna:
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span
+              onClick={() => setGroupByCoordinador(!groupByCoordinador)}
+              className={`px-2 py-0.5 rounded text-[11px] font-bold border flex items-center gap-1 cursor-pointer transition ${
+                groupByCoordinador
+                  ? 'bg-slate-100 text-slate-700 border-slate-300'
+                  : 'bg-white text-slate-400 border-dashed border-slate-200'
+              }`}
+              title="Clic para activar/desactivar agrupación por Coordinador"
+            >
+              <span>Coordinador</span>
+              <span>▲</span>
+            </span>
+            <span
+              onClick={() => setGroupBySucursal(!groupBySucursal)}
+              className={`px-2 py-0.5 rounded text-[11px] font-bold border flex items-center gap-1 cursor-pointer transition ${
+                groupBySucursal
+                  ? 'bg-slate-100 text-slate-700 border-slate-300'
+                  : 'bg-white text-slate-400 border-dashed border-slate-200'
+              }`}
+              title="Clic para activar/desactivar agrupación por Sucursal"
+            >
+              <span>Sucursal</span>
+              <span>▲</span>
             </span>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              {
-                sucursal: 'Saltillo Poniente',
-                cartera: '$850,000.00',
-                vencida: '$35,000.00',
-                imor: '4.1%',
-                estatus: 'EXCELENTE',
-              },
-              {
-                sucursal: 'Saltillo Oriente',
-                cartera: '$620,000.00',
-                vencida: '$28,000.00',
-                imor: '4.5%',
-                estatus: 'BUENO',
-              },
-              {
-                sucursal: 'Torreón Centro',
-                cartera: '$490,000.00',
-                vencida: '$32,000.00',
-                imor: '6.5%',
-                estatus: 'REGULAR',
-              },
-              {
-                sucursal: 'Monclova',
-                cartera: '$310,000.00',
-                vencida: '$18,000.00',
-                imor: '5.8%',
-                estatus: 'BUENO',
-              },
-              {
-                sucursal: 'Chihuahua',
-                cartera: '$52,447,208.70',
-                vencida: '$1,854,235.70',
-                imor: '3.5%',
-                estatus: 'EXCELENTE',
-              },
-              {
-                sucursal: 'Mazatlán',
-                cartera: '$30,865,609.44',
-                vencida: '$1,727,240.70',
-                imor: '5.5%',
-                estatus: 'BUENO',
-              },
-              {
-                sucursal: 'Durango',
-                cartera: '$37,871,271.54',
-                vencida: '$1,719,475.10',
-                imor: '4.5%',
-                estatus: 'BUENO',
-              },
-              {
-                sucursal: 'Gómez Palacio',
-                cartera: '$34,939,578.32',
-                vencida: '$2,525,894.40',
-                imor: '7.2%',
-                estatus: 'ALERTA',
-              },
-            ].map((s) => (
-              <div
-                key={s.sucursal}
-                className="p-4 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-2 hover:bg-slate-100/60 transition"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="font-black text-slate-900 text-xs">{s.sucursal}</div>
-                  <span
-                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                      s.estatus === 'EXCELENTE'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : s.estatus === 'BUENO'
-                        ? 'bg-blue-100 text-blue-800'
-                        : s.estatus === 'REGULAR'
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-rose-100 text-rose-800'
-                    }`}
-                  >
-                    {s.estatus}
-                  </span>
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Cartera: <strong className="text-slate-800 font-mono">{s.cartera}</strong>
-                </div>
-                <div className="text-[11px] text-rose-600">
-                  Vencida: <strong className="font-mono">{s.vencida}</strong>
-                </div>
-                <div className="pt-2 border-t border-slate-200/60 flex justify-between items-center">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">IMOR Oficial</span>
-                  <span className="text-sm font-black text-blue-700 font-mono">{s.imor}</span>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
-      )}
+      </div>
 
       {/* ======================================================== */}
-      {/* 4. TAB 3: BONIFICACIONES POR ESCALA 30-15                */}
+      {/* 4. TABLA PRINCIPAL DE COLOCACIÓN POR DISTRIBUIDOR        */}
       {/* ======================================================== */}
-      {activeTab === 'comisiones' && (
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div>
-              <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                <Award className="w-4 h-4 text-amber-500" />
-                <span>Resumen de Bonificaciones Liquidadas a Distribuidoras (Escala 30-15)</span>
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Reglas oficiales auditadas: La bonificación se aplica de forma automática al saldo quincenal
-              </p>
-            </div>
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
+        <div className="overflow-x-auto scrollbar-thin">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="bg-slate-50 text-slate-700 border-b border-slate-200 font-bold uppercase tracking-wider text-[11px]">
+              <tr>
+                {visibleColumns.distribuidorId && (
+                  <th className="px-3 py-3 w-24 text-center">Distribuidor ID</th>
+                )}
+                {visibleColumns.numeroDist && (
+                  <th className="px-3 py-3 w-24 text-center">Numero Dist</th>
+                )}
+                {visibleColumns.nombreCompleto && (
+                  <th className="px-3 py-3 min-w-[220px]">Nombre Completo</th>
+                )}
+                {visibleColumns.nivelId && (
+                  <th className="px-3 py-3 w-20 text-center">Nivel ID</th>
+                )}
+                {visibleColumns.fechaHoraRegis && (
+                  <th className="px-3 py-3 w-28 text-center">Fecha Hora Regis</th>
+                )}
+                {visibleColumns.capital && (
+                  <th className="px-3 py-3 text-right">Capital</th>
+                )}
+                {visibleColumns.interes && (
+                  <th className="px-3 py-3 text-right">Interes</th>
+                )}
+                {visibleColumns.seguro && (
+                  <th className="px-3 py-3 text-right">Seguro</th>
+                )}
+                {visibleColumns.importeTotal && (
+                  <th className="px-3 py-3 text-right">Importe Total</th>
+                )}
+                {visibleColumns.noCreditosColoc && (
+                  <th className="px-3 py-3 text-center w-24">No Creditos Coloc</th>
+                )}
+                {visibleColumns.distribuidorNuev && (
+                  <th className="px-3 py-3 text-center w-24">Distribuidor Nuev</th>
+                )}
+                {visibleColumns.plazos && (
+                  <th className="px-3 py-3 text-center w-16">Plazos</th>
+                )}
+                {visibleColumns.tasaInteres && (
+                  <th className="px-3 py-3 text-center w-20">Tasa Interes</th>
+                )}
+                {visibleColumns.creditoClasificacion && (
+                  <th className="px-3 py-3 min-w-[240px]">credito Clasificaci</th>
+                )}
+                {visibleColumns.telefonoMovil && (
+                  <th className="px-3 py-3 w-32">Telefono Movil</th>
+                )}
+              </tr>
+            </thead>
+
+            <tbody className="text-slate-700 font-medium text-xs">
+              {groupedData.map((group) => {
+                const groupKey = `${group.coordinador}___${group.sucursal}`;
+                const isCollapsed = collapsedGroups[groupKey];
+
+                return (
+                  <React.Fragment key={groupKey}>
+                    {/* ENCABEZADO DE GRUPO: COORDINADOR Y SUCURSAL */}
+                    <tr
+                      onClick={() => toggleGroupCollapse(groupKey)}
+                      className="bg-slate-100/90 border-t border-b border-slate-200 font-bold text-slate-800 cursor-pointer hover:bg-slate-200/70 transition select-none"
+                    >
+                      <td colSpan={15} className="px-3 py-2 text-xs">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span>{isCollapsed ? '▶' : '▼'}</span>
+                            <span className="text-slate-900 uppercase">
+                              Coordinador: {group.coordinador}
+                            </span>
+                            <span className="text-slate-400">•</span>
+                            <span className="text-blue-700 font-bold uppercase">
+                              Sucursal: {group.sucursal}
+                            </span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200">
+                              {group.items.length} Distribuidora(s)
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-[11px] font-mono text-slate-600">
+                            <span>Subtotal Capital: {formatMoney(group.subtotalCapital)}</span>
+                            <span>•</span>
+                            <span>Total: {formatMoney(group.subtotalImporte)}</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* FILAS DE DISTRIBUIDORAS DEL GRUPO */}
+                    {!isCollapsed &&
+                      group.items.map((item) => {
+                        const badgeColor =
+                          item.nivelId === 'DIAMANTE'
+                            ? 'bg-purple-100 text-purple-800 border-purple-200'
+                            : item.nivelId === 'ORO'
+                            ? 'bg-amber-100 text-amber-800 border-amber-200'
+                            : item.nivelId === 'PLATA'
+                            ? 'bg-slate-100 text-slate-800 border-slate-200'
+                            : 'bg-orange-100 text-orange-800 border-orange-200';
+
+                        return (
+                          <tr
+                            key={item.distribuidorId}
+                            className="hover:bg-blue-50/30 transition border-b border-slate-100"
+                          >
+                            {visibleColumns.distribuidorId && (
+                              <td className="px-3 py-2.5 text-center font-mono font-bold text-slate-900">
+                                {item.distribuidorId}
+                              </td>
+                            )}
+                            {visibleColumns.numeroDist && (
+                              <td className="px-3 py-2.5 text-center font-mono text-slate-700">
+                                {item.numeroDist}
+                              </td>
+                            )}
+                            {visibleColumns.nombreCompleto && (
+                              <td className="px-3 py-2.5 font-bold text-slate-900 uppercase">
+                                {item.nombreCompleto}
+                              </td>
+                            )}
+                            {visibleColumns.nivelId && (
+                              <td className="px-3 py-2.5 text-center">
+                                <span
+                                  className={`text-[10px] font-bold px-2 py-0.5 rounded border ${badgeColor}`}
+                                >
+                                  {item.nivelId}
+                                </span>
+                              </td>
+                            )}
+                            {visibleColumns.fechaHoraRegis && (
+                              <td className="px-3 py-2.5 text-center font-mono text-slate-600 whitespace-nowrap">
+                                {item.fechaHoraRegis}
+                              </td>
+                            )}
+                            {visibleColumns.capital && (
+                              <td className="px-3 py-2.5 text-right font-mono font-semibold text-slate-800">
+                                {formatMoney(item.capital)}
+                              </td>
+                            )}
+                            {visibleColumns.interes && (
+                              <td className="px-3 py-2.5 text-right font-mono text-slate-600">
+                                {formatMoney(item.interes)}
+                              </td>
+                            )}
+                            {visibleColumns.seguro && (
+                              <td className="px-3 py-2.5 text-right font-mono text-slate-600">
+                                {formatMoney(item.seguro)}
+                              </td>
+                            )}
+                            {visibleColumns.importeTotal && (
+                              <td className="px-3 py-2.5 text-right font-mono font-black text-slate-900">
+                                {formatMoney(item.importeTotal)}
+                              </td>
+                            )}
+                            {visibleColumns.noCreditosColoc && (
+                              <td className="px-3 py-2.5 text-center font-bold text-slate-700">
+                                {item.noCreditosColoc}
+                              </td>
+                            )}
+                            {visibleColumns.distribuidorNuev && (
+                              <td className="px-3 py-2.5 text-center">
+                                <input
+                                  type="checkbox"
+                                  checked={item.distribuidorNuev}
+                                  readOnly
+                                  className="w-3.5 h-3.5 rounded text-blue-600 pointer-events-none"
+                                />
+                              </td>
+                            )}
+                            {visibleColumns.plazos && (
+                              <td className="px-3 py-2.5 text-center font-semibold text-slate-700">
+                                {item.plazos}
+                              </td>
+                            )}
+                            {visibleColumns.tasaInteres && (
+                              <td className="px-3 py-2.5 text-center font-mono font-semibold text-slate-700">
+                                {item.tasaInteres}%
+                              </td>
+                            )}
+                            {visibleColumns.creditoClasificacion && (
+                              <td className="px-3 py-2.5 text-[11px] text-slate-600 max-w-xs leading-relaxed">
+                                {item.creditoClasificacion.join(', ')}
+                              </td>
+                            )}
+                            {visibleColumns.telefonoMovil && (
+                              <td className="px-3 py-2.5 font-mono text-slate-600 whitespace-nowrap">
+                                {item.telefonoMovil}
+                              </td>
+                            )}
+                          </tr>
+                        );
+                      })}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+
+            {/* FILA DE TOTALES GENERALES DEL REPORTE */}
+            <tfoot className="bg-slate-100 border-t-2 border-slate-300 font-mono font-bold text-slate-900 text-xs">
+              <tr>
+                <td colSpan={5} className="px-3 py-3 text-right uppercase font-sans">
+                  Totales Globales de Cartera Colocada:
+                </td>
+                {visibleColumns.capital && (
+                  <td className="px-3 py-3 text-right font-black text-slate-900">
+                    {formatMoney(legacyTotales.capital)}
+                  </td>
+                )}
+                {visibleColumns.interes && (
+                  <td className="px-3 py-3 text-right font-black text-slate-900">
+                    {formatMoney(legacyTotales.interes)}
+                  </td>
+                )}
+                {visibleColumns.seguro && (
+                  <td className="px-3 py-3 text-right font-black text-slate-900">
+                    {formatMoney(legacyTotales.seguro)}
+                  </td>
+                )}
+                {visibleColumns.importeTotal && (
+                  <td className="px-3 py-3 text-right font-black text-blue-900 text-sm">
+                    {formatMoney(legacyTotales.importe)}
+                  </td>
+                )}
+                {visibleColumns.noCreditosColoc && (
+                  <td className="px-3 py-3 text-center font-black text-slate-900">
+                    {legacyTotales.creditos.toLocaleString()}
+                  </td>
+                )}
+                <td colSpan={5} className="px-3 py-3 text-slate-400 font-normal font-sans">
+                  (1,328 elementos consolidados)
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        {/* BARRA DE PAGINACIÓN ESTILO SISTEMA ANTERIOR */}
+        <div className="p-3 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between text-xs text-slate-600 gap-2">
+          <div className="flex items-center gap-2">
+            <span>Página 1 de 27 (1328 elementos)</span>
+            <span className="text-slate-300">|</span>
+            <button
+              type="button"
+              className="text-blue-600 hover:underline font-bold cursor-pointer"
+              onClick={() => showToast('Generador de filtros avanzado')}
+            >
+              Crear filtro
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 space-y-1">
-              <div className="text-[11px] font-bold text-emerald-800 uppercase">Élite D-AAA (18% - 10%)</div>
-              <div className="text-xl font-black text-emerald-900 font-mono">$4,570.80 MXN</div>
-              <div className="text-[10px] text-emerald-700">2 Distribuidoras beneficiadas</div>
-            </div>
-
-            <div className="p-4 bg-blue-50 rounded-xl border border-blue-200 space-y-1">
-              <div className="text-[11px] font-bold text-blue-800 uppercase">D-AA & E-AAA (16% - 8%)</div>
-              <div className="text-xl font-black text-blue-900 font-mono">$2,188.00 MXN</div>
-              <div className="text-[10px] text-blue-700">2 Distribuidoras beneficiadas</div>
-            </div>
-
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-              <div className="text-[11px] font-bold text-slate-700 uppercase">Emprendedora E-A (12% - 4%)</div>
-              <div className="text-xl font-black text-slate-900 font-mono">$492.00 MXN</div>
-              <div className="text-[10px] text-slate-500">1 Distribuidora beneficiada</div>
-            </div>
+          <div className="flex items-center gap-1 font-semibold">
+            <button
+              type="button"
+              disabled
+              className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-400 cursor-not-allowed text-[11px]"
+            >
+              &lt;&lt;
+            </button>
+            <button
+              type="button"
+              disabled
+              className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-400 cursor-not-allowed text-[11px]"
+            >
+              &lt;
+            </button>
+            <span className="px-2.5 py-1 bg-blue-600 text-white rounded font-bold text-[11px]">
+              1
+            </span>
+            <button
+              type="button"
+              onClick={() => showToast('Navegando a página 2')}
+              className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
+            >
+              2
+            </button>
+            <button
+              type="button"
+              onClick={() => showToast('Navegando a página 3')}
+              className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
+            >
+              3
+            </button>
+            <button
+              type="button"
+              onClick={() => showToast('Navegando a página 4')}
+              className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
+            >
+              4
+            </button>
+            <span className="px-1 text-slate-400">...</span>
+            <button
+              type="button"
+              className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
+            >
+              26
+            </button>
+            <button
+              type="button"
+              className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
+            >
+              27
+            </button>
+            <button
+              type="button"
+              className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
+            >
+              &gt;
+            </button>
+            <button
+              type="button"
+              className="px-2 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 text-[11px] cursor-pointer"
+            >
+              &gt;&gt;
+            </button>
+            <button
+              type="button"
+              className="px-2 py-1 rounded border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 text-[11px] font-bold cursor-pointer"
+            >
+              All
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
       {/* ======================================================== */}
       {/* 5. MODAL: PERSONALIZAR COLUMNAS                         */}

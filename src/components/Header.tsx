@@ -345,32 +345,6 @@ export default function Header({
                     <BarChart3 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>Colocación Por Distribuidor</span>
                   </button>
-
-                  {/* 2. Índice de Morosidad (IMOR) */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleSelectModule('reportes', 'vintage');
-                      setReportesOpen(false);
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
-                  >
-                    <PieChart className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>Índice Morosidad (IMOR)</span>
-                  </button>
-
-                  {/* 3. Bonificaciones Escala 30-15 */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleSelectModule('reportes', 'comisiones');
-                      setReportesOpen(false);
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
-                  >
-                    <Award className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>Bonificaciones Escala 30-15</span>
-                  </button>
                 </div>
               </div>
             )}
