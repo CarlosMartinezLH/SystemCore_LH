@@ -507,22 +507,30 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5">
               <a
                 href="/dist/apk/lanapp-distribuidoras.apk"
                 download="lanapp-distribuidoras.apk"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#facc15] text-slate-950 font-black text-xs hover:bg-yellow-400 shadow-md transition transform active:scale-95"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#facc15] text-slate-950 font-black text-xs hover:bg-yellow-400 shadow-md transition transform active:scale-95"
               >
                 <Download className="w-4 h-4" />
-                Descargar APK LanApp (Android)
+                <span>APK Distribuidora (LanApp)</span>
+              </a>
+              <a
+                href="/dist/apk/lh-asesores.apk"
+                download="lh-asesores.apk"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md transition transform active:scale-95 border border-blue-400/50"
+              >
+                <Download className="w-4 h-4" />
+                <span>APK Asesores (Captación)</span>
               </a>
               {onNavigateToDispersion && (
                 <button
                   onClick={onNavigateToDispersion}
-                  className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition"
+                  className="inline-flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition"
                 >
                   <CreditCard className="w-4 h-4 text-[#facc15]" />
-                  Ver en Dispersiones STP
+                  <span>Ver en Dispersiones STP</span>
                 </button>
               )}
             </div>
@@ -2403,32 +2411,81 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
               </button>
             </div>
 
-            {/* Card 2: Descarga del APK Flutter */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3">
-              <div className="flex items-center gap-2">
-                <Smartphone className="w-5 h-5 text-blue-600" />
-                <h4 className="font-black text-slate-900 text-sm">App Nativa de Distribuidoras</h4>
-              </div>
-              <p className="text-xs text-slate-500">
-                Paquete binario compilado en Flutter 3.47 con arquitectura offline-first y soporte Android 8+:
-              </p>
-              <div className="p-2.5 bg-blue-50 rounded-xl border border-blue-100 text-xs flex items-center justify-between">
-                <div>
-                  <p className="font-black text-blue-900">lanapp-distribuidoras.apk</p>
-                  <p className="text-[10px] text-blue-600 font-medium">Build Oficial • Release Ready</p>
+            {/* Card 2: Descarga de los 2 APKs Oficiales */}
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="w-5 h-5 text-blue-600" />
+                  <h4 className="font-black text-slate-900 text-sm">Apps Oficiales para Celular (2 APKs)</h4>
                 </div>
-                <span className="px-2 py-0.5 bg-blue-200 text-blue-800 rounded font-black text-[10px]">
-                  APK
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Android 8+
                 </span>
               </div>
-              <a
-                href="/dist/apk/lanapp-distribuidoras.apk"
-                download="lanapp-distribuidoras.apk"
-                className="w-full py-2 rounded-xl bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 transition"
-              >
-                <Download className="w-4 h-4" />
-                Descargar Instalador APK
-              </a>
+              <p className="text-xs text-slate-500">
+                Paquetes binarios instalables con soporte offline, geolocalización GPS y firma digital:
+              </p>
+
+              {/* APK 1: Distribuidoras */}
+              <div className="p-3 bg-blue-50/70 rounded-xl border border-blue-100 text-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-black text-blue-900">1. LanApp Distribuidoras</p>
+                    <p className="text-[10px] text-blue-700 font-medium">Emisión de Vales & Canje Digital</p>
+                  </div>
+                  <span className="px-2 py-0.5 bg-blue-200 text-blue-900 rounded font-black text-[10px]">
+                    54.7 MB
+                  </span>
+                </div>
+                <a
+                  href="/dist/apk/lanapp-distribuidoras.apk"
+                  download="lanapp-distribuidoras.apk"
+                  className="w-full py-2 rounded-lg bg-[#facc15] hover:bg-yellow-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 transition shadow-xs"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Descargar lanapp-distribuidoras.apk</span>
+                </a>
+              </div>
+
+              {/* APK 2: Asesores de Campo */}
+              <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-100 text-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-black text-amber-950">2. LH Asesores en Ruta</p>
+                    <p className="text-[10px] text-amber-800 font-medium">Captación de Nuevos Distribuidores</p>
+                  </div>
+                  <span className="px-2 py-0.5 bg-amber-200 text-amber-900 rounded font-black text-[10px]">
+                    54.7 MB
+                  </span>
+                </div>
+                <a
+                  href="/dist/apk/lh-asesores.apk"
+                  download="lh-asesores.apk"
+                  className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-black text-xs flex items-center justify-center gap-1.5 transition shadow-xs"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Descargar lh-asesores.apk</span>
+                </a>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                <a
+                  href="/lanapp"
+                  target="_blank"
+                  className="text-blue-600 hover:underline font-bold flex items-center gap-1"
+                >
+                  <span>Abrir Web LanApp</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+                <a
+                  href="/asesores"
+                  target="_blank"
+                  className="text-indigo-600 hover:underline font-bold flex items-center gap-1"
+                >
+                  <span>Abrir Web Asesores</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
             </div>
           </div>
 

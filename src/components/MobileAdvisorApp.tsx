@@ -19,6 +19,7 @@ import {
   LogOut,
   Phone,
   Bell,
+  Download,
 } from 'lucide-react';
 import { useCoreSync } from '@/context/CoreSyncContext';
 
@@ -195,15 +196,26 @@ export default function MobileAdvisorApp({
         <div className="hidden sm:flex items-center justify-between w-full max-w-sm mb-3 text-xs text-blue-900 font-bold">
           <span className="flex items-center gap-1.5">
             <Smartphone className="w-4 h-4 text-[#2563eb]" />
-            <span>App Móvil de Asesores LanAhora</span>
+            <span>App Móvil de Asesores</span>
           </span>
-          <button
-            onClick={onSwitchToDesktop}
-            className="text-[#2563eb] hover:underline flex items-center gap-1"
-          >
-            <span>Ir a Vista Desktop</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <a
+              href="/dist/apk/lh-asesores.apk"
+              download="lh-asesores.apk"
+              className="px-2 py-0.5 bg-[#facc15] hover:bg-yellow-400 text-slate-950 rounded-lg text-[10px] font-black flex items-center gap-1 shadow-xs transition"
+              title="Descargar paquete APK para celulares Android"
+            >
+              <Download className="w-3 h-3" />
+              <span>Descargar APK</span>
+            </a>
+            <button
+              onClick={onSwitchToDesktop}
+              className="text-[#2563eb] hover:underline flex items-center gap-1 text-[11px]"
+            >
+              <span>Desktop</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -734,8 +746,27 @@ export default function MobileAdvisorApp({
                   </div>
                   <div className="flex justify-between">
                     <span>Versión:</span>
-                    <span className="font-mono">v2.4.0 (PWA Móvil)</span>
+                    <span className="font-mono">v2.4.0 (PWA & APK Android)</span>
                   </div>
+                </div>
+
+                {/* Descarga de APK Oficial */}
+                <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-blue-900 text-[11px]">Paquete APK para Android</span>
+                    <span className="px-2 py-0.5 bg-blue-200 text-blue-800 rounded font-black text-[9px]">Oficial</span>
+                  </div>
+                  <p className="text-[10px] text-slate-600 leading-tight">
+                    Instalador nativo para trabajo en campo con captura de fotos, coordenadas GPS y firma táctil.
+                  </p>
+                  <a
+                    href="/dist/apk/lh-asesores.apk"
+                    download="lh-asesores.apk"
+                    className="w-full py-2 bg-[#facc15] hover:bg-yellow-400 text-slate-950 rounded-lg font-black text-xs flex items-center justify-center gap-1.5 transition shadow-xs"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Descargar lh-asesores.apk</span>
+                  </a>
                 </div>
 
                 <button

@@ -27,6 +27,8 @@ import {
   BarChart3,
   PieChart,
   ShieldAlert,
+  Smartphone,
+  Download,
 } from 'lucide-react';
 
 export type ActiveAppModule =
@@ -430,6 +432,37 @@ export default function Header({
                         : 'Sesión Segura (14 días)'}
                     </span>
                   </div>
+                </div>
+
+                <div className="py-1.5 border-t border-slate-100">
+                  <div className="px-3 py-1 text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                    <span>Apps Móviles (2 APKs)</span>
+                    <span className="text-[9px] bg-emerald-50 text-emerald-700 px-1 rounded font-bold">Android</span>
+                  </div>
+                  <a
+                    href="/dist/apk/lanapp-distribuidoras.apk"
+                    download="lanapp-distribuidoras.apk"
+                    className="w-full text-left px-3 py-1.5 rounded-lg text-slate-700 hover:bg-blue-50/70 hover:text-blue-700 text-xs font-semibold flex items-center justify-between transition cursor-pointer"
+                    title="Descargar APK LanApp para Distribuidoras (54.7 MB)"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Smartphone className="w-3.5 h-3.5 text-blue-600" />
+                      <span>1. LanApp (Distribuidora)</span>
+                    </span>
+                    <Download className="w-3 h-3 text-slate-400" />
+                  </a>
+                  <a
+                    href="/dist/apk/lh-asesores.apk"
+                    download="lh-asesores.apk"
+                    className="w-full text-left px-3 py-1.5 rounded-lg text-slate-700 hover:bg-amber-50/70 hover:text-amber-800 text-xs font-semibold flex items-center justify-between transition cursor-pointer"
+                    title="Descargar APK LH Asesores en Campo (54.7 MB)"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Smartphone className="w-3.5 h-3.5 text-amber-600" />
+                      <span>2. LH Asesores (Captación)</span>
+                    </span>
+                    <Download className="w-3 h-3 text-slate-400" />
+                  </a>
                 </div>
 
                 <div className="pt-1 border-t border-slate-100">
