@@ -15,6 +15,7 @@ import SucursalesView from '@/components/SucursalesView';
 import CatalogosView, { CatalogoTab } from '@/components/CatalogosView';
 import UsuariosView from '@/components/UsuariosView';
 import GlobalCarteraView from '@/components/GlobalCarteraView';
+import TotalesCarteraView from '@/components/TotalesCarteraView';
 import DistribuidoresView from '@/components/DistribuidoresView';
 import RHView from '@/components/RHView';
 import DispersionView from '@/components/DispersionView';
@@ -62,6 +63,7 @@ function SystemCoreApp() {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
   const [activeModule, setActiveModule] = useState<ActiveAppModule>('core_dashboard');
   const [catalogosActiveTab, setCatalogosActiveTab] = useState<CatalogoTab>('usuarios');
+  const [carteraSubModule, setCarteraSubModule] = useState<'global' | 'totales' | 'legal'>('global');
   const [carteraSubTab, setCarteraSubTab] = useState<'TODA' | 'VIGENTE' | 'ATRASO' | 'LEGAL' | 'LIQUIDADA'>('TODA');
   const [selectedProspectId, setSelectedProspectId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'kanban' | 'list'>('kanban');
@@ -338,10 +340,12 @@ function SystemCoreApp() {
             setActiveModule(mod);
             if (mod === 'cartera') {
               if (subTab === 'legal') {
+                setCarteraSubModule('legal');
                 setCarteraSubTab('LEGAL');
               } else if (subTab === 'totales') {
-                setCarteraSubTab('TODA');
+                setCarteraSubModule('totales');
               } else {
+                setCarteraSubModule('global');
                 setCarteraSubTab('TODA');
               }
             }
@@ -369,7 +373,17 @@ function SystemCoreApp() {
                 onNavigateToPLD={() => setActiveModule('pld')}
               />
             ) : activeModule === 'cartera' ? (
-              <GlobalCarteraView currentUser={currentUser} initialFilter={carteraSubTab} />
+              carteraSubModule === 'totales' ? (
+                <TotalesCarteraView
+                  currentUser={currentUser}
+                  onNavigateToGlobal={(sucursal) => {
+                    setCarteraSubModule('global');
+                    setCarteraSubTab('TODA');
+                  }}
+                />
+              ) : (
+                <GlobalCarteraView currentUser={currentUser} initialFilter={carteraSubTab} />
+              )
             ) : activeModule === 'catalogos' || activeModule === 'usuarios' ? (
               <UsuariosView currentUser={currentUser} />
             ) : activeModule === 'mesa_credito' ? (
