@@ -36,6 +36,7 @@ import { formatMoney } from '@/lib/utils/formatters';
 import RelacionCobranzaModal from './modals/RelacionCobranzaModal';
 import EstadoCuentaDistribuidorModal from './modals/EstadoCuentaDistribuidorModal';
 import NotasCarteraModal from './modals/NotasCarteraModal';
+import DetallesCarteraModal from './modals/DetallesCarteraModal';
 
 interface GlobalCarteraViewProps {
   currentUser?: UserSession | null;
@@ -1015,103 +1016,14 @@ export default function GlobalCarteraView({
       {/* 5. MODALES OPERACIONALES                                 */}
       {/* ======================================================== */}
 
-      {/* MODAL 1: DETALLES DE CARTERA */}
+      {/* MODAL 1: DETALLES DE CARTERA (RÉPLICA EXACTA SISTEMA LEGADO) */}
       {isDetallesOpen && selectedItem && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-150">
-            <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <Eye className="w-4 h-4 text-indigo-600" />
-                <span>Detalle de Cartera • Contrato #{selectedItem.contratoId}</span>
-              </h3>
-              <button onClick={() => setIsDetallesOpen(false)} className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-5 space-y-4 text-xs">
-              <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-200 flex justify-between items-center">
-                <div>
-                  <span className="text-[10px] font-bold uppercase text-blue-600 block">Distribuidor</span>
-                  <span className="text-sm font-black text-slate-900">{selectedItem.nombreCompleto}</span>
-                  <div className="text-[11px] text-slate-500 font-mono">
-                    No. Dist: #{selectedItem.numeroDist} • Persona ID: #{selectedItem.personaId}
-                  </div>
-                </div>
-                <span className="px-3 py-1 rounded-lg text-xs font-black bg-blue-600 text-white">
-                  NIVEL {selectedItem.distribuidorNivel}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
-                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                  <span className="text-[10px] text-slate-400 font-bold block">Importe Total</span>
-                  <span className="font-mono font-bold text-slate-800 text-sm">{formatMoney(selectedItem.importeTotal)}</span>
-                </div>
-                <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200">
-                  <span className="text-[10px] text-emerald-600 font-bold block">Saldo Actual</span>
-                  <span className="font-mono font-black text-emerald-800 text-sm">{formatMoney(selectedItem.saldoActual)}</span>
-                </div>
-                <div className="p-2.5 bg-rose-50 rounded-xl border border-rose-200">
-                  <span className="text-[10px] text-rose-600 font-bold block">Saldo Atrasado</span>
-                  <span className="font-mono font-black text-rose-800 text-sm">{formatMoney(selectedItem.saldoAtrasado)}</span>
-                </div>
-                <div className="p-2.5 bg-indigo-50 rounded-xl border border-indigo-200">
-                  <span className="text-[10px] text-indigo-600 font-bold block">Línea Adicional</span>
-                  <span className="font-mono font-bold text-indigo-800 text-sm">{formatMoney(selectedItem.lineaCreditoAdic)}</span>
-                </div>
-              </div>
-
-              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <span className="font-bold text-slate-800 block text-xs">Desglose Financiero del Contrato:</span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Capital:</span>
-                    <strong className="font-mono text-slate-700">{formatMoney(selectedItem.capital)}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Interés Ordinario:</span>
-                    <strong className="font-mono text-slate-700">{formatMoney(selectedItem.interes)}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Seguro:</span>
-                    <strong className="font-mono text-slate-700">{formatMoney(selectedItem.seguro)}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">IVA:</span>
-                    <strong className="font-mono text-slate-700">{formatMoney(selectedItem.iva)}</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <span className="text-slate-400 block">Sucursal:</span>
-                  <strong className="text-slate-800">{selectedItem.sucursal}</strong>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">Coordinador Asignado:</span>
-                  <strong className="text-slate-800">{selectedItem.coordinador}</strong>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">Fecha de Contrato:</span>
-                  <strong className="font-mono text-slate-800">{selectedItem.fechaContrato || '10/01/2025'}</strong>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">Último Abono Registrado:</span>
-                  <strong className="font-mono text-emerald-700">{selectedItem.ultimoPagoFecha ? `${selectedItem.ultimoPagoFecha} (${formatMoney(selectedItem.ultimoPagoMonto || 0)})` : 'Sin abonos'}</strong>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 bg-slate-50 border-t flex justify-end">
-              <button
-                onClick={() => setIsDetallesOpen(false)}
-                className="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl cursor-pointer"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
+        <DetallesCarteraModal
+          isOpen={isDetallesOpen}
+          onClose={() => setIsDetallesOpen(false)}
+          distribuidor={selectedItem}
+          currentUser={currentUser}
+        />
       )}
 
       {/* MODAL 2: ESTADO DE CUENTA OFICIAL (RÉPLICA EXACTA) */}
