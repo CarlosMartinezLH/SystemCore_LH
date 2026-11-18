@@ -35,6 +35,14 @@ import {
   Search,
   Bell,
   Calendar,
+  Home,
+  ArrowUpRight,
+  ArrowDownLeft,
+  MessageSquare,
+  Gift,
+  Copy,
+  Link2,
+  Phone,
 } from 'lucide-react';
 import { useCoreSync } from '@/context/CoreSyncContext';
 import { formatMoney } from '@/lib/utils/formatters';
@@ -196,13 +204,21 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
 
   // Pasos de LanApp DV:
   // 1: Login
-  // 2: Mi Perfil
+  // 2: Mi Perfil (Dashboard Fintech LanAhora)
   // 3: Mis Clientes (o Créditos)
   // 4: Crédito Nuevo (Vale digital con canje)
   // 5: Información / Autorización (Crédito ID #2)
   // 6: Compartir por WhatsApp
-  const [dvStep, setDvStep] = useState<number>(1);
+  const [dvStep, setDvStep] = useState<number>(2);
   const [dvTab, setDvTab] = useState<'perfil' | 'creditos' | 'clientes' | 'valera' | 'relacion'>('perfil');
+
+  // Modales de acciones rápidas (Estilo Fintech)
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showRelacionModal, setShowRelacionModal] = useState(false);
+  const [showLanapuntosModal, setShowLanapuntosModal] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [copiedClabe, setCopiedClabe] = useState(false);
+  const [copiedInvite, setCopiedInvite] = useState(false);
 
   // Pasos de Acredítala (Cliente):
   // 8: Detalle de Vale ($1,000 / 6 quincenas $237)
@@ -655,6 +671,278 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                 </div>
               )}
 
+              {/* MODAL PAGAR SALDO (DATOS BANCARIOS STP / BANORTE / PAYNET) */}
+              {showPaymentModal && (
+                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-end p-3 animate-in fade-in">
+                  <div className="w-full bg-[#1e293b] rounded-3xl p-4 text-white border border-slate-700 shadow-2xl space-y-3 max-h-[90%] overflow-y-auto no-scrollbar">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-700">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black">
+                          <DollarSign className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-black">Pagar Saldo Relación</h4>
+                          <span className="text-[9px] text-slate-400">Distribuidora DV 1004</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowPaymentModal(false)}
+                        className="text-slate-400 hover:text-white p-1 cursor-pointer font-bold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="bg-slate-900/90 rounded-2xl p-3 border border-slate-800 text-center">
+                      <span className="text-[9.5px] text-slate-400 font-bold block">Saldo a Liquidar (Corte 24 Nov)</span>
+                      <p className="text-xl font-black text-amber-400 mt-0.5">$10,460.00 MXN</p>
+                      <span className="text-[8.5px] text-emerald-400 font-bold block mt-0.5">Paga a tiempo para asegurar tu 10% de comisión</span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {/* STP CLABE */}
+                      <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/80 flex items-center justify-between">
+                        <div>
+                          <span className="text-[8.5px] font-bold text-slate-400 block">TRANSFERENCIA SPEI (STP)</span>
+                          <span className="text-[11px] font-mono font-black text-white tracking-wider">646180123456789012</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                              navigator.clipboard.writeText('646180123456789012');
+                            }
+                            setCopiedClabe(true);
+                            setTimeout(() => setCopiedClabe(false), 2500);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-black flex items-center gap-1 transition cursor-pointer"
+                        >
+                          <Copy className="w-3 h-3" />
+                          <span>{copiedClabe ? '¡Copiado!' : 'Copiar'}</span>
+                        </button>
+                      </div>
+
+                      {/* BANORTE */}
+                      <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/80 flex items-center justify-between">
+                        <div>
+                          <span className="text-[8.5px] font-bold text-slate-400 block">VENTANILLA / CAJERO BANORTE</span>
+                          <span className="text-[10px] text-white font-black">Emisora / Convenio: 10429</span>
+                          <span className="text-[9px] text-slate-300 block">Ref: 9601004</span>
+                        </div>
+                        <Building2 className="w-4 h-4 text-slate-400" />
+                      </div>
+
+                      {/* PAYNET / TIENDAS */}
+                      <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/80 flex items-center justify-between">
+                        <div>
+                          <span className="text-[8.5px] font-bold text-slate-400 block">PAYNET / 7-ELEVEN / FARMACIAS</span>
+                          <span className="text-[10px] text-white font-mono font-black">9601-0045-8910</span>
+                        </div>
+                        <QrCode className="w-4 h-4 text-slate-400" />
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setShowPaymentModal(false)}
+                      className="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-yellow-400 text-slate-950 font-black text-xs transition shadow-md active:scale-95 cursor-pointer"
+                    >
+                      Listo / Cerrar
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL RELACIÓN DE COBRANZA */}
+              {showRelacionModal && (
+                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-end p-3 animate-in fade-in">
+                  <div className="w-full bg-[#1e293b] rounded-3xl p-4 text-white border border-slate-700 shadow-2xl space-y-3 max-h-[90%] overflow-y-auto no-scrollbar">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-700">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-black">Relación de Cobranza</h4>
+                          <span className="text-[9px] text-slate-400">Quincena 22 (16 - 30 Nov)</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowRelacionModal(false)}
+                        className="text-slate-400 hover:text-white p-1 cursor-pointer font-bold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-center">
+                      <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                        <span className="text-[8.5px] font-bold text-slate-400 block">A COBRAR</span>
+                        <span className="text-sm font-black text-white">$10,460.00</span>
+                      </div>
+                      <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                        <span className="text-[8.5px] font-bold text-slate-400 block">COMISIÓN ESTIMADA</span>
+                        <span className="text-sm font-black text-amber-400">$4,589.00</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-900/60 rounded-xl p-2.5 border border-slate-800 text-[9.5px] space-y-1.5 text-slate-300">
+                      <div className="flex justify-between">
+                        <span>Total de vales activos:</span>
+                        <strong className="text-white">14 vales</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Colocación acumulada:</span>
+                        <strong className="text-white">$45,890.00</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Nivel de comisión:</span>
+                        <strong className="text-blue-300">PLATA (10%)</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Fecha límite de pago:</span>
+                        <strong className="text-amber-400">24/11/2026</strong>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        alert('Descargando Relación de Cobranza Quincena 22 en PDF...');
+                        setShowRelacionModal(false);
+                      }}
+                      className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center justify-center gap-1.5 transition shadow-md active:scale-95 cursor-pointer"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Descargar Relación PDF</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL LANAPUNTOS / $300 INVITAR */}
+              {showLanapuntosModal && (
+                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-end p-3 animate-in fade-in">
+                  <div className="w-full bg-[#1e293b] rounded-3xl p-4 text-white border border-slate-700 shadow-2xl space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-700">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black">
+                          <Gift className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-black">Gana $300 en Efectivo</h4>
+                          <span className="text-[9px] text-slate-400">Programa de Referidos LanAhora</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowLanapuntosModal(false)}
+                        className="text-slate-400 hover:text-white p-1 cursor-pointer font-bold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="bg-slate-900/80 rounded-2xl p-3 border border-slate-800 text-center space-y-1">
+                      <span className="text-[9.5px] text-slate-400 font-bold block">Tus Lanapuntos acumulados</span>
+                      <p className="text-xl font-black text-amber-400">16,125 pts</p>
+                      <span className="text-[8.5px] text-emerald-400 font-bold block">Equivalente a $300.00 MXN canjeables</span>
+                    </div>
+
+                    <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/80 space-y-1">
+                      <span className="text-[8.5px] font-bold text-slate-400 block">COMPARTE TU CÓDIGO CON OTRAS DISTRIBUIDORAS:</span>
+                      <div className="flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-700">
+                        <span className="font-mono font-black text-xs text-amber-400 tracking-wider">LANA-CONCE1004</span>
+                        <button
+                          onClick={() => {
+                            if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                              navigator.clipboard.writeText('LANA-CONCE1004');
+                            }
+                            setCopiedInvite(true);
+                            setTimeout(() => setCopiedInvite(false), 2500);
+                          }}
+                          className="text-[9px] font-bold text-blue-400 hover:text-blue-300 underline cursor-pointer"
+                        >
+                          {copiedInvite ? '¡Copiado!' : 'Copiar'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('¡Hola! Te invito a ser Distribuidora en LanAhora y ganar comisiones cada quincena. Usa mi código LANA-CONCE1004 para recibir tu bono de bienvenida.'), '_blank');
+                        setShowLanapuntosModal(false);
+                      }}
+                      className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs flex items-center justify-center gap-1.5 transition shadow-md active:scale-95 cursor-pointer"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      <span>Compartir por WhatsApp</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL SOPORTE / COORDINADOR */}
+              {showSupportModal && (
+                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-end p-3 animate-in fade-in">
+                  <div className="w-full bg-[#1e293b] rounded-3xl p-4 text-white border border-slate-700 shadow-2xl space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-700">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black">
+                          <MessageSquare className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-black">Soporte y Atención</h4>
+                          <span className="text-[9px] text-slate-400">Estamos para apoyarte</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowSupportModal(false)}
+                        className="text-slate-400 hover:text-white p-1 cursor-pointer font-bold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="bg-slate-900/80 rounded-2xl p-3 border border-slate-800 space-y-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-full bg-slate-800 text-amber-400 font-black text-xs flex items-center justify-center border border-slate-700">
+                          JG
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black text-white">José Miguel González Vargas</p>
+                          <span className="text-[9px] text-slate-400 block">Tu Coordinador de Negocios Asignado</span>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-slate-800 pt-2 flex items-center justify-between text-[10px]">
+                        <span className="text-slate-400">Teléfono directo:</span>
+                        <strong className="text-white">844-329-8471</strong>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="text-slate-400">WhatsApp Mesa de Ayuda:</span>
+                        <strong className="text-emerald-400">(844) 100-LANA</strong>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <a
+                        href="tel:8443298471"
+                        className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition text-center"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>Llamar</span>
+                      </a>
+                      <a
+                        href="https://api.whatsapp.com/send?phone=528443298471"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition text-center"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                        <span>WhatsApp</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* SCREEN CONTENT CONDITIONAL RENDERING */}
               <div className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col">
                 {showNotificationsCenter ? (
@@ -877,151 +1165,276 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                       </div>
                     </div>
                   ) : dvStep === 2 ? (
-                    /* PASO 2: MI PERFIL DISTRIBUIDORA */
-                    <div className="flex-1 flex flex-col px-4 py-2">
-                      {/* Top Bar */}
-                      <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                        <button onClick={() => setDvStep(1)}>
-                          <ArrowLeft className="w-5 h-5 text-white" />
-                        </button>
-                        <span className="text-xs font-black uppercase tracking-widest text-white">
-                          Mi Perfil
-                        </span>
-                        <button
-                          onClick={() => setShowNotificationsCenter(true)}
-                          className="relative p-1 rounded-full text-white/80 hover:text-white transition"
-                          title="Centro de Notificaciones"
-                        >
-                          <Bell className="w-4 h-4 text-white" />
-                          {unreadCount > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-red-500 text-white text-[8px] font-black flex items-center justify-center animate-pulse">
-                              {unreadCount}
+                    /* PASO 2: DASHBOARD FINTECH DISTRIBUIDORA (ESTILO MODERNO LANAHORA) */
+                    <div className="flex-1 flex flex-col pt-1 pb-3 px-3">
+                      {/* Top Bar / Profile Header */}
+                      <div className="flex items-center justify-between pb-2">
+                        {/* Left: Plata Level Badge */}
+                        <div className="flex items-center gap-2">
+                          <div className="px-2.5 py-0.5 rounded-full bg-blue-600/70 border border-blue-400/50 text-[9px] font-black text-white tracking-widest flex items-center gap-1 shadow-xs">
+                            <Award className="w-2.5 h-2.5 text-amber-300" />
+                            <span>PLATA</span>
+                          </div>
+                        </div>
+
+                        {/* Center: Distribuidora Name & Role */}
+                        <div className="text-center flex-1 mx-2 min-w-0">
+                          <h3 className="text-xs font-black text-white truncate leading-tight">
+                            Concepcion Montelongo
+                          </h3>
+                          <p className="text-[9px] text-white/60 font-semibold leading-tight">
+                            Distribuidora DV 1004
+                          </p>
+                        </div>
+
+                        {/* Right: Notifications & Quick Profile */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setShowNotificationsCenter(true)}
+                            className="relative p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+                            title="Notificaciones"
+                          >
+                            <Bell className="w-4 h-4 text-white" />
+                            {unreadCount > 0 && (
+                              <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => setDvStep(1)}
+                            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition cursor-pointer"
+                            title="Cerrar sesión"
+                          >
+                            <User className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* HERO BALANCE CARD (Glassmorphism LanAhora Royal Navy) */}
+                      <div className="relative mt-2 p-4 rounded-[26px] bg-gradient-to-br from-[#1e3a8a]/85 via-[#172554]/90 to-[#0f172a]/95 border border-white/15 shadow-xl text-white backdrop-blur-md overflow-hidden">
+                        {/* Subtle Background Glow Accent */}
+                        <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-blue-500/20 blur-2xl pointer-events-none" />
+                        <div className="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-amber-400/10 blur-xl pointer-events-none" />
+
+                        {/* Top row: Balance amount & Alert pill */}
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <span className="text-[10px] font-bold text-white/70 tracking-wide block">
+                              Línea de crédito disponible
                             </span>
-                          )}
-                        </button>
+                            <div className="text-2xl font-black text-white tracking-tight mt-0.5">
+                              $40,000.00
+                            </div>
+                            <span className="text-[9.5px] font-medium text-white/60 block mt-0.5">
+                              2 cuentas activas • Línea total $55,000.00
+                            </span>
+                          </div>
+
+                          {/* Alert Badge Pill (1 >) */}
+                          <button
+                            onClick={() => setShowNotificationsCenter(true)}
+                            className="bg-red-500 hover:bg-red-600 text-white text-[9.5px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md shadow-red-500/30 transition cursor-pointer"
+                          >
+                            <span>1</span>
+                            <ChevronRight className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+
+                        {/* Action Buttons: Prestar Vale & Pagar Saldo */}
+                        <div className="grid grid-cols-2 gap-2.5 mt-4 relative z-10">
+                          <button
+                            onClick={() => setDvStep(3)}
+                            className="bg-white/15 hover:bg-white/25 active:scale-95 text-white font-black text-[11px] py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 border border-white/20 transition backdrop-blur-xs shadow-sm cursor-pointer"
+                          >
+                            <ArrowDownLeft className="w-3.5 h-3.5 text-[#facc15]" />
+                            <span>Prestar Vale</span>
+                          </button>
+                          <button
+                            onClick={() => setShowPaymentModal(true)}
+                            className="bg-[#facc15] hover:bg-yellow-400 active:scale-95 text-slate-950 font-black text-[11px] py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 transition shadow-md shadow-amber-400/20 cursor-pointer"
+                          >
+                            <ArrowUpRight className="w-3.5 h-3.5 text-slate-950" />
+                            <span>Pagar Saldo</span>
+                          </button>
+                        </div>
                       </div>
 
-                      {/* Silver Badge & DV Name */}
-                      <div className="flex flex-col items-center my-3">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-slate-200 via-slate-400 to-slate-600 p-0.5 shadow-xl border-2 border-white/60 flex items-center justify-center relative">
-                          <Award className="w-8 h-8 text-white" />
-                          <span className="absolute -bottom-1.5 px-2 py-0.2 rounded-full bg-slate-800 text-[8px] font-black text-white tracking-widest border border-slate-600">
-                            PLATA
-                          </span>
-                        </div>
-                        <h3 className="text-xs font-black text-white text-center mt-3 uppercase tracking-wide">
-                          Distribuidora
-                          <br />
-                          Concepcion Montelongo de la Rosa
-                        </h3>
-                      </div>
-
-                      {/* DV ID, Status, Level */}
-                      <div className="bg-white/10 rounded-xl p-2 grid grid-cols-3 gap-1 text-center border border-white/10">
-                        <div>
-                          <p className="text-[8px] font-bold text-white/60">NO. DISTRIBUIDOR</p>
-                          <p className="text-xs font-black text-white">1004</p>
-                        </div>
-                        <div>
-                          <p className="text-[8px] font-bold text-white/60">ESTATUS</p>
-                          <p className="text-xs font-black text-emerald-400">ACTIVO</p>
-                        </div>
-                        <div>
-                          <p className="text-[8px] font-bold text-white/60">NIVEL</p>
-                          <p className="text-xs font-black text-white">PLATA</p>
-                        </div>
-                      </div>
-
-                      {/* Notificaciones Push Status Pill */}
-                      <button
-                        onClick={() => {
-                          if (!mobileNotificationAccepted) {
-                            handleAcceptNotificationPermission();
-                          } else {
-                            setShowNotificationsCenter(true);
-                          }
-                        }}
-                        className={`mt-2 py-1 px-3 rounded-xl text-[9px] font-bold flex items-center justify-between transition cursor-pointer ${
-                          mobileNotificationAccepted
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                            : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse'
-                        }`}
+                      {/* MOVIMIENTOS PILL BAR */}
+                      <div
+                        onClick={() => setShowRelacionModal(true)}
+                        className="mt-2.5 rounded-2xl bg-[#162752]/90 border border-white/15 px-3.5 py-2.5 flex items-center justify-between shadow-sm cursor-pointer hover:bg-[#1c3268]/90 transition"
                       >
-                        <div className="flex items-center gap-1.5">
-                          <Bell className="w-3.5 h-3.5" />
-                          <span>{mobileNotificationAccepted ? 'Notificaciones Push Activas' : 'Activar Notificaciones de Cobro'}</span>
+                        <div className="min-w-0">
+                          <h4 className="text-[11px] font-black text-white leading-tight">
+                            Movimientos
+                          </h4>
+                          <p className="text-[9.5px] font-medium leading-tight mt-0.5 flex items-center gap-1">
+                            <span className="text-emerald-400 font-bold">+$45,890</span>
+                            <span className="text-white/60">• Próximo corte: 24 Nov</span>
+                          </p>
                         </div>
-                        <span className="text-[8.5px] underline font-black">{mobileNotificationAccepted ? 'Ver centro' : 'Aceptar'}</span>
-                      </button>
+                        <ChevronRight className="w-3.5 h-3.5 text-white/60 shrink-0" />
+                      </div>
 
-                      {/* Líneas de Crédito */}
-                      <div className="space-y-1.5 mt-2.5">
-                        <div className="bg-[#1E3A75] p-2.5 rounded-xl border border-[#facc15]/40 flex items-center justify-between">
-                          <div>
-                            <p className="text-[9px] font-bold text-white/70">Línea VALE LANA</p>
-                            <p className="text-xs font-black text-white">$55,000.00</p>
+                      {/* LOWER WHITE/SLATE SURFACE (Rounded curved transition) */}
+                      <div className="mt-3 -mx-3 -mb-3 px-3.5 pt-3.5 pb-2 bg-[#f8fafc] rounded-t-[30px] flex-1 flex flex-col space-y-2.5 shadow-2xl text-slate-900">
+                        {/* 3 Quick Action Cards */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <button
+                            onClick={() => setDvStep(3)}
+                            className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center justify-center text-center hover:bg-slate-50 transition active:scale-95 cursor-pointer"
+                          >
+                            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1d4ed8] flex items-center justify-center mb-1.5 border border-blue-100">
+                              <Link2 className="w-4 h-4" />
+                            </div>
+                            <span className="text-[9.5px] font-black text-slate-800 leading-tight">
+                              Prestar Vale
+                            </span>
+                          </button>
+
+                          <button
+                            onClick={() => setShowRelacionModal(true)}
+                            className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center justify-center text-center hover:bg-slate-50 transition active:scale-95 cursor-pointer"
+                          >
+                            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-1.5 border border-amber-100">
+                              <FileText className="w-4 h-4" />
+                            </div>
+                            <span className="text-[9.5px] font-black text-slate-800 leading-tight">
+                              Relación Cobranza
+                            </span>
+                          </button>
+
+                          <button
+                            onClick={() => setDvStep(3)}
+                            className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center justify-center text-center hover:bg-slate-50 transition active:scale-95 cursor-pointer"
+                          >
+                            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-1.5 border border-indigo-100">
+                              <Users className="w-4 h-4" />
+                            </div>
+                            <span className="text-[9.5px] font-black text-slate-800 leading-tight">
+                              Mis Clientes
+                            </span>
+                          </button>
+                        </div>
+
+                        {/* 2 Feature Cards: 2 Productos & 1 Coordinador */}
+                        <div className="grid grid-cols-2 gap-2">
+                          {/* Card 1: 2 Productos Activos */}
+                          <div className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs flex flex-col justify-between">
+                            <span className="text-[10.5px] font-black text-slate-800">
+                              2 productos
+                            </span>
+                            <div className="flex items-center my-1.5">
+                              {/* Mini Card Vale Lana */}
+                              <div className="w-10 h-6 rounded-md bg-[#132A60] p-1 flex flex-col justify-between text-white shadow-xs">
+                                <div className="w-2 h-1.5 rounded-2xs bg-amber-400" />
+                                <span className="text-[5.5px] font-bold">Lana</span>
+                              </div>
+                              {/* Mini Card LanaTienda */}
+                              <div className="w-10 h-6 rounded-md bg-gradient-to-br from-amber-400 to-yellow-500 p-1 flex flex-col justify-between text-slate-950 shadow-xs -ml-3 border border-white">
+                                <div className="w-2 h-1.5 rounded-2xs bg-[#132A60]" />
+                                <span className="text-[5.5px] font-bold">Tienda</span>
+                              </div>
+                            </div>
+                            <p className="text-[8px] text-slate-500 font-bold leading-none">
+                              ValeLana & Tienda
+                            </p>
                           </div>
-                          <div className="bg-[#facc15] text-slate-950 px-2.5 py-1 rounded-lg text-right">
-                            <p className="text-[8px] font-bold leading-none">Línea disponible</p>
-                            <p className="text-[11px] font-black leading-tight">$26,843.10</p>
+
+                          {/* Card 2: 1 Coordinador Asignado */}
+                          <div
+                            onClick={() => setShowSupportModal(true)}
+                            className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs flex flex-col justify-between cursor-pointer hover:border-slate-200 transition"
+                          >
+                            <span className="text-[10.5px] font-black text-slate-800">
+                              1 coordinador
+                            </span>
+                            <div className="flex items-center gap-2 my-1">
+                              <div className="w-7 h-7 rounded-full bg-slate-900 text-[#facc15] font-black text-[9px] flex items-center justify-center border-2 border-white shadow-xs">
+                                JG
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[9.5px] font-bold text-slate-800 truncate leading-tight">
+                                  José Miguel G.
+                                </p>
+                                <span className="text-[7.5px] text-emerald-600 font-bold">
+                                  Activo ahora
+                                </span>
+                              </div>
+                            </div>
+                            <p className="text-[8px] text-slate-500 font-bold leading-none">
+                              Sucursal Saltillo
+                            </p>
                           </div>
                         </div>
 
-                        <div className="bg-[#1E3A75] p-2.5 rounded-xl border border-white/10 flex items-center justify-between">
-                          <div>
-                            <p className="text-[9px] font-bold text-white/70">Línea LANATIENDA</p>
-                            <p className="text-xs font-black text-white">$17,500.00</p>
+                        {/* Recent Activity / Estados de Cuenta */}
+                        <div className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-xs space-y-1.5">
+                          <div className="flex items-center justify-between pb-1">
+                            <div>
+                              <h5 className="text-[10.5px] font-black text-slate-800 leading-tight">
+                                Estados de cuenta
+                              </h5>
+                              <span className="text-[8px] text-slate-400 font-bold">
+                                Todas las cuentas • Todo &gt;
+                              </span>
+                            </div>
+                            <div className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[8.5px] font-black flex items-center gap-1">
+                              <Calendar className="w-2.5 h-2.5 text-slate-500" />
+                              <span>Nov</span>
+                            </div>
                           </div>
-                          <div className="bg-white/10 text-white px-2.5 py-1 rounded-lg text-right">
-                            <p className="text-[8px] font-bold text-white/60 leading-none">Línea disponible</p>
-                            <p className="text-[11px] font-black text-[#facc15] leading-tight">$17,500.00</p>
-                          </div>
-                        </div>
 
-                        <div className="bg-[#1E3A75] p-2.5 rounded-xl border border-white/10 flex items-center justify-between">
-                          <div>
-                            <p className="text-[9px] font-bold text-white/70">Línea CRÉDITO PERSONAL</p>
-                            <p className="text-xs font-black text-white">$10,000.00</p>
+                          {/* Item 1 */}
+                          <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-50">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-[8px] shrink-0 border border-emerald-100">
+                                EV
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[9.5px] font-bold text-slate-800 truncate leading-tight">
+                                  José Efraín Vázquez
+                                </p>
+                                <span className="text-[8px] text-slate-400 block leading-tight">
+                                  Vale #2 • 6 quincenas de $237.00
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className="text-[10px] font-black text-emerald-600 leading-tight">
+                                +$1,000.00
+                              </p>
+                              <span className="text-[7.5px] text-slate-400 block leading-tight">
+                                Canjeado STP
+                              </span>
+                            </div>
                           </div>
-                          <div className="bg-white/10 text-white px-2.5 py-1 rounded-lg text-right">
-                            <p className="text-[8px] font-bold text-white/60 leading-none">Línea disponible</p>
-                            <p className="text-[11px] font-black text-[#facc15] leading-tight">$4,501.80</p>
+
+                          {/* Item 2 */}
+                          <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-50">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-black text-[8px] shrink-0 border border-blue-100">
+                                RM
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[9.5px] font-bold text-slate-800 truncate leading-tight">
+                                  Rosa Linda Mora
+                                </p>
+                                <span className="text-[8px] text-slate-400 block leading-tight">
+                                  Vale #1 • 8 quincenas de $485.00
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className="text-[10px] font-black text-slate-800 leading-tight">
+                                +$3,000.00
+                              </p>
+                              <span className="text-[7.5px] text-slate-400 block leading-tight">
+                                Cobro puntual
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-
-                      {/* Saldos Card */}
-                      <div className="bg-[#1E3A75] p-2.5 rounded-xl border border-white/10 mt-2 text-[10px]">
-                        <div className="flex justify-between items-center text-white/70">
-                          <span>Saldo total</span>
-                          <span>Saldo atrasado</span>
-                        </div>
-                        <div className="flex justify-between items-center font-black text-xs text-white">
-                          <span className="text-[#facc15]">$55,148.19</span>
-                          <span className="text-emerald-400">$0.00</span>
-                        </div>
-                        <div className="border-t border-white/10 my-1.5" />
-                        <div className="flex justify-between items-center text-white/70">
-                          <span>Saldo relación</span>
-                          <span>Fecha pago</span>
-                        </div>
-                        <div className="flex justify-between items-center font-black text-xs text-white">
-                          <span>$10,460.00</span>
-                          <span className="text-[#facc15]">24/11/2025</span>
-                        </div>
-                        <div className="border-t border-white/10 my-1.5" />
-                        <p className="text-[9px] text-white/60">
-                          Coordinador: <strong className="text-white">JOSE MIGUEL GONZALEZ VARGAS</strong>
-                        </p>
-                      </div>
-
-                      {/* Botón Otorgar Crédito */}
-                      <button
-                        onClick={() => setDvStep(3)}
-                        className="w-full mt-3 py-2.5 rounded-full bg-[#facc15] text-slate-950 font-black text-xs tracking-wider uppercase shadow-md hover:bg-yellow-400 transition"
-                      >
-                        Otorgar Crédito
-                      </button>
                     </div>
                   ) : dvStep === 3 ? (
                     /* PASO 3: MIS CLIENTES */
@@ -2241,47 +2654,46 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                 )}
               </div>
 
-              {/* BOTTOM NAVIGATION BAR (LANAPP DV) */}
+              {/* BOTTOM NAVIGATION BAR (LANAPP DV ESTILO FINTECH FLOTANTE) */}
               {activeMode === 'dv' && dvStep >= 2 && dvStep <= 4 && (
-                <div className="px-2 pt-2 pb-1 border-t border-white/10 bg-[#132A60] grid grid-cols-5 text-center text-white/60">
-                  <button
-                    onClick={() => setDvStep(3)}
-                    className={`flex flex-col items-center py-1 ${
-                      dvStep === 3 ? 'text-[#facc15]' : 'hover:text-white'
-                    }`}
-                  >
-                    <Users className="w-4 h-4" />
-                    <span className="text-[7.5px] font-bold mt-0.5">Clientes</span>
-                  </button>
+                <div className="mx-3 mb-2 rounded-full bg-white/95 backdrop-blur-md shadow-xl border border-slate-200/90 px-3 py-1.5 flex items-center justify-around text-slate-500 z-30 shrink-0">
+                  {/* Inicio */}
                   <button
                     onClick={() => setDvStep(2)}
-                    className={`flex flex-col items-center py-1 ${
-                      dvStep === 2 ? 'text-[#facc15]' : 'hover:text-white'
+                    className={`flex flex-col items-center py-0.5 px-2 transition cursor-pointer ${
+                      dvStep === 2 ? 'text-[#132A60]' : 'hover:text-slate-800'
                     }`}
                   >
-                    <DollarSign className="w-4 h-4" />
-                    <span className="text-[7.5px] font-bold mt-0.5">Créditos</span>
+                    <Home className="w-4 h-4" />
+                    <span className="text-[8px] font-black mt-0.5">Inicio</span>
+                    {dvStep === 2 && <div className="w-1 h-1 rounded-full bg-[#132A60] mt-0.5" />}
                   </button>
+
+                  {/* Pagar */}
                   <button
-                    onClick={() => alert('Valera Digital: 100 folios disponibles.')}
-                    className="flex flex-col items-center py-1 hover:text-white"
+                    onClick={() => setShowPaymentModal(true)}
+                    className="flex flex-col items-center py-0.5 px-2 hover:text-slate-800 transition cursor-pointer"
                   >
-                    <Receipt className="w-4 h-4" />
-                    <span className="text-[7.5px] font-bold mt-0.5">Valera</span>
+                    <CreditCard className="w-4 h-4" />
+                    <span className="text-[8px] font-bold mt-0.5">Pagar</span>
                   </button>
+
+                  {/* $300 Invitar */}
                   <button
-                    onClick={() => alert('Saldo Relación a pagar: $10,460.00 al 24/11/2025')}
-                    className="flex flex-col items-center py-1 hover:text-white"
+                    onClick={() => setShowLanapuntosModal(true)}
+                    className="flex flex-col items-center py-0.5 px-2 hover:text-amber-600 transition cursor-pointer"
                   >
-                    <FileSpreadsheet className="w-4 h-4" />
-                    <span className="text-[7.5px] font-bold mt-0.5">Relación</span>
+                    <Gift className="w-4 h-4 text-amber-500" />
+                    <span className="text-[8px] font-black text-amber-600 mt-0.5">$300 Invitar</span>
                   </button>
+
+                  {/* Soporte */}
                   <button
-                    onClick={() => setDvStep(1)}
-                    className="flex flex-col items-center py-1 hover:text-white"
+                    onClick={() => setShowSupportModal(true)}
+                    className="flex flex-col items-center py-0.5 px-2 hover:text-slate-800 transition cursor-pointer"
                   >
-                    <User className="w-4 h-4" />
-                    <span className="text-[7.5px] font-bold mt-0.5">Salir</span>
+                    <MessageSquare className="w-4 h-4" />
+                    <span className="text-[8px] font-bold mt-0.5">Soporte</span>
                   </button>
                 </div>
               )}
@@ -2327,7 +2739,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-2">
                   {[
                     { step: 1, label: '1. Login' },
-                    { step: 2, label: '2. Mi Perfil' },
+                    { step: 2, label: '2. Dashboard DV' },
                     { step: 3, label: '3. Clientes' },
                     { step: 4, label: '4. Nuevo Vale' },
                     { step: 5, label: '5. Autorizado' },
