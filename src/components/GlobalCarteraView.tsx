@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { formatMoney } from '@/lib/utils/formatters';
+import RelacionCobranzaModal from './modals/RelacionCobranzaModal';
 
 interface GlobalCarteraViewProps {
   currentUser?: UserSession | null;
@@ -1359,79 +1360,12 @@ export default function GlobalCarteraView({
         </div>
       )}
 
-      {/* MODAL 5: RELACIÓN DE VALES */}
-      {isRelacionOpen && selectedItem && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-150">
-            <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <Layers className="w-4 h-4 text-blue-600" />
-                <span>Relación de Vales Colocados • DV #{selectedItem.numeroDist}</span>
-              </h3>
-              <button onClick={() => setIsRelacionOpen(false)} className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-5 space-y-3 text-xs">
-              <div className="p-3 bg-slate-50 rounded-xl border flex justify-between items-center">
-                <div>
-                  <strong className="text-slate-900 block">{selectedItem.nombreCompleto}</strong>
-                  <span className="text-slate-500 text-[11px]">Sucursal: {selectedItem.sucursal}</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] text-slate-400 block font-bold">Cupo Total Colocado</span>
-                  <span className="font-mono font-black text-slate-800">{formatMoney(selectedItem.importeTotal)}</span>
-                </div>
-              </div>
-
-              <div className="border rounded-xl overflow-hidden">
-                <table className="w-full text-left text-[11px]">
-                  <thead className="bg-slate-100 font-bold border-b text-slate-700">
-                    <tr>
-                      <th className="p-2">No. Vale</th>
-                      <th className="p-2">Beneficiario Final</th>
-                      <th className="p-2 text-right">Monto</th>
-                      <th className="p-2 text-center">Quincenas</th>
-                      <th className="p-2 text-center">Estatus</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y font-medium text-slate-700">
-                    <tr>
-                      <td className="p-2 font-mono font-bold text-blue-600">VL-88201</td>
-                      <td className="p-2">Brenda Morales Gomez</td>
-                      <td className="p-2 text-right font-mono">$12,000.00</td>
-                      <td className="p-2 text-center font-mono">16 Qnas</td>
-                      <td className="p-2 text-center"><span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 font-bold">AL DÍA</span></td>
-                    </tr>
-                    <tr>
-                      <td className="p-2 font-mono font-bold text-blue-600">VL-88202</td>
-                      <td className="p-2">Ricardo Soto Hernandez</td>
-                      <td className="p-2 text-right font-mono">$8,500.00</td>
-                      <td className="p-2 text-center font-mono">12 Qnas</td>
-                      <td className="p-2 text-center"><span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 font-bold">AL DÍA</span></td>
-                    </tr>
-                    <tr>
-                      <td className="p-2 font-mono font-bold text-blue-600">VL-88203</td>
-                      <td className="p-2">Lorena Patricia Delgado</td>
-                      <td className="p-2 text-right font-mono">$15,000.00</td>
-                      <td className="p-2 text-center font-mono">20 Qnas</td>
-                      <td className="p-2 text-center"><span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-700 font-bold">PARCIAL</span></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="p-4 bg-slate-50 border-t flex justify-end">
-              <button
-                onClick={() => setIsRelacionOpen(false)}
-                className="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl cursor-pointer"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* MODAL OFICIAL: RELACIÓN DE COBRANZA (RÉPLICA EXACTA) */}
+      <RelacionCobranzaModal
+        isOpen={isRelacionOpen}
+        onClose={() => setIsRelacionOpen(false)}
+        distribuidor={selectedItem}
+      />
 
       {/* Floating Toast Feedback */}
       {toast && (
