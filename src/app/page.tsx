@@ -16,6 +16,7 @@ import CatalogosView, { CatalogoTab } from '@/components/CatalogosView';
 import UsuariosView from '@/components/UsuariosView';
 import GlobalCarteraView from '@/components/GlobalCarteraView';
 import TotalesCarteraView from '@/components/TotalesCarteraView';
+import GlobalCarteraLegalView from '@/components/GlobalCarteraLegalView';
 import DistribuidoresView from '@/components/DistribuidoresView';
 import RHView from '@/components/RHView';
 import DispersionView from '@/components/DispersionView';
@@ -381,6 +382,8 @@ function SystemCoreApp() {
                     setCarteraSubTab('TODA');
                   }}
                 />
+              ) : carteraSubModule === 'legal' ? (
+                <GlobalCarteraLegalView currentUser={currentUser} />
               ) : (
                 <GlobalCarteraView currentUser={currentUser} initialFilter={carteraSubTab} />
               )
