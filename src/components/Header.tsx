@@ -29,6 +29,7 @@ import {
   ShieldAlert,
   Smartphone,
   Download,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 export type ActiveAppModule =
@@ -91,11 +92,13 @@ export default function Header({
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [catalogosOpen, setCatalogosOpen] = useState(false);
   const [carteraOpen, setCarteraOpen] = useState(false);
+  const [reportesOpen, setReportesOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const catalogosDropdownRef = useRef<HTMLDivElement>(null);
   const carteraDropdownRef = useRef<HTMLDivElement>(null);
+  const reportesDropdownRef = useRef<HTMLDivElement>(null);
 
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
@@ -108,6 +111,9 @@ export default function Header({
       }
       if (carteraDropdownRef.current && !carteraDropdownRef.current.contains(event.target as Node)) {
         setCarteraOpen(false);
+      }
+      if (reportesDropdownRef.current && !reportesDropdownRef.current.contains(event.target as Node)) {
+        setReportesOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -282,6 +288,88 @@ export default function Header({
                   >
                     <ShieldAlert className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>Global Cartera Legal</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Menú: Reportes */}
+          <div
+            className="relative"
+            ref={reportesDropdownRef}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setReportesOpen((prev) => !prev);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+                activeModule === 'reportes'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : reportesOpen
+                  ? 'bg-slate-100 text-slate-900'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+              title="Reportes de Colocación y Operación"
+            >
+              <FileSpreadsheet
+                className={`w-4 h-4 ${
+                  activeModule === 'reportes' ? 'text-white' : 'text-slate-500'
+                }`}
+              />
+              <span>Reportes</span>
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                  reportesOpen ? 'rotate-180' : ''
+                } ${
+                  activeModule === 'reportes' ? 'text-white' : 'text-slate-400'
+                }`}
+              />
+            </button>
+
+            {reportesOpen && (
+              <div
+                className="absolute left-0 mt-1 w-56 bg-white text-slate-800 border border-slate-200/90 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in-50 zoom-in-95 duration-100 select-none"
+              >
+                <div className="space-y-0.5 text-xs">
+                  {/* 1. Colocación Por Distribuidor */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('reportes', 'colocacion');
+                      setReportesOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <BarChart3 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Colocación Por Distribuidor</span>
+                  </button>
+
+                  {/* 2. Índice de Morosidad (IMOR) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('reportes', 'vintage');
+                      setReportesOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <PieChart className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Índice Morosidad (IMOR)</span>
+                  </button>
+
+                  {/* 3. Bonificaciones Escala 30-15 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectModule('reportes', 'comisiones');
+                      setReportesOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <Award className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Bonificaciones Escala 30-15</span>
                   </button>
                 </div>
               </div>

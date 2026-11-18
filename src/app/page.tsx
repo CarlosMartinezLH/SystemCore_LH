@@ -66,6 +66,7 @@ function SystemCoreApp() {
   const [catalogosActiveTab, setCatalogosActiveTab] = useState<CatalogoTab>('usuarios');
   const [carteraSubModule, setCarteraSubModule] = useState<'global' | 'totales' | 'legal'>('global');
   const [carteraSubTab, setCarteraSubTab] = useState<'TODA' | 'VIGENTE' | 'ATRASO' | 'LEGAL' | 'LIQUIDADA'>('TODA');
+  const [reportesActiveTab, setReportesActiveTab] = useState<'colocacion' | 'vintage' | 'comisiones'>('colocacion');
   const [selectedProspectId, setSelectedProspectId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
@@ -350,6 +351,13 @@ function SystemCoreApp() {
                 setCarteraSubTab('TODA');
               }
             }
+            if (mod === 'reportes') {
+              if (subTab === 'vintage' || subTab === 'comisiones' || subTab === 'colocacion') {
+                setReportesActiveTab(subTab);
+              } else {
+                setReportesActiveTab('colocacion');
+              }
+            }
             if (subTab) {
               setCatalogosActiveTab(subTab as CatalogoTab);
             }
@@ -394,7 +402,7 @@ function SystemCoreApp() {
             ) : activeModule === 'gestoria' ? (
               <GestoriaView />
             ) : activeModule === 'reportes' ? (
-              <ReportesView />
+              <ReportesView initialTab={reportesActiveTab} />
             ) : activeModule === 'contabilidad' ? (
               <ContabilidadView />
             ) : activeModule === 'pld' ? (
