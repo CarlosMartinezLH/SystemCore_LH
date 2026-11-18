@@ -400,7 +400,16 @@ export interface ClabeVirtualSTP {
 export interface ExternalServiceStatus {
   id: string;
   name: string;
-  type: 'BURO_CREDITO' | 'STP_SPEI' | 'NUBARIUM_KYC' | 'PAYNET_RECIBOS' | 'CRM_ORIGINACION' | 'BOTMAKER_WHATSAPP';
+  type:
+    | 'BURO_CREDITO'
+    | 'STP_SPEI'
+    | 'NUBARIUM_KYC'
+    | 'PAYNET_RECIBOS'
+    | 'CRM_ORIGINACION'
+    | 'BOTMAKER_WHATSAPP'
+    | 'BANORTE_PAGOS'
+    | 'CLUB_PAGO'
+    | 'BUK_RH';
   status: 'ONLINE' | 'DEGRADADO' | 'OFFLINE';
   latencyMs: number;
   lastPing: string;

@@ -39,12 +39,41 @@ import {
   Layers,
   ChevronRight,
   Sparkles,
+  GitBranch,
+  Clock,
+  Lock,
+  Unlock,
+  CreditCard,
+  Binary,
+  ArrowRight,
+  ShieldAlert,
+  Send,
+  Zap,
 } from 'lucide-react';
+import {
+  evaluarEstatusColocacionDV,
+  CALENDARIO_MIGRACIONES,
+} from '@/lib/rules/cobranzaWorkflowEngine';
+import {
+  validarClabe,
+  calcularDigitoVerificadorClabe,
+  generarClabeSTP,
+  generarCadenaOriginalSTP,
+} from '@/lib/utils/clabeValidator';
 
 export default function BusinessRulesView() {
   const { distribuidores, personas, creditos } = useCoreSync();
   const [activeTab, setActiveTab] = useState<
-    'comisiones' | 'categorias' | 'amortizaciones' | 'lanatienda' | 'seguros' | 'incrementos' | 'buro' | 'validador'
+    | 'comisiones'
+    | 'categorias'
+    | 'amortizaciones'
+    | 'cobranza'
+    | 'stp_clabe'
+    | 'validador'
+    | 'lanatienda'
+    | 'seguros'
+    | 'incrementos'
+    | 'buro'
   >('comisiones');
 
   // Simulador de comisiones
@@ -71,6 +100,20 @@ export default function BusinessRulesView() {
   const [valPlazo, setValPlazo] = useState<number>(6);
   const [valTipoCredito, setValTipoCredito] = useState<'VALE' | 'DISTRIBUIDOR'>('VALE');
 
+  // Simulador Flujo de Cobranza & Bloqueos
+  const [simCobranzaDias, setSimCobranzaDias] = useState<number>(0);
+  const [simCobranzaMaxCiclo, setSimCobranzaMaxCiclo] = useState<number>(2);
+  const [simCobranzaSaldoVencido, setSimCobranzaSaldoVencido] = useState<number>(0);
+  const [simCobranzaPagosPuntuales, setSimCobranzaPagosPuntuales] = useState<number>(1);
+
+  // Simulador STP & CLABE
+  const [clabeInput, setClabeInput] = useState<string>('002180032240946700');
+  const [stpMonto, setStpMonto] = useState<number>(2500);
+  const [stpBeneficiario, setStpBeneficiario] = useState<string>('MARIA SUJEY PONCE MALDONADO');
+  const [stpCuenta, setStpCuenta] = useState<string>('646180123400000001');
+  const [stpConcepto, setStpConcepto] = useState<string>('DISPERSION VALE 415663');
+  const [stpRastreo, setStpRastreo] = useState<string>('LAN20261118001');
+
   const comisionResult = calcularComisionDistribuidora(simPerfil, simDiaPago);
   const comisionPesos = (simSaldoRelacion * comisionResult.porcentaje);
 
@@ -89,6 +132,31 @@ export default function BusinessRulesView() {
     cliente: currentPersona,
     todosLosCreditos: creditos,
     todasLasPersonas: personas,
+  });
+
+  const evaluacionCobranza = evaluarEstatusColocacionDV({
+    noDist: currentDist?.noDist || 9832,
+    nombre: currentDist?.nombreDistribuidor || 'MARIA SUJEY PONCE MALDONADO',
+    diasAtraso: simCobranzaDias,
+    maxDiasAtrasoEnCiclo: simCobranzaMaxCiclo,
+    saldoAtrasado: simCobranzaSaldoVencido,
+    pagosPuntualesConsecutivos: simCobranzaPagosPuntuales,
+  });
+
+  const clabeValidationResult = validarClabe(clabeInput);
+  const cadenaOriginalGenerada = generarCadenaOriginalSTP({
+    institucionContraparte: '90646',
+    empresa: 'LANAHORA',
+    fechaOperacion: '20261118',
+    claveRastreo: stpRastreo,
+    institucionOperante: '90646',
+    monto: stpMonto,
+    tipoPago: 1,
+    nombreBeneficiario: stpBeneficiario,
+    cuentaBeneficiario: stpCuenta,
+    tipoCuentaBeneficiario: 40,
+    conceptoPago: stpConcepto,
+    referenciaNumerica: 123456,
   });
 
   return (
@@ -149,6 +217,28 @@ export default function BusinessRulesView() {
           >
             <Shield className="w-3.5 h-3.5" />
             Matriz CreditoGeneraCanje
+          </button>
+          <button
+            onClick={() => setActiveTab('cobranza')}
+            className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap ${
+              activeTab === 'cobranza'
+                ? 'bg-blue-600 text-white shadow-xs font-bold'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+            }`}
+          >
+            <GitBranch className="w-3.5 h-3.5" />
+            Flujo Cobranza & Mora
+          </button>
+          <button
+            onClick={() => setActiveTab('stp_clabe')}
+            className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap ${
+              activeTab === 'stp_clabe'
+                ? 'bg-blue-600 text-white shadow-xs font-bold'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+            }`}
+          >
+            <Binary className="w-3.5 h-3.5" />
+            STP & Algoritmo CLABE
           </button>
           <button
             onClick={() => setActiveTab('lanatienda')}
@@ -846,6 +936,387 @@ export default function BusinessRulesView() {
               >
                 {buroResult.decision}
               </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB NUEVO: FLUJO DE COBRANZA & MIGRACIÓN DE CARTERA */}
+      {activeTab === 'cobranza' && (
+        <div className="space-y-6">
+          {/* 1. Diagrama de 4 Etapas de Cobranza */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <GitBranch className="w-5 h-5 text-blue-600" />
+                  <span>Flujo Oficial de Cartera y Días de Atraso</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Migración progresiva entre etapas: Operaciones (0d) → Gestoría (1-30d) → Prelegal (31-120d) → Legal (121+d).
+                </p>
+              </div>
+              <span className="text-xs font-mono font-bold bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-200">
+                Cierres 5 y 20 • Migración 6 y 21
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Etapa 1 */}
+              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                    Etapa 1
+                  </span>
+                  <span className="text-xs font-mono font-black text-emerald-700">0 días</span>
+                </div>
+                <h4 className="font-extrabold text-sm text-slate-900">Operaciones (Cartera Normal)</h4>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  Permanece asignada al Coordinador de Negocios original.
+                </p>
+                <div className="pt-2 border-t border-emerald-200/60 flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+                  <Unlock className="w-3.5 h-3.5" />
+                  <span>Permite Colocación</span>
+                </div>
+              </div>
+
+              {/* Etapa 2 */}
+              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-md">
+                    Etapa 2 (Tipo 2)
+                  </span>
+                  <span className="text-xs font-mono font-black text-amber-700">1 a 30 días</span>
+                </div>
+                <h4 className="font-extrabold text-sm text-slate-900">Gestores de Cobranza</h4>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  Transferencia a usuario genérico de gestoría por sucursal a las 12:00 PM.
+                </p>
+                <div className="pt-2 border-t border-amber-200/60 flex items-center gap-1.5 text-xs font-bold text-rose-700">
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Candado de Bloqueo</span>
+                </div>
+              </div>
+
+              {/* Etapa 3 */}
+              <div className="p-4 rounded-2xl bg-orange-50/70 border border-orange-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-orange-800 bg-orange-100/80 px-2 py-0.5 rounded-md">
+                    Etapa 3 (Tipo 3)
+                  </span>
+                  <span className="text-xs font-mono font-black text-orange-700">31 a 120 días</span>
+                </div>
+                <h4 className="font-extrabold text-sm text-slate-900">Prelegal (Notificaciones)</h4>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  Requerimientos formales extrajudiciales asignados a Prelegal por sucursal.
+                </p>
+                <div className="pt-2 border-t border-orange-200/60 flex items-center gap-1.5 text-xs font-bold text-rose-700">
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Candado de Bloqueo</span>
+                </div>
+              </div>
+
+              {/* Etapa 4 */}
+              <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-rose-800 bg-rose-100/80 px-2 py-0.5 rounded-md">
+                    Etapa 4 (Tipo 4)
+                  </span>
+                  <span className="text-xs font-mono font-black text-rose-700">121+ días</span>
+                </div>
+                <h4 className="font-extrabold text-sm text-slate-900">Legal (Demanda / Juicio)</h4>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  Asignación a Coordinador Jurídico a las 04:00 PM y abogado litigante.
+                </p>
+                <div className="pt-2 border-t border-rose-200/60 flex items-center gap-1.5 text-xs font-bold text-rose-800">
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>Cobranza Legal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Simulador Interactivo de Desbloqueo de Colocación */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+              <Calculator className="w-5 h-5 text-indigo-600" />
+              <span>Simulador de Desbloqueo y Candado de Colocación de DV</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label className="text-xs font-bold text-slate-600 mb-1.5 block">Días de Atraso Actuales</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={simCobranzaDias}
+                  onChange={(e) => setSimCobranzaDias(Number(e.target.value))}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold bg-slate-50"
+                />
+                <span className="text-[10px] text-slate-400 mt-1 block">0 = Al corriente</span>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-600 mb-1.5 block">Máx. Días de Mora en el Ciclo</label>
+                <select
+                  value={simCobranzaMaxCiclo}
+                  onChange={(e) => setSimCobranzaMaxCiclo(Number(e.target.value))}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold bg-slate-50"
+                >
+                  <option value={1}>1 día de atraso (Requiere 1 pago puntual)</option>
+                  <option value={2}>2 días de atraso (Requiere 2 pagos puntuales)</option>
+                  <option value={3}>3 o más días (Requiere 3 pagos puntuales)</option>
+                </select>
+                <span className="text-[10px] text-slate-400 mt-1 block">Historial de atraso</span>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-600 mb-1.5 block">Saldo Vencido ($ MXN)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={simCobranzaSaldoVencido}
+                  onChange={(e) => setSimCobranzaSaldoVencido(Number(e.target.value))}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold bg-slate-50"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-600 mb-1.5 block">Pagos Puntuales Consecutivos</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={6}
+                  value={simCobranzaPagosPuntuales}
+                  onChange={(e) => setSimCobranzaPagosPuntuales(Number(e.target.value))}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold bg-slate-50"
+                />
+                <span className="text-[10px] text-slate-400 mt-1 block">Quincenas cubiertas en tiempo</span>
+              </div>
+            </div>
+
+            {/* Resultado de la Evaluación */}
+            <div className={`p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-4 ${
+              evaluacionCobranza.puedeHacerVales
+                ? 'bg-emerald-50/80 border-emerald-200'
+                : 'bg-rose-50/80 border-rose-200'
+            }`}>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                    evaluacionCobranza.puedeHacerVales
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-rose-600 text-white'
+                  }`}>
+                    {evaluacionCobranza.puedeHacerVales ? 'COLOCACIÓN HABILITADA' : 'COLOCACIÓN BLOQUEADA'}
+                  </span>
+                  <span className="text-xs font-bold text-slate-700">
+                    Etapa: <strong>{evaluacionCobranza.etapaActual}</strong>
+                  </span>
+                </div>
+                <p className="text-xs text-slate-700 font-medium">
+                  {evaluacionCobranza.motivoBloqueo || 'La Distribuidora se encuentra al corriente y ha acreditado los pagos puntuales requeridos.'}
+                </p>
+              </div>
+
+              {!evaluacionCobranza.puedeHacerVales && (
+                <div className="text-right">
+                  <span className="text-[10px] font-bold text-rose-700 uppercase block">Quincenas Faltantes</span>
+                  <strong className="text-xl font-black text-rose-800 font-mono">
+                    {evaluacionCobranza.quincenasFaltantesParaDesbloqueo} quincena(s)
+                  </strong>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 3. Matriz de Calendario Oficial de Migración de Cuentas */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-indigo-600" />
+              <span>Calendario Oficial de Cierres y Migraciones Automáticas</span>
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span className="font-extrabold text-slate-800 block">Cierres de Mes y Migraciones:</span>
+                <ul className="space-y-1.5 text-slate-600">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span><strong>Cierres de mes:</strong> Días 5 y 20 de cada mes.</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span><strong>Migración automática de cuentas:</strong> Días 6 y 21 de cada mes.</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span><strong>Regla de días inhábiles:</strong> Si día 6 o 21 cae en domingo o festivo, el proceso corre el siguiente día hábil.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span className="font-extrabold text-slate-800 block">Horarios de Ejecución Automática:</span>
+                <ul className="space-y-1.5 text-slate-600">
+                  <li>• <strong>12:00 PM:</strong> Cuentas tipo 1 con 1 día vencido migran a Gestoría.</li>
+                  <li>• <strong>12:00 PM:</strong> Cuentas tipo 2 con 31 días vencidos migran a Prelegal.</li>
+                  <li>• <strong>04:00 PM:</strong> Cuentas tipo 3 con 121 días vencidos migran a Legal.</li>
+                  <li>• <strong>12:00 PM, 03:00 PM y 06:00 PM:</strong> Barridos diarios de normalización (Tipo 2 a Tipo 1).</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB NUEVO: STP & ALGORITMO CLABE ABM */}
+      {activeTab === 'stp_clabe' && (
+        <div className="space-y-6">
+          {/* 1. Validador y Calculadora de CLABE Oficial ABM */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <Binary className="w-5 h-5 text-indigo-600" />
+                  <span>Algoritmo Oficial ABM de Dígito Verificador CLABE</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Ponderación canónica [3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7] mod 10 según Banco de México.
+                </p>
+              </div>
+              <span className="text-xs font-mono font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-200">
+                Estándar 18 Dígitos
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-slate-700 block">
+                Ingresa una Cuenta CLABE (17 o 18 dígitos):
+              </label>
+              <div className="flex flex-wrap items-center gap-3">
+                <input
+                  type="text"
+                  maxLength={18}
+                  value={clabeInput}
+                  onChange={(e) => setClabeInput(e.target.value.replace(/\D/g, ''))}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 font-mono font-black text-sm bg-slate-50 text-slate-900 tracking-wider flex-1 min-w-[280px]"
+                  placeholder="ej. 002180032240946700"
+                />
+                <button
+                  type="button"
+                  onClick={() => setClabeInput('002180032240946700')}
+                  className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
+                >
+                  Ejemplo ABM Doc
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setClabeInput(generarClabeSTP('180', '000', 415663))}
+                  className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs border border-indigo-200"
+                >
+                  Generar CLABE STP
+                </button>
+              </div>
+
+              {/* Resultado del Dictamen CLABE */}
+              <div className={`p-4 rounded-2xl border flex items-center justify-between gap-4 ${
+                clabeValidationResult.valida
+                  ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900'
+                  : 'bg-rose-50/80 border-rose-200 text-rose-900'
+              }`}>
+                <div>
+                  <div className="flex items-center gap-2">
+                    {clabeValidationResult.valida ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    ) : (
+                      <AlertTriangle className="w-5 h-5 text-rose-600" />
+                    )}
+                    <h4 className="font-black text-sm">
+                      {clabeValidationResult.valida ? 'CLABE INTERBANCARIA VÁLIDA' : 'CLABE INTERBANCARIA INVÁLIDA'}
+                    </h4>
+                  </div>
+                  <p className="text-xs mt-1">
+                    {clabeValidationResult.valida
+                      ? `Banco identificado: ${clabeValidationResult.banco} • Dígito Verificador: ${clabeValidationResult.digitoCalculado}`
+                      : clabeValidationResult.error}
+                  </p>
+                </div>
+                <div className="text-right font-mono text-xs">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Dígito de Control</span>
+                  <span className="text-xl font-black text-indigo-700">{clabeValidationResult.digitoCalculado ?? '-'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Generador de Cadena Original STP SPEI OUT */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-indigo-600" />
+              <span>Generador de Cadena Original STP (34 Campos Canónicos)</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+              <div>
+                <label className="font-bold text-slate-600 mb-1 block">Clave de Rastreo</label>
+                <input
+                  type="text"
+                  value={stpRastreo}
+                  onChange={(e) => setStpRastreo(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold bg-slate-50"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-600 mb-1 block">Monto a Dispersar ($)</label>
+                <input
+                  type="number"
+                  value={stpMonto}
+                  onChange={(e) => setStpMonto(Number(e.target.value))}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold bg-slate-50"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-600 mb-1 block">Beneficiario</label>
+                <input
+                  type="text"
+                  value={stpBeneficiario}
+                  onChange={(e) => setStpBeneficiario(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold bg-slate-50"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-600 mb-1 block">Cuenta CLABE Beneficiario</label>
+                <input
+                  type="text"
+                  value={stpCuenta}
+                  onChange={(e) => setStpCuenta(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold bg-slate-50"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="font-bold text-slate-600 mb-1 block">Concepto de Pago</label>
+                <input
+                  type="text"
+                  value={stpConcepto}
+                  onChange={(e) => setStpConcepto(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold bg-slate-50"
+                />
+              </div>
+            </div>
+
+            {/* Cadena Original Generada */}
+            <div className="p-3.5 bg-slate-950 text-emerald-400 font-mono text-[11px] rounded-2xl overflow-x-auto space-y-1">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                Cadena Original para Firma Digital RSA SHA-256 (Endpoint registraOrden):
+              </span>
+              <p className="break-all leading-relaxed select-all">
+                {cadenaOriginalGenerada}
+              </p>
             </div>
           </div>
         </div>
