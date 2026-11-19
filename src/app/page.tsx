@@ -26,6 +26,7 @@ import LanaTiendaAdminView from '@/components/LanaTiendaAdminView';
 import NotificationManagerView from '@/components/NotificationManagerView';
 import LanAppView from '@/components/LanAppView';
 import SoporteTicketsView from '@/components/SoporteTicketsView';
+import FloatingSupportWidget from '@/components/FloatingSupportWidget';
 import BusinessRulesView from '@/components/BusinessRulesView';
 import MesaCreditoView from '@/components/MesaCreditoView';
 import GestoriaView from '@/components/GestoriaView';
@@ -492,9 +493,12 @@ function SystemCoreApp() {
           {/* Level 3 Security: 15-Minute Banking Inactivity Auto-Logout Watcher */}
           <InactivityTimeoutModal onLogout={handleLogout} />
 
+          {/* Chat Emergente Flotante de Soporte & Mesa de Ayuda (Siempre Disponible) */}
+          <FloatingSupportWidget currentUser={currentUser} />
+
           {/* Toast Notification Flotante */}
           {toastMessage && (
-            <div className="fixed bottom-6 right-6 z-[140] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 text-xs font-bold flex items-center gap-2 animate-in slide-in-from-bottom-3 duration-200">
+            <div className="fixed bottom-24 right-6 z-[140] bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 text-xs font-bold flex items-center gap-2 animate-in slide-in-from-bottom-3 duration-200">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               <span>{toastMessage}</span>
             </div>
