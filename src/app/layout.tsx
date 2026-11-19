@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "LanAhora SystemCore — Sistema Central & Originación",
   description: "Plataforma central de crédito por vales, red de distribuidores y prospección en campo LanAhora",
+  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -37,6 +38,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        <link rel="manifest" href="/manifest.json" />
         <link rel="icon" type="image/png" sizes="48x48" href="/icon.png?v=20261112b" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20261112b" />
         <link rel="shortcut icon" href="/icon.png?v=20261112b" />

@@ -1,0 +1,24 @@
+{
+  "name": "LanApp Distribuidora",
+  "short_name": "LanApp",
+  "description": "Aplicación oficial de Distribuidoras LanAhora",
+  "start_url": "/lanapp",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#132A60",
+  "theme_color": "#132A60",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lanahora-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
