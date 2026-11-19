@@ -223,6 +223,30 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
   const [copiedClabe, setCopiedClabe] = useState(false);
   const [copiedInvite, setCopiedInvite] = useState(false);
 
+  // Estados del Directorio de Clientes con Filtros y Nuevo Cliente
+  const [clienteFilter, setClienteFilter] = useState<'Todos' | 'Al Corriente' | 'Con Atraso' | 'Prospectos' | 'Liquidados'>('Todos');
+  const [showNuevoClienteModal, setShowNuevoClienteModal] = useState(false);
+  const [nuevoNombreInput, setNuevoNombreInput] = useState('');
+  const [nuevoTelInput, setNuevoTelInput] = useState('');
+  const [nuevaColoniaInput, setNuevaColoniaInput] = useState('');
+  const [nuevoLimiteInput, setNuevoLimiteInput] = useState('3,000');
+  const [nuevoEstatusInput, setNuevoEstatusInput] = useState<'PROSPECTO' | 'APROBADO'>('PROSPECTO');
+
+  const [clientesList, setClientesList] = useState([
+    { id: '13419', noVale: '88412', nombre: 'José Efraín Vázquez Sosa', telefono: '844-329-8471', colonia: 'Col. Topo Chico, Saltillo', estatus: 'AL CORRIENTE', plazo: '2/16', saldo: 2167.10, cuota: 162.98, saldoVencido: 0 },
+    { id: '13420', noVale: '88415', nombre: 'Rosa Linda Mora Flores', telefono: '844-551-9022', colonia: 'Col. República, Saltillo', estatus: 'AL CORRIENTE', plazo: '2/16', saldo: 6020.76, cuota: 452.80, saldoVencido: 0 },
+    { id: '13421', noVale: '88418', nombre: 'María Elena Garza Rivas', telefono: '844-120-4389', colonia: 'Zona Centro, Saltillo', estatus: 'CON ATRASO', plazo: '2/16', saldo: 4645.52, cuota: 349.38, saldoVencido: 42.51 },
+    { id: '13422', noVale: '88420', nombre: 'Carlos Alberto Dávila Ramos', telefono: '844-893-1104', colonia: 'Col. Bellavista, Saltillo', estatus: 'AL CORRIENTE', plazo: '2/16', saldo: 3256.62, cuota: 244.92, saldoVencido: 0 },
+    { id: '13423', noVale: '88425', nombre: 'Sanjuana Castillo Morales', telefono: '844-772-5591', colonia: 'Col. San Patricio, Saltillo', estatus: 'AL CORRIENTE', plazo: '2/16', saldo: 5159.04, cuota: 388.00, saldoVencido: 0 },
+    { id: '13424', noVale: '88430', nombre: 'Brenda Cecilia Treviño Soto', telefono: '844-312-8877', colonia: 'Col. Mirasierra, Saltillo', estatus: 'AL CORRIENTE', plazo: '4/16', saldo: 2600.00, cuota: 350.00, saldoVencido: 0 },
+    { id: '13425', noVale: '88432', nombre: 'Gerardo Antonio Morales Dávila', telefono: '844-662-1099', colonia: 'Col. Bellavista, Saltillo', estatus: 'CON ATRASO', plazo: '2/12', saldo: 2190.00, cuota: 310.00, saldoVencido: 62.34 },
+    { id: '13426', noVale: '88435', nombre: 'Ana Luisa Cárdenas Pérez', telefono: '844-901-4433', colonia: 'Zona Centro, Saltillo', estatus: 'AL CORRIENTE', plazo: '2/10', saldo: 2800.00, cuota: 420.00, saldoVencido: 0 },
+    { id: '13427', noVale: '88438', nombre: 'Laura Patricia Esquivel Reyna', telefono: '844-419-7722', colonia: 'Col. República, Saltillo', estatus: 'AL CORRIENTE', plazo: '1/8', saldo: 1525.00, cuota: 275.00, saldoVencido: 0 },
+    { id: '13428', noVale: '88390', nombre: 'Francisco Javier Ramos Luna', telefono: '844-550-6611', colonia: 'Col. Morelos, Saltillo', estatus: 'LIQUIDADO', plazo: '8/8', saldo: 0.00, cuota: 0.00, saldoVencido: 0 },
+    { id: '13429', noVale: '', nombre: 'Gloria Estela Rangel Martínez', telefono: '844-123-9988', colonia: 'Col. San Patricio, Saltillo', estatus: 'PROSPECTO', plazo: '-', saldo: 0.00, cuota: 0.00, saldoVencido: 0, limiteSugerido: 3000 },
+    { id: '13430', noVale: '', nombre: 'Héctor Manuel Zavala Fuentes', telefono: '844-789-2211', colonia: 'Col. Universidad, Saltillo', estatus: 'PROSPECTO', plazo: '-', saldo: 0.00, cuota: 0.00, saldoVencido: 0, limiteSugerido: 4500 },
+  ]);
+
   // Pasos de Acredítala (Cliente):
   // 8: Detalle de Vale ($1,000 / 6 quincenas $237)
   // 9: Domicilio
@@ -1768,115 +1792,350 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                       </div>
                     </div>
                   ) : dvStep === 3 ? (
-                    /* PASO 3: MIS CLIENTES */
-                    <div className="flex-1 flex flex-col">
-                      <div className="px-4 py-2 border-b border-white/10 flex items-center justify-between">
-                        <button onClick={() => setDvStep(2)}>
-                          <ArrowLeft className="w-4 h-4 text-white" />
-                        </button>
-                        <span className="text-xs font-black uppercase text-white tracking-wider">
-                          Mis Clientes
-                        </span>
+                    /* PASO 3: MIS CLIENTES (DIRECTORIO MODERNO CON FILTROS Y NUEVO CLIENTE) */
+                    <div className="flex-1 flex flex-col bg-[#F5F7FB] -mx-0 -mt-0 text-slate-900 overflow-hidden">
+                      {/* Top Header */}
+                      <div className="px-3 pt-3 pb-2 flex items-center justify-between border-b border-slate-200/80 bg-white">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setDvStep(2)}
+                            className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#162A60] flex items-center justify-center transition cursor-pointer"
+                          >
+                            <ArrowLeft className="w-4 h-4" />
+                          </button>
+                          <div>
+                            <h4 className="text-xs font-black text-[#162A60] leading-tight">Mis Clientes</h4>
+                            <p className="text-[9px] text-slate-500 font-medium">DV 1004 • {clientesList.length} clientas</p>
+                          </div>
+                        </div>
+
                         <button
-                          onClick={() => setShowNotificationsCenter(true)}
-                          className="relative p-1 rounded-full text-white/80 hover:text-white transition"
-                          title="Centro de Notificaciones"
+                          onClick={() => setShowNuevoClienteModal(true)}
+                          className="px-2.5 py-1.5 rounded-xl bg-[#162A60] text-white text-[10.5px] font-black flex items-center gap-1.5 shadow-xs hover:bg-[#1E3A8A] transition cursor-pointer"
                         >
-                          <Bell className="w-3.5 h-3.5 text-white" />
-                          {unreadCount > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-red-500 text-white text-[7.5px] font-black flex items-center justify-center animate-pulse">
-                              {unreadCount}
-                            </span>
-                          )}
+                          <Plus className="w-3.5 h-3.5 text-amber-300" />
+                          <span>Nuevo</span>
                         </button>
                       </div>
 
                       {/* Buscador de Clientes */}
-                      <div className="p-3">
-                        <div className="bg-white rounded-full px-3 py-1.5 flex items-center gap-2 shadow-sm">
-                          <Search className="w-3.5 h-3.5 text-slate-400" />
+                      <div className="p-2.5 bg-white border-b border-slate-100">
+                        <div className="bg-slate-50 rounded-xl px-3 py-1.5 flex items-center gap-2 border border-slate-200/80 focus-within:border-[#162A60] transition">
+                          <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="BUSCADOR DE CLIENTE (ID/NOMBRE)"
-                            className="w-full text-[10px] font-bold text-slate-800 placeholder-slate-400 outline-none uppercase"
+                            placeholder="Buscar por nombre, ID, vale o colonia..."
+                            className="w-full text-[10.5px] font-bold text-slate-800 placeholder-slate-400 outline-none bg-transparent"
                           />
+                          {searchQuery && (
+                            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-700 text-xs">
+                              ✕
+                            </button>
+                          )}
                         </div>
                       </div>
 
-                      {/* Column Headers */}
-                      <div className="bg-[#1B3B82] px-3 py-1.5 grid grid-cols-12 text-[8px] font-black text-white/70 uppercase">
-                        <span className="col-span-6">NOMBRE DEL CLIENTE</span>
-                        <span className="col-span-2 text-center">ESTATUS</span>
-                        <span className="col-span-2 text-center">CRÉD. ACT</span>
-                        <span className="col-span-2 text-right">ACCIÓN</span>
+                      {/* Filtros Horizontales (Pills con Conteo) */}
+                      <div className="flex gap-1.5 overflow-x-auto no-scrollbar px-2.5 py-2 bg-white border-b border-slate-200/60 shrink-0">
+                        {[
+                          { key: 'Todos', label: 'Todos', count: clientesList.length },
+                          { key: 'Al Corriente', label: 'Al Corriente', count: clientesList.filter(c => c.estatus === 'AL CORRIENTE').length },
+                          { key: 'Con Atraso', label: 'Con Atraso', count: clientesList.filter(c => c.estatus === 'CON ATRASO' || c.saldoVencido > 0).length },
+                          { key: 'Prospectos', label: 'Prospectos', count: clientesList.filter(c => c.estatus === 'PROSPECTO').length },
+                          { key: 'Liquidados', label: 'Liquidados', count: clientesList.filter(c => c.estatus === 'LIQUIDADO').length },
+                        ].map((f) => {
+                          const isSel = clienteFilter === f.key;
+                          return (
+                            <button
+                              key={f.key}
+                              onClick={() => setClienteFilter(f.key as any)}
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-bold shrink-0 flex items-center gap-1.5 transition cursor-pointer ${
+                                isSel
+                                  ? 'bg-[#162A60] text-white shadow-xs font-black'
+                                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                              }`}
+                            >
+                              <span>{f.label}</span>
+                              <span
+                                className={`px-1.5 py-0.2 rounded-full text-[8.5px] font-black ${
+                                  isSel ? 'bg-amber-400 text-[#162A60]' : 'bg-slate-200 text-slate-700'
+                                }`}
+                              >
+                                {f.count}
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
 
-                      {/* Lista de Clientes */}
-                      <div className="flex-1 overflow-y-auto divide-y divide-white/10">
-                        {clientesMock
-                          .filter(
-                            (c) =>
-                              c.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              c.id.includes(searchQuery)
-                          )
-                          .map((c) => (
-                            <div
-                              key={c.id}
-                              onClick={() => {
-                                setSelectedClient({
-                                  id: c.id,
-                                  nombre: c.nombre,
-                                  estatus: c.estatus,
-                                  telefono: '844-329-8471',
-                                });
-                                setDvStep(4);
-                              }}
-                              className="px-3 py-2.5 hover:bg-white/5 cursor-pointer grid grid-cols-12 items-center text-[9px] text-white transition"
-                            >
-                              <div className="col-span-6">
-                                <p className="font-bold leading-tight truncate">
-                                  {c.id} - {c.nombre}
-                                </p>
-                                <p className="text-[7.5px] text-white/40">{c.ultCredito}</p>
+                      {/* Lista de Tarjetas de Clientes */}
+                      <div className="flex-1 overflow-y-auto p-2.5 space-y-2 no-scrollbar">
+                        {clientesList
+                          .filter((c) => {
+                            if (searchQuery.trim()) {
+                              const q = searchQuery.toLowerCase();
+                              const match =
+                                c.nombre.toLowerCase().includes(q) ||
+                                c.id.includes(q) ||
+                                c.telefono.toLowerCase().includes(q) ||
+                                c.colonia.toLowerCase().includes(q) ||
+                                c.noVale.includes(q);
+                              if (!match) return false;
+                            }
+                            if (clienteFilter === 'Al Corriente') return c.estatus === 'AL CORRIENTE';
+                            if (clienteFilter === 'Con Atraso') return c.estatus === 'CON ATRASO' || c.saldoVencido > 0;
+                            if (clienteFilter === 'Prospectos') return c.estatus === 'PROSPECTO';
+                            if (clienteFilter === 'Liquidados') return c.estatus === 'LIQUIDADO';
+                            return true;
+                          })
+                          .map((c) => {
+                            const isAtrasado = c.estatus === 'CON ATRASO' || c.saldoVencido > 0;
+                            const isProspecto = c.estatus === 'PROSPECTO';
+                            const isLiquidado = c.estatus === 'LIQUIDADO';
+
+                            return (
+                              <div
+                                key={c.id}
+                                className="bg-white rounded-2xl p-3 border border-slate-200/80 shadow-xs space-y-2"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div
+                                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+                                        isAtrasado
+                                          ? 'bg-rose-100 text-rose-700'
+                                          : isProspecto
+                                          ? 'bg-amber-100 text-amber-700'
+                                          : 'bg-[#162A60] text-amber-300'
+                                      }`}
+                                    >
+                                      <User className="w-4 h-4" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <span className="text-[11.5px] font-black text-[#162A60] truncate block leading-tight">
+                                        {c.nombre}
+                                      </span>
+                                      <span className="text-[9px] text-slate-500 block">
+                                        ID: {c.id} • {c.telefono} • {c.colonia}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Badge de Estatus */}
+                                  <span
+                                    className={`px-2 py-0.5 rounded-md text-[8px] font-black shrink-0 ${
+                                      isAtrasado
+                                        ? 'bg-rose-100 text-rose-700 border border-rose-200'
+                                        : isProspecto
+                                        ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                        : isLiquidado
+                                        ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                                        : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                    }`}
+                                  >
+                                    {isAtrasado
+                                      ? `ATRASO $${c.saldoVencido.toFixed(2)}`
+                                      : c.estatus}
+                                  </span>
+                                </div>
+
+                                {/* Divider & Info */}
+                                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                                  {!isProspecto && !isLiquidado ? (
+                                    <div>
+                                      <span className="text-[8.5px] text-slate-400 block font-bold">
+                                        Vale #{c.noVale} • Plazo {c.plazo}
+                                      </span>
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-xs font-black text-[#162A60]">
+                                          ${c.saldo.toFixed(2)}
+                                        </span>
+                                        <span className="text-[9px] text-emerald-600 font-bold">
+                                          (${c.cuota.toFixed(2)}/qna)
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ) : isProspecto ? (
+                                    <div>
+                                      <span className="text-[8.5px] text-slate-400 block font-bold">Límite Sugerido</span>
+                                      <span className="text-xs font-black text-amber-700">
+                                        ${(c as any).limiteSugerido?.toFixed(2) || '3,000.00'} MXN
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <span className="text-[8.5px] text-slate-400 block font-bold">Vale #{c.noVale}</span>
+                                      <span className="text-xs font-black text-emerald-700">Crédito Liquidado $0.00</span>
+                                    </div>
+                                  )}
+
+                                  {/* Botones de Acción */}
+                                  <div className="flex items-center gap-1.5">
+                                    {!isProspecto && (
+                                      <button
+                                        onClick={() =>
+                                          setSelectedValeAmortizacion({
+                                            noVale: c.noVale,
+                                            nombre: c.nombre,
+                                            plazo: c.plazo,
+                                            valorVale: c.saldo,
+                                            pagoCliente: c.cuota,
+                                            saldoCorriente: c.saldo,
+                                          })
+                                        }
+                                        className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-[#162A60] text-[9.5px] font-black transition cursor-pointer"
+                                      >
+                                        Ver Ficha
+                                      </button>
+                                    )}
+                                    <button
+                                      onClick={() => {
+                                        setSelectedClient({
+                                          id: c.id,
+                                          nombre: c.nombre,
+                                          estatus: c.estatus,
+                                          telefono: c.telefono,
+                                        });
+                                        setDvStep(4);
+                                      }}
+                                      className="px-2.5 py-1 rounded-lg bg-[#162A60] hover:bg-[#1E3A8A] text-white text-[9.5px] font-black shadow-xs transition cursor-pointer"
+                                    >
+                                      {isProspecto ? '+ Emitir' : 'Prestar'}
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="col-span-2 text-center">
-                                <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[7.5px]">
-                                  {c.estatus}
-                                </span>
+                            );
+                          })}
+                      </div>
+
+                      {/* Modal para Registrar Nuevo Cliente */}
+                      {showNuevoClienteModal && (
+                        <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-end p-3 animate-in fade-in">
+                          <div className="w-full bg-white rounded-3xl p-4 text-slate-900 border border-slate-200 shadow-2xl space-y-3 max-h-[90%] overflow-y-auto no-scrollbar animate-in slide-in-from-bottom duration-200">
+                            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-xl bg-[#162A60] text-amber-300 flex items-center justify-center font-black">
+                                  <User className="w-4 h-4" />
+                                </div>
+                                <div>
+                                  <h4 className="text-xs font-black text-[#162A60]">Registrar Nuevo Cliente</h4>
+                                  <span className="text-[9.5px] text-slate-500">Distribuidora DV 1004</span>
+                                </div>
                               </div>
-                              <div className="col-span-2 text-center font-black text-xs text-[#facc15]">
-                                {c.activos}
+                              <button onClick={() => setShowNuevoClienteModal(false)} className="text-slate-400 hover:text-slate-700 p-1 font-bold">
+                                ✕
+                              </button>
+                            </div>
+
+                            <div className="space-y-2.5 text-xs">
+                              <div>
+                                <label className="text-[9.5px] font-black uppercase text-[#162A60] block mb-1">
+                                  Nombre Completo
+                                </label>
+                                <input
+                                  type="text"
+                                  value={nuevoNombreInput}
+                                  onChange={(e) => setNuevoNombreInput(e.target.value)}
+                                  placeholder="Ej. Marisela Rendón Zapata"
+                                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-[#162A60]"
+                                />
                               </div>
-                              <div className="col-span-2 text-right">
-                                <ChevronRight className="w-3.5 h-3.5 text-white/40 inline" />
+
+                              <div>
+                                <label className="text-[9.5px] font-black uppercase text-[#162A60] block mb-1">
+                                  Teléfono Celular (WhatsApp)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={nuevoTelInput}
+                                  onChange={(e) => setNuevoTelInput(e.target.value)}
+                                  placeholder="Ej. 844-192-3344"
+                                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-[#162A60]"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="text-[9.5px] font-black uppercase text-[#162A60] block mb-1">
+                                  Colonia / Domicilio en Saltillo
+                                </label>
+                                <input
+                                  type="text"
+                                  value={nuevaColoniaInput}
+                                  onChange={(e) => setNuevaColoniaInput(e.target.value)}
+                                  placeholder="Ej. Col. Mirasierra, Saltillo, Coah."
+                                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-[#162A60]"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <label className="text-[9.5px] font-black uppercase text-[#162A60] block mb-1">
+                                    Límite Sugerido
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={nuevoLimiteInput}
+                                    onChange={(e) => setNuevoLimiteInput(e.target.value)}
+                                    placeholder="$3,000"
+                                    className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-[#162A60]"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[9.5px] font-black uppercase text-[#162A60] block mb-1">
+                                    Estatus Inicial
+                                  </label>
+                                  <select
+                                    value={nuevoEstatusInput}
+                                    onChange={(e) => setNuevoEstatusInput(e.target.value as any)}
+                                    className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-[#162A60] bg-white"
+                                  >
+                                    <option value="PROSPECTO">Prospecto</option>
+                                    <option value="APROBADO">Aprobado</option>
+                                  </select>
+                                </div>
                               </div>
                             </div>
-                          ))}
-                      </div>
 
-                      {/* Botón Nuevo Cliente */}
-                      <div className="p-3 bg-[#10224E]">
-                        <button
-                          onClick={() => {
-                            const nuevoNombre = prompt('Ingrese Nombre Completo del Nuevo Cliente:');
-                            if (nuevoNombre) {
-                              setSelectedClient({
-                                id: '18902',
-                                nombre: nuevoNombre.toUpperCase(),
-                                estatus: 'PROSPECTO',
-                                telefono: '844-000-0000',
-                              });
-                              setDvStep(4);
-                            }
-                          }}
-                          className="w-full py-2.5 rounded-full bg-[#facc15] text-slate-950 font-black text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-1.5 hover:bg-yellow-400 transition"
-                        >
-                          <Plus className="w-4 h-4" />
-                          Nuevo Cliente
-                        </button>
-                      </div>
+                            <button
+                              onClick={() => {
+                                if (!nuevoNombreInput.trim()) {
+                                  alert('Por favor ingresa el nombre del nuevo cliente.');
+                                  return;
+                                }
+                                const nuevoId = `${13430 + clientesList.length + 1}`;
+                                const numLim = parseFloat(nuevoLimiteInput.replace(/,/g, '').replace('$', '')) || 3000;
+                                const nuevoClienteObj = {
+                                  id: nuevoId,
+                                  noVale: nuevoEstatusInput === 'APROBADO' ? `${88440 + clientesList.length}` : '',
+                                  nombre: nuevoNombreInput.trim(),
+                                  telefono: nuevoTelInput.trim() || '844-000-0000',
+                                  colonia: nuevaColoniaInput.trim() || 'Saltillo, Coah.',
+                                  estatus: nuevoEstatusInput === 'APROBADO' ? 'AL CORRIENTE' : 'PROSPECTO',
+                                  plazo: nuevoEstatusInput === 'APROBADO' ? '4/16' : '-',
+                                  saldo: nuevoEstatusInput === 'APROBADO' ? numLim : 0,
+                                  cuota: nuevoEstatusInput === 'APROBADO' ? numLim / 8 : 0,
+                                  saldoVencido: 0,
+                                  limiteSugerido: numLim,
+                                };
+                                setClientesList([nuevoClienteObj, ...clientesList]);
+                                setShowNuevoClienteModal(false);
+                                setClienteFilter('Todos');
+                                setNuevoNombreInput('');
+                                setNuevoTelInput('');
+                                setNuevaColoniaInput('');
+                                alert(`¡${nuevoClienteObj.nombre} agregada con éxito a tu cartera!`);
+                              }}
+                              className="w-full py-2.5 rounded-xl bg-[#162A60] hover:bg-[#1E3A8A] text-white font-black text-xs flex items-center justify-center gap-1.5 transition shadow-md active:scale-95 cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5 text-amber-300" />
+                              <span>Guardar Cliente en Cartera</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : dvStep === 4 ? (
                     /* PASO 4: CRÉDITO NUEVO (VALE DIGITAL) */
