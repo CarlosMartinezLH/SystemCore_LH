@@ -25,6 +25,7 @@ import ConfiguracionView from '@/components/ConfiguracionView';
 import LanaTiendaAdminView from '@/components/LanaTiendaAdminView';
 import NotificationManagerView from '@/components/NotificationManagerView';
 import LanAppView from '@/components/LanAppView';
+import SoporteTicketsView from '@/components/SoporteTicketsView';
 import BusinessRulesView from '@/components/BusinessRulesView';
 import MesaCreditoView from '@/components/MesaCreditoView';
 import GestoriaView from '@/components/GestoriaView';
@@ -423,6 +424,8 @@ function SystemCoreApp() {
               <NotificationManagerView />
             ) : activeModule === 'reglas' ? (
               <BusinessRulesView />
+            ) : activeModule === 'soporte' ? (
+              <SoporteTicketsView currentUser={currentUser} />
             ) : activeModule === 'lanapp' ? (
               <LanAppView onNavigateToDispersion={() => setActiveModule('dispersion')} />
             ) : activeModule === 'asesores' ? (

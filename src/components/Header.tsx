@@ -30,6 +30,7 @@ import {
   Smartphone,
   Download,
   FileSpreadsheet,
+  Headphones,
 } from 'lucide-react';
 
 export type ActiveAppModule =
@@ -55,7 +56,8 @@ export type ActiveAppModule =
   | 'lanapp'
   | 'asesores'
   | 'reglas'
-  | 'catalogos';
+  | 'catalogos'
+  | 'soporte';
 
 interface HeaderProps {
   currentUser: UserSession;
@@ -210,6 +212,33 @@ export default function Header({
               className={`w-4 h-4 ${activeModule === 'distribuidores' ? 'text-white' : 'text-slate-500'}`}
             />
             <span>Distribuidores</span>
+          </button>
+
+          {/* Soporte & Chat en Vivo */}
+          <button
+            type="button"
+            onClick={() => handleSelectModule('soporte')}
+            className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 font-bold transition active:scale-95 cursor-pointer ${
+              activeModule === 'soporte'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+            title="Mesa de Ayuda & Chat en Vivo con Distribuidoras"
+          >
+            <Headphones
+              className={`w-4 h-4 ${activeModule === 'soporte' ? 'text-white' : 'text-emerald-600'}`}
+            />
+            <span>Soporte</span>
+            <span
+              className={`flex items-center gap-1 text-[8.5px] px-1.5 py-0.2 rounded-full font-black ${
+                activeModule === 'soporte'
+                  ? 'bg-white text-blue-900'
+                  : 'bg-emerald-100 text-emerald-800'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              En línea
+            </span>
           </button>
 
           {/* Menú: Cartera (Dropdown con Global Cartera, Totales, Legal) - Apertura por CLIC */}
