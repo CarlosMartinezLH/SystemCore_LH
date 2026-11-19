@@ -217,6 +217,9 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
   const [showRelacionModal, setShowRelacionModal] = useState(false);
   const [showLanapuntosModal, setShowLanapuntosModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [showLanaTiendaModal, setShowLanaTiendaModal] = useState(false);
+  const [selectedValeAmortizacion, setSelectedValeAmortizacion] = useState<any | null>(null);
   const [copiedClabe, setCopiedClabe] = useState(false);
   const [copiedInvite, setCopiedInvite] = useState(false);
 
@@ -751,67 +754,397 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                 </div>
               )}
 
-              {/* MODAL RELACIÓN DE COBRANZA */}
-              {showRelacionModal && (
-                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-end p-3 animate-in fade-in">
-                  <div className="w-full bg-[#1e293b] rounded-3xl p-4 text-white border border-slate-700 shadow-2xl space-y-3 max-h-[90%] overflow-y-auto no-scrollbar">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-700">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black">
-                          <FileText className="w-4 h-4" />
+              {/* DRAWER LATERAL DE DISTRIBUIDORA */}
+              {showDrawer && (
+                <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex animate-in fade-in">
+                  <div className="w-[82%] h-full bg-white flex flex-col shadow-2xl animate-in slide-in-from-left duration-200">
+                    {/* Header Drawer */}
+                    <div className="bg-gradient-to-br from-[#162A60] to-[#1E3A8A] p-4 text-white">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 text-[#162A60] font-black text-base flex items-center justify-center border-2 border-white shadow-md">
+                          CM
+                        </div>
+                        <button onClick={() => setShowDrawer(false)} className="text-white/70 hover:text-white p-1">
+                          ✕
+                        </button>
+                      </div>
+                      <h4 className="font-black text-sm text-white">Concepción Montelongo</h4>
+                      <p className="text-[10px] text-amber-300 font-bold mt-0.5">DV 1004 • Sucursal Saltillo</p>
+                      <span className="inline-block mt-2 px-2 py-0.5 bg-blue-900/80 border border-blue-400/40 text-[9px] font-black rounded-md text-white">
+                        NIVEL PLATA 10%
+                      </span>
+                    </div>
+
+                    {/* Opciones del Drawer */}
+                    <div className="flex-1 overflow-y-auto p-2 space-y-1 text-slate-700">
+                      <button
+                        onClick={() => {
+                          setShowDrawer(false);
+                          setShowRelacionModal(true);
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-100 text-left text-xs font-bold text-[#162A60] cursor-pointer"
+                      >
+                        <FileText className="w-4 h-4 text-blue-600" />
+                        <div>
+                          <span className="block">Relación de Cobranza (Core)</span>
+                          <span className="text-[9px] text-slate-400 font-normal">Documento oficial quincenal</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowDrawer(false);
+                          setDvStep(2);
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-100 text-left text-xs font-bold text-slate-800 cursor-pointer"
+                      >
+                        <DollarSign className="w-4 h-4 text-emerald-600" />
+                        <div>
+                          <span className="block">Mis Vales y Línea ValeLana</span>
+                          <span className="text-[9px] text-slate-400 font-normal">$26,843.10 disponible</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowDrawer(false);
+                          setShowLanaTiendaModal(true);
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-100 text-left text-xs font-bold text-slate-800 cursor-pointer"
+                      >
+                        <Building2 className="w-4 h-4 text-sky-600" />
+                        <div>
+                          <span className="block">LanaTienda Muebles y Comercios</span>
+                          <span className="text-[9px] text-slate-400 font-normal">$17,500.00 disponible</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowDrawer(false);
+                          setShowLanapuntosModal(true);
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-100 text-left text-xs font-bold text-slate-800 cursor-pointer"
+                      >
+                        <Gift className="w-4 h-4 text-amber-500" />
+                        <div>
+                          <span className="block">Lanapuntos y Recompensas</span>
+                          <span className="text-[9px] text-slate-400 font-normal">16,125 pts ($300 pesos)</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowDrawer(false);
+                          alert('Valera Digital: 86 folios electrónicos disponibles.');
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-100 text-left text-xs font-bold text-slate-800 cursor-pointer"
+                      >
+                        <Receipt className="w-4 h-4 text-[#162A60]" />
+                        <div>
+                          <span className="block">Valera Digital</span>
+                          <span className="text-[9px] text-slate-400 font-normal">86 folios disponibles</span>
+                        </div>
+                      </button>
+
+                      <hr className="my-2 border-slate-200" />
+
+                      <button
+                        onClick={() => {
+                          setShowDrawer(false);
+                          setShowSupportModal(true);
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-100 text-left text-xs font-bold text-slate-800 cursor-pointer"
+                      >
+                        <Phone className="w-4 h-4 text-emerald-600" />
+                        <div>
+                          <span className="block">Coordinador de Negocios</span>
+                          <span className="text-[9px] text-slate-400 font-normal">José Miguel González (844-329-8471)</span>
+                        </div>
+                      </button>
+                    </div>
+
+                    <div className="p-3 border-t border-slate-200 text-center">
+                      <span className="text-[10px] text-slate-400">LanApp v2.4 • LanAhora Core</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL DETALLE / SEGUIMIENTO DEL VALE */}
+              {selectedValeAmortizacion && (
+                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-end p-2 animate-in fade-in">
+                  <div className="w-full bg-white rounded-3xl p-4 text-slate-900 border border-slate-200 shadow-2xl max-h-[92%] overflow-y-auto no-scrollbar space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-[#162A60] text-amber-300 flex items-center justify-center font-black">
+                          <Receipt className="w-4 h-4" />
                         </div>
                         <div>
-                          <h4 className="text-xs font-black">Relación de Cobranza</h4>
-                          <span className="text-[9px] text-slate-400">Quincena 22 (16 - 30 Nov)</span>
+                          <h4 className="text-xs font-black text-[#162A60]">Folio Vale #{selectedValeAmortizacion.noVale}</h4>
+                          <span className="text-[9.5px] text-slate-500">{selectedValeAmortizacion.nombre}</span>
                         </div>
                       </div>
-                      <button
-                        onClick={() => setShowRelacionModal(false)}
-                        className="text-slate-400 hover:text-white p-1 cursor-pointer font-bold"
-                      >
+                      <button onClick={() => setSelectedValeAmortizacion(null)} className="text-slate-400 hover:text-slate-700 p-1 font-bold">
                         ✕
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-center">
-                      <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                        <span className="text-[8.5px] font-bold text-slate-400 block">A COBRAR</span>
-                        <span className="text-sm font-black text-white">$10,460.00</span>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="bg-slate-50 p-2 rounded-xl border border-slate-200/80">
+                        <span className="text-[8.5px] font-bold text-slate-400 block">VALOR VALE</span>
+                        <span className="text-xs font-black text-[#162A60]">${selectedValeAmortizacion.valorVale?.toFixed(2) || '1,276.96'}</span>
                       </div>
-                      <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                        <span className="text-[8.5px] font-bold text-slate-400 block">COMISIÓN ESTIMADA</span>
-                        <span className="text-sm font-black text-amber-400">$4,589.00</span>
+                      <div className="bg-emerald-50 p-2 rounded-xl border border-emerald-200/80">
+                        <span className="text-[8.5px] font-bold text-emerald-700 block">CUOTA QUINCENAL</span>
+                        <span className="text-xs font-black text-emerald-700">${selectedValeAmortizacion.pagoCliente?.toFixed(2) || '162.98'}</span>
                       </div>
-                    </div>
-
-                    <div className="bg-slate-900/60 rounded-xl p-2.5 border border-slate-800 text-[9.5px] space-y-1.5 text-slate-300">
-                      <div className="flex justify-between">
-                        <span>Total de vales activos:</span>
-                        <strong className="text-white">14 vales</strong>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Colocación acumulada:</span>
-                        <strong className="text-white">$45,890.00</strong>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Nivel de comisión:</span>
-                        <strong className="text-blue-300">PLATA (10%)</strong>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Fecha límite de pago:</span>
-                        <strong className="text-amber-400">24/11/2026</strong>
+                      <div className="bg-rose-50 p-2 rounded-xl border border-rose-200/80">
+                        <span className="text-[8.5px] font-bold text-rose-700 block">SALDO RESTANTE</span>
+                        <span className="text-xs font-black text-rose-700">${selectedValeAmortizacion.saldoCorriente?.toFixed(2) || '2,004.12'}</span>
                       </div>
                     </div>
 
+                    <div>
+                      <h5 className="text-[10.5px] font-black text-[#162A60] mb-1.5 uppercase">Tabla de Amortización</h5>
+                      <div className="space-y-1.5 divide-y divide-slate-100 text-xs">
+                        {[
+                          { q: 'Q1', fecha: '24/10/2026', cuota: selectedValeAmortizacion.pagoCliente || 162.98, estado: 'PAGADA', color: 'bg-emerald-100 text-emerald-800' },
+                          { q: 'Q2', fecha: '08/11/2026', cuota: selectedValeAmortizacion.pagoCliente || 162.98, estado: 'PAGADA', color: 'bg-emerald-100 text-emerald-800' },
+                          { q: 'Q3', fecha: '24/11/2026', cuota: selectedValeAmortizacion.pagoCliente || 162.98, estado: 'POR COBRAR', color: 'bg-yellow-100 text-yellow-800 font-bold' },
+                          { q: 'Q4', fecha: '08/12/2026', cuota: selectedValeAmortizacion.pagoCliente || 162.98, estado: 'PENDIENTE', color: 'bg-slate-100 text-slate-600' },
+                          { q: 'Q5', fecha: '24/12/2026', cuota: selectedValeAmortizacion.pagoCliente || 162.98, estado: 'PENDIENTE', color: 'bg-slate-100 text-slate-600' },
+                          { q: 'Q6', fecha: '08/01/2027', cuota: selectedValeAmortizacion.pagoCliente || 162.98, estado: 'PENDIENTE', color: 'bg-slate-100 text-slate-600' },
+                        ].map((am, idx) => (
+                          <div key={idx} className="flex items-center justify-between pt-1">
+                            <span className="font-bold text-[#162A60] text-[11px]">{am.q} • {am.fecha}</span>
+                            <span className="font-mono text-[11px] font-bold">${Number(am.cuota).toFixed(2)}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[8.5px] font-black ${am.color}`}>{am.estado}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 pt-2">
+                      <button
+                        onClick={() => {
+                          alert(`Enviando recordatorio de cobro por WhatsApp a ${selectedValeAmortizacion.nombre}...`);
+                          setSelectedValeAmortizacion(null);
+                        }}
+                        className="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        <span>Recordatorio</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          alert(`Comprobante de dispersión SPEI STP del Vale #${selectedValeAmortizacion.noVale} descargado.`);
+                          setSelectedValeAmortizacion(null);
+                        }}
+                        className="py-2.5 rounded-xl bg-[#162A60] hover:bg-[#1E3A8A] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>SPEI STP</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL LANATIENDA COMERCIOS */}
+              {showLanaTiendaModal && (
+                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-end p-2 animate-in fade-in">
+                  <div className="w-full bg-white rounded-3xl p-4 text-slate-900 border border-slate-200 shadow-2xl space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center font-black">
+                          <Building2 className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-black text-[#162A60]">LanaTienda Afiliados</h4>
+                          <span className="text-[9px] text-slate-500">Comercios en Saltillo, Coahuila</span>
+                        </div>
+                      </div>
+                      <button onClick={() => setShowLanaTiendaModal(false)} className="text-slate-400 hover:text-slate-700 p-1 font-bold">
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="bg-sky-50 border border-sky-200 p-3 rounded-2xl flex items-center justify-between">
+                      <div>
+                        <span className="text-[9px] font-bold text-sky-800 uppercase block">Línea Autorizada LanaTienda</span>
+                        <div className="text-xl font-black text-sky-950 mt-0.5">$17,500.00 MXN</div>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-sky-200 text-sky-800 text-[9px] font-black">100% LIBRE</span>
+                    </div>
+
+                    <div className="space-y-1.5 text-xs">
+                      {[
+                        { n: 'Mueblería La Fama Saltillo', d: 'Línea blanca, salas y colchones', ic: '🛋️' },
+                        { n: 'Elektra Centro Saltillo', d: 'Telefonía y tecnología', ic: '📱' },
+                        { n: 'Coppel Allende', d: 'Ropa, calzado y electrodomésticos', ic: '🛍️' },
+                      ].map((com, idx) => (
+                        <div key={idx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-2.5">
+                          <span className="text-lg">{com.ic}</span>
+                          <div>
+                            <span className="font-bold text-[#162A60] block">{com.n}</span>
+                            <span className="text-[9.5px] text-slate-500">{com.d}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL OFICIAL: RELACIÓN DE COBRANZA (RÉPLICA EXACTA DEL CORE) */}
+              {showRelacionModal && (
+                <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-xs z-50 flex items-end p-1 animate-in fade-in">
+                  <div className="w-full bg-white rounded-3xl p-3 text-slate-800 border border-slate-200 shadow-2xl space-y-3 max-h-[96%] overflow-y-auto no-scrollbar font-sans">
+                    {/* Header Documento Oficial */}
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-[#162A60] text-amber-300 flex items-center justify-center font-black text-xs">
+                          LH
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[8px] font-black uppercase text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded-full border border-blue-200">
+                              OFICIAL CORE
+                            </span>
+                            <span className="text-[8px] font-bold font-mono text-slate-600">DV #1004</span>
+                          </div>
+                          <h4 className="text-xs font-black text-slate-900 mt-0.5">Relación de Cobranza Quincenal</h4>
+                        </div>
+                      </div>
+                      <button onClick={() => setShowRelacionModal(false)} className="text-slate-400 hover:text-slate-700 p-1 font-bold">
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* Datos Sucursal y Fechas de Corte */}
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs flex justify-between items-center">
+                      <div>
+                        <span className="text-[8px] font-bold text-slate-400 uppercase block">SUCURSAL OPERATIVA</span>
+                        <strong className="text-slate-900 font-extrabold text-[11px]">SALTILLO, COAHUILA</strong>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[8px] font-bold text-slate-400 uppercase block">CORTE: 08/NOV/26</span>
+                        <span className="text-[9px] font-black text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded-md">
+                          LÍMITE: 18/NOV/26
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Distribuidora */}
+                    <div className="p-2.5 bg-blue-50/60 rounded-xl border border-blue-200 flex justify-between items-center text-xs">
+                      <div>
+                        <span className="text-[8px] font-black uppercase text-blue-700 block">DISTRIBUIDORA ASIGNADA</span>
+                        <strong className="text-slate-900 text-xs block">CONCEPCIÓN MONTELONGO</strong>
+                        <span className="text-[8.5px] text-slate-500">Nivel PLATA • 16,125.00 LanaPuntos</span>
+                      </div>
+                      <span className="text-xs font-mono font-black text-blue-900">$10,460.00</span>
+                    </div>
+
+                    {/* Líneas de Crédito */}
+                    <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
+                      <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+                        <span className="text-[7.5px] font-bold text-slate-400 uppercase block">ValeLana</span>
+                        <strong className="text-[9.5px] text-emerald-700 font-mono">$26,843 disp.</strong>
+                      </div>
+                      <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+                        <span className="text-[7.5px] font-bold text-slate-400 uppercase block">LanaTienda</span>
+                        <strong className="text-[9.5px] text-emerald-700 font-mono">$17,500 disp.</strong>
+                      </div>
+                      <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+                        <span className="text-[7.5px] font-bold text-slate-400 uppercase block">Personal</span>
+                        <strong className="text-[9.5px] text-emerald-700 font-mono">$15,000 disp.</strong>
+                      </div>
+                    </div>
+
+                    {/* Tabla Oficial de Cartera */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9.5px] font-black uppercase text-[#162A60]">Restructura Cliente Final</span>
+                        <span className="text-[8.5px] text-slate-400">5 vales en corte</span>
+                      </div>
+                      <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table className="w-full text-left text-[9px] border-collapse whitespace-nowrap">
+                          <thead className="bg-slate-100 text-slate-600 font-black border-b border-slate-200">
+                            <tr>
+                              <th className="p-1.5 text-center">No Vale</th>
+                              <th className="p-1.5">Cliente</th>
+                              <th className="p-1.5 text-center">Plazo</th>
+                              <th className="p-1.5 text-right">Saldo</th>
+                              <th className="p-1.5 text-right font-black text-blue-800">Pago</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 font-mono">
+                            {[
+                              { nv: '88412', nom: 'José Efraín Vázquez', p: '2/16', s: 2167.10, pago: 162.98 },
+                              { nv: '88415', nom: 'Rosa Linda Mora', p: '2/16', s: 6020.76, pago: 452.80 },
+                              { nv: '88418', nom: 'María Elena Garza', p: '2/16', s: 4645.52, pago: 349.38 },
+                              { nv: '88420', nom: 'Carlos Alberto Dávila', p: '2/16', s: 3256.62, pago: 244.92 },
+                              { nv: '88425', nom: 'Sanjuana Castillo', p: '2/16', s: 5159.04, pago: 388.00 },
+                            ].map((row, i) => (
+                              <tr key={i} className="hover:bg-slate-50">
+                                <td className="p-1.5 text-center font-bold">{row.nv}</td>
+                                <td className="p-1.5 font-sans font-bold text-slate-900">{row.nom}</td>
+                                <td className="p-1.5 text-center">{row.p}</td>
+                                <td className="p-1.5 text-right">${row.s.toFixed(2)}</td>
+                                <td className="p-1.5 text-right font-black text-blue-700">${row.pago.toFixed(2)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Escala Oficial de Bonificaciones 30-15 */}
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                      <span className="text-[9.5px] font-black uppercase text-[#162A60] block mb-1">
+                        Bonificaciones por Pronto Pago (Escala 30-15)
+                      </span>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-[8.5px] border-collapse whitespace-nowrap">
+                          <thead className="bg-slate-200/80 font-black text-slate-700">
+                            <tr>
+                              <th className="p-1">Fecha</th>
+                              <th className="p-1 text-center">% Dcto</th>
+                              <th className="p-1 text-right">Neto a Pagar</th>
+                              <th className="p-1 text-right">Banorte/STP</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200 font-mono">
+                            {[
+                              { f: '14/11/26', d: '18%', n: '$4,682.00', b: '$4,682.00' },
+                              { f: '15/11/26', d: '18%', n: '$4,682.00', b: '$4,682.00' },
+                              { f: '16/11/26', d: '17%', n: '$4,716.00', b: '$4,716.00' },
+                              { f: '17/11/26', d: '16%', n: '$4,749.00', b: '$4,749.00' },
+                              { f: '18/11/26', d: '15%', n: '$4,783.00', b: '$4,783.00' },
+                            ].map((esc, i) => (
+                              <tr key={i}>
+                                <td className="p-1 font-bold">{esc.f}</td>
+                                <td className="p-1 text-center font-black text-emerald-700">{esc.d}</td>
+                                <td className="p-1 text-right font-black">{esc.n}</td>
+                                <td className="p-1 text-right text-blue-800 font-black">{esc.b}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Botón Descargar PDF Oficial */}
                     <button
                       onClick={() => {
-                        alert('Descargando Relación de Cobranza Quincena 22 en PDF...');
+                        alert('Descargando Relación de Cobranza Oficial de Concepción Montelongo DV 1004...');
                         setShowRelacionModal(false);
                       }}
-                      className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center justify-center gap-1.5 transition shadow-md active:scale-95 cursor-pointer"
+                      className="w-full py-2.5 rounded-xl bg-[#162A60] hover:bg-[#1E3A8A] text-white font-black text-xs flex items-center justify-center gap-1.5 transition shadow-md active:scale-95 cursor-pointer"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      <span>Descargar Relación PDF</span>
+                      <span>Descargar Relación de Cobranza PDF</span>
                     </button>
                   </div>
                 </div>
@@ -1170,8 +1503,9 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                       {/* Top Bar: Hamburger Menu & Profile CM */}
                       <div className="flex items-center justify-between pt-1">
                         <button
-                          onClick={() => alert('Menú Lateral LanApp Distribuidora')}
-                          className="w-9 h-9 rounded-xl bg-white text-[#162A60] flex items-center justify-center shadow-xs border border-slate-200/80 cursor-pointer"
+                          onClick={() => setShowDrawer(true)}
+                          className="w-9 h-9 rounded-xl bg-white text-[#162A60] flex items-center justify-center shadow-xs border border-slate-200/80 cursor-pointer hover:bg-slate-50 transition"
+                          title="Menú de Distribuidora"
                         >
                           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="4" y1="7" x2="20" y2="7"></line>
@@ -1207,21 +1541,27 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
 
                       {/* Horizontal Filter Pills */}
                       <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                        <button className="px-3.5 py-1.5 rounded-full bg-[#162A60] text-white text-[10px] font-black shadow-sm shrink-0">
+                        <button
+                          onClick={() => setDvStep(3)}
+                          className="px-3.5 py-1.5 rounded-full bg-[#162A60] text-white text-[10px] font-black shadow-sm shrink-0 hover:bg-[#1E3A8A] transition cursor-pointer"
+                        >
                           Mis Vales
                         </button>
-                        <button className="px-3.5 py-1.5 rounded-full bg-[#E8EDF5] text-slate-600 hover:text-slate-900 text-[10px] font-bold shrink-0">
+                        <button
+                          onClick={() => setShowLanaTiendaModal(true)}
+                          className="px-3.5 py-1.5 rounded-full bg-[#E8EDF5] text-slate-700 hover:text-[#162A60] hover:bg-slate-200 text-[10px] font-bold shrink-0 transition cursor-pointer"
+                        >
                           LanaTienda
                         </button>
                         <button
                           onClick={() => setShowRelacionModal(true)}
-                          className="px-3.5 py-1.5 rounded-full bg-[#E8EDF5] text-slate-600 hover:text-slate-900 text-[10px] font-bold shrink-0"
+                          className="px-3.5 py-1.5 rounded-full bg-[#E8EDF5] text-slate-700 hover:text-[#162A60] hover:bg-slate-200 text-[10px] font-bold shrink-0 transition cursor-pointer"
                         >
                           Cobranza
                         </button>
                         <button
                           onClick={() => setShowLanapuntosModal(true)}
-                          className="px-3.5 py-1.5 rounded-full bg-[#E8EDF5] text-slate-600 hover:text-slate-900 text-[10px] font-bold shrink-0"
+                          className="px-3.5 py-1.5 rounded-full bg-[#E8EDF5] text-slate-700 hover:text-[#162A60] hover:bg-slate-200 text-[10px] font-bold shrink-0 transition cursor-pointer"
                         >
                           Lanapuntos
                         </button>
@@ -1259,7 +1599,10 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                         </div>
 
                         {/* Card 2: LanaTienda Muebles */}
-                        <div className="min-w-[210px] p-3.5 rounded-[22px] bg-gradient-to-br from-[#1B2B5A] to-[#121E42] text-white shadow-md flex flex-col justify-between border border-white/10">
+                        <div
+                          onClick={() => setShowLanaTiendaModal(true)}
+                          className="min-w-[210px] p-3.5 rounded-[22px] bg-gradient-to-br from-[#1B2B5A] to-[#121E42] text-white shadow-md flex flex-col justify-between border border-white/10 cursor-pointer"
+                        >
                           <div className="flex items-center justify-between">
                             <span className="text-[8.5px] font-black uppercase text-sky-400 bg-white/10 px-2 py-0.5 rounded-lg tracking-wider">
                               COMERCIOS
@@ -1322,7 +1665,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                           </h4>
                           <button
                             onClick={() => setDvStep(3)}
-                            className="text-[10px] font-bold text-[#162A60] hover:underline"
+                            className="text-[10px] font-bold text-[#162A60] hover:underline cursor-pointer"
                           >
                             Ver todos (14) &gt;
                           </button>
@@ -1331,7 +1674,14 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                         <div className="space-y-2">
                           {/* Item 1 */}
                           <div
-                            onClick={() => setDvStep(3)}
+                            onClick={() => setSelectedValeAmortizacion({
+                              noVale: '88412',
+                              nombre: 'José Efraín Vázquez Sosa',
+                              plazo: '6 quincenas',
+                              valorVale: 1000.00,
+                              pagoCliente: 162.98,
+                              saldoCorriente: 2004.12,
+                            })}
                             className="bg-white rounded-2xl p-3 shadow-xs border border-slate-200/80 flex items-center justify-between cursor-pointer hover:border-slate-300 transition"
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
@@ -1343,7 +1693,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                                   José Efraín Vázquez Sosa
                                 </span>
                                 <span className="text-[9.5px] text-slate-500 block">
-                                  Vale #2 • 6 quincenas • 18 Nov
+                                  Vale #88412 • 6 quincenas • 18 Nov
                                 </span>
                               </div>
                             </div>
@@ -1355,7 +1705,14 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
 
                           {/* Item 2 */}
                           <div
-                            onClick={() => setDvStep(3)}
+                            onClick={() => setSelectedValeAmortizacion({
+                              noVale: '88415',
+                              nombre: 'Rosa Linda Mora Flores',
+                              plazo: '8 quincenas',
+                              valorVale: 3000.00,
+                              pagoCliente: 452.80,
+                              saldoCorriente: 6020.76,
+                            })}
                             className="bg-white rounded-2xl p-3 shadow-xs border border-slate-200/80 flex items-center justify-between cursor-pointer hover:border-slate-300 transition"
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
@@ -1367,7 +1724,7 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                                   Rosa Linda Mora Flores
                                 </span>
                                 <span className="text-[9.5px] text-slate-500 block">
-                                  Vale #1 • 8 quincenas • 15 Nov
+                                  Vale #88415 • 8 quincenas • 15 Nov
                                 </span>
                               </div>
                             </div>
@@ -1379,7 +1736,14 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
 
                           {/* Item 3 */}
                           <div
-                            onClick={() => setDvStep(3)}
+                            onClick={() => setSelectedValeAmortizacion({
+                              noVale: '88418',
+                              nombre: 'María Elena Garza Rivas',
+                              plazo: '4 quincenas',
+                              valorVale: 2000.00,
+                              pagoCliente: 349.38,
+                              saldoCorriente: 4645.52,
+                            })}
                             className="bg-white rounded-2xl p-3 shadow-xs border border-slate-200/80 flex items-center justify-between cursor-pointer hover:border-slate-300 transition"
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
@@ -1391,12 +1755,12 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                                   María Elena Garza Rivas
                                 </span>
                                 <span className="text-[9.5px] text-slate-500 block">
-                                  Vale #4 • 4 quincenas • 12 Nov
+                                  Vale #88418 • 4 quincenas • 12 Nov
                                 </span>
                               </div>
                             </div>
                             <div className="text-right shrink-0">
-                              <span className="text-xs font-black text-orange-600 block">+$2,500.00</span>
+                              <span className="text-xs font-black text-orange-600 block">+$2,000.00</span>
                               <span className="text-[8.5px] font-bold text-orange-600 block">Pendiente cobro</span>
                             </div>
                           </div>
