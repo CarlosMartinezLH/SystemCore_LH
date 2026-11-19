@@ -1165,249 +1165,239 @@ export default function LanAppView({ onNavigateToDispersion, fullScreenMobile = 
                       </div>
                     </div>
                   ) : dvStep === 2 ? (
-                    /* PASO 2: DASHBOARD FINTECH DISTRIBUIDORA (RÉPLICA EXACTA) */
-                    <div className="flex-1 flex flex-col pt-1 pb-2 px-3 space-y-2.5 overflow-y-auto no-scrollbar">
-                      {/* Top Bar / Profile Header LanAhora */}
+                    /* PASO 2: DASHBOARD FINTECH DISTRIBUIDORA (ESTILO MODERNO LIMPIO CON CAROUSEL NAVY) */
+                    <div className="flex-1 flex flex-col bg-[#F5F7FB] -mx-0 -mt-0 pt-2 pb-2 px-3 space-y-3 overflow-y-auto no-scrollbar text-slate-900">
+                      {/* Top Bar: Hamburger Menu & Profile CM */}
                       <div className="flex items-center justify-between pt-1">
-                        {/* Left: Avatar CM */}
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 text-[#0A1329] font-black text-sm flex items-center justify-center shadow-md shadow-amber-400/20 shrink-0 border border-yellow-200">
+                        <button
+                          onClick={() => alert('Menú Lateral LanApp Distribuidora')}
+                          className="w-9 h-9 rounded-xl bg-white text-[#162A60] flex items-center justify-center shadow-xs border border-slate-200/80 cursor-pointer"
+                        >
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="4" y1="7" x2="20" y2="7"></line>
+                            <line x1="4" y1="12" x2="14" y2="12"></line>
+                            <line x1="4" y1="17" x2="18" y2="17"></line>
+                          </svg>
+                        </button>
+
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-full bg-[#162A60]/10 text-[#162A60] text-[9px] font-black tracking-wider flex items-center gap-1 border border-[#162A60]/20">
+                            <Award className="w-2.5 h-2.5 text-amber-500" />
+                            PLATA 10%
+                          </span>
+                          <button
+                            onClick={() => setShowNotificationsCenter(true)}
+                            className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 text-[#162A60] font-black text-xs flex items-center justify-center shadow-sm shadow-amber-400/20 shrink-0 border-2 border-white cursor-pointer"
+                            title="Perfil y Notificaciones"
+                          >
                             CM
-                          </div>
-                          <div className="min-w-0">
-                            <h3 className="text-sm font-black text-white truncate leading-tight">
-                              Concepción Montelongo
-                            </h3>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className="text-[10px] text-white/60 font-semibold leading-tight">
-                                DV 1004 • Sucursal Saltillo
-                              </span>
-                              <span className="px-1.5 py-0.5 rounded-md bg-blue-900/80 border border-blue-400/40 text-[8.5px] font-black text-white tracking-wider">
-                                PLATA 10%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Right: Bell with notification dot */}
-                        <button
-                          onClick={() => setShowNotificationsCenter(true)}
-                          className="relative w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer shrink-0 border border-white/10"
-                          title="Notificaciones"
-                        >
-                          <Bell className="w-4 h-4 text-white" />
-                          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[#0A1329] animate-pulse" />
-                        </button>
-                      </div>
-
-                      {/* HERO BALANCE CARD (Línea Disponible ValeLana) */}
-                      <div className="relative p-4 rounded-[26px] bg-gradient-to-br from-[#162A60] via-[#111F42] to-[#0A1329] border border-amber-400/30 shadow-xl text-white overflow-hidden">
-                        {/* Top row: Header & Activa status */}
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <span className="text-[9.5px] font-bold text-amber-300 tracking-wider uppercase block">
-                              Línea Disponible ValeLana
-                            </span>
-                            <div className="text-3xl font-black text-white tracking-tight mt-1">
-                              $26,843.10
-                            </div>
-                            <span className="text-[10.5px] font-medium text-white/60 block mt-0.5">
-                              Línea total autorizada: $55,000.00 MXN
-                            </span>
-                          </div>
-
-                          <span className="bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 text-[8.5px] font-black px-2 py-0.5 rounded-full tracking-wider">
-                            ACTIVA
-                          </span>
-                        </div>
-
-                        {/* Credit line progress bar */}
-                        <div className="w-full bg-white/10 rounded-full h-1.5 mt-3 overflow-hidden">
-                          <div className="bg-gradient-to-r from-amber-400 to-yellow-300 h-full rounded-full" style={{ width: '48.8%' }} />
-                        </div>
-
-                        {/* Action Buttons: Prestar Vale & Pagar Saldo */}
-                        <div className="grid grid-cols-2 gap-2.5 mt-4">
-                          <button
-                            onClick={() => setDvStep(3)}
-                            className="bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 active:scale-95 text-[#0A1329] font-black text-xs py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 shadow-md shadow-amber-400/20 transition cursor-pointer"
-                          >
-                            <Send className="w-3.5 h-3.5 text-[#0A1329]" />
-                            <span>Prestar Vale</span>
-                          </button>
-                          <button
-                            onClick={() => setShowPaymentModal(true)}
-                            className="bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-xs py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 border border-white/20 transition cursor-pointer"
-                          >
-                            <Receipt className="w-3.5 h-3.5 text-amber-300" />
-                            <span>Pagar Saldo</span>
                           </button>
                         </div>
                       </div>
 
-                      {/* CORTE QUINCENAL & COMISIÓN ESTIMADA */}
-                      <div
-                        onClick={() => setShowRelacionModal(true)}
-                        className="rounded-[22px] bg-[#111E40] border border-white/10 p-3.5 shadow-md cursor-pointer hover:border-white/20 transition flex items-center justify-between"
-                      >
-                        <div>
-                          <span className="text-[9px] font-bold text-white/50 uppercase tracking-wider block">
-                            Próximo Corte: 24 Nov
-                          </span>
-                          <div className="text-base font-black text-white mt-0.5">
-                            $10,460.00
-                          </div>
-                          <span className="text-[9.5px] text-white/50 block">
-                            Saldo relación a liquidar
-                          </span>
-                        </div>
-                        <div className="bg-[#1B2F62] border border-emerald-400/30 rounded-xl px-3 py-2 text-right">
-                          <span className="text-[8.5px] font-bold text-white/70 block uppercase">
-                            Tu Comisión Estimada
-                          </span>
-                          <span className="text-sm font-black text-emerald-400 block">
-                            +$4,589.00
-                          </span>
-                          <span className="text-[8.5px] text-white/50 block">
-                            10% Nivel Plata
-                          </span>
-                        </div>
+                      {/* Greeting Header */}
+                      <div>
+                        <h3 className="text-xl font-black text-[#162A60] tracking-tight leading-tight">
+                          ¡Hola, Concepción!
+                        </h3>
+                        <p className="text-[10.5px] text-slate-500 font-medium">
+                          Distribuidora DV 1004 • Sucursal Saltillo
+                        </p>
                       </div>
 
-                      {/* 4 ACCESOS RÁPIDOS */}
-                      <div className="grid grid-cols-4 gap-2">
-                        <button
-                          onClick={() => setDvStep(3)}
-                          className="flex flex-col items-center justify-center p-2 rounded-2xl bg-[#132247] border border-white/10 hover:border-amber-400/40 transition cursor-pointer"
-                        >
-                          <div className="w-8 h-8 rounded-full bg-[#1C3163] text-amber-300 flex items-center justify-center mb-1">
-                            <Users className="w-4 h-4" />
-                          </div>
-                          <span className="text-[10px] font-bold text-white leading-tight">Clientes</span>
-                          <span className="text-[8px] text-white/50">14 activos</span>
+                      {/* Horizontal Filter Pills */}
+                      <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                        <button className="px-3.5 py-1.5 rounded-full bg-[#162A60] text-white text-[10px] font-black shadow-sm shrink-0">
+                          Mis Vales
                         </button>
-
+                        <button className="px-3.5 py-1.5 rounded-full bg-[#E8EDF5] text-slate-600 hover:text-slate-900 text-[10px] font-bold shrink-0">
+                          LanaTienda
+                        </button>
                         <button
                           onClick={() => setShowRelacionModal(true)}
-                          className="flex flex-col items-center justify-center p-2 rounded-2xl bg-[#132247] border border-white/10 hover:border-amber-400/40 transition cursor-pointer"
+                          className="px-3.5 py-1.5 rounded-full bg-[#E8EDF5] text-slate-600 hover:text-slate-900 text-[10px] font-bold shrink-0"
                         >
-                          <div className="w-8 h-8 rounded-full bg-[#1C3163] text-amber-300 flex items-center justify-center mb-1">
-                            <FileText className="w-4 h-4" />
-                          </div>
-                          <span className="text-[10px] font-bold text-white leading-tight">Relación</span>
-                          <span className="text-[8px] text-white/50">Descargar</span>
+                          Cobranza
                         </button>
-
                         <button
+                          onClick={() => setShowLanapuntosModal(true)}
+                          className="px-3.5 py-1.5 rounded-full bg-[#E8EDF5] text-slate-600 hover:text-slate-900 text-[10px] font-bold shrink-0"
+                        >
+                          Lanapuntos
+                        </button>
+                      </div>
+
+                      {/* HORIZONTAL NAVY CAROUSEL CARDS */}
+                      <div className="flex gap-2.5 overflow-x-auto no-scrollbar py-1 -mx-1 px-1">
+                        {/* Card 1: Línea ValeLana */}
+                        <div
                           onClick={() => setDvStep(3)}
-                          className="flex flex-col items-center justify-center p-2 rounded-2xl bg-[#132247] border border-white/10 hover:border-amber-400/40 transition cursor-pointer"
+                          className="min-w-[210px] p-3.5 rounded-[22px] bg-gradient-to-br from-[#162A60] via-[#1A3375] to-[#223E8C] text-white shadow-md shadow-[#162A60]/20 flex flex-col justify-between cursor-pointer border border-white/10"
                         >
-                          <div className="w-8 h-8 rounded-full bg-[#1C3163] text-amber-300 flex items-center justify-center mb-1">
-                            <Receipt className="w-4 h-4" />
+                          <div className="flex items-center justify-between">
+                            <span className="text-[8.5px] font-black uppercase text-amber-300 bg-white/10 px-2 py-0.5 rounded-lg tracking-wider">
+                              LÍNEA DE CRÉDITO
+                            </span>
+                            <DollarSign className="w-3.5 h-3.5 text-amber-300" />
                           </div>
-                          <span className="text-[10px] font-bold text-white leading-tight">Valera</span>
-                          <span className="text-[8px] text-white/50">86 folios</span>
-                        </button>
 
-                        <button
-                          onClick={() => setShowSupportModal(true)}
-                          className="flex flex-col items-center justify-center p-2 rounded-2xl bg-[#132247] border border-white/10 hover:border-amber-400/40 transition cursor-pointer"
+                          <div className="my-2.5">
+                            <span className="text-[10px] text-white/70 font-semibold block">Línea ValeLana</span>
+                            <div className="text-xl font-black text-white tracking-tight leading-tight">$26,843.10</div>
+                            <span className="text-[8.5px] text-white/60 block mt-0.5">Disp. de $55,000 autorizados</span>
+                          </div>
+
+                          <div>
+                            <div className="flex justify-between text-[8px] text-white/70 mb-1">
+                              <span>Disponible</span>
+                              <strong className="text-white">48.8% libre</strong>
+                            </div>
+                            <div className="w-full bg-white/15 rounded-full h-1 overflow-hidden">
+                              <div className="bg-gradient-to-r from-amber-400 to-yellow-300 h-full rounded-full" style={{ width: '48.8%' }} />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Card 2: LanaTienda Muebles */}
+                        <div className="min-w-[210px] p-3.5 rounded-[22px] bg-gradient-to-br from-[#1B2B5A] to-[#121E42] text-white shadow-md flex flex-col justify-between border border-white/10">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[8.5px] font-black uppercase text-sky-400 bg-white/10 px-2 py-0.5 rounded-lg tracking-wider">
+                              COMERCIOS
+                            </span>
+                            <Building2 className="w-3.5 h-3.5 text-sky-400" />
+                          </div>
+
+                          <div className="my-2.5">
+                            <span className="text-[10px] text-white/70 font-semibold block">LanaTienda Muebles</span>
+                            <div className="text-xl font-black text-white tracking-tight leading-tight">$17,500.00</div>
+                            <span className="text-[8.5px] text-white/60 block mt-0.5">Línea 100% disponible</span>
+                          </div>
+
+                          <div>
+                            <div className="flex justify-between text-[8px] text-white/70 mb-1">
+                              <span>Disponible</span>
+                              <strong className="text-white">100% libre</strong>
+                            </div>
+                            <div className="w-full bg-white/15 rounded-full h-1 overflow-hidden">
+                              <div className="bg-sky-400 h-full rounded-full" style={{ width: '100%' }} />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Card 3: Próximo Corte Quincenal */}
+                        <div
+                          onClick={() => setShowRelacionModal(true)}
+                          className="min-w-[210px] p-3.5 rounded-[22px] bg-gradient-to-br from-[#1E2958] to-[#162045] text-white shadow-md flex flex-col justify-between cursor-pointer border border-white/10"
                         >
-                          <div className="w-8 h-8 rounded-full bg-[#1C3163] text-amber-300 flex items-center justify-center mb-1">
-                            <Gift className="w-4 h-4" />
-                          </div>
-                          <span className="text-[10px] font-bold text-white leading-tight">Lanapuntos</span>
-                          <span className="text-[8px] text-white/50">$300 pesos</span>
-                        </button>
-                      </div>
-
-                      {/* LÍNEAS DE NEGOCIO LANAHORA (REEMPLAZO DE "2 TARJETAS") */}
-                      <div className="space-y-1.5">
-                        <span className="text-xs font-black text-white tracking-wide block">
-                          Líneas de Negocio LanAhora
-                        </span>
-                        <div className="grid grid-cols-2 gap-2.5">
-                          {/* ValeLana Dinero */}
-                          <div className="rounded-[20px] bg-gradient-to-br from-[#132247] to-[#182C5E] p-3 border border-white/10 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                              <DollarSign className="w-4 h-4 text-amber-300" />
-                              <span className="text-[9px] font-black text-amber-300 tracking-wider uppercase">
-                                VALE LANA
-                              </span>
-                            </div>
-                            <div className="mt-3">
-                              <span className="text-sm font-black text-white block">
-                                $26,843.10
-                              </span>
-                              <span className="text-[9.5px] text-white/50 font-medium block">
-                                Disp. de $55,000
-                              </span>
-                            </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[8.5px] font-black uppercase text-emerald-400 bg-white/10 px-2 py-0.5 rounded-lg tracking-wider">
+                              CORTE 24 NOV
+                            </span>
+                            <Calendar className="w-3.5 h-3.5 text-emerald-400" />
                           </div>
 
-                          {/* LanaTienda */}
-                          <div className="rounded-[20px] bg-gradient-to-br from-[#132247] to-[#182C5E] p-3 border border-white/10 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                              <Building2 className="w-4 h-4 text-sky-400" />
-                              <span className="text-[9px] font-black text-sky-400 tracking-wider uppercase">
-                                LANATIENDA
-                              </span>
+                          <div className="my-2.5">
+                            <span className="text-[10px] text-white/70 font-semibold block">Cobranza Relación</span>
+                            <div className="text-xl font-black text-white tracking-tight leading-tight">$10,460.00</div>
+                            <span className="text-[8.5px] text-emerald-400 font-bold block mt-0.5">Comisión: +$4,589.00 (10%)</span>
+                          </div>
+
+                          <div>
+                            <div className="flex justify-between text-[8px] text-white/70 mb-1">
+                              <span>Cobrado</span>
+                              <strong className="text-white">72% recaudado</strong>
                             </div>
-                            <div className="mt-3">
-                              <span className="text-sm font-black text-white block">
-                                $17,500.00
-                              </span>
-                              <span className="text-[9.5px] text-white/50 font-medium block">
-                                Línea 100% libre
-                              </span>
+                            <div className="w-full bg-white/15 rounded-full h-1 overflow-hidden">
+                              <div className="bg-emerald-400 h-full rounded-full" style={{ width: '72%' }} />
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* ÚLTIMOS VALES EMITIDOS */}
-                      <div className="rounded-[22px] bg-[#101B39] border border-white/10 p-3.5 space-y-2.5">
-                        <div className="flex items-center justify-between">
-                          <h5 className="text-xs font-black text-white leading-tight">
-                            Últimos Vales Emitidos
-                          </h5>
-                          <div className="px-2 py-0.5 rounded-full bg-white/10 text-white text-[9.5px] font-bold flex items-center gap-1">
-                            <Calendar className="w-2.5 h-2.5 text-white/70" />
-                            <span>Noviembre</span>
-                          </div>
+                      {/* SECCIÓN SEGUIMIENTO DE VALES (WHITE CARDS CON ICONOS NAVY) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-xs font-black text-[#162A60] tracking-wide">
+                            Seguimiento de Vales
+                          </h4>
+                          <button
+                            onClick={() => setDvStep(3)}
+                            className="text-[10px] font-bold text-[#162A60] hover:underline"
+                          >
+                            Ver todos (14) &gt;
+                          </button>
                         </div>
 
-                        <div className="space-y-2 divide-y divide-white/5">
-                          <div className="flex items-center justify-between pt-1">
-                            <div>
-                              <span className="text-[11px] font-bold text-white block">José Efraín Vázquez</span>
-                              <span className="text-[9px] text-white/50 block">Vale #2 • 6 quincenas</span>
+                        <div className="space-y-2">
+                          {/* Item 1 */}
+                          <div
+                            onClick={() => setDvStep(3)}
+                            className="bg-white rounded-2xl p-3 shadow-xs border border-slate-200/80 flex items-center justify-between cursor-pointer hover:border-slate-300 transition"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-10 h-10 rounded-xl bg-[#162A60] text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+                                <Receipt className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <span className="text-[11.5px] font-black text-[#162A60] truncate block">
+                                  José Efraín Vázquez Sosa
+                                </span>
+                                <span className="text-[9.5px] text-slate-500 block">
+                                  Vale #2 • 6 quincenas • 18 Nov
+                                </span>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-xs font-black text-emerald-400 block">+$1,000.00</span>
-                              <span className="text-[8.5px] text-white/50 block">Canjeado SPEI</span>
+                            <div className="text-right shrink-0">
+                              <span className="text-xs font-black text-emerald-600 block">+$1,000.00</span>
+                              <span className="text-[8.5px] font-bold text-emerald-600 block">Canjeado SPEI</span>
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between pt-2">
-                            <div>
-                              <span className="text-[11px] font-bold text-white block">Rosa Linda Mora</span>
-                              <span className="text-[9px] text-white/50 block">Vale #1 • 8 quincenas</span>
+                          {/* Item 2 */}
+                          <div
+                            onClick={() => setDvStep(3)}
+                            className="bg-white rounded-2xl p-3 shadow-xs border border-slate-200/80 flex items-center justify-between cursor-pointer hover:border-slate-300 transition"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-10 h-10 rounded-xl bg-[#162A60] text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+                                <Receipt className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <span className="text-[11.5px] font-black text-[#162A60] truncate block">
+                                  Rosa Linda Mora Flores
+                                </span>
+                                <span className="text-[9.5px] text-slate-500 block">
+                                  Vale #1 • 8 quincenas • 15 Nov
+                                </span>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-xs font-black text-emerald-400 block">+$3,000.00</span>
-                              <span className="text-[8.5px] text-white/50 block">Cobro puntual</span>
+                            <div className="text-right shrink-0">
+                              <span className="text-xs font-black text-emerald-600 block">+$3,000.00</span>
+                              <span className="text-[8.5px] font-bold text-emerald-600 block">Cobro puntual</span>
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between pt-2">
-                            <div>
-                              <span className="text-[11px] font-bold text-white block">Abono Relación Banorte</span>
-                              <span className="text-[9px] text-white/50 block">Referencia 9601004</span>
+                          {/* Item 3 */}
+                          <div
+                            onClick={() => setDvStep(3)}
+                            className="bg-white rounded-2xl p-3 shadow-xs border border-slate-200/80 flex items-center justify-between cursor-pointer hover:border-slate-300 transition"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-10 h-10 rounded-xl bg-[#162A60] text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+                                <Receipt className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <span className="text-[11.5px] font-black text-[#162A60] truncate block">
+                                  María Elena Garza Rivas
+                                </span>
+                                <span className="text-[9.5px] text-slate-500 block">
+                                  Vale #4 • 4 quincenas • 12 Nov
+                                </span>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-xs font-black text-emerald-400 block">+$2,500.00</span>
-                              <span className="text-[8.5px] text-white/50 block">Aplicado</span>
+                            <div className="text-right shrink-0">
+                              <span className="text-xs font-black text-orange-600 block">+$2,500.00</span>
+                              <span className="text-[8.5px] font-bold text-orange-600 block">Pendiente cobro</span>
                             </div>
                           </div>
                         </div>
