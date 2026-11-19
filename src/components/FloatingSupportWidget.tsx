@@ -279,49 +279,56 @@ export default function FloatingSupportWidget({ currentUser }: FloatingSupportWi
       {/* BOTÓN FLOTANTE TRIGGER (CUANDO ESTÁ CERRADO O MINIMIZADO) */}
       {/* ======================================================== */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-[130] flex flex-col items-end">
+        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end">
           <button
             type="button"
             onClick={() => {
               setIsOpen(true);
               setIsMinimized(false);
             }}
-            className="group relative flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#162A60] to-[#1E3A8A] text-white rounded-full shadow-2xl hover:shadow-blue-900/40 hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20 cursor-pointer"
+            style={{
+              backgroundColor: '#162A60',
+              background: 'linear-gradient(135deg, #162A60 0%, #1E3A8A 100%)',
+              boxShadow: '0 14px 38px -4px rgba(15, 23, 42, 0.55), 0 8px 16px -2px rgba(15, 23, 42, 0.35)',
+            }}
+            className="group relative flex items-center gap-3.5 px-5 py-3.5 text-white rounded-full hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-amber-400/40 cursor-pointer"
             title="Abrir Chat de Soporte & Mesa de Ayuda"
           >
             {/* Indicador de Estado En Línea */}
             <div className="relative">
-              <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-amber-400">
-                <Headphones className="w-5 h-5 text-amber-400 group-hover:rotate-12 transition-transform duration-200" />
+              <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center text-amber-300 shadow-inner">
+                <Headphones className="w-5 h-5 text-amber-300 group-hover:rotate-12 transition-transform duration-200" />
               </div>
               <span
-                className={`absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#162A60] ${
-                  isAgentOnline ? 'bg-emerald-500' : 'bg-slate-400'
-                }`}
+                style={{ backgroundColor: isAgentOnline ? '#10B981' : '#94A3B8' }}
+                className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-[#162A60] shadow-sm flex items-center justify-center"
               >
                 {isAgentOnline && (
-                  <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
+                  <span className="w-full h-full rounded-full bg-emerald-400 animate-ping opacity-75" />
                 )}
               </span>
             </div>
 
             <div className="flex flex-col text-left pr-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black tracking-wide text-white">Soporte en Vivo</span>
+                <span className="text-[13px] font-black tracking-wide text-white drop-shadow-xs">
+                  Soporte en Vivo
+                </span>
                 {totalUnread > 0 && (
-                  <span className="bg-amber-400 text-blue-950 text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                  <span className="bg-amber-400 text-slate-950 text-[10.5px] font-black px-2 py-0.5 rounded-full shadow-sm">
                     {totalUnread}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] text-blue-200 font-semibold flex items-center gap-1">
+              <div className="flex items-center gap-1.5 mt-0.5">
                 <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    isAgentOnline ? 'bg-emerald-400' : 'bg-slate-400'
-                  }`}
+                  style={{ backgroundColor: isAgentOnline ? '#34D399' : '#94A3B8' }}
+                  className="w-2 h-2 rounded-full"
                 />
-                {isAgentOnline ? 'Estoy en línea' : 'Modo ausente'}
-              </span>
+                <span className="text-[11px] text-amber-200/90 font-bold">
+                  {isAgentOnline ? 'Estoy en línea' : 'Modo ausente'}
+                </span>
+              </div>
             </div>
           </button>
         </div>
@@ -332,12 +339,22 @@ export default function FloatingSupportWidget({ currentUser }: FloatingSupportWi
       {/* ======================================================== */}
       {isOpen && (
         <div
-          className={`fixed bottom-6 right-6 z-[130] w-[420px] sm:w-[460px] ${
+          style={{
+            backgroundColor: '#ffffff',
+            boxShadow: '0 25px 65px -12px rgba(15, 23, 42, 0.5), 0 0 0 1px rgba(15, 23, 42, 0.12)',
+          }}
+          className={`fixed bottom-6 right-6 z-[9999] w-[420px] sm:w-[460px] ${
             isMinimized ? 'h-[62px]' : 'h-[650px] max-h-[88vh]'
-          } max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-200 animate-in fade-in slide-in-from-bottom-5`}
+          } max-w-[95vw] rounded-2xl border-2 border-slate-300 flex flex-col overflow-hidden transition-all duration-200 animate-in fade-in slide-in-from-bottom-5`}
         >
           {/* HEADER PRINCIPAL DE LA VENTANA FLOTANTE */}
-          <div className="bg-gradient-to-r from-[#162A60] via-[#1A3275] to-[#1E3A8A] text-white p-3.5 flex items-center justify-between shrink-0 shadow-sm">
+          <div
+            style={{
+              backgroundColor: '#162A60',
+              background: 'linear-gradient(135deg, #162A60 0%, #1A3275 50%, #1E3A8A 100%)',
+            }}
+            className="text-white p-3.5 flex items-center justify-between shrink-0 shadow-sm border-b border-blue-900"
+          >
             <div className="flex items-center gap-2.5">
               <div className="relative">
                 <div className="w-8 h-8 rounded-xl bg-amber-400/20 border border-amber-300/30 flex items-center justify-center text-amber-300">
@@ -522,10 +539,15 @@ export default function FloatingSupportWidget({ currentUser }: FloatingSupportWi
                           </div>
 
                           <div
+                            style={
+                              isSupport
+                                ? { backgroundColor: '#1E3A8A', color: '#ffffff' }
+                                : { backgroundColor: '#ffffff' }
+                            }
                             className={`max-w-[85%] rounded-2xl p-2.5 text-xs shadow-xs leading-relaxed ${
                               isSupport
-                                ? 'bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-tr-xs'
-                                : 'bg-white text-slate-800 border border-slate-200 rounded-tl-xs'
+                                ? 'text-white rounded-tr-xs'
+                                : 'text-slate-800 border border-slate-200 rounded-tl-xs'
                             }`}
                           >
                             <p>{msg.text}</p>
